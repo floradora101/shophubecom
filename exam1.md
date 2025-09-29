@@ -4,6 +4,7 @@
 
 **Timeline:** 1 Week  
 **Tech Stack:**
+
 - Frontend: Next.js 14
 - Backend: NestJS
 - Database: PostgreSQL + Prisma
@@ -13,7 +14,7 @@
 
 ---
 
-## 📦 Task 1: Setup & Basic Database
+## 📦 Task 1: Setup & Basic Database - System design + important to check folder structure
 
 ### What to build:
 
@@ -28,13 +29,15 @@ Get your development environment running with Docker, create a simple database, 
 Connect them with foreign keys. Add 5 sample cars and 1 test user to your database.
 
 ### You need to:
+
 - Create docker-compose.yml with PostgreSQL
 - Initialize NestJS backend project
 - Initialize Next.js frontend project
 - Set up Prisma and create your schema
 - Run migrations and seed some data
 
-### Success: 
+### Success:
+
 Everything runs without errors. You can see your data in the database.
 
 ---
@@ -46,23 +49,29 @@ Everything runs without errors. You can see your data in the database.
 Create an API endpoint that returns all cars, and a frontend page that displays them.
 
 ### Backend:
+
 - Make a GET endpoint: `/cars`
 - It should return all cars from the database
 - Enable CORS so frontend can call it
+- Pagination
+- CRUD operations (create, update, delete) - optional
 
 ### Frontend:
-- Create a page at `/cars` 
+
+- Create a page at `/cars`
 - Fetch cars from your backend API
 - Display them in a grid with: image, name, price, category
 - Make it look decent with Tailwind CSS
 
 ### You need to:
+
 - Create a Cars module in NestJS
 - Use Prisma to query the database
 - Fetch data in Next.js and display it
 - Handle loading states
 
-### Success: 
+### Success:
+
 You can open the cars page and see all your cars listed.
 
 ---
@@ -74,30 +83,34 @@ You can open the cars page and see all your cars listed.
 Basic login functionality where users can log in and get a JWT token.
 
 ### Backend:
+
 - Create POST `/auth/login` endpoint
 - Check if email and password match a user in database
 - Return a JWT token if correct
 - Hash passwords with bcrypt
 
 ### Frontend:
+
 - Create a login page with email and password fields
 - Send credentials to backend
 - Store the JWT token in localStorage
 - Redirect to cars page after successful login
 
 ### You need to:
+
 - Install JWT packages in NestJS
 - Create Auth module
 - Hash passwords (use bcrypt)
 - Create a login form in Next.js
 - Handle form submission
 
-### Success: 
+### Success:
+
 You can log in with test user credentials and get redirected to the cars page.
 
 ---
 
-## 📦 Task 4: Smart Booking System with Dynamic Pricing & Conflict Prevention
+## 📦 Task 4: Smart Booking System with Dynamic Pricing & Conflict Prevention - Critical thinking
 
 ### What to build:
 
@@ -106,7 +119,9 @@ A sophisticated booking system where prices change based on demand and booking p
 ### The Challenge:
 
 This car rental system uses dynamic pricing. The price per day changes based on:
+
 1. **Booking duration:** Longer bookings get discounts
+
    - 1-2 days: full price
    - 3-6 days: 10% discount
    - 7+ days: 20% discount
@@ -121,12 +136,14 @@ This car rental system uses dynamic pricing. The price per day changes based on:
 
 Create POST `/bookings` endpoint that:
 
-1. **Checks availability:** 
+1. **Checks availability:**
+
    - Query existing bookings for that car
    - Detect if requested dates overlap with any existing booking
    - Return error if overlap detected
 
 2. **Calculates dynamic price:**
+
    - Count how many days are weekdays vs weekend days
    - Apply weekend pricing (30% more) to weekend days
    - Apply duration discount based on total days
@@ -141,6 +158,7 @@ Create POST `/bookings` endpoint that:
 ### Frontend Requirements:
 
 Create a booking page with:
+
 - Date range picker (pickup and return dates)
 - **Real-time price calculator** that shows:
   - Number of weekdays and weekend days selected
@@ -169,8 +187,8 @@ You need to solve THREE hard problems:
 ### Example Calculation:
 
 ```
-Car base price: $100/day  
-Booking: Thursday to Tuesday (6 days total)  
+Car base price: $100/day
+Booking: Thursday to Tuesday (6 days total)
 - Thursday, Monday, Tuesday = 3 weekdays = $100 × 3 = $300
 - Friday, Saturday, Sunday = 3 weekend days = $100 × 1.3 × 3 = $390
 - Subtotal = $690
@@ -180,6 +198,7 @@ Booking: Thursday to Tuesday (6 days total)
 ```
 
 ### You need to figure out:
+
 - How to detect date range overlaps
 - How to iterate through dates and identify day of week
 - How to structure the pricing calculation logic
@@ -187,7 +206,8 @@ Booking: Thursday to Tuesday (6 days total)
 - How to handle date math (days between dates, day of week)
 - How to make frontend update price in real-time as dates change
 
-### Success means: 
+### Success means:
+
 - System correctly prevents double bookings
 - Prices calculate accurately with all rules applied
 - Weekend days count correctly
@@ -202,12 +222,14 @@ Booking: Thursday to Tuesday (6 days total)
 ### By end of week:
 
 1. **GitHub Repository** with:
+
    - Backend code (NestJS)
    - Frontend code (Next.js)
    - Docker Compose file
    - README with setup instructions
 
 2. **Working Application** that can:
+
    - Show a list of cars
    - Let users log in
    - Create bookings with date selection
@@ -223,12 +245,15 @@ Booking: Thursday to Tuesday (6 days total)
 ## 🎤 Presentation (30 Minutes)
 
 ### Show me:
+
 1. **Your application running (10 min)**
+
    - Browse cars
    - Log in
    - Make a booking with price breakdown
 
 2. **Your code (15 min)**
+
    - Database schema
    - How login works
    - How booking creation works
@@ -242,6 +267,7 @@ Booking: Thursday to Tuesday (6 days total)
    - What you learned
 
 ### I'll ask:
+
 - "How does your date overlap detection work?"
 - "Show me how you count weekend vs weekday days"
 - "Walk me through the dynamic pricing calculation"
@@ -252,12 +278,14 @@ Booking: Thursday to Tuesday (6 days total)
 ## 💡 Important Notes
 
 ### Keep it simple:
+
 - No need for registration (just use login with seeded user)
 - No need for admin features (just customer side)
 - Simple and clean UI is enough
 - Focus on functionality over design
 
 ### Focus on:
+
 - Getting things to work
 - Understanding what you write
 - Solving the complex pricing logic
@@ -265,6 +293,7 @@ Booking: Thursday to Tuesday (6 days total)
 - Database relationships
 
 ### You can:
+
 - Use Google and documentation freely
 - Ask AI tools for help understanding concepts
 - Use placeholder images for cars
@@ -272,6 +301,7 @@ Booking: Thursday to Tuesday (6 days total)
 - Break the complex task into smaller pieces
 
 ### Time estimate:
+
 - Day 1: Setup everything (Task 1)
 - Day 2: Display cars and login (Task 2-3)
 - Day 3-4: Basic booking without pricing logic
@@ -283,6 +313,7 @@ Booking: Thursday to Tuesday (6 days total)
 ## 🎯 What I'm Looking For
 
 I want to see if you can:
+
 - Set up a full-stack project from scratch
 - Create basic API endpoints
 - Connect to a database
