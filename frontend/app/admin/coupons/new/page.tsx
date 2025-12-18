@@ -3,6 +3,7 @@
 
 import { useRouter } from "next/navigation";
 import { adminApi } from "@/lib/data/mockAdmin";
+import { PromotionForm } from "@/components/admin/promotions/PromotionForm";
 import type { PromotionFormData } from "@/lib/validations/promotion.schemas";
 
 export default function NewPromotionPage() {
@@ -10,7 +11,21 @@ export default function NewPromotionPage() {
 
   const handleSave = async (data: PromotionFormData) => {
     try {
-      await adminApi.createPromotion(data);
+      // Filter out undefined values from arrays to match Promotion type
+      const cleanedData = {
+        ...data,
+        applicableProductIds: data.applicableProductIds
+          ? data.applicableProductIds.filter(
+              (id): id is string => id !== undefined
+            )
+          : undefined,
+        applicableCategoryIds: data.applicableCategoryIds
+          ? data.applicableCategoryIds.filter(
+              (id): id is string => id !== undefined
+            )
+          : undefined,
+      };
+      await adminApi.createPromotion(cleanedData);
       router.push("/admin/coupons");
     } catch (error) {
       console.error("Failed to create promotion:", error);

@@ -41,7 +41,21 @@ export default function EditPromotionPage() {
 
   const handleSave = async (data: PromotionFormData) => {
     try {
-      await adminApi.updatePromotion(promotionId, data);
+      // Filter out undefined values from arrays to match Promotion type
+      const cleanedData = {
+        ...data,
+        applicableProductIds: data.applicableProductIds
+          ? data.applicableProductIds.filter(
+              (id): id is string => id !== undefined
+            )
+          : undefined,
+        applicableCategoryIds: data.applicableCategoryIds
+          ? data.applicableCategoryIds.filter(
+              (id): id is string => id !== undefined
+            )
+          : undefined,
+      };
+      await adminApi.updatePromotion(promotionId, cleanedData);
       router.push("/admin/promotions");
     } catch (error) {
       console.error("Failed to update promotion:", error);
