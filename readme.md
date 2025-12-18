@@ -323,9 +323,9 @@ Ahmad (your client) has provided his requirements above. As a professional full-
 
 **File Upload:**
 
-- Cloudinary
-- AWS S3
-- uploadthing
+   - Cloudinary
+   - AWS S3
+   - uploadthing
 
 ---
 
