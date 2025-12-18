@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useShallow } from "zustand/react/shallow";
@@ -33,7 +33,7 @@ interface AuthProviderProps {
  * - Clean separation: Axios emits events, AuthProvider handles UI
  * - Centralized cart invalidation: ONLY place that invalidates cart on auth changes
  */
-export function AuthProvider({ children }: AuthProviderProps) {
+function AuthProviderContent({ children }: AuthProviderProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -116,4 +116,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [clearAuth, pathname, searchParams, router]);
 
   return <>{children}</>;
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
+  return (
+    <Suspense fallback={<>{children}</>}>
+      <AuthProviderContent>{children}</AuthProviderContent>
+    </Suspense>
+  );
 }

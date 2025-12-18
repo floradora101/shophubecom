@@ -34,7 +34,7 @@ export function PromotionForm({ promotion, onSave }: PromotionFormProps) {
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<PromotionFormData>({
-    resolver: yupResolver(promotionSchema),
+    resolver: yupResolver(promotionSchema) as any,
     defaultValues: promotion
       ? {
           name: promotion.name,

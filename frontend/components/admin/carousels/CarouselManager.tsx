@@ -4,6 +4,7 @@
 import { useState, useEffect } from "react";
 import { Plus, GripVertical, Edit, Trash2, Eye, EyeOff, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { CarouselTypeSelector } from "./CarouselTypeSelector";
 import { CarouselSlideForm } from "./CarouselSlideForm";
 import { adminApi } from "@/lib/data/mockAdmin";

@@ -1,11 +1,12 @@
 // Login page route for signing users in.
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { LoginForm } from "../../../components/forms/LoginForm";
 
-export default function LoginPage() {
+function LoginContent() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect");
 
@@ -44,5 +45,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="space-y-8">Loading...</div>}>
+      <LoginContent />
+    </Suspense>
   );
 }

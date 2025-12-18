@@ -40,9 +40,9 @@ export function AddressForm({
           name: address.name,
           street: address.street,
           city: address.city,
-          state: address.state,
-          zipCode: address.zipCode || undefined,
-          phone: address.phone,
+          state: address.state ?? undefined,
+          zipCode: address.zipCode ?? undefined,
+          phone: address.phone ?? undefined,
           isDefault: address.isDefault,
         }
       : {

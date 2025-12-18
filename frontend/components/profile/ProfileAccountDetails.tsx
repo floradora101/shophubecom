@@ -32,7 +32,7 @@ export function ProfileAccountDetails() {
     formState: { errors },
     reset,
   } = useForm<UpdateProfileData>({
-    resolver: yupResolver(updateProfileSchema),
+    resolver: yupResolver(updateProfileSchema) as any,
     defaultValues: {
       firstName: user?.firstName || "",
       lastName: user?.lastName || "",
@@ -103,7 +103,7 @@ export function ProfileAccountDetails() {
     formState: { errors: passwordErrors },
     reset: resetPassword,
   } = useForm<ChangePasswordData>({
-    resolver: yupResolver(changePasswordSchema),
+    resolver: yupResolver(changePasswordSchema) as any,
     defaultValues: {
       currentPassword: "",
       newPassword: "",

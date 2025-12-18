@@ -142,6 +142,8 @@ export function filtersToApiParams(
   } = {
     page: filters.page,
     limit: 20,
+    sortBy: "createdAt" as const,
+    sortOrder: "desc" as const,
   };
 
   if (filters.category) {

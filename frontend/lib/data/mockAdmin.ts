@@ -691,8 +691,8 @@ export const adminApi = {
       const variantStockSum = getVariantStockSum(convertedVariants);
 
       const images =
-        Array.isArray(p.images) && p.images.length > 0
-          ? p.images.map((img, idx) =>
+        Array.isArray((p as any).images) && (p as any).images.length > 0
+          ? (p as any).images.map((img: any, idx: number) =>
               typeof img === "string"
                 ? { url: img, alt: p.name, position: idx }
                 : img

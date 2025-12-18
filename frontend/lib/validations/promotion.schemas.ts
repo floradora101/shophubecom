@@ -6,7 +6,7 @@ export const promotionSchema = yup.object({
     .min(3, "Name must be at least 3 characters")
     .max(255, "Name must be less than 255 characters")
     .required("Name is required"),
-  description: yup.string().optional(),
+  description: yup.string().notRequired(),
   type: yup
     .string()
     .oneOf(["PERCENTAGE", "FIXED_AMOUNT"], "Invalid discount type")
@@ -15,10 +15,10 @@ export const promotionSchema = yup.object({
     .number()
     .positive("Discount value must be positive")
     .required("Discount value is required"),
-  startsAt: yup.string().optional(),
+  startsAt: yup.string().notRequired(),
   expiresAt: yup
     .string()
-    .optional()
+    .notRequired()
     .test(
       "end-after-start",
       "Expiry must be after start date",
@@ -29,9 +29,20 @@ export const promotionSchema = yup.object({
       }
     ),
   isActive: yup.boolean().default(true),
-  applicableProductIds: yup.array().of(yup.string()).optional(),
-  applicableCategoryIds: yup.array().of(yup.string()).optional(),
+  applicableProductIds: yup.array().of(yup.string()).notRequired(),
+  applicableCategoryIds: yup.array().of(yup.string()).notRequired(),
   applyToSubcategories: yup.boolean().default(true),
 });
 
-export type PromotionFormData = yup.InferType<typeof promotionSchema>;
+export type PromotionFormData = {
+  name: string;
+  description?: string;
+  type: "PERCENTAGE" | "FIXED_AMOUNT";
+  value: number;
+  startsAt?: string;
+  expiresAt?: string;
+  isActive: boolean;
+  applicableProductIds?: string[];
+  applicableCategoryIds?: string[];
+  applyToSubcategories: boolean;
+};

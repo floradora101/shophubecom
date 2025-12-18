@@ -1,7 +1,7 @@
 // Site header with navigation and actions.
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ShoppingCart, User, Search } from "lucide-react";
@@ -13,21 +13,9 @@ import { useCart } from "@/lib/hooks/use-cart";
 import { CartSidebar } from "../cart/CartSidebar";
 import { AuthModal } from "../auth/AuthModal";
 
-export function Header() {
+function SearchBar() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { user, logout } = useAuthStore(
-    useShallow((state) => ({
-      // subscribe only to what Header renders
-      user: state.user,
-      logout: state.logout,
-    }))
-  );
-  const userFirstName = user?.firstName;
-  const isAuthenticated = !!user;
-  const { totalItems: cartCount, toggleCart } = useCart();
-
-  // Get search from URL to keep it in sync
   const urlSearch = searchParams.get("search") || "";
   const [searchQuery, setSearchQuery] = useState(urlSearch);
 
@@ -35,11 +23,6 @@ export function Header() {
   useEffect(() => {
     setSearchQuery(urlSearch);
   }, [urlSearch]);
-
-  const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authModalTab, setAuthModalTab] = useState<"login" | "register">(
-    "login"
-  );
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,6 +41,41 @@ export function Header() {
   };
 
   return (
+    <form onSubmit={handleSearch} className="flex-1 max-w-2xl">
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search products..."
+          className="w-full rounded-lg border border-gray-300 bg-gray-50 py-2.5 pl-10 pr-4 text-sm transition-colors focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+          suppressHydrationWarning
+        />
+      </div>
+    </form>
+  );
+}
+
+export function Header() {
+  const router = useRouter();
+  const { user, logout } = useAuthStore(
+    useShallow((state) => ({
+      // subscribe only to what Header renders
+      user: state.user,
+      logout: state.logout,
+    }))
+  );
+  const userFirstName = user?.firstName;
+  const isAuthenticated = !!user;
+  const { totalItems: cartCount, toggleCart } = useCart();
+
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authModalTab, setAuthModalTab] = useState<"login" | "register">(
+    "login"
+  );
+
+  return (
     <>
       <header className="sticky top-0 z-50 w-full border-b bg-white shadow-sm">
         <div className="container mx-auto px-4 md:px-6 lg:px-8">
@@ -73,19 +91,13 @@ export function Header() {
             </Link>
 
             {/* Search Bar */}
-            <form onSubmit={handleSearch} className="flex-1 max-w-2xl">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search products..."
-                  className="w-full rounded-lg border border-gray-300 bg-gray-50 py-2.5 pl-10 pr-4 text-sm transition-colors focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
-                  suppressHydrationWarning
-                />
-              </div>
-            </form>
+            <Suspense
+              fallback={
+                <div className="flex-1 max-w-2xl h-10 bg-gray-100 rounded-lg animate-pulse" />
+              }
+            >
+              <SearchBar />
+            </Suspense>
 
             {/* Actions */}
             <div className="flex items-center gap-2 shrink-0">

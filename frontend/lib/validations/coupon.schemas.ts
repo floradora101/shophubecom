@@ -1,11 +1,6 @@
 import * as yup from "yup";
 
 export const couponSchema = yup.object({
-  name: yup
-    .string()
-    .min(3, "Name must be at least 3 characters")
-    .max(255, "Name must be less than 255 characters")
-    .required("Name is required"),
   code: yup
     .string()
     .max(50, "Code must be less than 50 characters")
@@ -14,7 +9,7 @@ export const couponSchema = yup.object({
       "Code must contain only uppercase letters, numbers, hyphens, and underscores"
     )
     .required("Code is required"),
-  description: yup.string().optional(),
+  description: yup.string().notRequired(),
   type: yup
     .string()
     .oneOf(["PERCENTAGE", "FIXED_AMOUNT"], "Invalid discount type")
@@ -26,11 +21,11 @@ export const couponSchema = yup.object({
   minOrderTotal: yup
     .number()
     .min(0, "Minimum order total must be positive")
-    .optional(),
-  startsAt: yup.string().optional(),
+    .notRequired(),
+  startsAt: yup.string().notRequired(),
   expiresAt: yup
     .string()
-    .optional()
+    .notRequired()
     .test(
       "end-after-start",
       "Expiry must be after start date",
@@ -44,13 +39,24 @@ export const couponSchema = yup.object({
     .number()
     .integer("Usage limit must be a whole number")
     .min(1, "Usage limit must be at least 1")
-    .optional(),
+    .notRequired(),
   perUserLimit: yup
     .number()
     .integer("Per-user limit must be a whole number")
     .min(1, "Per-user limit must be at least 1")
-    .optional(),
+    .notRequired(),
   isActive: yup.boolean().default(true),
 });
 
-export type CouponFormData = yup.InferType<typeof couponSchema>;
+export type CouponFormData = {
+  code: string;
+  description?: string;
+  type: "PERCENTAGE" | "FIXED_AMOUNT";
+  value: number;
+  minOrderTotal?: number;
+  startsAt?: string;
+  expiresAt?: string;
+  usageLimit?: number;
+  perUserLimit?: number;
+  isActive: boolean;
+};

@@ -120,7 +120,7 @@ export function useFormDraft<T extends FieldValues>(
       const parsed = JSON.parse(stored);
       if (parsed && typeof parsed === "object") {
         // Reset form with saved values, keeping default values for fields not in draft
-        form.reset(parsed as Partial<T>, { keepDefaultValues: true });
+        form.reset(parsed as any, { keepDefaultValues: true });
         hasLoadedRef.current = true;
       }
     } catch (error) {

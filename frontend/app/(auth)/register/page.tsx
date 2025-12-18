@@ -1,11 +1,12 @@
 // Registration page route for creating new accounts.
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { RegisterForm } from "../../../components/forms/RegisterForm";
 
-export default function RegisterPage() {
+function RegisterContent() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect");
 
@@ -36,5 +37,13 @@ export default function RegisterPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="space-y-8">Loading...</div>}>
+      <RegisterContent />
+    </Suspense>
   );
 }

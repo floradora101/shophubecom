@@ -1,7 +1,7 @@
 // Unified auth guard component for protected routes.
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useShallow } from "zustand/react/shallow";
 import { useAuthStore } from "../../store/auth-store";
@@ -40,7 +40,7 @@ interface RequireAuthProps {
  * - Single source of truth: user state in Zustand store
  * - Backend is real enforcement; this is UX-only
  */
-export function RequireAuth({
+function RequireAuthContent({
   children,
   role,
   redirectTo = "/login",
@@ -120,4 +120,18 @@ export function RequireAuth({
   }
 
   return <>{children}</>;
+}
+
+export function RequireAuth(props: RequireAuthProps) {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex w-full justify-center py-8">
+          <p className="text-sm text-gray-500">Loading...</p>
+        </div>
+      }
+    >
+      <RequireAuthContent {...props} />
+    </Suspense>
+  );
 }

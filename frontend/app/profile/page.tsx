@@ -1,7 +1,7 @@
 // Customer profile dashboard page.
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 // TODO: Re-enable authentication protection after testing
 // import { useAuthStore } from "@/store/auth-store";
@@ -15,7 +15,7 @@ import { ProfileAccountDetails } from "@/components/profile/ProfileAccountDetail
 
 type ProfileTab = "dashboard" | "orders" | "addresses" | "account";
 
-export default function ProfilePage() {
+function ProfileContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   // TODO: Re-enable authentication protection after testing
@@ -117,5 +117,21 @@ export default function ProfilePage() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen flex-col bg-white">
+          <div className="flex-1 flex items-center justify-center">
+            Loading...
+          </div>
+        </div>
+      }
+    >
+      <ProfileContent />
+    </Suspense>
   );
 }

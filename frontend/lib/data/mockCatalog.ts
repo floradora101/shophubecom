@@ -103,7 +103,7 @@ const categoryBySlug: Record<string, Category> = Object.fromEntries(
   mockCategories.map((category) => [category.slug, category])
 );
 
-const mockProducts: Product[] = [
+const mockProducts: (Product & { images?: string[] })[] = [
   {
     id: "prod-gaming-laptop-pro-2024",
     name: "Gaming Laptop Pro 2024",

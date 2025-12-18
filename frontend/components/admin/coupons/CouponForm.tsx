@@ -25,7 +25,7 @@ export function CouponForm({ coupon, onSave }: CouponFormProps) {
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<CouponFormData>({
-    resolver: yupResolver(couponSchema),
+    resolver: yupResolver(couponSchema) as any,
     defaultValues: coupon
       ? {
           code: coupon.code,
