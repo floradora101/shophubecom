@@ -2,6 +2,7 @@
 "use client";
 
 import Link from "next/link";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -10,13 +11,15 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { AddressSelector } from "@/components/checkout/AddressSelector";
-import { useCart } from "@/lib/hooks/use-cart";
+import { AddressSelector } from "@/features/checkout/components/AddressSelector";
+import { useCart } from "@/features/cart/hooks";
 import { apiClient } from "@/lib/api/client";
-import { cartKeys } from "@/lib/cart/cart-keys";
+import { cartKeys } from "@/features/cart/query-keys";
 import { useFormDraft } from "@/lib/forms/useFormDraft";
-import { useAddressesQuery } from "@/lib/queries/addresses";
-import type { Address } from "@/lib/api/addresses";
+import { useAddressesQuery } from "@/features/addresses/queries";
+import { extractErrorMessage } from "@/lib/utils/error-handler";
+import { formatPrice } from "@/lib/utils";
+import type { Address } from "@/features/addresses/api";
 
 const steps = [
   { label: "Shopping Cart", active: false, completed: false },
@@ -192,12 +195,7 @@ export default function CheckoutPage() {
       const orderId = orderData?.orderId;
 
       if (!orderId) {
-        console.error("Checkout response missing orderId:", {
-          fullResponse: response.data,
-          orderData: orderData,
-          orderDataKeys: orderData ? Object.keys(orderData) : [],
-        });
-        alert(
+        toast.error(
           "Order placed successfully, but order ID is missing. Please contact support."
         );
         return;
@@ -208,13 +206,9 @@ export default function CheckoutPage() {
       // Use replace instead of push to prevent back navigation to checkout
       router.replace(redirectUrl);
     } catch (error: unknown) {
-      console.error("Checkout error:", error);
-      const errorMessage =
-        error && typeof error === "object" && "response" in error
-          ? (error as { response?: { data?: { message?: string } } }).response
-              ?.data?.message
-          : undefined;
-      alert(errorMessage || "Failed to place order. Please try again.");
+      toast.error(
+        extractErrorMessage(error, "Failed to place order. Please try again.")
+      );
     }
   };
 
@@ -236,14 +230,14 @@ export default function CheckoutPage() {
                     className={`flex h-8 w-8 items-center justify-center rounded-full border transition-colors ${
                       step.active
                         ? "border-primary-500 bg-primary-50 text-primary-700"
-                        : "border-gray-300 bg-white text-gray-500"
+                        : "border-gray-300 bg-white text-gray-600"
                     }`}
                   >
                     {idx + 1}
                   </span>
                   <span
                     className={`transition-colors ${
-                      step.active ? "text-primary-700" : "text-gray-500"
+                      step.active ? "text-primary-700" : "text-gray-600"
                     }`}
                   >
                     {step.label}
@@ -401,7 +395,9 @@ export default function CheckoutPage() {
                             {item.name} × {item.quantity}
                           </span>
                           <span className="font-semibold text-gray-900">
-                            ${(item.price * item.quantity).toFixed(2)}
+                            {formatPrice(item.price * item.quantity, {
+                              alwaysShowDecimals: true,
+                            })}
                           </span>
                         </div>
                       ))}
@@ -409,7 +405,9 @@ export default function CheckoutPage() {
 
                     <div className="flex items-center justify-between pt-2 text-sm font-semibold text-gray-900">
                       <span>Subtotal</span>
-                      <span>${subtotal.toFixed(2)}</span>
+                      <span>
+                        {formatPrice(subtotal, { alwaysShowDecimals: true })}
+                      </span>
                     </div>
 
                     <div className="space-y-2">
@@ -452,7 +450,9 @@ export default function CheckoutPage() {
 
                     <div className="flex items-center justify-between pt-1 text-base font-semibold text-gray-900">
                       <span>Total</span>
-                      <span>${total.toFixed(2)}</span>
+                      <span>
+                        {formatPrice(total, { alwaysShowDecimals: true })}
+                      </span>
                     </div>
 
                     <div className="pt-4">

@@ -6,9 +6,11 @@ import { Search } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { OrderList } from "@/components/admin/orders/OrderList";
-import { useAdminOrdersQuery } from "@/lib/queries/admin/orders.queries";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { OrderList } from "@/features/admin/components/orders/OrderList";
+import { useAdminOrdersQuery } from "@/features/admin/queries/orders";
 import { useDebouncedValue } from "@/lib/hooks/use-debounce";
+import { extractErrorMessage } from "@/lib/utils/error-handler";
 
 type SortField =
   | "orderNumber"
@@ -49,9 +51,7 @@ export default function AdminOrdersPage() {
   // Show error toast if query fails
   useEffect(() => {
     if (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to load orders";
-      toast.error(errorMessage);
+      toast.error(extractErrorMessage(error, "Failed to load orders"));
     }
   }, [error]);
 
@@ -71,7 +71,7 @@ export default function AdminOrdersPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-600">
                 Manage customer orders ({total} orders)
               </p>
             </div>
@@ -122,10 +122,7 @@ export default function AdminOrdersPage() {
 
         {/* Orders List */}
         {isLoading ? (
-          <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary-500 border-r-transparent"></div>
-            <p className="mt-4 text-gray-600">Loading orders...</p>
-          </div>
+          <LoadingSpinner />
         ) : (
           <>
             <OrderList

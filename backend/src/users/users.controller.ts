@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Put,
+  Post,
   Body,
   UseGuards,
   HttpCode,
@@ -11,7 +12,7 @@ import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { AuthenticatedUser } from '../common/interfaces/authenticated-user.interface';
-import { UserResponseDto, UpdateProfileDto } from './dto';
+import { UserResponseDto, UpdateProfileDto, ChangePasswordDto } from './dto';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
@@ -31,5 +32,26 @@ export class UsersController {
     @Body() updateProfileDto: UpdateProfileDto,
   ): Promise<UserResponseDto> {
     return this.usersService.updateProfile(user.id, updateProfileDto);
+  }
+
+  /**
+   * @route POST /api/users/change-password
+   * @description Changes the password for the current authenticated user
+   * @param user - Current authenticated user (injected by JwtAuthGuard)
+   * @param changePasswordDto - Contains current password and new password
+   * @returns Success message
+   * @throws InvalidCredentialsException if current password is incorrect
+   */
+  @Post('change-password')
+  @HttpCode(HttpStatus.OK)
+  async changePassword(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ): Promise<{ success: boolean; message: string }> {
+    await this.usersService.changePassword(user.id, changePasswordDto);
+    return {
+      success: true,
+      message: 'Password changed successfully',
+    };
   }
 }

@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -692,11 +697,11 @@ export class ProductsService {
         this.logger.warn(`Unique constraint violation updating product ${id}`);
         const target = error.meta?.target;
         if (Array.isArray(target) && target.includes('sku')) {
-          throw new BadRequestException(
+          throw new ConflictException(
             'A variant with this SKU already exists. Each SKU must be unique.',
           );
         }
-        throw new BadRequestException(
+        throw new ConflictException(
           'Product with this name or slug already exists',
         );
       }

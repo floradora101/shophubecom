@@ -3,23 +3,19 @@
 
 import { Suspense, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-// TODO: Re-enable authentication protection after testing
-// import { useAuthStore } from "@/store/auth-store";
-// import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { ProfileDashboard } from "@/components/profile/ProfileDashboard";
-import { ProfileOrders } from "@/components/profile/ProfileOrders";
-import { ProfileAddresses } from "@/components/profile/ProfileAddresses";
-import { ProfileAccountDetails } from "@/components/profile/ProfileAccountDetails";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { ProfileDashboard } from "@/features/profile/components/ProfileDashboard";
+import { ProfileOrders } from "@/features/profile/components/ProfileOrders";
+import { ProfileAddresses } from "@/features/profile/components/ProfileAddresses";
+import { ProfileAccountDetails } from "@/features/profile/components/ProfileAccountDetails";
 
 type ProfileTab = "dashboard" | "orders" | "addresses" | "account";
 
 function ProfileContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  // TODO: Re-enable authentication protection after testing
-  // const { isAuthenticated, isLoading: authLoading, checkAuth } = useAuthStore();
 
   // Get tab from URL or default to dashboard
   const tabFromUrl = searchParams.get("tab") as ProfileTab | null;
@@ -42,33 +38,6 @@ function ProfileContent() {
     setActiveTab(tab);
     router.replace(`/profile?tab=${tab}`, { scroll: false });
   };
-
-  // TODO: Re-enable authentication protection after testing
-  // useEffect(() => {
-  //   checkAuth();
-  // }, [checkAuth]);
-
-  // useEffect(() => {
-  //   if (!authLoading && !isAuthenticated) {
-  //     router.push("/auth?tab=login");
-  //   }
-  // }, [isAuthenticated, authLoading, router]);
-
-  // if (authLoading) {
-  //   return (
-  //     <div className="flex min-h-screen flex-col bg-white">
-  //       <Header />
-  //       <main className="flex-1 flex items-center justify-center">
-  //         <LoadingSpinner />
-  //       </main>
-  //       <Footer />
-  //     </div>
-  //   );
-  // }
-
-  // if (!isAuthenticated) {
-  //   return null;
-  // }
 
   const tabs: { id: ProfileTab; label: string }[] = [
     { id: "dashboard", label: "Dashboard" },
@@ -125,9 +94,11 @@ export default function ProfilePage() {
     <Suspense
       fallback={
         <div className="flex min-h-screen flex-col bg-white">
+          <Header />
           <div className="flex-1 flex items-center justify-center">
-            Loading...
+            <LoadingSpinner variant="full" />
           </div>
+          <Footer />
         </div>
       }
     >

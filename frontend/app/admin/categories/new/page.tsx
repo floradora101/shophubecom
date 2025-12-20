@@ -2,9 +2,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { CategoryForm } from "@/components/admin/categories/CategoryForm";
-import { adminCategoriesApi } from "@/lib/api/admin-categories";
-import type { CategoryFormData } from "@/lib/validations/category.schemas";
+import { CategoryForm } from "@/features/admin/components/categories/CategoryForm";
+import { adminCategoriesApi } from "@/features/admin/api/categories";
+import type { CategoryFormData } from "@/features/admin/schemas/category";
 
 export default function NewCategoryPage() {
   const router = useRouter();
@@ -18,7 +18,6 @@ export default function NewCategoryPage() {
       });
       router.push("/admin/categories");
     } catch (error) {
-      console.error("Failed to create category:", error);
       throw error;
     }
   };
@@ -44,4 +43,3 @@ export default function NewCategoryPage() {
     </div>
   );
 }
-

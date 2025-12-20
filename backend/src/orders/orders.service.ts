@@ -247,11 +247,14 @@ export class OrdersService {
       this.prisma.order.count({ where }),
     ]);
 
+    const totalPages = Math.ceil(total / limit);
+
     return {
       data: orders.map((order) => this.toOrderResponse(order)),
       total,
       page,
       limit,
+      totalPages,
     };
   }
 
@@ -327,11 +330,14 @@ export class OrdersService {
       this.prisma.order.count({ where }),
     ]);
 
+    const totalPages = Math.ceil(total / limit);
+
     return {
       data: orders.map((order) => this.toOrderResponse(order)),
       total,
       page,
       limit,
+      totalPages,
     };
   }
 
@@ -391,45 +397,43 @@ export class OrdersService {
       throw new BadRequestException('No status changes provided');
     }
 
-    try {
-      const order = await this.prisma.order.update({
-        where: { id },
-        data: {
-          ...(dto.status ? { status: dto.status } : {}),
-          ...(dto.paymentStatus ? { paymentStatus: dto.paymentStatus } : {}),
-          ...(dto.fulfillmentStatus
-            ? { fulfillmentStatus: dto.fulfillmentStatus }
-            : {}),
-        },
-        include: {
-          items: {
-            include: {
-              variant: { include: { options: true } },
-              product: {
-                include: {
-                  defaultVariant: true,
-                },
+    // Pre-check order existence before update
+    const existing = await this.prisma.order.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    if (!existing) {
+      throw new OrderNotFoundException();
+    }
+
+    const order = await this.prisma.order.update({
+      where: { id },
+      data: {
+        ...(dto.status ? { status: dto.status } : {}),
+        ...(dto.paymentStatus ? { paymentStatus: dto.paymentStatus } : {}),
+        ...(dto.fulfillmentStatus
+          ? { fulfillmentStatus: dto.fulfillmentStatus }
+          : {}),
+      },
+      include: {
+        items: {
+          include: {
+            variant: { include: { options: true } },
+            product: {
+              include: {
+                defaultVariant: true,
               },
             },
           },
-          user: {
-            select: { id: true, firstName: true, lastName: true, email: true },
-          },
         },
-      });
+        user: {
+          select: { id: true, firstName: true, lastName: true, email: true },
+        },
+      },
+    });
 
-      this.logger.log(`Order ${id} status updated`);
-      return this.toOrderResponse(order);
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new OrderNotFoundException();
-      }
-
-      throw error;
-    }
+    this.logger.log(`Order ${id} status updated`);
+    return this.toOrderResponse(order);
   }
 
   private async findOrderById(id: string): Promise<OrderWithRelations | null> {

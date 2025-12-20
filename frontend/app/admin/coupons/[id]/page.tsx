@@ -2,11 +2,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { useRouter, useParams } from "next/navigation";
-import { CouponForm } from "@/components/admin/coupons/CouponForm";
-import { adminApi } from "@/lib/data/mockAdmin";
-import type { Coupon } from "@/lib/types/product.types";
-import type { CouponFormData } from "@/lib/validations/coupon.schemas";
+import { CouponForm } from "@/features/admin/components/coupons/CouponForm";
+import { adminApi } from "@/dev/mocks/mockAdmin";
+import { extractErrorMessage } from "@/lib/utils/error-handler";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import type { Coupon } from "@/features/products/types";
+import type { CouponFormData } from "@/features/admin/schemas/coupon";
 
 export default function EditPromotionPage() {
   const router = useRouter();
@@ -22,12 +25,11 @@ export default function EditPromotionPage() {
         if (data) {
           setCoupon(data);
         } else {
-          alert("Coupon not found");
+          toast.error("Coupon not found");
           router.push("/admin/coupons");
         }
       } catch (error) {
-        console.error("Failed to load coupon:", error);
-        alert("Failed to load coupon");
+        toast.error(extractErrorMessage(error, "Failed to load coupon"));
         router.push("/admin/coupons");
       } finally {
         setIsLoading(false);
@@ -44,20 +46,12 @@ export default function EditPromotionPage() {
       await adminApi.updateCoupon(couponId, data);
       router.push("/admin/coupons");
     } catch (error) {
-      console.error("Failed to update coupon:", error);
       throw error;
     }
   };
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary-500 border-r-transparent"></div>
-          <p className="mt-4 text-gray-600">Loading promotion...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner variant="full" />;
   }
 
   if (!coupon) {

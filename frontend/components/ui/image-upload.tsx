@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useRef, useState } from "react";
+import { toast } from "sonner";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Upload, X } from "lucide-react";
+import { extractErrorMessage } from "@/lib/utils/error-handler";
 
 interface ImageUploadProps {
   value?: string;
@@ -39,13 +41,13 @@ export function ImageUpload({
     // Validate file size
     const fileSizeMB = file.size / (1024 * 1024);
     if (fileSizeMB > maxSize) {
-      alert(`File size must be less than ${maxSize}MB`);
+      toast.warning(`File size must be less than ${maxSize}MB`);
       return;
     }
 
     // Validate file type
     if (!file.type.startsWith("image/")) {
-      alert("Please select an image file");
+      toast.warning("Please select an image file");
       return;
     }
 
@@ -61,13 +63,12 @@ export function ImageUpload({
         setUploading(false);
       };
       reader.onerror = () => {
-        alert("Failed to read file");
+        toast.error("Failed to read file");
         setUploading(false);
       };
       reader.readAsDataURL(file);
     } catch (error) {
-      console.error("Error uploading image:", error);
-      alert("Failed to upload image");
+      toast.error(extractErrorMessage(error, "Failed to upload image"));
       setUploading(false);
     }
   };
@@ -193,7 +194,7 @@ export function MultipleImageUpload({
 
     // Check max files limit
     if (values.length + files.length > maxFiles) {
-      alert(`You can only upload up to ${maxFiles} images total`);
+      toast.warning(`You can only upload up to ${maxFiles} images total`);
       return;
     }
 
@@ -206,13 +207,13 @@ export function MultipleImageUpload({
         // Validate file size
         const fileSizeMB = file.size / (1024 * 1024);
         if (fileSizeMB > maxSize) {
-          alert(`File "${file.name}" exceeds ${maxSize}MB. Skipping.`);
+          toast.warning(`File "${file.name}" exceeds ${maxSize}MB. Skipping.`);
           continue;
         }
 
         // Validate file type
         if (!file.type.startsWith("image/")) {
-          alert(`File "${file.name}" is not an image. Skipping.`);
+          toast.warning(`File "${file.name}" is not an image. Skipping.`);
           continue;
         }
 
@@ -237,8 +238,7 @@ export function MultipleImageUpload({
         fileInputRef.current.value = "";
       }
     } catch (error) {
-      console.error("Error uploading images:", error);
-      alert("Failed to upload images");
+      toast.error(extractErrorMessage(error, "Failed to upload images"));
       setUploading(false);
     }
   };

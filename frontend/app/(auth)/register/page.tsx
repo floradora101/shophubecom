@@ -4,7 +4,8 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { RegisterForm } from "../../../components/forms/RegisterForm";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { RegisterForm } from "@/features/auth";
 
 function RegisterContent() {
   const searchParams = useSearchParams();
@@ -42,7 +43,13 @@ function RegisterContent() {
 
 export default function RegisterPage() {
   return (
-    <Suspense fallback={<div className="space-y-8">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="space-y-8 flex items-center justify-center min-h-[400px]">
+          <LoadingSpinner size="md" variant="inline" />
+        </div>
+      }
+    >
       <RegisterContent />
     </Suspense>
   );

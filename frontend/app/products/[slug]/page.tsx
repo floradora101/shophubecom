@@ -14,10 +14,14 @@ import {
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { ProductCard } from "@/components/products/ProductCard";
-import { useProductQuery, useProductsQuery } from "@/lib/queries/products";
-import { getEffectiveStock, LOW_STOCK_THRESHOLD } from "@/lib/utils/inventory";
-import { useCart } from "@/lib/hooks/use-cart";
+import { ProductCard } from "@/features/products/components/ProductCard";
+import { useProductQuery, useProductsQuery } from "@/features/products/queries";
+import {
+  getEffectiveStock,
+  LOW_STOCK_THRESHOLD,
+} from "@/features/products/utils/inventory";
+import { useCart } from "@/features/cart/hooks";
+import { formatPrice } from "@/lib/utils";
 
 const PLACEHOLDER_IMAGE =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Crect fill='%23f3f4f6' width='600' height='600'/%3E%3Ctext fill='%239ca3af' font-family='sans-serif' font-size='20' x='50%25' y='50%25' text-anchor='middle' dominant-baseline='middle'%3ENo Image%3C/text%3E%3C/svg%3E";
@@ -601,7 +605,7 @@ export default function ProductDetailPage() {
                 <div className="space-y-3 rounded-xl border border-gray-100 bg-gray-50 p-4">
                   <div className="flex items-center gap-3">
                     <span className="text-3xl font-bold text-gray-900">
-                      ${effectivePrice.toFixed(2)}
+                      {formatPrice(effectivePrice)}
                     </span>
                     {isLowStock && (
                       <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-800">
@@ -748,7 +752,7 @@ export default function ProductDetailPage() {
                           autoSwitchTimeoutRef.current = null;
                         }
                       }}
-                      className="text-gray-500 hover:text-gray-900"
+                      className="text-gray-600 hover:text-gray-900"
                       aria-label="Dismiss update message"
                     >
                       ✕
@@ -797,7 +801,7 @@ export default function ProductDetailPage() {
                       type="button"
                       className={`inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold transition ${
                         !canAddToCart
-                          ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                          ? "bg-gray-200 text-gray-600 cursor-not-allowed"
                           : "bg-primary-600 text-white hover:bg-primary-700 shadow-sm"
                       }`}
                       disabled={!canAddToCart}

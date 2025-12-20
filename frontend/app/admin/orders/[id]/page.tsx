@@ -6,12 +6,14 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { OrderDetail } from "@/components/admin/orders/OrderDetail";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { OrderDetail } from "@/features/admin/components/orders/OrderDetail";
 import {
   useAdminOrderQuery,
   useUpdateOrderStatusMutation,
-} from "@/lib/queries/admin/orders.queries";
-import type { FullOrderDetail } from "@/lib/types/admin.types";
+} from "@/features/admin/queries/orders";
+import type { FullOrderDetail } from "@/features/admin/types";
+import { extractErrorMessage } from "@/lib/utils/error-handler";
 
 export default function OrderDetailPage() {
   const router = useRouter();
@@ -25,9 +27,7 @@ export default function OrderDetailPage() {
 
   // Handle error state
   if (error && !isLoading) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Order not found";
-    toast.error(errorMessage);
+    toast.error(extractErrorMessage(error, "Order not found"));
     router.push("/admin/orders");
     return null;
   }
@@ -43,25 +43,18 @@ export default function OrderDetailPage() {
       });
       toast.success("Order status updated successfully");
     } catch (error) {
-      console.error("Failed to update order status:", error);
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Failed to update order status. Please try again.";
-      toast.error(errorMessage);
+      toast.error(
+        extractErrorMessage(
+          error,
+          "Failed to update order status. Please try again."
+        )
+      );
       throw error;
     }
   };
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary-500 border-r-transparent"></div>
-          <p className="mt-4 text-gray-600">Loading order...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner variant="full" />;
   }
 
   if (!order) {

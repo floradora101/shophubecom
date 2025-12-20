@@ -38,17 +38,18 @@ import Link from "next/link";
 import { ChevronRight, ChevronDown, Search } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { ProductCard } from "@/components/products/ProductCard";
-import { ProductFilters } from "../../components/products/ProductFilters";
-import { useCategoriesQuery } from "@/lib/queries/categories";
-import { useProductsQuery } from "@/lib/queries/products";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { ProductCard } from "@/features/products/components/ProductCard";
+import { ProductFilters } from "@/features/products/components/ProductFilters";
+import { useCategoriesQuery } from "@/features/categories/queries";
+import { useProductsQuery } from "@/features/products/queries";
 import { useDebouncedValue } from "@/lib/hooks/use-debounce";
 import {
   parseFiltersFromSearchParams,
   updateSearchParams,
   filtersToApiParams,
   type CanonicalFilters,
-} from "@/lib/utils/filters";
+} from "@/features/products/utils/filters";
 
 const SORT_OPTIONS = [
   { value: "latest", label: "Sort by latest" },
@@ -396,9 +397,11 @@ export default function ProductsPage() {
     <Suspense
       fallback={
         <div className="flex min-h-screen flex-col bg-white">
+          <Header />
           <div className="flex-1 flex items-center justify-center">
-            Loading...
+            <LoadingSpinner variant="full" />
           </div>
+          <Footer />
         </div>
       }
     >

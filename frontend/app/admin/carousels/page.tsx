@@ -1,7 +1,7 @@
 // Admin page to manage homepage carousel slides.
 "use client";
 
-import { CarouselManager } from "@/components/admin/carousels/CarouselManager";
+import { CarouselManager } from "@/features/admin/components/carousels/CarouselManager";
 
 export default function AdminCarouselsPage() {
   return (

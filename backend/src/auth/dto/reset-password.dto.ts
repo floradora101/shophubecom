@@ -1,3 +1,22 @@
+/**
+ * @file reset-password.dto.ts
+ *
+ * Purpose:
+ * Data Transfer Object for password reset requests. Validates reset token and
+ * new password for password reset completion.
+ *
+ * Responsibilities:
+ * - Validates reset token is provided (not empty)
+ * - Validates password strength (min 8 chars, uppercase, lowercase, number, symbol)
+ * - Used by AuthController.resetPassword() endpoint
+ *
+ * How it fits into auth flow:
+ * - POST /api/auth/reset-password receives this DTO
+ * - class-validator automatically validates request body
+ * - If valid, passed to AuthService.resetPassword()
+ * - Service validates token, updates password, marks token as used
+ * - If invalid, returns 400 Bad Request with validation errors
+ */
 import {
   IsString,
   IsNotEmpty,

@@ -1,5 +1,10 @@
 // Zustand store for cart UI state only.
 // Cart data is owned by React Query (single source of truth).
+//
+// IMPORTANT: Do not store cart data here. React Query is source of truth.
+// This store only manages UI state: isOpen, open, close, toggle.
+//
+// Optional enhancement: close cart sidebar automatically on successful checkout / route change (hook layer, not store).
 import { create } from "zustand";
 
 interface CartUIState {

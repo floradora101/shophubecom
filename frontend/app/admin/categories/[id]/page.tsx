@@ -2,11 +2,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { useRouter, useParams } from "next/navigation";
-import { CategoryForm } from "@/components/admin/categories/CategoryForm";
-import { adminCategoriesApi } from "@/lib/api/admin-categories";
-import type { Category } from "@/lib/types/product.types";
-import type { CategoryFormData } from "@/lib/validations/category.schemas";
+import { CategoryForm } from "@/features/admin/components/categories/CategoryForm";
+import { adminCategoriesApi } from "@/features/admin/api/categories";
+import { extractErrorMessage } from "@/lib/utils/error-handler";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import type { Category } from "@/features/products/types";
+import type { CategoryFormData } from "@/features/admin/schemas/category";
 
 export default function EditCategoryPage() {
   const router = useRouter();
@@ -22,12 +25,11 @@ export default function EditCategoryPage() {
         if (data) {
           setCategory(data);
         } else {
-          alert("Category not found");
+          toast.error("Category not found");
           router.push("/admin/categories");
         }
       } catch (error) {
-        console.error("Failed to load category:", error);
-        alert("Failed to load category");
+        toast.error(extractErrorMessage(error, "Failed to load category"));
         router.push("/admin/categories");
       } finally {
         setIsLoading(false);
@@ -48,20 +50,12 @@ export default function EditCategoryPage() {
       });
       router.push("/admin/categories");
     } catch (error) {
-      console.error("Failed to update category:", error);
       throw error;
     }
   };
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary-500 border-r-transparent"></div>
-          <p className="mt-4 text-gray-600">Loading category...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner variant="full" />;
   }
 
   if (!category) {
@@ -85,4 +79,3 @@ export default function EditCategoryPage() {
     </div>
   );
 }
-

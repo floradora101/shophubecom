@@ -4,7 +4,7 @@ import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "sonner";
-import { AuthProvider } from "../components/providers/AuthProvider";
+import { AuthProvider } from "@/features/auth/components/AuthProvider";
 
 interface AppProvidersProps {
   children: React.ReactNode;

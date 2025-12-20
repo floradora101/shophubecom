@@ -2,14 +2,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { useRouter, useParams } from "next/navigation";
-import { ProductForm } from "@/components/admin/products/ProductForm";
+import { ProductForm } from "@/features/admin/components/products/ProductForm";
 import {
   adminProductsApi,
   type CreateProductPayload,
   type UpdateProductPayload,
-} from "@/lib/api/admin-products";
-import type { AdminProduct } from "@/lib/types/admin.types";
+} from "@/features/admin/api/products";
+import { extractErrorMessage } from "@/lib/utils/error-handler";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import type { AdminProduct } from "@/features/admin/types";
 
 export default function EditProductPage() {
   const router = useRouter();
@@ -25,12 +28,11 @@ export default function EditProductPage() {
         if (data) {
           setProduct(data);
         } else {
-          alert("Product not found");
+          toast.error("Product not found");
           router.push("/admin/products");
         }
       } catch (error) {
-        console.error("Failed to load product:", error);
-        alert("Failed to load product");
+        toast.error(extractErrorMessage(error, "Failed to load product"));
         router.push("/admin/products");
       } finally {
         setIsLoading(false);
@@ -52,20 +54,12 @@ export default function EditProductPage() {
       );
       router.push("/admin/products");
     } catch (error) {
-      console.error("Failed to update product:", error);
       throw error; // Re-throw to let form handle it
     }
   };
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary-500 border-r-transparent"></div>
-          <p className="mt-4 text-gray-600">Loading product...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner variant="full" />;
   }
 
   if (!product) {

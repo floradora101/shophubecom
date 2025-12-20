@@ -1,32 +1,30 @@
 /**
- * @module JwtStrategy
+ * @file jwt.strategy.ts
  *
  * Purpose:
- * Implements a Passport JWT strategy for authenticating requests.
- * This strategy extracts JWTs from httpOnly cookies only (web-only authentication).
+ * Implements Passport JWT strategy for validating tokens on protected routes.
+ * Extracts JWT tokens from httpOnly cookies and validates user identity.
  *
- * Why this file exists:
- * - Centralizes JWT extraction and validation logic
- * - Integrates with Passport for NestJS route guards
- * - Provides a single point to validate user identity from JWT payload
- * - Web-only: reads tokens from httpOnly cookies only (no Authorization header fallback)
+ * Responsibilities:
+ * - Extracts access token from httpOnly cookie (web-only, no Authorization header)
+ * - Validates JWT signature using JWT_ACCESS_SECRET
+ * - Verifies token expiration
+ * - Fetches user from database to ensure user still exists (security requirement)
+ * - Caches user data (5-minute TTL) to reduce database queries
+ * - Returns authenticated user object (without password) attached to request
+ *
+ * How it fits into auth flow:
+ * - Used by JwtAuthGuard to protect routes requiring authentication
+ * - Called automatically by Passport when @UseGuards(JwtAuthGuard) is applied
+ * - Validates token on every protected API request
+ * - Attaches user to request.user (accessible via @CurrentUser() decorator)
+ * - Always verifies user exists in DB (prevents deleted/banned user access)
  *
  * Security:
- * - Validates JWT signature using JWT_SECRET
- * - Checks token expiration
- * - Verifies user still exists in database (CRITICAL for security)
+ * - Tokens read from httpOnly cookies only (prevents XSS token theft)
+ * - Always verifies user exists in database (prevents stale token access)
  * - Never returns password in user object
- * - Web-only: tokens read from httpOnly cookies only (prevents XSS token theft)
- *
- * Performance:
- * - Uses in-memory cache to reduce database queries
- * - Cache TTL: 5 minutes (balance between freshness and performance)
- * - Cache invalidation on user updates (via cache key pattern)
- *
- * Best Practice:
- * - Always fetch from DB to verify user exists (prevents deleted/banned user access)
- * - Cache for performance (reduces DB load)
- * - Use JWT payload only for non-critical data (like role checks in guards)
+ * - Uses in-memory cache for performance (5-minute TTL)
  */
 import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';

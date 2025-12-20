@@ -1,48 +1,83 @@
 // Admin product listing and management page.
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { ProductList } from "@/components/admin/products/ProductList";
-import { ProductFilters } from "@/components/admin/products/ProductFilters";
+import { ProductList } from "@/features/admin/components/products/ProductList";
+import { ProductFilters } from "@/features/admin/components/products/ProductFilters";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { Pagination } from "@/components/ui/pagination";
 import {
   useAdminProductsQuery,
   useDeleteProductMutation,
-} from "@/lib/queries/admin/products.queries";
+} from "@/features/admin/queries/products";
 import { useDebouncedValue } from "@/lib/hooks/use-debounce";
+import { extractErrorMessage } from "@/lib/utils/error-handler";
+import {
+  parseAdminFiltersFromSearchParams,
+  updateAdminSearchParams,
+  adminFiltersToApiParams,
+} from "@/features/admin/utils/filters";
 
 type SortField = "name" | "price" | "stock" | "createdAt";
 
-export default function AdminProductsPage() {
-  const [search, setSearch] = useState("");
-  const debouncedSearch = useDebouncedValue(search, 300);
-  const [categoryId, setCategoryId] = useState("");
-  const [sortBy, setSortBy] = useState<SortField>("createdAt");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [page, setPage] = useState(1);
-  const limit = 10;
+function AdminProductsContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Parse filters from URL (single source of truth)
+  const filters = useMemo(
+    () => parseAdminFiltersFromSearchParams(searchParams),
+    [searchParams]
+  );
+
+  // Debounce search input to avoid excessive API calls while typing
+  const [localSearch, setLocalSearch] = useState(filters.search || "");
+  const debouncedSearch = useDebouncedValue(localSearch, 300);
+
+  // Sync local search with URL search
+  useEffect(() => {
+    setLocalSearch(filters.search || "");
+  }, [filters.search]);
+
+  // Update URL when debounced search changes
+  useEffect(() => {
+    if (debouncedSearch !== filters.search) {
+      const newParams = updateAdminSearchParams(searchParams, {
+        search: debouncedSearch || null,
+        page: 1, // Reset to page 1 when search changes
+      });
+      router.replace(`/admin/products?${newParams.toString()}`, {
+        scroll: false,
+      });
+    }
+  }, [debouncedSearch, filters.search, searchParams, router]);
+
+  // Convert filters to API params
+  const apiParams = useMemo(() => adminFiltersToApiParams(filters), [filters]);
 
   // React Query hooks - automatically cached and deduplicated
-  // Note: Backend only supports "name" | "price" | "createdAt", so filter out "stock"
-  const querySortBy =
-    sortBy === "stock"
-      ? "createdAt"
-      : (sortBy as "name" | "price" | "createdAt");
+  // Note: Backend only supports "name" | "price" | "createdAt"
+  const querySortBy = (filters.sortBy || "createdAt") as
+    | "name"
+    | "price"
+    | "createdAt";
 
   const {
     data: productsData,
     isLoading,
     error,
   } = useAdminProductsQuery({
-    search: debouncedSearch,
-    categoryId,
-    page,
-    limit,
+    search: apiParams.search,
+    categoryId: apiParams.categoryId,
+    page: apiParams.page,
+    limit: apiParams.limit,
     sortBy: querySortBy,
-    sortOrder,
+    sortOrder: apiParams.sortOrder,
   });
 
   // Delete mutation with automatic cache invalidation
@@ -53,28 +88,64 @@ export default function AdminProductsPage() {
   const total = productsData?.total || 0;
   const totalPages = productsData?.totalPages || 1;
 
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setPage(1);
-  }, [debouncedSearch, categoryId]);
-
   // Show error toast if query fails
   useEffect(() => {
     if (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to load products";
-      toast.error(errorMessage);
+      toast.error(extractErrorMessage(error, "Failed to load products"));
     }
   }, [error]);
 
+  // Update URL with filter changes
+  const updateFilters = useMemo(
+    () => ({
+      setSearch: (search: string) => {
+        setLocalSearch(search);
+        // Debounce will handle URL update
+      },
+
+      setCategoryId: (categoryId: string | null) => {
+        const newParams = updateAdminSearchParams(searchParams, {
+          categoryId,
+          page: 1, // Reset to page 1 when category changes
+        });
+        router.push(`/admin/products?${newParams.toString()}`);
+      },
+
+      setPage: (page: number) => {
+        const newParams = updateAdminSearchParams(searchParams, {
+          page,
+        });
+        router.push(`/admin/products?${newParams.toString()}`);
+      },
+
+      setSort: (
+        sortBy: "name" | "price" | "createdAt",
+        sortOrder: "asc" | "desc"
+      ) => {
+        const newParams = updateAdminSearchParams(searchParams, {
+          sortBy,
+          sortOrder,
+          page: 1, // Reset to page 1 when sort changes
+        });
+        router.push(`/admin/products?${newParams.toString()}`);
+      },
+    }),
+    [searchParams, router]
+  );
+
   const handleSort = (field: SortField) => {
-    if (sortBy === field) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    const backendField =
+      field === "stock"
+        ? "createdAt"
+        : (field as "name" | "price" | "createdAt");
+    if (filters.sortBy === backendField) {
+      updateFilters.setSort(
+        backendField,
+        filters.sortOrder === "asc" ? "desc" : "asc"
+      );
     } else {
-      setSortBy(field);
-      setSortOrder("asc");
+      updateFilters.setSort(backendField, "asc");
     }
-    setPage(1);
   };
 
   const handleDelete = async (id: string) => {
@@ -86,19 +157,19 @@ export default function AdminProductsPage() {
       toast.success("Product deleted successfully");
       // React Query automatically invalidates and refetches cache
     } catch (error) {
-      console.error("Failed to delete product:", error);
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Failed to delete product. Please try again.";
-      toast.error(errorMessage);
+      toast.error(
+        extractErrorMessage(
+          error,
+          "Failed to delete product. Please try again."
+        )
+      );
     }
   };
 
   const handleResetFilters = () => {
-    setSearch("");
-    setCategoryId("");
-    setPage(1);
+    updateFilters.setSearch("");
+    updateFilters.setCategoryId(null);
+    updateFilters.setPage(1);
   };
 
   return (
@@ -109,7 +180,7 @@ export default function AdminProductsPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Products</h1>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-600">
                 Manage your product catalog ({total} products)
               </p>
             </div>
@@ -127,83 +198,52 @@ export default function AdminProductsPage() {
       <div className="p-4 sm:p-6 lg:p-8">
         {/* Filters */}
         <ProductFilters
-          search={search}
-          categoryId={categoryId}
-          onSearchChange={setSearch}
-          onCategoryChange={setCategoryId}
+          search={localSearch}
+          categoryId={filters.categoryId || ""}
+          onSearchChange={updateFilters.setSearch}
+          onCategoryChange={(cat) => updateFilters.setCategoryId(cat || null)}
           onReset={handleResetFilters}
         />
 
         {/* Products List */}
         {isLoading ? (
-          <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary-500 border-r-transparent"></div>
-            <p className="mt-4 text-gray-600">Loading products...</p>
-          </div>
+          <LoadingSpinner />
         ) : (
           <>
             <ProductList
               products={products}
-              sortBy={sortBy}
-              sortOrder={sortOrder}
+              sortBy={(filters.sortBy || "createdAt") as SortField}
+              sortOrder={filters.sortOrder || "desc"}
               onSort={handleSort}
               onDelete={handleDelete}
             />
 
             {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="mt-6 flex items-center justify-between">
-                <div className="text-sm text-gray-700">
-                  Showing {(page - 1) * limit + 1} to{" "}
-                  {Math.min(page * limit, total)} of {total} products
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    disabled={page === 1}
-                  >
-                    Previous
-                  </Button>
-                  <div className="flex items-center gap-1">
-                    {Array.from({ length: totalPages }, (_, i) => i + 1)
-                      .filter(
-                        (p) =>
-                          p === 1 ||
-                          p === totalPages ||
-                          (p >= page - 1 && p <= page + 1)
-                      )
-                      .map((p, idx, arr) => (
-                        <div key={p} className="flex items-center gap-1">
-                          {idx > 0 && arr[idx - 1] !== p - 1 && (
-                            <span className="px-2 text-gray-500">...</span>
-                          )}
-                          <Button
-                            variant={page === p ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setPage(p)}
-                            className="min-w-[40px]"
-                          >
-                            {p}
-                          </Button>
-                        </div>
-                      ))}
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    disabled={page === totalPages}
-                  >
-                    Next
-                  </Button>
-                </div>
-              </div>
-            )}
+            <Pagination
+              currentPage={filters.page || 1}
+              totalPages={totalPages}
+              totalItems={total}
+              itemsPerPage={10}
+              onPageChange={updateFilters.setPage}
+              itemName="products"
+            />
           </>
         )}
       </div>
     </div>
+  );
+}
+
+export default function AdminProductsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50">
+          <LoadingSpinner variant="full" />
+        </div>
+      }
+    >
+      <AdminProductsContent />
+    </Suspense>
   );
 }

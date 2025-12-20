@@ -1,9 +1,11 @@
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { User, Prisma } from '@prisma/client';
+import { hash, compare } from 'bcrypt';
 import { UserAlreadyExistsException } from '../common/exceptions/user-already-exists.exception';
 import { UserNotFoundException } from '../common/exceptions/user-not-found.exception';
-import { UpdateProfileDto } from './dto';
+import { InvalidCredentialsException } from '../common/exceptions/invalid-credentials.exception';
+import { UpdateProfileDto, ChangePasswordDto } from './dto';
 import { UserEntity } from './entities/user.entity';
 
 @Injectable()
@@ -31,7 +33,10 @@ export class UsersService {
         throw new UserAlreadyExistsException();
       }
       // Unexpected errors bubble up
-      this.logger.error('Unexpected error creating user', error);
+      this.logger.error(
+        'Unexpected error creating user',
+        (error as Error)?.stack,
+      );
       throw error;
     }
   }
@@ -55,7 +60,10 @@ export class UsersService {
         this.logger.warn(`Update failed. User not found with id: ${id}`);
         throw new UserNotFoundException();
       }
-      this.logger.error('Unexpected error updating user', error);
+      this.logger.error(
+        'Unexpected error updating user',
+        (error as Error)?.stack,
+      );
       throw error;
     }
   }
@@ -91,7 +99,7 @@ export class UsersService {
     if (updateProfileDto.email && updateProfileDto.email !== existing.email) {
       const emailExists = await this.findByEmail(updateProfileDto.email);
       if (emailExists) {
-        throw new BadRequestException('Email is already in use');
+        throw new UserAlreadyExistsException('Email is already in use');
       }
     }
 
@@ -118,9 +126,57 @@ export class UsersService {
         error.code === 'P2002'
       ) {
         this.logger.warn(`Email already exists: ${updateProfileDto.email}`);
-        throw new BadRequestException('Email is already in use');
+        throw new UserAlreadyExistsException('Email is already in use');
       }
-      this.logger.error('Unexpected error updating profile', error);
+      this.logger.error(
+        'Unexpected error updating profile',
+        (error as Error)?.stack,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Changes the password for a user
+   * @param id - User ID
+   * @param changePasswordDto - Contains current password and new password
+   * @throws InvalidCredentialsException if current password is incorrect
+   * @throws UserNotFoundException if user doesn't exist
+   */
+  async changePassword(
+    id: string,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<void> {
+    const user = await this.findByIdOrThrow(id);
+
+    // Verify current password
+    const isCurrentPasswordValid = await compare(
+      changePasswordDto.currentPassword,
+      user.passwordHash,
+    );
+
+    if (!isCurrentPasswordValid) {
+      this.logger.warn(
+        `Password change failed: incorrect current password for user ${id}`,
+      );
+      throw new InvalidCredentialsException('Current password is incorrect');
+    }
+
+    // Hash new password
+    const hashedNewPassword = await hash(changePasswordDto.newPassword, 10);
+
+    // Update password
+    try {
+      await this.prisma.user.update({
+        where: { id },
+        data: { passwordHash: hashedNewPassword },
+      });
+      this.logger.log(`Password changed successfully for user ${id}`);
+    } catch (error) {
+      this.logger.error(
+        'Unexpected error changing password',
+        (error as Error)?.stack,
+      );
       throw error;
     }
   }

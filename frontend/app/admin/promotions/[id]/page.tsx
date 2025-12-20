@@ -2,11 +2,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { useRouter, useParams } from "next/navigation";
-import { PromotionForm } from "@/components/admin/promotions/PromotionForm";
-import { adminApi } from "@/lib/data/mockAdmin";
-import type { Promotion } from "@/lib/types/product.types";
-import type { PromotionFormData } from "@/lib/validations/promotion.schemas";
+import { PromotionForm } from "@/features/admin/components/promotions/PromotionForm";
+import { adminApi } from "@/dev/mocks/mockAdmin";
+import { extractErrorMessage } from "@/lib/utils/error-handler";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import type { Promotion } from "@/features/products/types";
+import type { PromotionFormData } from "@/features/admin/schemas/promotion";
 
 export default function EditPromotionPage() {
   const router = useRouter();
@@ -22,12 +25,11 @@ export default function EditPromotionPage() {
         if (data) {
           setPromotion(data);
         } else {
-          alert("Promotion not found");
+          toast.error("Promotion not found");
           router.push("/admin/promotions");
         }
       } catch (error) {
-        console.error("Failed to load promotion:", error);
-        alert("Failed to load promotion");
+        toast.error(extractErrorMessage(error, "Failed to load promotion"));
         router.push("/admin/promotions");
       } finally {
         setIsLoading(false);
@@ -58,20 +60,12 @@ export default function EditPromotionPage() {
       await adminApi.updatePromotion(promotionId, cleanedData);
       router.push("/admin/promotions");
     } catch (error) {
-      console.error("Failed to update promotion:", error);
       throw error;
     }
   };
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary-500 border-r-transparent"></div>
-          <p className="mt-4 text-gray-600">Loading promotion...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner variant="full" />;
   }
 
   if (!promotion) {

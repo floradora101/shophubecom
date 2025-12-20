@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ensureUniqueSlug, generateSlug } from '../common/utils/slug.util';
@@ -370,7 +375,7 @@ export class CategoriesService {
         error.code === 'P2002'
       ) {
         this.logger.warn(`Unique constraint violation updating category ${id}`);
-        throw new BadRequestException(
+        throw new ConflictException(
           'Category with this name or slug already exists',
         );
       }
@@ -452,4 +457,3 @@ export class CategoriesService {
     this.logger.log(`Category deleted: ${id} - ${category.name}`);
   }
 }
-

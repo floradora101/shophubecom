@@ -9,8 +9,10 @@ import { CheckCircle2 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
-import { ordersApi } from "@/lib/api/orders";
-import type { BackendOrderResponseDto } from "@/lib/api/orders";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { ordersApi } from "@/features/orders/api";
+import { formatPrice } from "@/lib/utils";
+import type { BackendOrderResponseDto } from "@/features/orders/api";
 
 const steps = [
   { label: "Shopping Cart", active: false, completed: true },
@@ -67,11 +69,7 @@ export default function OrderCompletePage() {
         <Header />
         <main className="flex-1 bg-white py-8">
           <div className="container mx-auto px-4 md:px-6 lg:px-8">
-            <div className="rounded-xl border border-gray-200 bg-white p-10 text-center">
-              <p className="text-lg font-semibold text-gray-800">
-                Loading order...
-              </p>
-            </div>
+            <LoadingSpinner />
           </div>
         </main>
         <Footer />
@@ -106,7 +104,7 @@ export default function OrderCompletePage() {
                 {errorMessage}
               </p>
               {process.env.NODE_ENV === "development" && error && (
-                <p className="mt-2 text-sm text-gray-500">
+                <p className="mt-2 text-sm text-gray-600">
                   Order ID: {orderId}
                 </p>
               )}
@@ -145,7 +143,7 @@ export default function OrderCompletePage() {
                         ? "border-primary-500 bg-primary-50 text-primary-700"
                         : step.completed
                         ? "border-emerald-500 bg-emerald-50 text-emerald-700"
-                        : "border-gray-300 bg-white text-gray-500"
+                        : "border-gray-300 bg-white text-gray-600"
                     }`}
                   >
                     {step.completed ? (
@@ -160,7 +158,7 @@ export default function OrderCompletePage() {
                         ? "text-primary-700"
                         : step.completed
                         ? "text-emerald-700"
-                        : "text-gray-500"
+                        : "text-gray-600"
                     }`}
                   >
                     {step.label}
@@ -244,34 +242,42 @@ export default function OrderCompletePage() {
                           {item.title} × {item.quantity}
                         </span>
                         <span className="font-semibold text-gray-900">
-                          ${item.total.toFixed(2)}
+                          {formatPrice(item.total, {
+                            alwaysShowDecimals: true,
+                          })}
                         </span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="rounded-lg border border-gray-200 p-4 text-center text-sm text-gray-500">
+                  <div className="rounded-lg border border-gray-200 p-4 text-center text-sm text-gray-600">
                     No items available
                   </div>
                 )}
 
                 <div className="flex items-center justify-between pt-2 text-sm font-semibold text-gray-900">
                   <span>Subtotal</span>
-                  <span>${order.subtotal.toFixed(2)}</span>
+                  <span>
+                    {formatPrice(order.subtotal, { alwaysShowDecimals: true })}
+                  </span>
                 </div>
 
                 {order.shipping > 0 && (
                   <div className="flex items-center justify-between text-sm text-gray-700">
                     <span>Shipping</span>
                     <span className="font-semibold">
-                      ${order.shipping.toFixed(2)}
+                      {formatPrice(order.shipping, {
+                        alwaysShowDecimals: true,
+                      })}
                     </span>
                   </div>
                 )}
 
                 <div className="flex items-center justify-between pt-1 text-base font-semibold text-gray-900">
                   <span>Total</span>
-                  <span>${order.total.toFixed(2)}</span>
+                  <span>
+                    {formatPrice(order.total, { alwaysShowDecimals: true })}
+                  </span>
                 </div>
               </div>
             </div>

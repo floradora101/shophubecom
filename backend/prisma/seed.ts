@@ -104,9 +104,6 @@ async function main() {
   for (const mockProduct of mockProductsFromFrontend) {
     const categoryId = categoryMap[mockProduct.categorySlug];
     if (!categoryId) {
-      console.warn(
-        `⚠️  Skipping product "${mockProduct.name}" - category "${mockProduct.categorySlug}" not found`,
-      );
       continue;
     }
 

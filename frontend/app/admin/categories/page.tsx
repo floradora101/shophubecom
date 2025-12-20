@@ -6,15 +6,16 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { CategoryList } from "@/components/admin/categories/CategoryList";
-import { CategoryFilters } from "@/components/admin/categories/CategoryFilters";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { CategoryList } from "@/features/admin/components/categories/CategoryList";
+import { CategoryFilters } from "@/features/admin/components/categories/CategoryFilters";
 import {
   useAdminCategoriesQuery,
   useAdminAllCategoriesQuery,
   useDeleteCategoryMutation,
-} from "@/lib/queries/admin/categories.queries";
+} from "@/features/admin/queries/categories";
 import { useDebouncedValue } from "@/lib/hooks/use-debounce";
-import type { Category } from "@/lib/types/product.types";
+import type { Category } from "@/features/products/types";
 
 type SortField = "name" | "createdAt";
 
@@ -103,7 +104,6 @@ export default function AdminCategoriesPage() {
       toast.success("Category deleted successfully");
       // React Query automatically invalidates and refetches cache
     } catch (error) {
-      console.error("Failed to delete category:", error);
       const errorMessage =
         error instanceof Error
           ? error.message
@@ -125,7 +125,7 @@ export default function AdminCategoriesPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Categories</h1>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-600">
                 Manage product categories ({total} categories)
               </p>
             </div>
@@ -150,10 +150,7 @@ export default function AdminCategoriesPage() {
 
         {/* Categories List */}
         {isLoading ? (
-          <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary-500 border-r-transparent"></div>
-            <p className="mt-4 text-gray-600">Loading categories...</p>
-          </div>
+          <LoadingSpinner />
         ) : (
           <>
             <CategoryList

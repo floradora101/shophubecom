@@ -1,6 +1,35 @@
+/**
+ * @file client.ts
+ *
+ * Purpose:
+ * Axios instance configured for API calls with automatic token refresh interceptor.
+ * Handles authentication cookies and automatically refreshes tokens on 401 errors.
+ *
+ * Responsibilities:
+ * - Configures Axios with base URL, credentials, and timeout
+ * - Request interceptor: Ensures cookies are sent with all requests
+ * - Response interceptor: Intercepts 401 errors and automatically refreshes tokens
+ * - Queues failed requests during refresh to prevent race conditions
+ * - Retries original request after successful token refresh
+ * - Skips refresh for auth endpoints (login, register, refresh, logout, etc.)
+ * - Emits authExpired event when refresh fails (handled by AuthProvider)
+ *
+ * How it fits into auth flow:
+ * - Used by all API calls (authApi, productApi, etc.)
+ * - Automatically includes httpOnly cookies with every request
+ * - When access token expires (401), automatically calls /auth/refresh
+ * - If refresh succeeds, retries original request with new token
+ * - If refresh fails, emits authExpired event (AuthProvider handles logout)
+ * - Transparent to components - token refresh happens automatically
+ *
+ * Security:
+ * - Tokens stored in httpOnly cookies (not accessible to JavaScript)
+ * - Cookies automatically sent with requests via withCredentials: true
+ * - Refresh token read from cookie, not request body (prevents XSS theft)
+ */
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import type { ApiError } from "../types/auth.types";
-import { emitAuthExpired } from "./authEvents";
+import type { ApiError } from "@/lib/types/api";
+import { emitAuthExpired } from "@/lib/integrations/auth-events";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
@@ -15,7 +44,7 @@ const AUTH_REFRESH_SKIP_PATHS = new Set([
   "/auth/logout",
   "/auth/forgot-password",
   "/auth/reset-password",
-  "/auth/me",
+  // Note: /auth/me is NOT in skip list - it should trigger refresh on 401
 ]);
 
 const getPathFromUrl = (url?: string): string | null => {
@@ -127,6 +156,10 @@ async function refreshRequest() {
  * - Retries original request after successful refresh
  * - Queues multiple requests during refresh to prevent race conditions
  * - Skips refresh for auth endpoints (login, register, refresh, logout, etc.)
+ * - Emits authExpired event when refresh fails (store reacts by clearing state)
+ *
+ * Note: /auth/me is allowed to trigger refresh. The _retry flag prevents
+ * infinite loops, and /auth/refresh itself is in the skip list.
  */
 apiClient.interceptors.response.use(
   (response) => response,
@@ -151,26 +184,6 @@ apiClient.interceptors.response.use(
 
     // Handle 401 Unauthorized - token expired or invalid
     if (error.response?.status === 401) {
-      // Only attempt refresh if we had a session (user was logged in before)
-      // Check localStorage for hadSession flag
-      let hadSession = false;
-      try {
-        if (typeof window !== "undefined") {
-          const authStorage = localStorage.getItem("auth-storage");
-          if (authStorage) {
-            const parsed = JSON.parse(authStorage);
-            hadSession = parsed?.state?.hadSession === true;
-          }
-        }
-      } catch {
-        // If parsing fails, assume no session
-        hadSession = false;
-      }
-
-      if (!hadSession) {
-        return Promise.reject(error);
-      }
-
       // If we're already refreshing, queue this request
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -201,22 +214,14 @@ apiClient.interceptors.response.use(
         const axiosError = refreshError as AxiosError;
         const status = axiosError.response?.status;
 
-        // Only log error if it's not a 401/400 (expected for guests with no refresh token)
-        if (status && status !== 401 && status !== 400) {
-          console.error("[Auth] ❌ Token refresh failed:", {
-            status,
-            message: axiosError.message,
-          });
-        } else {
-          // Guest user or no refresh token - this is expected
-        }
+        // Guest user or no refresh token - this is expected for 401/400
 
         // Refresh failed - emit auth expired event and reject
         processQueue(refreshError as AxiosError);
         isRefreshing = false;
 
         // Emit auth expired event (decoupled from UI layer)
-        // AuthProvider or app will handle clearing state and redirect
+        // AuthProvider will handle clearing state and redirect
         // Only emit if refresh token is actually invalid (401/403) or missing (400)
         // Don't emit on network errors - let them propagate normally
         // Note: For guest users, this will be a 401/400, but we still emit to clear any stale state
@@ -244,11 +249,6 @@ apiClient.interceptors.response.use(
 apiClient.interceptors.request.use(
   (config) => {
     // Tokens are in httpOnly cookies, automatically sent with requests
-    // If you need to add Authorization header, do it here:
-    // const token = getTokenFromCookie(); // if needed
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
     return config;
   },
   (error) => {

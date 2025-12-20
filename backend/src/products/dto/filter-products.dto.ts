@@ -7,7 +7,7 @@ import {
   IsString,
   Min,
 } from 'class-validator';
-import { Type, Transform } from 'class-transformer';
+import { Transform } from 'class-transformer';
 
 /**
  * DTO for filtering products in GET /products endpoint.
@@ -28,8 +28,14 @@ import { Type, Transform } from 'class-transformer';
  */
 export class FilterProductsDto {
   /** Filter by category ID (exact match) */
-  @IsString()
   @IsOptional()
+  @Transform(({ value }): string | undefined => {
+    if (value === undefined || value === null || value === '') {
+      return undefined;
+    }
+    return value as string;
+  })
+  @IsString()
   categoryId?: string;
 
   /**
@@ -38,12 +44,12 @@ export class FilterProductsDto {
    * Empty strings are converted to undefined.
    */
   @IsOptional()
-  @Transform(({ value }) => {
+  @Transform(({ value }): number | undefined => {
     if (value === undefined || value === null || value === '') {
       return undefined;
     }
     const num = Number(value);
-    return isNaN(num) ? value : num;
+    return isNaN(num) ? undefined : num;
   })
   @IsNumber(
     { allowNaN: false, allowInfinity: false },
@@ -58,12 +64,12 @@ export class FilterProductsDto {
    * Empty strings are converted to undefined.
    */
   @IsOptional()
-  @Transform(({ value }) => {
+  @Transform(({ value }): number | undefined => {
     if (value === undefined || value === null || value === '') {
       return undefined;
     }
     const num = Number(value);
-    return isNaN(num) ? value : num;
+    return isNaN(num) ? undefined : num;
   })
   @IsNumber(
     { allowNaN: false, allowInfinity: false },
@@ -73,8 +79,16 @@ export class FilterProductsDto {
   maxPrice?: number;
 
   /** Search query - case-insensitive search in product name and description */
-  @IsString()
   @IsOptional()
+  @Transform(({ value }): string | undefined => {
+    if (value === undefined || value === null || value === '') {
+      return undefined;
+    }
+    return typeof value === 'string'
+      ? value.trim() || undefined
+      : (value as string);
+  })
+  @IsString()
   search?: string;
 
   /**
@@ -84,7 +98,7 @@ export class FilterProductsDto {
    * (for products with variants: SUM(variants.stock) > 0, else product.stock > 0)
    */
   @IsOptional()
-  @Transform(({ value }) => {
+  @Transform(({ value }): boolean | undefined => {
     if (value === undefined || value === null || value === '') {
       return undefined;
     }
@@ -103,34 +117,64 @@ export class FilterProductsDto {
     if (typeof value === 'number') {
       return value !== 0;
     }
-    return value;
+    return undefined;
   })
   @IsBoolean({ message: 'inStockOnly must be a boolean value' })
   inStockOnly?: boolean;
 
   /** Page number for pagination (default: 1, min: 1) */
-  @IsInt()
-  @Type(() => Number)
   @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null || value === '') {
+      return 1;
+    }
+    const num = Number(value);
+    return isNaN(num) || num < 1 ? 1 : num;
+  })
+  @IsInt()
   @Min(1)
   page = 1;
 
   /** Items per page (default: 20, min: 1) */
-  @IsInt()
-  @Type(() => Number)
   @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null || value === '') {
+      return 20;
+    }
+    const num = Number(value);
+    return isNaN(num) || num < 1 ? 20 : num;
+  })
+  @IsInt()
   @Min(1)
   limit = 20;
 
   /** Sort field: 'price' | 'name' | 'createdAt' (default: 'createdAt') */
-  @IsString()
   @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null || value === '') {
+      return 'createdAt';
+    }
+    const validValues = ['price', 'name', 'createdAt'];
+    return typeof value === 'string' && validValues.includes(value)
+      ? value
+      : 'createdAt';
+  })
+  @IsString()
   @IsIn(['price', 'name', 'createdAt'])
   sortBy: 'price' | 'name' | 'createdAt' = 'createdAt';
 
   /** Sort order: 'asc' | 'desc' (default: 'desc') */
-  @IsString()
   @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null || value === '') {
+      return 'desc';
+    }
+    const validValues = ['asc', 'desc'];
+    return typeof value === 'string' && validValues.includes(value)
+      ? value
+      : 'desc';
+  })
+  @IsString()
   @IsIn(['asc', 'desc'])
   sortOrder: 'asc' | 'desc' = 'desc';
 }

@@ -1,250 +1,194 @@
-// Zustand store for authentication state and user session.
-// Single source of truth: authentication is derived from user only.
+/**
+ * @file auth-store.ts
+ *
+ * Purpose:
+ * Zustand store that manages authentication state and user session. This is the
+ * single source of truth for authentication state in the frontend application.
+ *
+ * Responsibilities:
+ * - Manages auth state machine: status = 'unknown' | 'authenticated' | 'unauthenticated'
+ * - Stores user data (null when unauthenticated)
+ * - Provides bootstrap() to initialize auth state on app load
+ * - Provides login(), register(), logout() actions
+ * - Persists user and status to localStorage (tokens are in httpOnly cookies)
+ * - Prevents double bootstraps with bootstrapped flag
+ *
+ * How it fits into auth flow:
+ * - Called by AuthProvider on app mount to bootstrap auth state
+ * - Called by LoginForm/RegisterForm to authenticate users
+ * - Called by AuthProvider when auth expires (clears state)
+ * - Read by RequireAuth to check authentication status
+ * - Tokens are stored in httpOnly cookies (not in this store)
+ * - Only user data and status are stored here for UI state
+ *
+ * State Machine:
+ * - 'unknown': Initial state, bootstrap not yet completed
+ * - 'authenticated': User is logged in, user data available
+ * - 'unauthenticated': User is not logged in, user is null
+ */
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { authApi } from "../lib/api/auth";
-import { extractErrorMessage } from "../lib/utils/error-handler";
+import { authApi } from "@/features/auth/api";
 import type {
   User,
   LoginFormData,
   RegisterFormData,
-} from "../lib/types/auth.types";
+} from "@/features/auth/types";
+
+type AuthStatus = "unknown" | "authenticated" | "unauthenticated";
 
 interface AuthState {
-  // Single source of truth: user is the only persisted auth state
+  // State machine: explicit auth status
+  status: AuthStatus;
+  // User data (null when unauthenticated)
   user: User | null;
-  // Track if we had a session (for refresh logic)
-  hadSession: boolean;
-  // Split loading states: auth bootstrap vs form submissions
-  hasBootstrapped: boolean;
-  isBootstrapping: boolean;
-  isSubmitting: boolean;
-  error: string | null;
+  // Whether bootstrap has completed (prevents double bootstraps)
+  bootstrapped: boolean;
   // Actions
-  login: (data: LoginFormData) => Promise<void>;
-  register: (data: RegisterFormData) => Promise<void>;
+  bootstrap: () => Promise<void>;
+  setUser: (user: User | null) => void;
+  login: (data: LoginFormData) => Promise<User>;
+  register: (data: RegisterFormData) => Promise<User>;
   logout: () => Promise<void>;
-  checkAuth: () => Promise<void>;
-  clearError: () => void;
-  clearAuth: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
+      // Initial state: unknown until bootstrap completes
+      status: "unknown",
       user: null,
-      hadSession: false,
-      // Start in bootstrapping state so protected guards can wait for first check
-      // and/or rehydrated persisted user from localStorage.
-      hasBootstrapped: false,
-      isBootstrapping: true,
-      isSubmitting: false,
-      error: null,
+      bootstrapped: false,
 
       /**
-       * Clear authentication state
-       * Called when auth expires or user logs out
+       * Bootstrap authentication state
+       * Calls /auth/me once to determine auth status
+       * On 200 → user=..., status='authenticated', bootstrapped=true
+       * On 401 → user=null, status='unauthenticated', bootstrapped=true
+       * Never leaves app in "half logged in" state
        */
-      clearAuth: () => {
+      bootstrap: async () => {
+        // Prevent double bootstraps
+        if (get().bootstrapped) {
+          return;
+        }
+
+        try {
+          const user = await authApi.getMe();
+          set({
+            user,
+            status: "authenticated",
+            bootstrapped: true,
+          });
+        } catch (error: unknown) {
+          // getMe() failed - user is not authenticated
+          // Note: Interceptor may have attempted refresh automatically.
+          // If refresh succeeded, getMe() would have succeeded on retry.
+          // If we're here, either:
+          // 1. No refresh token available (guest user)
+          // 2. Refresh token invalid/expired
+          // 3. Refresh failed for other reasons
+          // In all cases, user should be treated as unauthenticated
+          set({
+            user: null,
+            status: "unauthenticated",
+            bootstrapped: true,
+          });
+        }
+      },
+
+      /**
+       * Set user state (used after login/register)
+       * Updates both user and status
+       */
+      setUser: (user: User | null) => {
         set({
-          user: null,
-          hadSession: false,
-          error: null,
+          user,
+          status: user ? "authenticated" : "unauthenticated",
         });
       },
 
       /**
        * Login user with email and password
-       *
        * Security: Tokens are stored in httpOnly cookies by backend (not accessible to JS)
        * We only store user data in localStorage for UI state
+       * Returns user data for form components to use
        */
-      login: async (data: LoginFormData) => {
-        set({ isSubmitting: true, error: null });
-        try {
-          const authData = await authApi.login(data);
-          // Backend sets tokens in httpOnly cookies automatically
-          // Response only contains user data (no tokens)
-          set({
-            user: authData.user,
-            hadSession: true,
-            isSubmitting: false,
-            error: null,
-          });
-        } catch (error: unknown) {
-          set({
-            isSubmitting: false,
-            error: extractErrorMessage(error) || "Login failed",
-            user: null,
-            hadSession: false,
-          });
-          throw error;
-        }
+      login: async (data: LoginFormData): Promise<User> => {
+        const authData = await authApi.login(data);
+        // Backend sets tokens in httpOnly cookies automatically
+        // Response only contains user data (no tokens)
+        const user = authData.user;
+        set({
+          user,
+          status: "authenticated",
+        });
+        return user;
       },
 
       /**
        * Register new user
-       *
        * Security: Tokens are stored in httpOnly cookies by backend (not accessible to JS)
        * We only store user data in localStorage for UI state
+       * Returns user data for form components to use
        */
-      register: async (data: RegisterFormData) => {
-        set({ isSubmitting: true, error: null });
-        try {
-          const authData = await authApi.register(data);
-          // Backend sets tokens in httpOnly cookies automatically
-          // Response only contains user data (no tokens)
-          set({
-            user: authData.user,
-            hadSession: true,
-            isSubmitting: false,
-            error: null,
-          });
-        } catch (error: unknown) {
-          set({
-            isSubmitting: false,
-            error: extractErrorMessage(error) || "Registration failed",
-            user: null,
-            hadSession: false,
-          });
-          throw error;
-        }
+      register: async (data: RegisterFormData): Promise<User> => {
+        const authData = await authApi.register(data);
+        // Backend sets tokens in httpOnly cookies automatically
+        // Response only contains user data (no tokens)
+        const user = authData.user;
+        set({
+          user,
+          status: "authenticated",
+        });
+        return user;
       },
 
       /**
        * Logout user
        * Clears tokens on server and local state
+       * Calls API then clears state
        */
       logout: async () => {
         try {
           await authApi.logout();
         } catch (error) {
-          // Log error but continue with local logout
-          console.error("Logout API call failed:", error);
+          // Continue with local logout even if API call fails
         } finally {
           // Always clear local state
-          get().clearAuth();
-        }
-      },
-
-      /**
-       * Check if user is authenticated by calling /auth/me
-       * If 401, attempts to refresh token, then calls /auth/me again
-       * This ensures refresh works on reload and protected route navigation
-       *
-       * Flow:
-       * 1. Call /auth/me
-       * 2. If 401 → call /auth/refresh
-       * 3. If refresh ok → call /auth/me again
-       * 4. Set user state accordingly
-       *
-       * Note: checkAuth owns bootstrap state and does not touch error state
-       * Important: Do NOT treat /auth/me 401 as an "error UI". It's normal.
-       */
-      checkAuth: async () => {
-        const isFirstBootstrap = !get().hasBootstrapped;
-        if (isFirstBootstrap) {
-          set({ isBootstrapping: true });
-        }
-        try {
-          // Step 1: Try to get current user
-          const user = await authApi.getMe();
           set({
-            user,
-            hadSession: true,
-            hasBootstrapped: true,
+            user: null,
+            status: "unauthenticated",
           });
-        } catch (error: unknown) {
-          // Step 2: If /auth/me returns 401, try to refresh
-          // Check if it's a 401 error (unauthorized - token expired)
-          const isAxiosError =
-            error && typeof error === "object" && "response" in error;
-          const status =
-            isAxiosError &&
-            "response" in error &&
-            error.response &&
-            typeof error.response === "object" &&
-            "status" in error.response
-              ? (error.response as { status: number }).status
-              : null;
-
-          if (status === 401) {
-            try {
-              // Step 3: Attempt to refresh token
-              await authApi.refresh();
-              // Step 4: If refresh succeeded, try /auth/me again
-              try {
-                const user = await authApi.getMe();
-                set({
-                  user,
-                  hadSession: true,
-                  hasBootstrapped: true,
-                });
-              } catch {
-                // Refresh succeeded but /auth/me still failed - user is not authenticated
-                set({
-                  user: null,
-                  hasBootstrapped: true,
-                });
-              }
-            } catch {
-              // Refresh failed - user is not authenticated
-              // This is expected for unauthenticated users
-              set({
-                user: null,
-                hasBootstrapped: true,
-              });
-            }
-          } else {
-            // Other error (not 401) - user is not authenticated
-            set({
-              user: null,
-              hasBootstrapped: true,
-            });
-          }
-        } finally {
-          if (isFirstBootstrap) {
-            set({ isBootstrapping: false });
-          }
         }
-      },
-
-      clearError: () => {
-        set({ error: null });
       },
     }),
     {
       name: "auth-storage",
       storage: createJSONStorage(() => localStorage),
-      // Only persist user data and hadSession flag, not tokens (tokens are in httpOnly cookies)
-      // isAuthenticated is derived from user, so we don't persist it
+      // Only persist durable data: user and status
+      // Do NOT persist: error, isSubmitting, isBootstrapping, hadSession, timestamps
       partialize: (state: AuthState) => ({
         user: state.user,
-        hadSession: state.hadSession,
+        status: state.status,
       }),
     }
   )
 );
 
-// Helper to derive isAuthenticated from user (single source of truth)
-const getIsAuthenticated = (state: AuthState): boolean => !!state.user;
-
 // Selector helpers to minimize subscriptions in components
 export const selectAuthStatus = (state: AuthState) => ({
-  isAuthenticated: getIsAuthenticated(state),
-  hasBootstrapped: state.hasBootstrapped,
-  isBootstrapping: state.isBootstrapping,
-  isSubmitting: state.isSubmitting,
+  status: state.status,
+  isAuthenticated: state.status === "authenticated",
+  bootstrapped: state.bootstrapped,
 });
 
 export const selectAuthUser = (state: AuthState) => state.user;
 
 export const selectAuthActions = (state: AuthState) => ({
+  bootstrap: state.bootstrap,
+  setUser: state.setUser,
   login: state.login,
   register: state.register,
   logout: state.logout,
-  checkAuth: state.checkAuth,
-  clearError: state.clearError,
 });
-
-export const selectAuthError = (state: AuthState) => state.error;

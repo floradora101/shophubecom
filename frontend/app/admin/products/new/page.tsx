@@ -2,12 +2,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ProductForm } from "@/components/admin/products/ProductForm";
+import { ProductForm } from "@/features/admin/components/products/ProductForm";
 import {
   adminProductsApi,
   type CreateProductPayload,
   type UpdateProductPayload,
-} from "@/lib/api/admin-products";
+} from "@/features/admin/api/products";
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -19,7 +19,6 @@ export default function NewProductPage() {
       await adminProductsApi.createProduct(data as CreateProductPayload);
       router.push("/admin/products");
     } catch (error) {
-      console.error("Failed to create product:", error);
       throw error; // Re-throw to let form handle it
     }
   };

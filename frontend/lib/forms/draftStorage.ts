@@ -18,7 +18,6 @@ export function getStorage(type: StorageType): Storage | null {
     return type === "session" ? window.sessionStorage : window.localStorage;
   } catch (error) {
     // Storage might be disabled or unavailable
-    console.warn(`Storage (${type}) is not available:`, error);
     return null;
   }
 }
@@ -33,7 +32,6 @@ export function getStorageItem(key: string, type: StorageType): string | null {
   try {
     return storage.getItem(key);
   } catch (error) {
-    console.warn(`Failed to get item from storage (${type}):`, error);
     return null;
   }
 }
@@ -53,7 +51,6 @@ export function setStorageItem(
     storage.setItem(key, value);
     return true;
   } catch (error) {
-    console.warn(`Failed to set item in storage (${type}):`, error);
     return false;
   }
 }
@@ -69,7 +66,6 @@ export function removeStorageItem(key: string, type: StorageType): boolean {
     storage.removeItem(key);
     return true;
   } catch (error) {
-    console.warn(`Failed to remove item from storage (${type}):`, error);
     return false;
   }
 }

@@ -2,9 +2,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { PromotionForm } from "@/components/admin/promotions/PromotionForm";
-import { adminApi } from "@/lib/data/mockAdmin";
-import type { PromotionFormData } from "@/lib/validations/promotion.schemas";
+import { PromotionForm } from "@/features/admin/components/promotions/PromotionForm";
+import { adminApi } from "@/dev/mocks/mockAdmin";
+import type { PromotionFormData } from "@/features/admin/schemas/promotion";
 
 export default function NewPromotionPage() {
   const router = useRouter();
@@ -28,7 +28,6 @@ export default function NewPromotionPage() {
       await adminApi.createPromotion(cleanedData);
       router.push("/admin/promotions");
     } catch (error) {
-      console.error("Failed to create promotion:", error);
       throw error;
     }
   };

@@ -5,14 +5,13 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  Post,
   Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { UserRole } from '@prisma/client';
 import { OrdersService } from './orders.service';
-import { CreateOrderDto, FilterOrdersDto, OrderStatsDto } from './dto';
+import { FilterOrdersDto, OrderStatsDto } from './dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../common/guards/optional-jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -26,10 +25,11 @@ import type { Request } from 'express';
  * All routes are accessible to any authenticated user (ADMIN or CUSTOMER).
  *
  * Route Structure:
- * - POST /api/orders - Create new order
  * - GET /api/orders - Get user's orders
  * - GET /api/orders/stats - Get user's order statistics
  * - GET /api/orders/:id - Get single order by ID (supports guest access with token)
+ *
+ * Note: Order creation is handled via /api/checkout/place-order endpoint
  *
  * Guard Strategy:
  * - Method-level guards: Each route has its own guard
@@ -42,25 +42,6 @@ import type { Request } from 'express';
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
-
-  /**
-   * @route POST /api/orders
-   * @description Create a new order for the current authenticated user
-   * @param user - Current authenticated user (injected by JwtAuthGuard)
-   * @param createOrderDto - Order creation data (items, shipping address, etc.)
-   * @returns Created order with all details
-   * @security Accessible to any authenticated user (ADMIN or CUSTOMER)
-   * @example POST /api/orders { items: [...], shippingAddressId: "..." }
-   */
-  @Post()
-  @UseGuards(JwtAuthGuard)
-  @HttpCode(HttpStatus.CREATED)
-  create(
-    @CurrentUser() user: AuthenticatedUser,
-    @Body() createOrderDto: CreateOrderDto,
-  ) {
-    return this.ordersService.create(user.id, createOrderDto);
-  }
 
   /**
    * @route GET /api/orders

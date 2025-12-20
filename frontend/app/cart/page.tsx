@@ -7,8 +7,9 @@ import { Minus, Plus, Trash2 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
-import { useCart } from "@/lib/hooks/use-cart";
+import { useCart } from "@/features/cart/hooks";
 import { useState } from "react";
+import { formatPrice } from "@/lib/utils";
 
 const steps = [
   { label: "Shopping Cart", active: true, completed: false },
@@ -49,14 +50,14 @@ export default function CartPage() {
                     className={`flex h-8 w-8 items-center justify-center rounded-full border transition-colors ${
                       step.active
                         ? "border-primary-500 bg-primary-50 text-primary-700"
-                        : "border-gray-300 bg-white text-gray-500"
+                        : "border-gray-300 bg-white text-gray-600"
                     }`}
                   >
                     {idx + 1}
                   </span>
                   <span
                     className={`transition-colors ${
-                      step.active ? "text-primary-700" : "text-gray-500"
+                      step.active ? "text-primary-700" : "text-gray-600"
                     }`}
                   >
                     {step.label}
@@ -104,7 +105,7 @@ export default function CartPage() {
           ) : (
             <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
               <div className="rounded-lg border border-gray-200 bg-white">
-                <div className="hidden border-b px-6 py-3 text-xs font-semibold uppercase text-gray-500 md:grid md:grid-cols-[2fr_repeat(3,1fr)]">
+                <div className="hidden border-b px-6 py-3 text-xs font-semibold uppercase text-gray-600 md:grid md:grid-cols-[2fr_repeat(3,1fr)]">
                   <span>Product</span>
                   <span className="text-center">Price</span>
                   <span className="text-center">Quantity</span>
@@ -165,7 +166,7 @@ export default function CartPage() {
                           <button
                             type="button"
                             onClick={() => removeItem(item.key)}
-                            className="w-max rounded-full px-3 py-1 text-xs font-semibold text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+                            className="w-max rounded-full px-3 py-1 text-xs font-semibold text-gray-600 hover:bg-gray-100 hover:text-gray-800"
                           >
                             <span className="inline-flex items-center gap-1">
                               <Trash2 className="h-4 w-4" />
@@ -176,7 +177,7 @@ export default function CartPage() {
                       </div>
 
                       <div className="hidden text-center text-sm font-semibold text-gray-900 md:block">
-                        ${item.price.toFixed(2)}
+                        {formatPrice(item.price, { alwaysShowDecimals: true })}
                       </div>
 
                       <div className="flex items-center justify-start md:justify-center">
@@ -209,7 +210,9 @@ export default function CartPage() {
                       </div>
 
                       <div className="text-left text-base font-semibold text-gray-900 md:text-center">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        {formatPrice(item.price * item.quantity, {
+                          alwaysShowDecimals: true,
+                        })}
                       </div>
                     </div>
                   ))}
@@ -224,7 +227,7 @@ export default function CartPage() {
                   <div className="flex items-center justify-between">
                     <span>Subtotal</span>
                     <span className="text-base font-semibold">
-                      ${subtotal.toFixed(2)}
+                      {formatPrice(subtotal, { alwaysShowDecimals: true })}
                     </span>
                   </div>
                   <div className="space-y-2">
@@ -269,7 +272,7 @@ export default function CartPage() {
                         <span className="font-semibold">$5</span>
                       </label>
                     </div>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-600">
                       Shipping options will be confirmed during checkout.
                     </p>
                     <button
@@ -284,7 +287,9 @@ export default function CartPage() {
                   </p>
                   <div className="flex items-center justify-between pt-2 text-base font-semibold text-gray-900">
                     <span>Total</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>
+                      {formatPrice(total, { alwaysShowDecimals: true })}
+                    </span>
                   </div>
                 </div>
 

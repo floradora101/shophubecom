@@ -1,3 +1,22 @@
+/**
+ * @file register.dto.ts
+ *
+ * Purpose:
+ * Data Transfer Object for user registration requests. Validates and transforms
+ * registration data before it reaches the AuthService.
+ *
+ * Responsibilities:
+ * - Validates email format and normalizes to lowercase
+ * - Validates password strength (min 8 chars, uppercase, lowercase, number, symbol)
+ * - Transforms email to lowercase and trims whitespace
+ * - Used by AuthController.register() endpoint
+ *
+ * How it fits into auth flow:
+ * - POST /api/auth/register receives this DTO
+ * - class-validator automatically validates request body
+ * - If valid, passed to AuthService.register()
+ * - If invalid, returns 400 Bad Request with validation errors
+ */
 import { Transform } from 'class-transformer';
 import {
   IsEmail,

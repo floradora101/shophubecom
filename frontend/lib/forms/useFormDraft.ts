@@ -101,7 +101,7 @@ export function useFormDraft<T extends FieldValues>(
         const serialized = JSON.stringify(sanitized);
         setStorageItem(key, serialized, storage);
       } catch (error) {
-        console.warn("Failed to save form draft:", error);
+        // Silently fail if storage is unavailable
       }
     },
     [enabled, key, storage, sanitizeFormData]
@@ -125,7 +125,6 @@ export function useFormDraft<T extends FieldValues>(
       }
     } catch (error) {
       // Corrupt draft - delete it
-      console.warn("Failed to load form draft (corrupt?), removing:", error);
       removeStorageItem(key, storage);
     }
   }, [enabled, key, storage, form]);

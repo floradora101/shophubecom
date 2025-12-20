@@ -1,10 +1,24 @@
 /**
- * @module AuthService
+ * @file auth.service.ts
  *
- * Handles authentication business logic:
- * - User registration and login
- * - JWT token generation and refresh
- * - Password reset flow
+ * Purpose:
+ * Contains all authentication business logic. This is the core service that handles
+ * user authentication, token generation, and password management.
+ *
+ * Responsibilities:
+ * - User registration: validates user doesn't exist, hashes password, creates user, generates tokens
+ * - User login: validates credentials, generates tokens, stores refresh token hash
+ * - Token refresh: validates refresh token, generates new tokens, rotates refresh token
+ * - User logout: revokes refresh token in database
+ * - Password reset: generates reset tokens, validates tokens, updates passwords
+ * - Token generation: creates JWT access and refresh tokens with proper payloads
+ *
+ * How it fits into auth flow:
+ * - Called by AuthController for all authentication operations
+ * - Uses UsersService to interact with user database
+ * - Uses JwtService to generate and sign tokens
+ * - Stores refresh token hashes in database for security
+ * - Returns tokens to controller (controller sets them in httpOnly cookies)
  */
 import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';

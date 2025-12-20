@@ -1,3 +1,22 @@
+/**
+ * @file auth.module.ts
+ *
+ * Purpose:
+ * NestJS module that configures and wires together all authentication components.
+ * This is the dependency injection container for the authentication system.
+ *
+ * Responsibilities:
+ * - Configures JwtModule with access token secret and expiry settings
+ * - Registers PassportModule with JWT strategy as default
+ * - Provides AuthService, AuthController, and JwtStrategy to the DI container
+ * - Exports AuthService and JwtModule for use in other modules
+ *
+ * How it fits into auth flow:
+ * - Imported by AppModule to enable authentication across the application
+ * - Provides AuthController endpoints for login, register, refresh, etc.
+ * - Provides JwtStrategy for validating tokens on protected routes
+ * - Provides AuthService for business logic (used by AuthController)
+ */
 import { Module } from '@nestjs/common';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';

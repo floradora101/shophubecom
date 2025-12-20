@@ -11,15 +11,16 @@ import {
   TrendingUp,
   Package,
 } from "lucide-react";
-import { adminDashboardApi } from "@/lib/api/admin-dashboard";
+import { adminDashboardApi } from "@/features/admin/api/dashboard";
 import type {
   AdminStats,
   SalesData,
   TopProduct,
   LowStockProduct,
-} from "@/lib/types/admin.types";
+} from "@/features/admin/types";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -50,7 +51,6 @@ export default function AdminDashboard() {
         setTopProducts(topProductsData);
         setLowStockProducts(lowStockData);
       } catch (err) {
-        console.error("Failed to load dashboard data:", err);
         const errorMessage =
           err instanceof Error
             ? err.message
@@ -65,14 +65,7 @@ export default function AdminDashboard() {
   }, []);
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary-500 border-r-transparent"></div>
-          <p className="mt-4 text-gray-600">Loading dashboard...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner variant="full" />;
   }
 
   if (error) {
@@ -152,7 +145,7 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-600">
                 Welcome back! Here's what's happening with your store.
               </p>
             </div>

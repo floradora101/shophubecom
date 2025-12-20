@@ -9,9 +9,9 @@ import { useShallow } from "zustand/react/shallow";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/auth-store";
 import { CategoryNav } from "./CategoryNav";
-import { useCart } from "@/lib/hooks/use-cart";
-import { CartSidebar } from "../cart/CartSidebar";
-import { AuthModal } from "../auth/AuthModal";
+import { useCart } from "@/features/cart/hooks";
+import { CartSidebar } from "@/features/cart/components/CartSidebar";
+import { AuthModal } from "@/features/auth";
 
 function SearchBar() {
   const router = useRouter();

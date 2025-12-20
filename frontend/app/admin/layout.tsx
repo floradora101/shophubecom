@@ -2,8 +2,8 @@
 "use client";
 
 import "@uploadthing/react/styles.css";
-import { AdminSidebar } from "@/components/admin/AdminSidebar";
-import { RequireAuth } from "@/components/auth/RequireAuth";
+import { AdminSidebar } from "@/features/admin/components/AdminSidebar";
+import { RequireAuth } from "@/features/auth/components/RequireAuth";
 
 /**
  * Admin Layout
