@@ -121,12 +121,12 @@ Usage Examples:
   showHearts={false}
 />
 
-// 3. Custom section title with search icon
+// 3. Custom section title with star icon
 <SectionTitle
   badgeText="Refine Your Search"
   title=""
   subtitle="Find exactly what you're looking for"
-  icon={Search}
+  icon={Star}
   showHearts={false}
   className="text-left"
   badgeClassName="justify-start"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useCallback, useMemo, useState } from "react";
+import { useEffect, useRef, useCallback, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 
 interface SlotStageCarouselProps<T> {
@@ -60,6 +60,42 @@ function getSmoothSlotStyle(
   };
 }
 
+// Get visible range based on total items and mobile/desktop
+function getVisibleRange(total: number, isMobile: boolean): number {
+  if (isMobile) {
+    // Mobile: show up to 3 slots if total>=3, else 1
+    return total >= 3 ? 1 : 0;
+  } else {
+    // Desktop: show up to 5 slots if total>=5, else 3 slots if total>=3, else 1
+    if (total >= 5) return 2;
+    if (total >= 3) return 1;
+    return 0;
+  }
+}
+
+// Map delta to slot position
+function getPositionFromDelta(
+  delta: number,
+  visibleRange: number,
+  isMobile: boolean
+): "left2" | "left1" | "center" | "right1" | "right2" | null {
+  if (delta === 0) return "center";
+
+  if (isMobile) {
+    // Mobile: only left1, center, right1
+    if (delta === -1) return "left1";
+    if (delta === 1) return "right1";
+    return null;
+  } else {
+    // Desktop: left2, left1, center, right1, right2
+    if (delta === -2) return "left2";
+    if (delta === -1) return "left1";
+    if (delta === 1) return "right1";
+    if (delta === 2) return "right2";
+    return null;
+  }
+}
+
 export function SlotStageCarousel<T>({
   items,
   activeIndex,
@@ -68,9 +104,9 @@ export function SlotStageCarousel<T>({
   renderCard,
 }: SlotStageCarouselProps<T>) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [dragPx, setDragPx] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
 
   // Calculate which items should be visible and their positions with smooth transitions
   const visibleItems = useMemo(() => {
@@ -79,10 +115,9 @@ export function SlotStageCarousel<T>({
     const result: Array<{
       item: T;
       index: number;
+      distanceFromCenter: number;
       style: SlotStyle;
     }> = [];
-
-    const baseOffset = 280 + (isMobile ? 20 : 24); // cardWidth + gap
 
     // Calculate items around the active index with smooth positioning
     for (
@@ -91,37 +126,59 @@ export function SlotStageCarousel<T>({
       i++
     ) {
       const itemIndex = (activeIndex + i + total) % total;
-      const x = i * baseOffset + dragPx;
-      const distanceFromCenter = x / baseOffset;
+      const distanceFromCenter = i + dragOffset / 280; // Add drag offset for smooth dragging
 
-      result.push({
-        item: items[itemIndex],
-        index: itemIndex,
-        style: getSmoothSlotStyle(distanceFromCenter, isMobile),
-      });
+      // Only show items within reasonable distance
+      if (Math.abs(distanceFromCenter) <= (isMobile ? 1.5 : 2.5)) {
+        result.push({
+          item: items[itemIndex],
+          index: itemIndex,
+          distanceFromCenter,
+          style: getSmoothSlotStyle(distanceFromCenter, isMobile),
+        });
+      }
     }
 
     return result;
-  }, [items, activeIndex, isMobile, dragPx]);
+  }, [items, activeIndex, isMobile, dragOffset]);
 
-  // Navigation functions
+  // Smooth navigation with transition states
   const goToNext = useCallback(() => {
-    if (items.length <= 1) return;
+    if (items.length <= 1 || isTransitioning) return;
+    setIsTransitioning(true);
     const nextIndex = (activeIndex + 1) % items.length;
     onActiveIndexChange(nextIndex);
-  }, [activeIndex, items.length, onActiveIndexChange]);
+    setTimeout(() => setIsTransitioning(false), 500);
+  }, [activeIndex, items.length, onActiveIndexChange, isTransitioning]);
 
   const goToPrev = useCallback(() => {
-    if (items.length <= 1) return;
+    if (items.length <= 1 || isTransitioning) return;
+    setIsTransitioning(true);
     const prevIndex = (activeIndex - 1 + items.length) % items.length;
     onActiveIndexChange(prevIndex);
-  }, [activeIndex, items.length, onActiveIndexChange]);
+    setTimeout(() => setIsTransitioning(false), 500);
+  }, [activeIndex, items.length, onActiveIndexChange, isTransitioning]);
 
   const goToIndex = useCallback(
     (index: number) => {
+      if (isTransitioning) return;
+      setIsTransitioning(true);
       onActiveIndexChange(index);
+      setTimeout(() => setIsTransitioning(false), 500);
     },
-    [onActiveIndexChange]
+    [onActiveIndexChange, isTransitioning]
+  );
+
+  // Smooth circular navigation
+  const goToOffset = useCallback(
+    (offset: number) => {
+      if (items.length <= 1 || isTransitioning) return;
+      setIsTransitioning(true);
+      const newIndex = (activeIndex + offset + items.length) % items.length;
+      onActiveIndexChange(newIndex);
+      setTimeout(() => setIsTransitioning(false), 600);
+    },
+    [activeIndex, items.length, onActiveIndexChange, isTransitioning]
   );
 
   // Handle keyboard navigation
@@ -135,54 +192,60 @@ export function SlotStageCarousel<T>({
     }
   };
 
-  // Pointer drag handlers for smooth circular motion
-  const handlePointerDown = useCallback(
-    (event: React.PointerEvent) => {
-      if (items.length <= 1) return;
+  // Mouse drag handlers for smooth circular motion
+  const [dragStart, setDragStart] = useState<{
+    x: number;
+    index: number;
+  } | null>(null);
+
+  const handleMouseDown = useCallback(
+    (event: React.MouseEvent) => {
+      if (isTransitioning) return;
       setIsDragging(true);
-      setStartX(event.clientX);
-      event.currentTarget.setPointerCapture(event.pointerId);
+      setDragStart({ x: event.clientX, index: activeIndex });
     },
-    [items.length]
+    [isTransitioning, activeIndex]
   );
 
-  const handlePointerMove = useCallback(
-    (event: React.PointerEvent) => {
-      if (!isDragging) return;
+  const handleMouseMove = useCallback(
+    (event: React.MouseEvent | MouseEvent) => {
+      if (!isDragging || !dragStart) return;
 
-      const dx = event.clientX - startX;
-      const baseOffset = 280 + (isMobile ? 20 : 24);
-      // Clamp drag to reasonable bounds (e.g., ±2 items)
-      const maxDrag = baseOffset * 2;
-      setDragPx(Math.max(-maxDrag, Math.min(maxDrag, dx)));
-    },
-    [isDragging, startX, isMobile]
-  );
+      const deltaX = event.clientX - dragStart.x;
+      const sensitivity = 200; // pixels per item
+      const offset = Math.round(deltaX / sensitivity);
 
-  const handlePointerUp = useCallback(
-    (event: React.PointerEvent) => {
-      if (!isDragging) return;
-
-      const baseOffset = 280 + (isMobile ? 20 : 24);
-      const shift = Math.round(dragPx / baseOffset);
-      if (shift !== 0) {
-        const newIndex = (activeIndex - shift + items.length) % items.length;
-        onActiveIndexChange(newIndex);
+      if (offset !== 0) {
+        const newIndex =
+          (dragStart.index - offset + items.length) % items.length;
+        if (newIndex !== activeIndex) {
+          onActiveIndexChange(newIndex);
+        }
       }
-
-      setIsDragging(false);
-      setDragPx(0);
-      event.currentTarget.releasePointerCapture(event.pointerId);
     },
-    [
-      isDragging,
-      dragPx,
-      activeIndex,
-      items.length,
-      onActiveIndexChange,
-      isMobile,
-    ]
+    [isDragging, dragStart, activeIndex, items.length, onActiveIndexChange]
   );
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+    setDragStart(null);
+  }, []);
+
+  // Add global mouse up listener
+  useEffect(() => {
+    if (isDragging) {
+      const handleGlobalMouseMove = (event: MouseEvent) => {
+        handleMouseMove(event);
+      };
+
+      document.addEventListener("mouseup", handleMouseUp);
+      document.addEventListener("mousemove", handleGlobalMouseMove);
+      return () => {
+        document.removeEventListener("mouseup", handleMouseUp);
+        document.removeEventListener("mousemove", handleGlobalMouseMove);
+      };
+    }
+  }, [isDragging, handleMouseUp, handleMouseMove]);
 
   if (items.length === 0) return null;
 
@@ -197,16 +260,12 @@ export function SlotStageCarousel<T>({
         style={{ perspective: "1200px" }}
         tabIndex={0}
         onKeyDown={handleKeyDown}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
+        onMouseDown={handleMouseDown}
       >
-        {visibleItems.map(({ item, index, style }) => (
+        {visibleItems.map(({ item, index, distanceFromCenter, style }) => (
           <div
-            key={index}
-            className={`absolute ${
-              isDragging ? "" : "transition-all duration-700 ease-out"
-            }`}
+            key={`item-${index}-${Math.round(distanceFromCenter * 100)}`}
+            className="absolute transition-all duration-700 ease-out"
             style={{
               transform: `translate(${style.x}px, ${style.y}px) scale(${style.scale})`,
               opacity: style.opacity,
@@ -216,7 +275,7 @@ export function SlotStageCarousel<T>({
                 : "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
             }}
           >
-            {renderCard(item, index, style.x === 0)}
+            {renderCard(item, index, Math.abs(distanceFromCenter) < 0.5)}
           </div>
         ))}
       </div>
@@ -226,7 +285,8 @@ export function SlotStageCarousel<T>({
         <>
           <button
             onClick={goToPrev}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full border-2 border-primary-300 bg-white hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+            disabled={isTransitioning}
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full border-2 border-primary-300 bg-white hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="Previous item"
           >
             <svg
@@ -245,7 +305,8 @@ export function SlotStageCarousel<T>({
           </button>
           <button
             onClick={goToNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full border-2 border-primary-300 bg-white hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+            disabled={isTransitioning}
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full border-2 border-primary-300 bg-white hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="Next item"
           >
             <svg
@@ -272,7 +333,8 @@ export function SlotStageCarousel<T>({
             <button
               key={index}
               onClick={() => goToIndex(index)}
-              className={`transition-all duration-500 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 ${
+              disabled={isTransitioning}
+              className={`transition-all duration-500 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed ${
                 index === activeIndex
                   ? "w-3 h-3 bg-primary-600 shadow-lg"
                   : "w-2.5 h-2.5 bg-primary-200 hover:bg-primary-400 hover:scale-110"

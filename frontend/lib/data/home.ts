@@ -33,19 +33,43 @@ export async function getHomePageData(): Promise<HomePageData> {
     // Return mock data in the old structure from our conversation
     return {
       electronicsProducts: mockProducts
-        .filter((p) => p.category === "Electronics")
+        .filter(
+          (p) =>
+            p.categorySlug === "electronics" ||
+            p.categorySlug?.startsWith("smartphones") ||
+            p.categorySlug?.startsWith("laptops") ||
+            p.categorySlug?.startsWith("headphones")
+        )
         .slice(0, 8)
         .map(mockProductToProduct),
       clothingProducts: mockProducts
-        .filter((p) => p.category === "Clothing")
+        .filter(
+          (p) =>
+            p.categorySlug === "clothing" ||
+            p.categorySlug?.startsWith("mens-clothing") ||
+            p.categorySlug?.startsWith("womens-clothing") ||
+            p.categorySlug?.startsWith("kids-clothing")
+        )
         .slice(0, 8)
         .map(mockProductToProduct),
       homeGardenProducts: mockProducts
-        .filter((p) => p.category === "Home & Garden")
+        .filter(
+          (p) =>
+            p.categorySlug === "home-garden" ||
+            p.categorySlug?.startsWith("kitchen-appliances") ||
+            p.categorySlug?.startsWith("gardening-tools") ||
+            p.categorySlug?.startsWith("home-decor")
+        )
         .slice(0, 8)
         .map(mockProductToProduct),
       booksProducts: mockProducts
-        .filter((p) => p.category === "Books")
+        .filter(
+          (p) =>
+            p.categorySlug === "books" ||
+            p.categorySlug?.startsWith("fiction-books") ||
+            p.categorySlug?.startsWith("non-fiction-books") ||
+            p.categorySlug?.startsWith("children-books")
+        )
         .slice(0, 8)
         .map(mockProductToProduct),
       featuredProducts: mockProducts.slice(0, 4).map(mockProductToProduct),
@@ -93,19 +117,43 @@ export async function getHomePageData(): Promise<HomePageData> {
   // For now, always return mocks in old structure
   return {
     electronicsProducts: mockProducts
-      .filter((p) => p.category === "Electronics")
+      .filter(
+        (p) =>
+          p.categorySlug === "electronics" ||
+          p.categorySlug?.startsWith("smartphones") ||
+          p.categorySlug?.startsWith("laptops") ||
+          p.categorySlug?.startsWith("headphones")
+      )
       .slice(0, 8)
       .map(mockProductToProduct),
     clothingProducts: mockProducts
-      .filter((p) => p.category === "Clothing")
+      .filter(
+        (p) =>
+          p.categorySlug === "clothing" ||
+          p.categorySlug?.startsWith("mens-clothing") ||
+          p.categorySlug?.startsWith("womens-clothing") ||
+          p.categorySlug?.startsWith("kids-clothing")
+      )
       .slice(0, 8)
       .map(mockProductToProduct),
     homeGardenProducts: mockProducts
-      .filter((p) => p.category === "Home & Garden")
+      .filter(
+        (p) =>
+          p.categorySlug === "home-garden" ||
+          p.categorySlug?.startsWith("kitchen-appliances") ||
+          p.categorySlug?.startsWith("gardening-tools") ||
+          p.categorySlug?.startsWith("home-decor")
+      )
       .slice(0, 8)
       .map(mockProductToProduct),
     booksProducts: mockProducts
-      .filter((p) => p.category === "Books")
+      .filter(
+        (p) =>
+          p.categorySlug === "books" ||
+          p.categorySlug?.startsWith("fiction-books") ||
+          p.categorySlug?.startsWith("non-fiction-books") ||
+          p.categorySlug?.startsWith("children-books")
+      )
       .slice(0, 8)
       .map(mockProductToProduct),
     featuredProducts: mockProducts.slice(0, 4).map(mockProductToProduct),

@@ -209,8 +209,8 @@ export function SwipeRevealCard({
   return (
     <div
       ref={cardRef}
-      className={`relative w-full h-full min-h-[400px] md:min-h-[500px] rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-sm hover:shadow-lg ${
-        isDragging ? "select-none" : ""
+      className={`relative w-full h-full min-h-[400px] md:min-h-[500px] rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all duration-300 ${
+        isDragging ? "select-none scale-105 shadow-xl" : ""
       }`}
       style={{
         touchAction: "pan-y",
@@ -444,42 +444,115 @@ export function SwipeRevealCard({
           }`}
           style={{ clipPath: coverClipPath }}
         >
-          <div className="relative h-full bg-gradient-to-br from-primary-50 via-cream-50 to-primary-100 flex flex-col items-center justify-center p-8">
-            {/* Product Image - Blurred/Overlay */}
-            <div className="absolute inset-0 opacity-20">
-              <Image
-                src={productImage}
-                alt={product.name}
-                fill
-                className="object-cover blur-sm"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
+          {/* Animated gradient background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary-400 via-pink-400 to-orange-400 animate-pulse opacity-90">
+            <div
+              className="absolute inset-0 bg-gradient-to-tl from-primary-600/30 via-transparent to-purple-500/20 animate-pulse"
+              style={{ animationDelay: "1s" }}
+            ></div>
+          </div>
+
+          {/* Floating geometric shapes */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div
+              className="absolute top-10 left-10 w-16 h-16 bg-white/20 rounded-full animate-bounce"
+              style={{ animationDelay: "0.5s" }}
+            ></div>
+            <div
+              className="absolute top-20 right-16 w-8 h-8 bg-white/30 rounded-lg rotate-45 animate-pulse"
+              style={{ animationDelay: "1.2s" }}
+            ></div>
+            <div
+              className="absolute bottom-20 left-20 w-12 h-12 bg-white/25 rounded-full animate-bounce"
+              style={{ animationDelay: "2s" }}
+            ></div>
+            <div
+              className="absolute bottom-32 right-12 w-6 h-6 bg-white/35 rounded-lg rotate-12 animate-pulse"
+              style={{ animationDelay: "0.8s" }}
+            ></div>
+          </div>
+
+          {/* Product Image - Blurred/Overlay with mystery effect */}
+          <div className="absolute inset-0 opacity-100">
+            <Image
+              src={productImage}
+              alt={product.name}
+              fill
+              className="object-cover blur-md scale-110"
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
+            {/* Mystery overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-black/80"></div>
+          </div>
+
+          {/* Main Product Display with mystery elements */}
+          <div className="relative z-10 text-center space-y-6 p-8">
+            {/* Mystery badge with animated elements */}
+            <div className="relative inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white/95 backdrop-blur-sm border border-primary-200 shadow-xl mb-4">
+              <div className="relative">
+                <Tag className="h-5 w-5 text-primary-600 animate-pulse" />
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping"></div>
+              </div>
+              <span className="text-sm font-bold text-primary-700 font-[var(--font-poppins)] uppercase tracking-wide">
+                Secret Deal
+              </span>
+              <div className="flex gap-1">
+                <div className="w-1.5 h-1.5 bg-primary-400 rounded-full animate-pulse"></div>
+                <div
+                  className="w-1.5 h-1.5 bg-primary-400 rounded-full animate-pulse"
+                  style={{ animationDelay: "0.2s" }}
+                ></div>
+                <div
+                  className="w-1.5 h-1.5 bg-primary-400 rounded-full animate-pulse"
+                  style={{ animationDelay: "0.4s" }}
+                ></div>
+              </div>
             </div>
 
-            {/* Main Product Display - Centered like bundle cover */}
-            <div className="relative z-10 text-center space-y-6">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-primary-200 mb-4">
-                <Tag className="h-4 w-4 text-primary-600" />
-                <span className="text-sm font-semibold text-primary-700 font-[var(--font-poppins)]">
-                  Regular Price
-                </span>
-              </div>
-              <div className="relative w-32 h-32 mx-auto rounded-2xl overflow-hidden border-2 border-white shadow-lg">
+            {/* Product image with locked effect */}
+            <div className="relative w-36 h-36 mx-auto">
+              <div className="relative w-full h-full rounded-2xl overflow-hidden border-2 border-white/50 shadow-2xl">
                 <Image
                   src={productImage}
                   alt={product.name}
                   fill
                   className="object-cover"
-                  sizes="128px"
+                  sizes="144px"
                 />
+                {/* Locked overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 flex items-end justify-center pb-3">
+                  <div className="bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg">
+                    <div className="w-6 h-6 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">?</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="space-y-2">
-                <p className="text-lg font-semibold text-gray-900 font-[var(--font-poppins)]">
-                  {product.name}
+              {/* Floating price hint */}
+              <div className="absolute -top-2 -right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold animate-bounce">
+                -{discountPercent}%
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-xl font-bold text-white font-[var(--font-poppins)] drop-shadow-lg line-clamp-2">
+                {product.name}
+              </p>
+              <div className="space-y-1">
+                <p className="text-sm text-white/80 font-[var(--font-inter)]">
+                  Sale Price
                 </p>
-                <p className="text-2xl font-bold text-primary-600 font-[var(--font-poppins)]">
-                  {formatPrice(originalPrice || product.price)}
+                <p className="text-3xl font-black text-white font-[var(--font-poppins)] drop-shadow-xl">
+                  {formatPrice(product.price)}
                 </p>
+              </div>
+              {/* Swipe hint */}
+              <div className="mt-4 flex items-center justify-center gap-2 text-white/70">
+                <ArrowLeft className="h-4 w-4 animate-pulse" />
+                <span className="text-xs font-medium">
+                  Swipe to unlock savings
+                </span>
+                <ArrowRight className="h-4 w-4 animate-pulse" />
               </div>
             </div>
           </div>
@@ -493,42 +566,128 @@ export function SwipeRevealCard({
           }`}
           style={{ clipPath: coverClipPath }}
         >
-          <div className="relative h-full bg-gradient-to-br from-purple-50 via-pink-50 to-primary-100 flex flex-col items-center justify-center p-8">
-            {/* Product Image - Blurred/Overlay */}
-            <div className="absolute inset-0 opacity-20">
-              <Image
-                src={productImage}
-                alt={product.name}
-                fill
-                className="object-cover blur-sm"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
+          {/* Animated gradient background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500 via-pink-500 to-indigo-500 animate-pulse opacity-90">
+            <div
+              className="absolute inset-0 bg-gradient-to-tl from-purple-600/30 via-transparent to-pink-500/20 animate-pulse"
+              style={{ animationDelay: "1s" }}
+            ></div>
+          </div>
+
+          {/* Floating package icons and shapes */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div
+              className="absolute top-12 left-12 w-12 h-12 bg-white/20 rounded-lg rotate-12 animate-bounce"
+              style={{ animationDelay: "0.3s" }}
+            >
+              <Package className="h-6 w-6 text-white m-3" />
+            </div>
+            <div
+              className="absolute top-16 right-20 w-8 h-8 bg-white/30 rounded-full animate-pulse"
+              style={{ animationDelay: "1.5s" }}
+            ></div>
+            <div
+              className="absolute bottom-24 left-16 w-10 h-10 bg-white/25 rounded-lg -rotate-12 animate-bounce"
+              style={{ animationDelay: "1.8s" }}
+            >
+              <Package className="h-5 w-5 text-white m-2.5" />
+            </div>
+            <div
+              className="absolute bottom-16 right-8 w-6 h-6 bg-white/35 rounded-full animate-pulse"
+              style={{ animationDelay: "0.7s" }}
+            ></div>
+          </div>
+
+          {/* Product Image - Blurred/Overlay with mystery effect */}
+          <div className="absolute inset-0 opacity-25">
+            <Image
+              src={productImage}
+              alt={product.name}
+              fill
+              className="object-cover blur-md scale-110"
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
+            {/* Mystery overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-black/30 via-transparent to-black/50"></div>
+          </div>
+
+          {/* Main Product Display with bundle mystery */}
+          <div className="relative z-10 text-center space-y-6 p-8">
+            {/* Mystery bundle badge */}
+            <div className="relative inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white/95 backdrop-blur-sm border border-purple-200 shadow-xl mb-4">
+              <div className="relative">
+                <Package className="h-5 w-5 text-purple-600 animate-pulse" />
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
+              </div>
+              <span className="text-sm font-bold text-purple-700 font-[var(--font-poppins)] uppercase tracking-wide">
+                Smart Combo
+              </span>
+              <div className="flex gap-1">
+                <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse"></div>
+                <div
+                  className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse"
+                  style={{ animationDelay: "0.2s" }}
+                ></div>
+                <div
+                  className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse"
+                  style={{ animationDelay: "0.4s" }}
+                ></div>
+              </div>
             </div>
 
-            {/* Main Product Display */}
-            <div className="relative z-10 text-center space-y-6">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-purple-200 mb-4">
-                <Package className="h-4 w-4 text-purple-600" />
-                <span className="text-sm font-semibold text-purple-700 font-[var(--font-poppins)]">
-                  Frequently Bought Together
-                </span>
-              </div>
-              <div className="relative w-32 h-32 mx-auto rounded-2xl overflow-hidden border-2 border-white shadow-lg">
+            {/* Product image with bundle hint */}
+            <div className="relative w-36 h-36 mx-auto">
+              <div className="relative w-full h-full rounded-2xl overflow-hidden border-2 border-white/50 shadow-2xl">
                 <Image
                   src={productImage}
                   alt={product.name}
                   fill
                   className="object-cover"
-                  sizes="128px"
+                  sizes="144px"
                 />
+                {/* Bundle overlay with multiple items hint */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 flex items-end justify-center pb-3">
+                  <div className="flex gap-1">
+                    {[1, 2, 3].map((i) => (
+                      <div
+                        key={i}
+                        className="bg-white/90 backdrop-blur-sm rounded-full p-1.5 shadow-lg"
+                      >
+                        <div className="w-4 h-4 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center">
+                          <span className="text-white font-bold text-xs">
+                            +
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <div className="space-y-2">
-                <p className="text-lg font-semibold text-gray-900 font-[var(--font-poppins)]">
-                  {product.name}
+              {/* Bundle savings hint */}
+              <div className="absolute -top-2 -right-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold animate-bounce">
+                SAVE MORE
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-xl font-bold text-white font-[var(--font-poppins)] drop-shadow-lg line-clamp-2">
+                {product.name}
+              </p>
+              <div className="space-y-1">
+                <p className="text-sm text-white/80 font-[var(--font-inter)]">
+                  Plus complementary items
                 </p>
-                <p className="text-2xl font-bold text-primary-600 font-[var(--font-poppins)]">
+                <p className="text-3xl font-black text-white font-[var(--font-poppins)] drop-shadow-xl">
                   {formatPrice(product.price)}
                 </p>
+              </div>
+              {/* Swipe hint */}
+              <div className="mt-4 flex items-center justify-center gap-2 text-white/70">
+                <ArrowLeft className="h-4 w-4 animate-pulse" />
+                <span className="text-xs font-medium">
+                  Swipe for smart savings
+                </span>
+                <ArrowRight className="h-4 w-4 animate-pulse" />
               </div>
             </div>
           </div>
@@ -549,21 +708,41 @@ export function SwipeRevealCard({
         onPointerCancel={handlePointerCancel}
       >
         {/* Handle Container - Circular arrows only */}
-        <div className="flex items-center gap-1.5">
+        <div
+          className={`flex items-center gap-1.5 ${
+            isDragging ? "animate-pulse" : ""
+          }`}
+        >
           <div
-            className={`flex items-center justify-center w-6 h-6 rounded-full ${colors.bg} shadow-sm hover:shadow-md hover:scale-110 active:scale-95 transition-all duration-200 cursor-grab active:cursor-grabbing select-none`}
+            className={`flex items-center justify-center w-6 h-6 rounded-full ${
+              colors.bg
+            } shadow-sm hover:shadow-md hover:scale-110 active:scale-95 transition-all duration-200 cursor-grab active:cursor-grabbing select-none ${
+              isDragging ? "scale-110 shadow-lg" : ""
+            }`}
           >
-            <ArrowLeft className="h-3 w-3 text-white" strokeWidth={2.5} />
+            <ArrowLeft
+              className={`h-3 w-3 text-white transition-transform duration-200 ${
+                isDragging ? "animate-bounce" : ""
+              }`}
+              strokeWidth={2.5}
+            />
           </div>
           <div
-            className={`flex items-center justify-center w-6 h-6 rounded-full ${colors.bg} shadow-sm hover:shadow-md hover:scale-110 active:scale-95 transition-all duration-200 cursor-grab active:cursor-grabbing select-none`}
+            className={`flex items-center justify-center w-6 h-6 rounded-full ${
+              colors.bg
+            } shadow-sm hover:shadow-md hover:scale-110 active:scale-95 transition-all duration-200 cursor-grab active:cursor-grabbing select-none ${
+              isDragging ? "scale-110 shadow-lg" : ""
+            }`}
           >
-            <ArrowRight className="h-3 w-3 text-white" strokeWidth={2.5} />
+            <ArrowRight
+              className={`h-3 w-3 text-white transition-transform duration-200 ${
+                isDragging ? "animate-bounce" : ""
+              }`}
+              strokeWidth={2.5}
+            />
           </div>
         </div>
       </div>
     </div>
   );
 }
-
-

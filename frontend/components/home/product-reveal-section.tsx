@@ -29,10 +29,10 @@ export function ProductRevealSection({ products }: ProductRevealSectionProps) {
     const safeProducts = ensureArray(products);
     if (safeProducts.length === 0) return [];
 
-    // Find products with discounts for price reveals - use price math only
+    // Find products with significant discounts for price reveals (at least 10% off)
     const productsWithDiscounts = safeProducts.filter((p) => {
-      const { hasDiscount } = getDiscountInfo(p);
-      return hasDiscount;
+      const { hasDiscount, discountPercent, originalPrice } = getDiscountInfo(p);
+      return hasDiscount && discountPercent >= 10 && originalPrice && originalPrice > p.price;
     });
 
     // Group products by category for bundle matching
@@ -84,21 +84,31 @@ export function ProductRevealSection({ products }: ProductRevealSectionProps) {
       }
     });
 
-    // DEV fallback: if not enough reveals found, fill with products for testing
+    // Fallback: if not enough reveals found, create sale-like experiences
     if (reveals.length < 4) {
       const priceCount = reveals.filter((r) => r.revealType === "price").length;
       const bundleCount = reveals.filter(
         (r) => r.revealType === "bundle"
       ).length;
 
-      // Fill missing price reveals
+      // Fill missing price reveals with simulated discounts
       if (priceCount < 2) {
         const remainingProducts = safeProducts.filter(
           (p) => !reveals.some((r) => r.product.id === p.id)
         );
         remainingProducts.slice(0, 2 - priceCount).forEach((product) => {
+          // Create a simulated discount for products without real discounts
+          const simulatedProduct = {
+            ...product,
+            originalPrice: product.price * 1.25, // 25% higher "regular" price
+            discount: {
+              originalPrice: product.price * 1.25,
+              discountPercent: 20,
+              isOnSale: true
+            }
+          };
           reveals.push({
-            product,
+            product: simulatedProduct,
             revealType: "price",
           });
         });

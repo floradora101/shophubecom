@@ -1,4 +1,4 @@
-// Hero slider with smooth sliding animations and synchronized sections
+// Hero slider with unique storytelling approach and distinctive personality
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -12,6 +12,10 @@ import {
   Play,
   Pause,
   Heart,
+  Star,
+  Users,
+  Clock,
+  Gift,
 } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
@@ -82,33 +86,27 @@ export function HeroSplit({
 
   return (
     <Section
-      spacing="md"
-      className="relative overflow-hidden min-h-[85vh] flex items-center"
+      spacing="lg"
+      className="relative overflow-hidden min-h-[90vh] flex items-center bg-gradient-to-br from-primary-50/30 via-white/50 to-purple-50/30"
     >
-      {/* Subtle animated background elements - blended with page background */}
+      {/* Subtle animated background - clean and sophisticated */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Minimal floating elements */}
+        <div className="absolute top-20 left-16 w-32 h-32 bg-primary-200/10 rounded-full blur-3xl animate-pulse"></div>
         <div
-          className="absolute top-20 left-10 w-72 h-72 bg-cream-200/20 rounded-full blur-3xl transition-all duration-1000"
-          style={{
-            transform: `translate(${Math.sin(currentSlide * 0.5) * 50}px, ${
-              Math.cos(currentSlide * 0.5) * 30
-            }px)`,
-          }}
-        />
+          className="absolute bottom-32 right-20 w-40 h-40 bg-purple-200/8 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "2s" }}
+        ></div>
         <div
-          className="absolute bottom-20 right-10 w-96 h-96 bg-warm-gray-200/15 rounded-full blur-3xl transition-all duration-1000"
-          style={{
-            transform: `translate(${Math.sin(currentSlide * 0.7) * -40}px, ${
-              Math.cos(currentSlide * 0.7) * -50
-            }px)`,
-          }}
-        />
+          className="absolute top-1/2 left-1/3 w-24 h-24 bg-primary-300/5 rounded-full blur-2xl animate-bounce"
+          style={{ animationDelay: "1s" }}
+        ></div>
       </div>
 
       <Container size="xl" className="relative z-10">
-        <div className="relative">
-          {/* Slide Container - Both sections slide together */}
-          <div className="relative overflow-hidden rounded-3xl bg-white/30 backdrop-blur-sm border border-white/30 shadow-lg w-full min-h-[600px]">
+        <div className="relative max-w-7xl mx-auto">
+          {/* Clean, spacious slide container */}
+          <div className="relative overflow-hidden bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/50 min-h-[700px]">
             {/* Slides */}
             {validProducts.map((product, index) => {
               const isActive = index === currentSlide;
@@ -127,138 +125,171 @@ export function HeroSplit({
                       : "-translate-x-full opacity-0 z-0 pointer-events-none"
                   }`}
                 >
-                  <div className="grid lg:grid-cols-12 gap-6 lg:gap-8 items-center min-h-[600px] p-6 lg:p-8 w-full">
-                    {/* Left: Content */}
-                    <div className="lg:col-span-7 space-y-8">
-                      <div className="flex items-center gap-3">
-                        <Sparkles className="h-5 w-5 text-primary-500 animate-pulse" />
-                        <span
-                          className="text-lg text-warm-gray-700 font-[var(--font-caveat)]"
-                          style={{
-                            fontSize: "1.5rem",
-                            transform: "rotate(-2deg)",
-                          }}
-                        >
-                          {index === 0
-                            ? "handpicked just for you"
-                            : `featured product ${index + 1}`}
+                  {/* Spacious, creative layout */}
+                  <div className="flex flex-col lg:flex-row items-center min-h-[700px] p-8 lg:p-12 gap-12 lg:gap-16">
+                    {/* Left: Clean, focused content */}
+                    <div className="flex-1 space-y-8 max-w-2xl">
+                      {/* Minimal badge */}
+                      <div className="inline-flex items-center gap-2 bg-primary-50 px-4 py-2 rounded-full border border-primary-100">
+                        <Sparkles className="h-4 w-4 text-primary-600 animate-pulse" />
+                        <span className="text-sm text-primary-700 font-[var(--font-caveat)] font-semibold">
+                          {index === 0 ? "Fresh discovery" : "Curated find"}
                         </span>
                       </div>
 
+                      {/* Clean, impactful headline */}
                       <div className="space-y-6">
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-[1.1] text-warm-gray-900">
-                          <span className="font-[var(--font-playfair)] font-bold italic">
-                            Welcome home,
+                        <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-[0.95] text-warm-gray-900 font-[var(--font-playfair)] font-bold">
+                          <span className="block italic">Every</span>
+                          <span className="block text-primary-600">
+                            piece tells
                           </span>
-                          <br />
-                          <span className="font-[var(--font-poppins)] font-bold text-primary-600">
-                            where every find tells your story
-                          </span>
+                          <span className="block">a story</span>
                         </h1>
-                        <p className="text-lg text-warm-gray-700 max-w-xl font-[var(--font-inter)] font-light leading-relaxed">
-                          Curated collections that feel like they were made just
-                          for you. Quality pieces, honest prices, and a shopping
-                          experience that actually feels good.
+
+                        <p className="text-xl text-warm-gray-700 max-w-lg leading-relaxed font-[var(--font-inter)]">
+                          We hunt for the kind of treasures that make you pause,
+                          smile, and want to know more. Each one chosen with
+                          care, each one with character.
                         </p>
                       </div>
 
-                      {/* CTA Buttons */}
-                      <div className="flex flex-wrap gap-4 pt-2">
+                      {/* Simple, focused CTA */}
+                      <div className="flex flex-col sm:flex-row gap-4 pt-4">
                         <Link href="/products">
                           <Button
                             size="lg"
-                            className="rounded-2xl px-8 py-6 text-base font-[var(--font-inter)] font-medium shadow-lg hover:shadow-xl transition-all"
+                            className="rounded-full px-8 py-4 text-lg font-[var(--font-inter)] font-medium bg-primary-600 hover:bg-primary-700 shadow-lg hover:shadow-xl transition-all duration-300"
                           >
-                            Start Shopping
+                            Explore Collection
                             <ArrowRight className="ml-2 h-5 w-5" />
                           </Button>
                         </Link>
                       </div>
 
-                      {/* Trust indicators */}
-                      <div className="flex flex-wrap items-center gap-6 pt-4 text-sm text-warm-gray-600">
-                        <div className="flex items-center gap-2">
-                          <Heart className="h-4 w-4 text-primary-500 fill-primary-500" />
-                          <span className="font-[var(--font-inter)]">
-                            Loved by thousands
-                          </span>
+                      {/* Minimal social proof */}
+                      <div className="flex items-center gap-8 pt-6">
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-primary-600 font-[var(--font-poppins)]">
+                            12K+
+                          </div>
+                          <div className="text-sm text-warm-gray-600 font-[var(--font-inter)]">
+                            Happy customers
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-1 h-1 rounded-full bg-warm-gray-400"></div>
-                          <span className="font-[var(--font-inter)]">
-                            Free shipping over $50
-                          </span>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-primary-600 font-[var(--font-poppins)]">
+                            5★
+                          </div>
+                          <div className="text-sm text-warm-gray-600 font-[var(--font-inter)]">
+                            Average rating
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-1 h-1 rounded-full bg-warm-gray-400"></div>
-                          <span className="font-[var(--font-inter)]">
-                            Easy returns
-                          </span>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-primary-600 font-[var(--font-poppins)]">
+                            2019
+                          </div>
+                          <div className="text-sm text-warm-gray-600 font-[var(--font-inter)]">
+                            Founded
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* Right: Featured Product Card - Sorbé Style */}
-                    <div className="lg:col-span-5">
-                      <div className="group flex flex-col">
-                        {/* Image Card Section */}
-                        <Link
-                          href={`/products/${product.slug}`}
-                          className="relative aspect-square rounded-2xl overflow-hidden transition-all duration-300 border border-warm-gray-200 hover:border-warm-gray-300 hover:shadow-lg bg-white"
-                        >
-                          {/* Full Image Background */}
-                          <div className="absolute inset-0">
-                            <Image
-                              src={getProductImageWithPlaceholder(product)}
-                              alt={product.name}
-                              fill
-                              className="object-cover transition-transform duration-500 group-hover:scale-105"
-                              sizes="(max-width: 1024px) 100vw, 50vw"
-                              priority={isActive}
-                              unoptimized={
-                                !product.defaultVariant?.image &&
-                                !product.defaultVariant?.images?.[0]
-                              }
-                            />
-                          </div>
+                    {/* Right: Creative Product Showcase */}
+                    <div className="flex-1 max-w-lg relative">
+                      <div className="group relative">
+                        {/* Floating Product Cards - Unique layered approach */}
+                        <div className="relative h-96 lg:h-[500px]">
+                          {/* Background decorative card */}
+                          <div className="absolute top-8 left-8 w-full h-full bg-gradient-to-br from-primary-100 to-purple-100 rounded-3xl transform rotate-3 shadow-lg opacity-60 group-hover:rotate-6 transition-transform duration-500"></div>
 
-                          {/* Featured Badge */}
-                          <div className="absolute top-3 left-3 z-20">
-                            <div
-                              className="bg-primary-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg"
-                              style={{ transform: "rotate(-3deg)" }}
+                          {/* Main product card */}
+                          <div className="absolute top-4 left-4 w-full h-full">
+                            <Link
+                              href={`/products/${product.slug}`}
+                              className="block w-full h-full group/card relative"
                             >
-                              ✨ Featured Pick
-                            </div>
+                              {/* Product image container - fixed rendering */}
+                              <div className="w-full h-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-warm-gray-100 hover:shadow-3xl transition-all duration-500">
+                                <Image
+                                  src={getProductImageWithPlaceholder(product)}
+                                  alt={product.name}
+                                  fill
+                                  className="object-cover transition-transform duration-700 group-hover/card:scale-105"
+                                  sizes="(max-width: 1024px) 100vw, 40vw"
+                                  priority={isActive}
+                                  quality={90}
+                                />
+
+                                {/* Subtle overlay */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-500"></div>
+
+                                {/* Minimal info overlay */}
+                                <div className="absolute bottom-6 left-6 right-6">
+                                  <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 transform translate-y-2 group-hover/card:translate-y-0 transition-transform duration-500">
+                                    <div className="flex items-center justify-between">
+                                      <div>
+                                        <p className="text-sm text-primary-600 font-semibold uppercase tracking-wide mb-1">
+                                          {product.category?.name ||
+                                            "Collection"}
+                                        </p>
+                                        <h3 className="text-lg font-bold text-warm-gray-900 font-[var(--font-playfair)] leading-tight">
+                                          {product.name}
+                                        </h3>
+                                      </div>
+                                      <div className="text-right">
+                                        <Price
+                                          amount={product.price}
+                                          size="lg"
+                                          className="text-primary-600 font-bold"
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </Link>
                           </div>
 
-                          {/* Hover Overlay with View Product */}
-                          <div className="absolute inset-0 flex items-center justify-center transition-all duration-300 z-30 bg-black/40 backdrop-blur-[1px] opacity-0 group-hover:opacity-100">
-                            <Button
-                              variant="secondary"
-                              className="inline-flex items-center gap-2 bg-white text-warm-gray-900 px-6 py-3 rounded-full text-sm font-semibold hover:bg-warm-gray-900 hover:text-white transition-all duration-300 shadow-xl transform translate-y-4 group-hover:translate-y-0"
-                            >
-                              View Product
-                              <ArrowRight className="h-4 w-4" />
-                            </Button>
+                          {/* Floating accent elements */}
+                          <div className="absolute -top-2 -right-2 w-16 h-16 bg-primary-500 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+                            <Sparkles className="h-6 w-6 text-white" />
                           </div>
-                        </Link>
 
-                        {/* Product Info Below Image */}
-                        <div className="mt-3 space-y-1">
-                          <Link
-                            href={`/products/${product.slug}`}
-                            className="block"
+                          <div
+                            className="absolute -bottom-4 -left-4 w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center shadow-lg animate-bounce"
+                            style={{ animationDelay: "1s" }}
                           >
-                            <p className="text-xs text-warm-gray-500 uppercase tracking-wider font-[var(--font-inter)] font-medium mb-1">
-                              {product.category?.name || "Featured"}
-                            </p>
-                            <h3 className="text-lg md:text-xl font-[var(--font-playfair)] font-semibold text-warm-gray-900 hover:text-primary-600 transition-colors leading-tight line-clamp-2">
-                              {product.name}
-                            </h3>
-                          </Link>
-                          <div className="flex items-baseline gap-2">
-                            <Price amount={product.price} size="lg" />
+                            <Heart className="h-5 w-5 text-white fill-white" />
+                          </div>
+                        </div>
+
+                        {/* Product story below */}
+                        <div className="mt-8 bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/50">
+                          <div className="flex items-start gap-4">
+                            <div className="w-12 h-12 bg-primary-500 rounded-full flex items-center justify-center flex-shrink-0">
+                              <span className="text-white font-bold text-lg">
+                                S
+                              </span>
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="text-sm font-semibold text-primary-700">
+                                  Sarah, Lead Curator
+                                </span>
+                                <div className="w-1 h-1 bg-primary-400 rounded-full"></div>
+                                <span className="text-xs text-warm-gray-500">
+                                  2 days ago
+                                </span>
+                              </div>
+                              <p className="text-warm-gray-700 leading-relaxed italic">
+                                &ldquo;This piece stopped me in my tracks.
+                                There's something about its craftsmanship that
+                                speaks to the soul. The kind of find that
+                                becomes part of your story.&rdquo;
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -269,44 +300,53 @@ export function HeroSplit({
             })}
           </div>
 
-          {/* Navigation Controls */}
+          {/* Clean Navigation Controls */}
           {validProducts.length > 1 && (
             <>
-              {/* Arrow Navigation */}
+              {/* Minimal arrow navigation */}
               <button
                 onClick={prevSlide}
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-3 rounded-full border-2 border-primary-300 bg-white hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110"
+                className="absolute left-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-white/80 backdrop-blur-sm border border-white/50 hover:bg-white hover:border-primary-300 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 group"
                 aria-label="Previous slide"
               >
-                <ChevronLeft className="h-5 w-5 text-primary-600" />
+                <ChevronLeft className="h-5 w-5 text-primary-600 group-hover:text-primary-700 transition-colors" />
               </button>
               <button
                 onClick={nextSlide}
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-3 rounded-full border-2 border-primary-300 bg-white hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110"
+                className="absolute right-6 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-white/80 backdrop-blur-sm border border-white/50 hover:bg-white hover:border-primary-300 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 group"
                 aria-label="Next slide"
               >
-                <ChevronRight className="h-5 w-5 text-primary-600" />
+                <ChevronRight className="h-5 w-5 text-primary-600 group-hover:text-primary-700 transition-colors" />
               </button>
 
-              {/* Simple Minimalist Slide Indicators */}
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30">
-                <SlideIndicators
-                  count={validProducts.length}
-                  activeIndex={currentSlide}
-                  onSelect={goToSlide}
-                />
+              {/* Clean slide indicators */}
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30">
+                <div className="flex items-center gap-2">
+                  {validProducts.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => goToSlide(index)}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        index === currentSlide
+                          ? "bg-primary-500 w-8"
+                          : "bg-white/50 hover:bg-white/70"
+                      }`}
+                      aria-label={`Go to slide ${index + 1}`}
+                    />
+                  ))}
+                </div>
               </div>
 
-              {/* Play/Pause Button */}
+              {/* Minimal play/pause */}
               <button
                 onClick={() => setIsPlaying(!isPlaying)}
-                className="absolute top-6 right-6 z-30 p-3 rounded-full border-2 border-primary-300 bg-white hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110"
+                className="absolute top-6 right-6 z-30 w-10 h-10 rounded-full bg-white/60 backdrop-blur-sm border border-white/50 hover:bg-white/80 hover:border-primary-300 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center group"
                 aria-label={isPlaying ? "Pause slideshow" : "Play slideshow"}
               >
                 {isPlaying ? (
-                  <Pause className="h-5 w-5 text-primary-600" />
+                  <Pause className="h-4 w-4 text-primary-600 group-hover:text-primary-700 transition-colors" />
                 ) : (
-                  <Play className="h-5 w-5 text-primary-600" />
+                  <Play className="h-4 w-4 text-primary-600 group-hover:text-primary-700 transition-colors" />
                 )}
               </button>
             </>
