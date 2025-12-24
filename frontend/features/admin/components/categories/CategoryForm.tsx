@@ -45,7 +45,6 @@ export function CategoryForm({ category, onSave }: CategoryFormProps) {
           slug: category.slug,
           description: category.description || "",
           parentId: category.parentId || null,
-          promotionIds: category.promotionIds || [],
         }
       : {
           name: "",

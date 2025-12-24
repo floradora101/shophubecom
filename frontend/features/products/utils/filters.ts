@@ -14,8 +14,7 @@
 import { ReadonlyURLSearchParams } from "next/navigation";
 
 export interface ProductFilters {
-  // URL-based filters (always in URL)
-  category?: string | null;
+  // URL-based filters (always in URL) - category is now route-based
   search?: string | null;
   page?: number;
 
@@ -47,29 +46,32 @@ const DEFAULT_FILTERS: CanonicalFilters = {
 };
 
 /**
- * Parse filters from URL search params with canonicalization
+ * Parse filters from URL search params with canonicalization and validation
  *
  * Rules:
  * - Trim search strings, remove if empty
  * - Parse numbers safely (NaN guard)
  * - Parse booleans safely (accept "true"/"false", "1"/"0")
+ * - Validate page >= 1
+ * - Validate minPrice/maxPrice as numbers, swap if minPrice > maxPrice
+ * - Validate sortBy within allowed values, fallback to default
  * - Omit defaults (don't pollute URL)
- * - Page defaults to 1
  */
 export function parseFiltersFromSearchParams(
   searchParams: ReadonlyURLSearchParams
 ): CanonicalFilters {
-  const category = searchParams.get("category")?.trim() || null;
+  // Category is now handled by routes, not URL params
+  const category = null;
 
   const searchRaw = searchParams.get("search")?.trim();
   const search = searchRaw && searchRaw.length > 0 ? searchRaw : null;
 
   const pageRaw = searchParams.get("page");
   const page = pageRaw ? parseInt(pageRaw, 10) : 1;
-  const pageNum = isNaN(page) || page < 1 ? 1 : page;
+  const pageNum = Math.max(1, isNaN(page) ? 1 : page);
 
   const minPriceRaw = searchParams.get("minPrice");
-  const minPrice = minPriceRaw
+  let minPrice = minPriceRaw
     ? (() => {
         const num = parseFloat(minPriceRaw);
         return isNaN(num) || num < 0 ? null : num;
@@ -77,12 +79,17 @@ export function parseFiltersFromSearchParams(
     : null;
 
   const maxPriceRaw = searchParams.get("maxPrice");
-  const maxPrice = maxPriceRaw
+  let maxPrice = maxPriceRaw
     ? (() => {
         const num = parseFloat(maxPriceRaw);
         return isNaN(num) || num < 0 ? null : num;
       })()
     : null;
+
+  // If both prices are set and minPrice > maxPrice, swap them
+  if (minPrice !== null && maxPrice !== null && minPrice > maxPrice) {
+    [minPrice, maxPrice] = [maxPrice, minPrice];
+  }
 
   const sortByRaw = searchParams.get("sort");
   const sortByMap: Record<string, CanonicalFilters["sortBy"]> = {
@@ -360,7 +367,8 @@ export function filtersToApiParams(
  * Update URL search params with filter changes
  *
  * This helper creates a new URLSearchParams object with updated values.
- * It omits default values to keep URLs clean.
+ * It deletes params when value is null/undefined/"" or boolean false.
+ * Always returns a new URLSearchParams instance.
  */
 export function updateSearchParams(
   currentParams: ReadonlyURLSearchParams,
@@ -368,16 +376,7 @@ export function updateSearchParams(
 ): URLSearchParams {
   const params = new URLSearchParams(currentParams.toString());
 
-  // Update category
-  if (updates.category !== undefined) {
-    if (updates.category) {
-      params.set("category", updates.category);
-    } else {
-      params.delete("category");
-    }
-  }
-
-  // Update search
+  // Update search - delete when null/undefined/""
   if (updates.search !== undefined) {
     const trimmed = updates.search?.trim();
     if (trimmed && trimmed.length > 0) {
@@ -387,16 +386,16 @@ export function updateSearchParams(
     }
   }
 
-  // Update page
+  // Update page - delete when <= 1 or null/undefined
   if (updates.page !== undefined) {
-    if (updates.page > 1) {
+    if (updates.page !== null && updates.page > 1) {
       params.set("page", updates.page.toString());
     } else {
       params.delete("page");
     }
   }
 
-  // Update minPrice
+  // Update minPrice - delete when null/undefined or <= 0
   if (updates.minPrice !== undefined) {
     if (updates.minPrice !== null && updates.minPrice > 0) {
       params.set("minPrice", updates.minPrice.toString());
@@ -405,7 +404,7 @@ export function updateSearchParams(
     }
   }
 
-  // Update maxPrice
+  // Update maxPrice - delete when null/undefined or >= Number.MAX_SAFE_INTEGER
   if (updates.maxPrice !== undefined) {
     if (
       updates.maxPrice !== null &&
@@ -417,7 +416,7 @@ export function updateSearchParams(
     }
   }
 
-  // Update sort
+  // Update sort - delete when null/undefined or default value
   if (updates.sortBy !== undefined) {
     if (updates.sortBy && updates.sortBy !== DEFAULT_FILTERS.sortBy) {
       params.set("sort", updates.sortBy);
@@ -426,9 +425,9 @@ export function updateSearchParams(
     }
   }
 
-  // Update inStockOnly
+  // Update inStockOnly - delete when null/undefined or false
   if (updates.inStockOnly !== undefined) {
-    if (updates.inStockOnly) {
+    if (updates.inStockOnly === true) {
       params.set("inStock", "true");
     } else {
       params.delete("inStock");

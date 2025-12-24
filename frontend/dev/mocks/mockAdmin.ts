@@ -436,7 +436,7 @@ export const mockCustomBanners: CustomBanner[] = [
     title: "Summer Sale",
     description: "Up to 50% off on selected items",
     image: "https://via.placeholder.com/800x200",
-    link: "/products?category=sale",
+    link: "/products/category/sale",
     position: "top",
     isActive: true,
     startDate: new Date().toISOString(),
@@ -941,7 +941,6 @@ export const adminApi = {
       description: data.description || null,
       parentId: data.parentId || null,
       parent: data.parent || null,
-      promotionIds: data.promotionIds || [],
       children: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -966,7 +965,6 @@ export const adminApi = {
       id: categoryId,
       parentId: data.parentId ?? category.parentId ?? null,
       parent: data.parent ?? category.parent ?? null,
-      promotionIds: data.promotionIds ?? category.promotionIds ?? [],
       updatedAt: new Date().toISOString(),
     };
     return updatedCategory;

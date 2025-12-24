@@ -22,7 +22,12 @@ export const categoriesApi = {
       >("/categories?limit=1000");
 
       // Backend wraps response in { success, data: { data: [...], meta: {...} }, timestamp }
-      return response.data.data.data || [];
+      const allCategories = response.data.data.data || [];
+
+      // Filter to only return parent categories (categories without parentId)
+      return allCategories.filter(
+        (category) => !category.parentId || category.parentId === null
+      );
     } catch (error) {
       return [];
     }

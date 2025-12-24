@@ -78,13 +78,12 @@ export const FormField = React.forwardRef<HTMLDivElement, FormFieldProps>(
     // Clone children to add necessary props
     const childrenWithProps = React.Children.map(children, (child) => {
       if (React.isValidElement(child)) {
-        return React.cloneElement(child, {
+        return React.cloneElement(child as React.ReactElement<any>, {
           id: fieldId,
           "aria-invalid": error ? true : undefined,
           "aria-describedby": describedBy,
           "aria-required": required ? true : undefined,
-          ...child.props,
-        } as any);
+        });
       }
       return child;
     });

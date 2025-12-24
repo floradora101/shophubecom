@@ -104,7 +104,7 @@ export interface Product {
   discountValue?: number | null;
   saleStartsAt?: string | null;
   saleEndsAt?: string | null;
-  categoryId?: string | null;
+  categoryId?: string;
   category?: Category;
   variants?: ProductVariant[];
   defaultVariantId?: string | null;

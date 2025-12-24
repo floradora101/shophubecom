@@ -5,6 +5,7 @@ import type {
   Promotion,
   ProductDiscount,
 } from "@/features/products/types";
+import { mockCategoryToCategory } from "@/lib/mock-data/mock-data";
 
 const mockCategories: Category[] = [
   {
@@ -1038,7 +1039,8 @@ export const getProductBySlug = (
   return product ? processProductDiscounts(product) : null;
 };
 
-export const getCategories = (): Category[] => mockCategories;
+export const getCategories = (): Category[] =>
+  mockCategories.filter((cat) => !cat.parentId || cat.parentId === null);
 
 // Export promotions for use in checkout/cart
 export const getPromotions = (): Promotion[] => mockPromotions;

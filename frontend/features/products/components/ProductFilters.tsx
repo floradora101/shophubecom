@@ -64,7 +64,7 @@ export function ProductFilters({
     return (
       <li key={cat.id} className="space-y-1">
         <Link
-          href={`/products?category=${cat.slug}`}
+          href={`/products/category/${cat.slug}`}
           onClick={(e) => {
             e.preventDefault();
             onCategoryChange(cat.slug);
@@ -72,7 +72,7 @@ export function ProductFilters({
           className={`block text-sm py-1 transition-colors ${
             isActive
               ? "text-primary-500 font-medium"
-              : "text-gray-600 hover:text-gray-900"
+              : "text-warm-gray-600 hover:text-primary-600"
           }`}
           style={{ paddingLeft: `${depth * 12}px` }}
         >
@@ -98,18 +98,18 @@ export function ProductFilters({
     <div className="space-y-8">
       {/* Stock Status */}
       <div>
-        <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">
+        <h3 className="text-sm font-bold text-warm-gray-900 uppercase tracking-wide mb-3">
           Stock Status
         </h3>
-        <div className="w-10 h-0.5 bg-gray-300 mb-4"></div>
+        <div className="w-10 h-0.5 bg-warm-gray-300 mb-4"></div>
         <label className="flex items-center gap-3 cursor-pointer group">
           <input
             type="checkbox"
             checked={showInStockOnly}
             onChange={(e) => onStockFilterChange(e.target.checked)}
-            className="w-4 h-4 rounded border-gray-300 text-primary-500 focus:ring-primary-500"
+            className="w-4 h-4 rounded border-warm-gray-300 text-primary-500 focus:ring-primary-500"
           />
-          <span className="text-sm text-gray-700 group-hover:text-gray-900">
+          <span className="text-sm text-warm-gray-700 group-hover:text-primary-600">
             Show In-Stock Products Only
           </span>
         </label>
@@ -117,10 +117,10 @@ export function ProductFilters({
 
       {/* Price Filter */}
       <div>
-        <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">
+        <h3 className="text-sm font-bold text-warm-gray-900 uppercase tracking-wide mb-3">
           Filter by Price
         </h3>
-        <div className="w-10 h-0.5 bg-gray-300 mb-4"></div>
+        <div className="w-10 h-0.5 bg-warm-gray-300 mb-4"></div>
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <div className="flex-1">
@@ -130,10 +130,10 @@ export function ProductFilters({
                 placeholder="Min"
                 value={localMin}
                 onChange={(e) => setLocalMin(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-3 py-2 text-sm border border-warm-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
-            <span className="text-gray-400">—</span>
+            <span className="text-warm-gray-400">—</span>
             <div className="flex-1">
               <label className="sr-only">Max price</label>
               <input
@@ -141,13 +141,13 @@ export function ProductFilters({
                 placeholder="Max"
                 value={localMax}
                 onChange={(e) => setLocalMax(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-3 py-2 text-sm border border-warm-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
           </div>
           <button
             onClick={handlePriceFilter}
-            className="w-full bg-gray-900 text-white text-sm font-medium py-2.5 rounded hover:bg-gray-800 transition-colors"
+            className="w-full bg-warm-gray-900 text-white text-sm font-medium py-2.5 rounded hover:bg-warm-gray-800 transition-colors"
           >
             FILTER
           </button>
@@ -156,10 +156,10 @@ export function ProductFilters({
 
       {/* Product Categories */}
       <div>
-        <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">
+        <h3 className="text-sm font-bold text-warm-gray-900 uppercase tracking-wide mb-3">
           Product Categories
         </h3>
-        <div className="w-10 h-0.5 bg-gray-300 mb-4"></div>
+        <div className="w-10 h-0.5 bg-warm-gray-300 mb-4"></div>
         <ul className="space-y-2">
           <li>
             <button
@@ -167,7 +167,7 @@ export function ProductFilters({
               className={`block w-full text-left text-sm py-1 transition-colors ${
                 !selectedCategory
                   ? "text-primary-500 font-medium"
-                  : "text-gray-600 hover:text-gray-900"
+                  : "text-warm-gray-600 hover:text-primary-600"
               }`}
             >
               All Products
@@ -181,4 +181,3 @@ export function ProductFilters({
     </div>
   );
 }
-
