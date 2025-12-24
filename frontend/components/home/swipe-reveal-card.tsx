@@ -473,7 +473,7 @@ export function SwipeRevealCard({
           </div>
 
           {/* Product Image - Blurred/Overlay with mystery effect */}
-          <div className="absolute inset-0 opacity-100">
+          <div className="absolute inset-0 opacity-95">
             <Image
               src={productImage}
               alt={product.name}
@@ -482,7 +482,7 @@ export function SwipeRevealCard({
               sizes="(max-width: 768px) 100vw, 50vw"
             />
             {/* Mystery overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-black/80"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-red-800/80 via-red-700/70 to-red-900/90"></div>
           </div>
 
           {/* Main Product Display with mystery elements */}
@@ -519,14 +519,6 @@ export function SwipeRevealCard({
                   className="object-cover"
                   sizes="144px"
                 />
-                {/* Locked overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 flex items-end justify-center pb-3">
-                  <div className="bg-white/90 backdrop-blur-sm rounded-full p-2 shadow-lg">
-                    <div className="w-6 h-6 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">?</span>
-                    </div>
-                  </div>
-                </div>
               </div>
               {/* Floating price hint */}
               <div className="absolute -top-2 -right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold animate-bounce">

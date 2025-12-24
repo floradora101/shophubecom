@@ -8,7 +8,7 @@ import { HeroSplit } from "@/components/home/hero-split";
 import { ProductRevealSection } from "@/components/home/product-reveal-section";
 import { DepartmentTabs } from "@/components/home/department-tabs";
 import { TrendingNow } from "@/components/home/trending-now";
-import { DealsCarousel } from "@/components/home/deals-carousel";
+import { LatestProductsCarousel } from "@/components/home/deals-carousel";
 import { BrandStory } from "@/components/home/brand-story";
 
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
@@ -94,19 +94,19 @@ export function HomePageContent() {
           />
         )}
 
-        {/* Product Reveal Section */}
-        {data.trendingProducts && data.trendingProducts.length > 0 && (
-          <ProductRevealSection
-            products={data.trendingProducts}
-            categories={data.categories}
-          />
-        )}
-
         {/* Department Tabs Section */}
         {data.categories.length > 0 && (
           <DepartmentTabs
             categories={data.categories}
             productsByCategory={productsByCategory}
+          />
+        )}
+
+        {/* Product Reveal Section */}
+        {data.trendingProducts && data.trendingProducts.length > 0 && (
+          <ProductRevealSection
+            products={data.trendingProducts}
+            categories={data.categories}
           />
         )}
 
@@ -118,8 +118,8 @@ export function HomePageContent() {
           />
         )}
 
-        {/* Deals Carousel Section */}
-        <DealsCarousel />
+        {/* Latest Products Carousel Section */}
+        <LatestProductsCarousel />
 
         {/* Brand Story Section */}
         <BrandStory />

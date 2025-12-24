@@ -1,22 +1,20 @@
-// DealsCarousel: Horizontal scroll of products on sale using ProductCard
+// LatestProductsCarousel: Horizontal scroll of latest products using ProductCard
 "use client";
 
 import { useRef, useMemo } from "react";
-import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { ProductCard } from "@/features/products/components/ProductCard";
 import { SectionHeader } from "./shared/section-header";
 import { mockProducts, mockProductToProduct } from "@/lib/mock-data/mock-data";
 
-export function DealsCarousel() {
+export function LatestProductsCarousel() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Query products that are on sale from mock data
-  const dealProducts = useMemo(() => {
-    return mockProducts
-      .filter((product) => product.isOnSale)
-      .map(mockProductToProduct);
+  // Query latest products from mock data (take first 8 products to simulate latest)
+  const latestProducts = useMemo(() => {
+    return mockProducts.slice(0, 8).map(mockProductToProduct);
   }, []);
 
   const scroll = (direction: "left" | "right") => {
@@ -28,8 +26,8 @@ export function DealsCarousel() {
     });
   };
 
-  // Early return if no deal products
-  if (dealProducts.length === 0) {
+  // Early return if no latest products
+  if (latestProducts.length === 0) {
     return null;
   }
 
@@ -40,15 +38,15 @@ export function DealsCarousel() {
           {/* Enhanced Header */}
           <SectionHeader
             badge={{
-              icon: Sparkles,
-              text: "Limited Time Offers",
-              gradient: "from-orange-100 via-primary-100 to-orange-100",
+              icon: Clock,
+              text: "Just Arrived",
+              gradient: "from-blue-100 via-primary-100 to-blue-100",
             }}
             title={{
-              italic: "Special",
-              bold: "Deals",
+              italic: "Latest",
+              bold: "Products",
             }}
-            description="Exclusive offers you won't want to miss"
+            description="Discover our newest arrivals and trending items"
             actions={
               <div className="hidden md:flex gap-2">
                 <button
@@ -74,7 +72,7 @@ export function DealsCarousel() {
             ref={scrollRef}
             className="flex gap-6 overflow-x-auto pb-6 scrollbar-hide scroll-smooth"
           >
-            {dealProducts.map((product) => (
+            {latestProducts.map((product) => (
               <div key={product.id} className="shrink-0 w-[280px]">
                 <ProductCard product={product} />
               </div>
