@@ -19,12 +19,13 @@ interface SlotStyle {
   zIndex: number;
 }
 
+const CARD_WIDTH = 280;
+
 // Get smooth slot styles based on distance from center
 function getSmoothSlotStyle(
   distanceFromCenter: number,
   isMobile: boolean
 ): SlotStyle {
-  const cardWidth = 280;
   const gap = isMobile ? 20 : 24;
   const maxVisibleDistance = isMobile ? 1 : 2;
 
@@ -34,30 +35,24 @@ function getSmoothSlotStyle(
     Math.min(maxVisibleDistance, distanceFromCenter)
   );
 
-  // Calculate position with smooth interpolation
-  const baseOffset = cardWidth + gap;
+  // Calculate position
+  const baseOffset = CARD_WIDTH + gap;
   const x = clampedDistance * baseOffset;
 
   // Smooth scale curve: center = 1.08, edges = 0.7-0.85
-  const scaleRange = isMobile ? 0.23 : 0.38; // 1.08 - 0.85 = 0.23, 1.08 - 0.7 = 0.38
+  const scaleRange = isMobile ? 0.23 : 0.38;
   const scale =
     1.08 - (Math.abs(clampedDistance) / maxVisibleDistance) * scaleRange;
 
   // Smooth opacity curve: center = 1.0, edges = 0.4-0.6
-  const opacityRange = isMobile ? 0.4 : 0.6; // 1.0 - 0.6 = 0.4, 1.0 - 0.4 = 0.6
+  const opacityRange = isMobile ? 0.4 : 0.6;
   const opacity =
     1.0 - (Math.abs(clampedDistance) / maxVisibleDistance) * opacityRange;
 
   // Z-index based on proximity to center
   const zIndex = Math.max(1, 5 - Math.abs(clampedDistance));
 
-  return {
-    x,
-    y: 0,
-    scale,
-    opacity,
-    zIndex,
-  };
+  return { x, y: 0, scale, opacity, zIndex };
 }
 
 // Get visible range based on total items and mobile/desktop
@@ -73,29 +68,6 @@ function getVisibleRange(total: number, isMobile: boolean): number {
   }
 }
 
-// Map delta to slot position
-function getPositionFromDelta(
-  delta: number,
-  visibleRange: number,
-  isMobile: boolean
-): "left2" | "left1" | "center" | "right1" | "right2" | null {
-  if (delta === 0) return "center";
-
-  if (isMobile) {
-    // Mobile: only left1, center, right1
-    if (delta === -1) return "left1";
-    if (delta === 1) return "right1";
-    return null;
-  } else {
-    // Desktop: left2, left1, center, right1, right2
-    if (delta === -2) return "left2";
-    if (delta === -1) return "left1";
-    if (delta === 1) return "right1";
-    if (delta === 2) return "right2";
-    return null;
-  }
-}
-
 export function SlotStageCarousel<T>({
   items,
   activeIndex,
@@ -104,84 +76,66 @@ export function SlotStageCarousel<T>({
   renderCard,
 }: SlotStageCarouselProps<T>) {
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // UI state (used for disabled styles)
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [dragOffset, setDragOffset] = useState(0);
+
+  // Refs to prevent double moves in the same tick (snap + click, etc.)
+  const transitioningRef = useRef(false);
+  const transitionTimerRef = useRef<number | null>(null);
+  const suppressClickRef = useRef(false);
+
+  // Drag state (smooth follow + snap)
   const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState(0); // px
+  const [dragStartX, setDragStartX] = useState<number | null>(null);
 
-  // Calculate which items should be visible and their positions with smooth transitions
-  const visibleItems = useMemo(() => {
-    const total = items.length;
-    const maxVisible = isMobile ? 3 : 5; // Show 3 on mobile, 5 on desktop
-    const result: Array<{
-      item: T;
-      index: number;
-      distanceFromCenter: number;
-      style: SlotStyle;
-    }> = [];
+  const total = items.length;
 
-    // Calculate items around the active index with smooth positioning
-    for (
-      let i = -Math.floor(maxVisible / 2);
-      i <= Math.floor(maxVisible / 2);
-      i++
-    ) {
-      const itemIndex = (activeIndex + i + total) % total;
-      const distanceFromCenter = i + dragOffset / 280; // Add drag offset for smooth dragging
+  const visibleRange = useMemo(
+    () => getVisibleRange(total, isMobile),
+    [total, isMobile]
+  );
 
-      // Only show items within reasonable distance
-      if (Math.abs(distanceFromCenter) <= (isMobile ? 1.5 : 2.5)) {
-        result.push({
-          item: items[itemIndex],
-          index: itemIndex,
-          distanceFromCenter,
-          style: getSmoothSlotStyle(distanceFromCenter, isMobile),
-        });
-      }
-    }
-
-    return result;
-  }, [items, activeIndex, isMobile, dragOffset]);
-
-  // Smooth navigation with transition states
-  const goToNext = useCallback(() => {
-    if (items.length <= 1 || isTransitioning) return;
+  // Transition lock helper (prevents double navigation)
+  const startTransitionLock = useCallback((ms: number) => {
+    transitioningRef.current = true;
     setIsTransitioning(true);
-    const nextIndex = (activeIndex + 1) % items.length;
-    onActiveIndexChange(nextIndex);
-    setTimeout(() => setIsTransitioning(false), 500);
-  }, [activeIndex, items.length, onActiveIndexChange, isTransitioning]);
+
+    if (transitionTimerRef.current)
+      window.clearTimeout(transitionTimerRef.current);
+
+    transitionTimerRef.current = window.setTimeout(() => {
+      transitioningRef.current = false;
+      setIsTransitioning(false);
+    }, ms);
+  }, []);
+
+  // Must be >= transitionDuration (700ms)
+  const LOCK_MS = 750;
+
+  const goToNext = useCallback(() => {
+    if (total <= 1 || transitioningRef.current) return;
+    startTransitionLock(LOCK_MS);
+    onActiveIndexChange((activeIndex + 1) % total);
+  }, [activeIndex, total, onActiveIndexChange, startTransitionLock]);
 
   const goToPrev = useCallback(() => {
-    if (items.length <= 1 || isTransitioning) return;
-    setIsTransitioning(true);
-    const prevIndex = (activeIndex - 1 + items.length) % items.length;
-    onActiveIndexChange(prevIndex);
-    setTimeout(() => setIsTransitioning(false), 500);
-  }, [activeIndex, items.length, onActiveIndexChange, isTransitioning]);
+    if (total <= 1 || transitioningRef.current) return;
+    startTransitionLock(LOCK_MS);
+    onActiveIndexChange((activeIndex - 1 + total) % total);
+  }, [activeIndex, total, onActiveIndexChange, startTransitionLock]);
 
   const goToIndex = useCallback(
     (index: number) => {
-      if (isTransitioning) return;
-      setIsTransitioning(true);
+      if (transitioningRef.current) return;
+      startTransitionLock(LOCK_MS);
       onActiveIndexChange(index);
-      setTimeout(() => setIsTransitioning(false), 500);
     },
-    [onActiveIndexChange, isTransitioning]
+    [onActiveIndexChange, startTransitionLock]
   );
 
-  // Smooth circular navigation
-  const goToOffset = useCallback(
-    (offset: number) => {
-      if (items.length <= 1 || isTransitioning) return;
-      setIsTransitioning(true);
-      const newIndex = (activeIndex + offset + items.length) % items.length;
-      onActiveIndexChange(newIndex);
-      setTimeout(() => setIsTransitioning(false), 600);
-    },
-    [activeIndex, items.length, onActiveIndexChange, isTransitioning]
-  );
-
-  // Handle keyboard navigation
+  // Keyboard nav
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "ArrowLeft") {
       event.preventDefault();
@@ -192,62 +146,112 @@ export function SlotStageCarousel<T>({
     }
   };
 
-  // Mouse drag handlers for smooth circular motion
-  const [dragStart, setDragStart] = useState<{
-    x: number;
-    index: number;
-  } | null>(null);
+  // Compute visible items around active index (stable keys).
+  const visibleItems = useMemo(() => {
+    if (total === 0) return [];
 
+    const result: Array<{
+      item: T;
+      index: number; // itemIndex
+      distanceFromCenter: number;
+      style: SlotStyle;
+    }> = [];
+
+    const effectiveDragOffset = isDragging ? dragOffset : 0;
+
+    for (let i = -visibleRange; i <= visibleRange; i++) {
+      const itemIndex = (activeIndex + i + total) % total;
+      const distanceFromCenter = i + effectiveDragOffset / CARD_WIDTH;
+
+      result.push({
+        item: items[itemIndex],
+        index: itemIndex,
+        distanceFromCenter,
+        style: getSmoothSlotStyle(distanceFromCenter, isMobile),
+      });
+    }
+
+    return result;
+  }, [
+    items,
+    total,
+    activeIndex,
+    visibleRange,
+    isMobile,
+    dragOffset,
+    isDragging,
+  ]);
+
+  // Drag handlers: smooth follow + snap on release
   const handleMouseDown = useCallback(
     (event: React.MouseEvent) => {
-      if (isTransitioning) return;
+      if (transitioningRef.current || total <= 1) return;
+
       setIsDragging(true);
-      setDragStart({ x: event.clientX, index: activeIndex });
+      setDragStartX(event.clientX);
+      setDragOffset(0);
+
+      suppressClickRef.current = false;
     },
-    [isTransitioning, activeIndex]
+    [total]
   );
 
   const handleMouseMove = useCallback(
-    (event: React.MouseEvent | MouseEvent) => {
-      if (!isDragging || !dragStart) return;
-
-      const deltaX = event.clientX - dragStart.x;
-      const sensitivity = 200; // pixels per item
-      const offset = Math.round(deltaX / sensitivity);
-
-      if (offset !== 0) {
-        const newIndex =
-          (dragStart.index - offset + items.length) % items.length;
-        if (newIndex !== activeIndex) {
-          onActiveIndexChange(newIndex);
-        }
-      }
+    (event: MouseEvent) => {
+      if (!isDragging || dragStartX === null) return;
+      setDragOffset(event.clientX - dragStartX);
     },
-    [isDragging, dragStart, activeIndex, items.length, onActiveIndexChange]
+    [isDragging, dragStartX]
   );
 
   const handleMouseUp = useCallback(() => {
+    if (!isDragging) return;
+
+    const offset = dragOffset;
+    const snapThreshold = 90; // px to snap
+    const dragClickThreshold = 6; // px to suppress click
+
+    suppressClickRef.current = Math.abs(offset) > dragClickThreshold;
+
     setIsDragging(false);
-    setDragStart(null);
+    setDragStartX(null);
+    setDragOffset(0);
+
+    if (Math.abs(offset) < snapThreshold) {
+      window.setTimeout(() => {
+        suppressClickRef.current = false;
+      }, 0);
+      return;
+    }
+
+    if (offset > 0) goToPrev();
+    else goToNext();
+
+    window.setTimeout(() => {
+      suppressClickRef.current = false;
+    }, 0);
+  }, [isDragging, dragOffset, goToPrev, goToNext]);
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isDragging, handleMouseMove, handleMouseUp]);
+
+  useEffect(() => {
+    return () => {
+      if (transitionTimerRef.current)
+        window.clearTimeout(transitionTimerRef.current);
+    };
   }, []);
 
-  // Add global mouse up listener
-  useEffect(() => {
-    if (isDragging) {
-      const handleGlobalMouseMove = (event: MouseEvent) => {
-        handleMouseMove(event);
-      };
-
-      document.addEventListener("mouseup", handleMouseUp);
-      document.addEventListener("mousemove", handleGlobalMouseMove);
-      return () => {
-        document.removeEventListener("mouseup", handleMouseUp);
-        document.removeEventListener("mousemove", handleGlobalMouseMove);
-      };
-    }
-  }, [isDragging, handleMouseUp, handleMouseMove]);
-
-  if (items.length === 0) return null;
+  if (total === 0) return null;
 
   return (
     <div className="relative w-full">
@@ -261,17 +265,26 @@ export function SlotStageCarousel<T>({
         tabIndex={0}
         onKeyDown={handleKeyDown}
         onMouseDown={handleMouseDown}
+        onClickCapture={(e) => {
+          if (suppressClickRef.current) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }}
       >
         {visibleItems.map(({ item, index, distanceFromCenter, style }) => (
           <div
-            key={`item-${index}-${Math.round(distanceFromCenter * 100)}`}
-            className="absolute transition-all duration-700 ease-out"
+            key={`item-${index}`}
+            className="absolute will-change-transform"
             style={{
-              transform: `translate(${style.x}px, ${style.y}px) scale(${style.scale})`,
+              transform: `translate3d(${style.x}px, ${style.y}px, 0) scale(${style.scale})`,
               opacity: style.opacity,
               zIndex: style.zIndex,
+
+              transitionProperty: isDragging ? "none" : "transform, opacity",
+              transitionDuration: isDragging ? "0ms" : "700ms",
               transitionTimingFunction: isDragging
-                ? "ease-out"
+                ? "linear"
                 : "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
             }}
           >
@@ -281,9 +294,11 @@ export function SlotStageCarousel<T>({
       </div>
 
       {/* Navigation Buttons */}
-      {items.length > 1 && (
+      {total > 1 && (
         <>
           <button
+            type="button"
+            onMouseDown={(e) => e.stopPropagation()}
             onClick={goToPrev}
             disabled={isTransitioning}
             className="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full border-2 border-primary-300 bg-white hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -303,7 +318,10 @@ export function SlotStageCarousel<T>({
               />
             </svg>
           </button>
+
           <button
+            type="button"
+            onMouseDown={(e) => e.stopPropagation()}
             onClick={goToNext}
             disabled={isTransitioning}
             className="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full border-2 border-primary-300 bg-white hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -327,11 +345,13 @@ export function SlotStageCarousel<T>({
       )}
 
       {/* Dots Indicator */}
-      {items.length > 1 && (
+      {total > 1 && (
         <div className="flex justify-center items-center gap-2 mt-8">
           {items.map((_, index) => (
             <button
+              type="button"
               key={index}
+              onMouseDown={(e) => e.stopPropagation()}
               onClick={() => goToIndex(index)}
               disabled={isTransitioning}
               className={`transition-all duration-500 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed ${

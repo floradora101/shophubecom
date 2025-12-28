@@ -32,7 +32,11 @@ export function LatestProductsCarousel() {
   }
 
   return (
-    <Section spacing="md" className="relative overflow-hidden bg-transparent">
+    <Section
+      spacing="md"
+      className="relative overflow-hidden bg-transparent"
+      withContainer={false}
+    >
       <Container className="relative z-10">
         <div className="space-y-8">
           {/* Enhanced Header */}
@@ -75,6 +79,66 @@ export function LatestProductsCarousel() {
             {latestProducts.map((product) => (
               <div key={product.id} className="shrink-0 w-[280px]">
                 <ProductCard product={product} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </Container>
+    </Section>
+  );
+}
+
+/**
+ * Skeleton loader for LatestProductsCarousel component
+ * Shows horizontal scroll layout with multiple product card placeholders
+ */
+export function LatestProductsCarouselSkeleton() {
+  return (
+    <Section
+      spacing="md"
+      className="relative overflow-hidden bg-transparent"
+      withContainer={false}
+    >
+      <Container className="relative z-10">
+        <div className="space-y-8">
+          {/* Header skeleton */}
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <div className="animate-shimmer w-5 h-5 rounded bg-current" />
+              <div className="animate-shimmer h-6 w-32 rounded bg-current" />
+            </div>
+            <div className="animate-shimmer h-10 w-80 mx-auto rounded bg-current mb-2" />
+            <div className="animate-shimmer h-5 w-64 mx-auto rounded bg-current" />
+          </div>
+
+          {/* Navigation arrows skeleton */}
+          <div className="flex justify-between items-center">
+            <div className="animate-shimmer w-12 h-12 rounded-full bg-current" />
+            <div className="animate-shimmer w-12 h-12 rounded-full bg-current" />
+          </div>
+
+          {/* Carousel skeleton */}
+          <div className="flex gap-6 overflow-x-auto pb-6">
+            {Array.from({ length: 6 }, (_, i) => (
+              <div
+                key={i}
+                className="shrink-0 w-[280px]"
+                style={{ animationDelay: `${i * 0.1}s` }}
+              >
+                <div className="bg-white rounded-2xl shadow-lg border border-warm-gray-200 overflow-hidden">
+                  {/* Image */}
+                  <div className="aspect-square animate-shimmer bg-current" />
+
+                  {/* Content */}
+                  <div className="p-4 space-y-3">
+                    <div className="animate-shimmer h-5 w-full rounded bg-current" />
+                    <div className="animate-shimmer h-4 w-3/4 rounded bg-current" />
+                    <div className="flex items-center justify-between">
+                      <div className="animate-shimmer h-6 w-16 rounded bg-current" />
+                      <div className="animate-shimmer h-8 w-8 rounded bg-current" />
+                    </div>
+                  </div>
+                </div>
               </div>
             ))}
           </div>

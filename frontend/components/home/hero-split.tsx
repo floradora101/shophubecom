@@ -1,318 +1,324 @@
 // Hero slider with smooth sliding animations and synchronized sections
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import {
-  ArrowRight,
-  Sparkles,
-  ChevronLeft,
-  ChevronRight,
-  Play,
-  Pause,
-  Heart,
-} from "lucide-react";
+import { useState, useEffect, useRef, useMemo } from "react";
+import { ChevronLeft, ChevronRight, Play, Pause } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
-import { Button } from "@/components/ui/button";
-import { Price } from "@/components/ui/price";
 import { SlideIndicators } from "./shared/slide-indicators";
-import { getProductImageWithPlaceholder } from "@/lib/utils";
-import { ensureArray } from "@/lib/utils";
+import { HeroSlideRenderer } from "./heroSlideRenderer";
+import {
+  assertUniqueSlideContent,
+  filterActiveSlides,
+  sortSlides,
+  resolveSlideProduct,
+} from "@/lib/utils/heroSlides.utils";
+import type { HeroSlide } from "@/lib/types/heroSlides.types";
 import type { Product } from "@/features/products/types";
 
+/**
+ * Skeleton loader for HeroSplit component
+ * Shows carousel layout with image and content placeholders
+ */
+// Predefined floating element positions (avoid Math.random in render)
+const floatingPositions = [
+  { left: 10, top: 20, delay: 0 },
+  { left: 85, top: 15, delay: 0.1 },
+  { left: 25, top: 75, delay: 0.2 },
+  { left: 90, top: 60, delay: 0.3 },
+  { left: 45, top: 35, delay: 0.4 },
+  { left: 70, top: 80, delay: 0.5 },
+  { left: 15, top: 45, delay: 0.6 },
+  { left: 80, top: 25, delay: 0.7 },
+  { left: 35, top: 90, delay: 0.8 },
+  { left: 65, top: 10, delay: 0.9 },
+  { left: 5, top: 65, delay: 1.0 },
+  { left: 95, top: 40, delay: 1.1 },
+];
+
+export function HeroSplitSkeleton() {
+  return (
+    <Section
+      spacing="md"
+      className="relative overflow-hidden min-h-[85vh] flex items-center"
+      withContainer={false}
+    >
+      {/* Floating background elements skeleton */}
+      <div className="absolute inset-0 -z-10">
+        {floatingPositions.map((pos, i) => (
+          <div
+            key={i}
+            className="absolute w-2 h-2 rounded-full animate-shimmer bg-current"
+            style={{
+              left: `${pos.left}%`,
+              top: `${pos.top}%`,
+              animationDelay: `${pos.delay}s`,
+            }}
+          />
+        ))}
+      </div>
+
+      <Container size="xl" className="relative z-10">
+        <div className="relative">
+          {/* Main carousel container skeleton */}
+          <div className="relative overflow-hidden rounded-lg bg-white/30 backdrop-blur-sm border border-white/30 shadow-lg w-full min-h-[60vh] lg:min-h-[70vh]">
+            <div className="grid lg:grid-cols-2 h-full">
+              {/* Left side - Image area */}
+              <div className="relative">
+                <div className="aspect-square md:aspect-auto md:h-full animate-shimmer rounded-l-lg bg-current" />
+                {/* Overlay content */}
+                <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6">
+                  <div className="animate-shimmer h-6 w-32 rounded bg-white/20 mb-2" />
+                  <div className="animate-shimmer h-4 w-24 rounded bg-white/20" />
+                </div>
+              </div>
+
+              {/* Right side - Content area */}
+              <div className="p-8 md:p-12 flex flex-col justify-center">
+                <div className="space-y-6">
+                  {/* Badge */}
+                  <div className="animate-shimmer h-6 w-20 rounded-full bg-current" />
+
+                  {/* Title */}
+                  <div className="space-y-3">
+                    <div className="animate-shimmer h-10 w-full rounded bg-current" />
+                    <div className="animate-shimmer h-10 w-3/4 rounded bg-current" />
+                  </div>
+
+                  {/* Description */}
+                  <div className="space-y-2">
+                    <div className="animate-shimmer h-4 w-full rounded bg-current" />
+                    <div className="animate-shimmer h-4 w-5/6 rounded bg-current" />
+                    <div className="animate-shimmer h-4 w-4/5 rounded bg-current" />
+                  </div>
+
+                  {/* Price */}
+                  <div className="animate-shimmer h-8 w-24 rounded bg-current" />
+
+                  {/* Buttons */}
+                  <div className="flex gap-4 pt-4">
+                    <div className="animate-shimmer h-12 w-32 rounded-lg bg-current" />
+                    <div className="animate-shimmer h-12 w-24 rounded-lg bg-current" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Controls skeleton */}
+          <div className="flex justify-between items-center mt-6">
+            <div className="flex gap-2">
+              {Array.from({ length: 3 }, (_, i) => (
+                <div
+                  key={i}
+                  className={`w-3 h-3 rounded-full animate-shimmer bg-current`}
+                  style={{ animationDelay: `${i * 0.1}s` }}
+                />
+              ))}
+            </div>
+            <div className="flex gap-4">
+              <div className="animate-shimmer w-12 h-12 rounded-full bg-current" />
+              <div className="animate-shimmer w-12 h-12 rounded-full bg-current" />
+            </div>
+          </div>
+        </div>
+      </Container>
+    </Section>
+  );
+}
+
 interface HeroSplitProps {
-  featuredProduct: Product;
-  featuredProducts?: Product[];
+  slides: HeroSlide[];
+  productsBySlug?: Record<string, Product> | Map<string, Product>;
+  autoplay?: boolean;
+  intervalMs?: number;
 }
 
 export function HeroSplit({
-  featuredProduct,
-  featuredProducts = [],
+  slides,
+  productsBySlug,
+  autoplay = true,
+  intervalMs = 5000,
 }: HeroSplitProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(autoplay);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Get all products for slider
-  const allProducts =
-    ensureArray(featuredProducts).length > 0
-      ? ensureArray(featuredProducts)
-      : [featuredProduct];
+  // Process slides: filter active, sort by priority, assert uniqueness
+  const sortedSlides = useMemo(() => {
+    const activeSlides = filterActiveSlides(slides);
+    const sorted = sortSlides(activeSlides);
 
-  // Filter out any invalid products
-  const validProducts = allProducts.filter((p) => p && p.id);
+    if (process.env.NODE_ENV === "development") {
+      try {
+        assertUniqueSlideContent(sorted);
+      } catch (e) {
+        console.warn("unique slide check failed", e);
+      }
 
-  // Auto-play functionality
+      // Dev-only console.table for debugging
+      console.table(
+        sorted.map((slide) => ({
+          id: slide.id,
+          type: slide.type,
+          isActive: slide.isActive,
+          startsAt: slide.startsAt || "No start date",
+          endsAt: slide.endsAt || "No expiry",
+          priority: slide.priority,
+        })),
+        ["id", "type", "isActive", "startsAt", "endsAt", "priority"]
+      );
+    }
+
+    return sorted;
+  }, [slides]);
+
+  // Check for prefers-reduced-motion (memoized since it won't change during component lifecycle)
+  const prefersReducedMotion = useMemo(
+    () =>
+      typeof window !== "undefined"
+        ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        : false,
+    []
+  );
+
+  // Auto-play functionality with motion preference support
   useEffect(() => {
-    if (isPlaying && validProducts.length > 1) {
-      intervalRef.current = setInterval(() => {
-        setCurrentSlide((prev) => (prev + 1) % validProducts.length);
-      }, 5000);
-    } else if (intervalRef.current) {
+    // Clear existing interval
+    if (intervalRef.current) {
       clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    // Set up new interval only if autoplay is enabled and we have multiple slides
+    if (isPlaying && sortedSlides.length > 1 && !prefersReducedMotion) {
+      intervalRef.current = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % sortedSlides.length);
+      }, intervalMs);
     }
 
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
     };
-  }, [isPlaying, validProducts.length]);
+  }, [isPlaying, sortedSlides.length, prefersReducedMotion, intervalMs]);
 
-  // Early return if no products (after hooks)
-  if (!validProducts || validProducts.length === 0) {
+  // Early return if no slides (after hooks)
+  if (!sortedSlides || sortedSlides.length === 0) {
     return null;
   }
 
+  // No more hardcoded slide content - slides come from props or backend
+
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
-    setIsPlaying(false);
-    setTimeout(() => setIsPlaying(true), 3000);
+    if (!prefersReducedMotion && isPlaying) {
+      setIsPlaying(false);
+      setTimeout(() => setIsPlaying(true), 3000);
+    }
   };
 
   const nextSlide = () => {
-    goToSlide((currentSlide + 1) % validProducts.length);
+    goToSlide((currentSlide + 1) % sortedSlides.length);
   };
 
   const prevSlide = () => {
-    goToSlide((currentSlide - 1 + validProducts.length) % validProducts.length);
+    goToSlide((currentSlide - 1 + sortedSlides.length) % sortedSlides.length);
   };
 
   return (
     <Section
       spacing="md"
-      className="relative overflow-hidden min-h-[85vh] flex items-center"
+      className="relative overflow-hidden min-h-[70vh] sm:min-h-[80vh] lg:min-h-[90vh] py-10 sm:py-14 overflow-x-hidden"
+      withContainer={false}
     >
-      {/* Subtle animated background elements - blended with page background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div
-          className="absolute top-20 left-10 w-72 h-72 bg-cream-200/20 rounded-full blur-3xl transition-all duration-1000"
-          style={{
-            transform: `translate(${Math.sin(currentSlide * 0.5) * 50}px, ${
-              Math.cos(currentSlide * 0.5) * 30
-            }px)`,
-          }}
-        />
-        <div
-          className="absolute bottom-20 right-10 w-96 h-96 bg-warm-gray-200/15 rounded-full blur-3xl transition-all duration-1000"
-          style={{
-            transform: `translate(${Math.sin(currentSlide * 0.7) * -40}px, ${
-              Math.cos(currentSlide * 0.7) * -50
-            }px)`,
-          }}
-        />
-      </div>
-
-      <Container size="xl" className="relative z-10">
+      <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8">
         <div className="relative">
-          {/* Slide Container - Both sections slide together */}
-          <div className="relative overflow-hidden rounded-3xl bg-white/30 backdrop-blur-sm border border-white/30 shadow-lg w-full min-h-[600px]">
-            {/* Slides */}
-            {validProducts.map((product, index) => {
-              const isActive = index === currentSlide;
-              const offset = index - currentSlide;
+          {/* Unified Background with Floating Elements */}
+          <div className="absolute inset-0 -z-10">
+            {/* Integrated floating background elements */}
+            {floatingPositions.map((pos, i) => (
+              <div
+                key={i}
+                className="absolute w-2 h-2 rounded-full bg-primary-500/20 animate-pulse"
+                style={{
+                  left: `${pos.left}%`,
+                  top: `${pos.top}%`,
+                  animationDelay: `${pos.delay}s`,
+                }}
+              />
+            ))}
+          </div>
 
+          {/* Slide Container - Unified Background */}
+          <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-white/95 via-white/90 to-white/85 backdrop-blur-sm border border-white/30 shadow-2xl shadow-slate-900/5 w-full ring-1 ring-white/20">
+            {/* Active Slide */}
+            {(() => {
+              const activeSlide = sortedSlides[currentSlide];
+              const product = resolveSlideProduct(activeSlide, productsBySlug);
               return (
                 <div
-                  key={`slide-${product.id}-${index}`}
-                  className={`w-full transition-all duration-700 ease-in-out ${
-                    isActive ? "relative" : "absolute top-0 left-0"
-                  } ${
-                    isActive
-                      ? "translate-x-0 opacity-100 z-10"
-                      : offset > 0
-                      ? "translate-x-full opacity-0 z-0 pointer-events-none"
-                      : "-translate-x-full opacity-0 z-0 pointer-events-none"
-                  }`}
+                  key={activeSlide.id}
+                  className="transition-opacity duration-500 ease-in-out"
                 >
-                  <div className="grid lg:grid-cols-12 gap-6 lg:gap-8 items-center min-h-[600px] p-6 lg:p-8 w-full">
-                    {/* Left: Content */}
-                    <div className="lg:col-span-7 space-y-8">
-                      <div className="flex items-center gap-3">
-                        <Sparkles className="h-5 w-5 text-primary-500 animate-pulse" />
-                        <span
-                          className="text-lg text-warm-gray-700 font-[var(--font-caveat)]"
-                          style={{
-                            fontSize: "1.5rem",
-                            transform: "rotate(-2deg)",
-                          }}
-                        >
-                          {index === 0
-                            ? "handpicked just for you"
-                            : `featured product ${index + 1}`}
-                        </span>
-                      </div>
-
-                      <div className="space-y-6">
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl leading-[1.1] text-warm-gray-900">
-                          <span className="font-[var(--font-playfair)] font-bold italic">
-                            Welcome home,
-                          </span>
-                          <br />
-                          <span className="font-[var(--font-poppins)] font-bold text-primary-600">
-                            where every find tells your story
-                          </span>
-                        </h1>
-                        <p className="text-lg text-warm-gray-700 max-w-xl font-[var(--font-inter)] font-light leading-relaxed">
-                          Curated collections that feel like they were made just
-                          for you. Quality pieces, honest prices, and a shopping
-                          experience that actually feels good.
-                        </p>
-                      </div>
-
-                      {/* CTA Buttons */}
-                      <div className="flex flex-wrap gap-4 pt-2">
-                        <Link href="/products">
-                          <Button
-                            size="lg"
-                            className="rounded-2xl px-8 py-6 text-base font-[var(--font-inter)] font-medium shadow-lg hover:shadow-xl transition-all"
-                          >
-                            Start Shopping
-                            <ArrowRight className="ml-2 h-5 w-5" />
-                          </Button>
-                        </Link>
-                      </div>
-
-                      {/* Trust indicators */}
-                      <div className="flex flex-wrap items-center gap-6 pt-4 text-sm text-warm-gray-600">
-                        <div className="flex items-center gap-2">
-                          <Heart className="h-4 w-4 text-primary-500 fill-primary-500" />
-                          <span className="font-[var(--font-inter)]">
-                            Loved by thousands
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-1 h-1 rounded-full bg-warm-gray-400"></div>
-                          <span className="font-[var(--font-inter)]">
-                            Free shipping over $50
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-1 h-1 rounded-full bg-warm-gray-400"></div>
-                          <span className="font-[var(--font-inter)]">
-                            Easy returns
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Right: Featured Product Card - Sorbé Style */}
-                    <div className="lg:col-span-5">
-                      <div className="group flex flex-col">
-                        {/* Image Card Section */}
-                        <Link
-                          href={`/products/${product.slug}`}
-                          className="relative aspect-square rounded-2xl overflow-hidden transition-all duration-300 border border-warm-gray-200 hover:border-warm-gray-300 hover:shadow-lg bg-white"
-                        >
-                          {/* Full Image Background */}
-                          <div className="absolute inset-0">
-                            <Image
-                              src={getProductImageWithPlaceholder(product)}
-                              alt={product.name}
-                              fill
-                              className="object-cover transition-transform duration-500 group-hover:scale-105"
-                              sizes="(max-width: 1024px) 100vw, 50vw"
-                              priority={isActive}
-                              unoptimized={
-                                !product.defaultVariant?.image &&
-                                !product.defaultVariant?.images?.[0]
-                              }
-                            />
-                          </div>
-
-                          {/* Featured Badge */}
-                          <div className="absolute top-3 left-3 z-20">
-                            <div
-                              className="bg-primary-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg"
-                              style={{ transform: "rotate(-3deg)" }}
-                            >
-                              ✨ Featured Pick
-                            </div>
-                          </div>
-
-                          {/* Hover Overlay with View Product */}
-                          <div className="absolute inset-0 flex items-center justify-center transition-all duration-300 z-30 bg-black/40 backdrop-blur-[1px] opacity-0 group-hover:opacity-100">
-                            <Button
-                              variant="secondary"
-                              className="inline-flex items-center gap-2 bg-white text-warm-gray-900 px-6 py-3 rounded-full text-sm font-semibold hover:bg-warm-gray-900 hover:text-white transition-all duration-300 shadow-xl transform translate-y-4 group-hover:translate-y-0"
-                            >
-                              View Product
-                              <ArrowRight className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </Link>
-
-                        {/* Product Info Below Image */}
-                        <div className="mt-3 space-y-1">
-                          <Link
-                            href={`/products/${product.slug}`}
-                            className="block"
-                          >
-                            <p className="text-xs text-warm-gray-500 uppercase tracking-wider font-[var(--font-inter)] font-medium mb-1">
-                              {product.category?.name || "Featured"}
-                            </p>
-                            <h3 className="text-lg md:text-xl font-[var(--font-playfair)] font-semibold text-warm-gray-900 hover:text-primary-600 transition-colors leading-tight line-clamp-2">
-                              {product.name}
-                            </h3>
-                          </Link>
-                          <div className="flex items-baseline gap-2">
-                            <Price amount={product.price} size="lg" />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  <HeroSlideRenderer
+                    slide={activeSlide}
+                    product={product}
+                    isActive={true}
+                  />
                 </div>
               );
-            })}
+            })()}
           </div>
 
           {/* Navigation Controls */}
-          {validProducts.length > 1 && (
+          {sortedSlides.length > 1 && (
             <>
               {/* Arrow Navigation */}
               <button
                 onClick={prevSlide}
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-3 rounded-full border-2 border-primary-300 bg-white hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110"
+                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-30 p-2 sm:p-3 rounded-full border-2 border-primary-300 bg-white hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110"
                 aria-label="Previous slide"
               >
-                <ChevronLeft className="h-5 w-5 text-primary-600" />
+                <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 text-primary-600" />
               </button>
               <button
                 onClick={nextSlide}
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-3 rounded-full border-2 border-primary-300 bg-white hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110"
+                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-30 p-2 sm:p-3 rounded-full border-2 border-primary-300 bg-white hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110"
                 aria-label="Next slide"
               >
-                <ChevronRight className="h-5 w-5 text-primary-600" />
+                <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 text-primary-600" />
               </button>
 
               {/* Simple Minimalist Slide Indicators */}
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30">
                 <SlideIndicators
-                  count={validProducts.length}
+                  count={sortedSlides.length}
                   activeIndex={currentSlide}
                   onSelect={goToSlide}
                 />
               </div>
 
-              {/* Play/Pause Button */}
-              <button
-                onClick={() => setIsPlaying(!isPlaying)}
-                className="absolute top-6 right-6 z-30 p-3 rounded-full border-2 border-primary-300 bg-white hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110"
-                aria-label={isPlaying ? "Pause slideshow" : "Play slideshow"}
-              >
-                {isPlaying ? (
-                  <Pause className="h-5 w-5 text-primary-600" />
-                ) : (
-                  <Play className="h-5 w-5 text-primary-600" />
-                )}
-              </button>
+              {/* Play/Pause Button - Only show if motion is not reduced */}
+              {!prefersReducedMotion && (
+                <button
+                  onClick={() => setIsPlaying(!isPlaying)}
+                  className="absolute top-2 right-2 sm:top-4 sm:right-4 lg:top-6 lg:right-6 z-30 p-2 sm:p-3 rounded-full border-2 border-primary-300 bg-white hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110"
+                  aria-label={isPlaying ? "Pause slideshow" : "Play slideshow"}
+                >
+                  {isPlaying ? (
+                    <Pause className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-primary-600" />
+                  ) : (
+                    <Play className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-primary-600" />
+                  )}
+                </button>
+              )}
             </>
           )}
         </div>
-      </Container>
+      </div>
     </Section>
   );
 }

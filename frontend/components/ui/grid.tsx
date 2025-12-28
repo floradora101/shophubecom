@@ -1,11 +1,12 @@
 // Grid component for consistent grid layouts.
 import { cn } from "@/lib/utils/cn";
+import { ui, type GapSpacing } from "@/lib/ui-tokens";
 
 interface GridProps {
   children: React.ReactNode;
   className?: string;
   cols?: 1 | 2 | 3 | 4 | 6 | 12;
-  gap?: "xs" | "sm" | "md" | "lg" | "xl";
+  gap?: GapSpacing;
 }
 
 const colsClasses = {
@@ -18,11 +19,14 @@ const colsClasses = {
 };
 
 const gapClasses = {
-  xs: "gap-2",
-  sm: "gap-4",
-  md: "gap-6",
-  lg: "gap-8",
-  xl: "gap-10",
+  "1.5": ui.gap["1.5"],
+  "2.5": ui.gap["2.5"],
+  xs: ui.gap.xs,
+  sm: ui.gap.sm,
+  md: ui.gap.md,
+  lg: ui.gap.lg,
+  xl: ui.gap.xl,
+  "2xl": ui.gap["2xl"],
 };
 
 export function Grid({ children, className, cols = 3, gap = "md" }: GridProps) {
@@ -32,4 +36,3 @@ export function Grid({ children, className, cols = 3, gap = "md" }: GridProps) {
     </div>
   );
 }
-

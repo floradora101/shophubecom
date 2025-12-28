@@ -12,8 +12,16 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { FormErrorAlert } from "@/components/ui/form-error-alert";
 import { FormField } from "@/components/ui/form-field";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useFormErrorHandler } from "@/lib/forms/useFormErrorHandler";
 import {
   Dialog,
@@ -484,7 +492,7 @@ export function ProductForm({ product, onSave }: ProductFormProps) {
               <Input
                 {...register("name")}
                 placeholder="e.g., Wireless Headphones"
-                className={errors.name ? "border-red-500" : ""}
+                error={!!errors.name}
               />
             </FormField>
           </div>
@@ -495,14 +503,11 @@ export function ProductForm({ product, onSave }: ProductFormProps) {
               error={errors.description?.message}
               helpText="Optional product description"
             >
-              <textarea
+              <Textarea
                 {...register("description")}
                 rows={3}
                 placeholder="Short description"
-                className={`w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 ${
-                  errors.description ? "border-red-500" : ""
-                }`}
-                aria-invalid={!!errors.description}
+                error={!!errors.description}
               />
             </FormField>
           </div>
@@ -535,7 +540,7 @@ export function ProductForm({ product, onSave }: ProductFormProps) {
                 <Input
                   {...register("currency")}
                   maxLength={3}
-                  className={errors.currency ? "border-red-500" : ""}
+                  error={!!errors.currency}
                   onBlur={(e) =>
                     setValue("currency", e.target.value.toUpperCase())
                   }
@@ -604,9 +609,8 @@ export function ProductForm({ product, onSave }: ProductFormProps) {
                   min="0"
                   disabled={!watchedOnSale}
                   {...register("discountValue", { valueAsNumber: true })}
-                  className={`${errors.discountValue ? "border-red-500" : ""} ${
-                    !watchedOnSale ? "bg-gray-100 text-gray-500" : ""
-                  }`}
+                  error={!!errors.discountValue}
+                  className={!watchedOnSale ? "bg-gray-100 text-gray-500" : ""}
                   placeholder={
                     watchedOnSale && watch("discountType") === "PERCENTAGE"
                       ? "e.g. 10 for 10%"

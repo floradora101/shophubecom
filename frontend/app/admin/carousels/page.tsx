@@ -5,7 +5,7 @@ import { CarouselManager } from "@/features/admin/components/carousels/CarouselM
 
 export default function AdminCarouselsPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="px-4 py-6 sm:px-6 lg:px-8">

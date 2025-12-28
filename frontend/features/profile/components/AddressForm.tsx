@@ -99,7 +99,7 @@ export function AddressForm({
           <Input
             placeholder="e.g., Home, Work"
             {...register("name")}
-            className={errors.name ? "border-red-500" : ""}
+            error={!!errors.name}
           />
         </FormField>
 
@@ -111,7 +111,7 @@ export function AddressForm({
           <Input
             placeholder="e.g., Hamra Street, Achrafieh, Badaro"
             {...register("street")}
-            className={errors.street ? "border-red-500" : ""}
+            error={!!errors.street}
           />
         </FormField>
 
@@ -120,7 +120,7 @@ export function AddressForm({
             <Input
               placeholder="e.g., Beirut, Tripoli, Sidon"
               {...register("city")}
-              className={errors.city ? "border-red-500" : ""}
+              error={!!errors.city}
             />
           </FormField>
 
@@ -132,7 +132,7 @@ export function AddressForm({
             <Input
               placeholder="e.g., Beirut, Mount Lebanon, North Lebanon"
               {...register("state")}
-              className={errors.state ? "border-red-500" : ""}
+              error={!!errors.state}
             />
           </FormField>
         </div>
@@ -146,7 +146,7 @@ export function AddressForm({
             <Input
               placeholder="Optional"
               {...register("zipCode")}
-              className={errors.zipCode ? "border-red-500" : ""}
+              error={!!errors.zipCode}
             />
           </FormField>
 
@@ -154,7 +154,7 @@ export function AddressForm({
             <Input
               placeholder="+961 3 123 456 or 03 123 456"
               {...register("phone")}
-              className={errors.phone ? "border-red-500" : ""}
+              error={!!errors.phone}
             />
           </FormField>
         </div>

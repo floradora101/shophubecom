@@ -3,11 +3,16 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import { CategoryForm } from "@/features/admin/components/categories/CategoryForm";
+import { AdminPageShell } from "@/features/admin/components/AdminPageShell";
 import { adminCategoriesApi } from "@/features/admin/api/categories";
 import { extractErrorMessage } from "@/lib/utils/error-handler";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { Button } from "@/components/ui/button";
+import { Stack } from "@/components/ui/stack";
+import { Heading, Text } from "@/components/ui/typography";
 import type { Category } from "@/features/products/types";
 import type { CategoryFormData } from "@/features/admin/schemas/category";
 
@@ -55,27 +60,47 @@ export default function EditCategoryPage() {
   };
 
   if (isLoading) {
-    return <LoadingSpinner variant="full" />;
+    return (
+      <AdminPageShell
+        title="Edit Category"
+        description="Loading category details..."
+        backHref="/admin/categories"
+      >
+        <LoadingSpinner />
+      </AdminPageShell>
+    );
   }
 
   if (!category) {
-    return null;
+    return (
+      <AdminPageShell
+        title="Category Not Found"
+        description="The requested category could not be found."
+        backHref="/admin/categories"
+      >
+        <Stack spacing="lg" align="center">
+          <div className="text-center space-y-4">
+            <Heading level="h3">Category Not Found</Heading>
+            <Text className="text-warm-gray-600">
+              The category you're looking for doesn't exist or may have been
+              deleted.
+            </Text>
+            <Link href="/admin/categories">
+              <Button>Return to Categories</Button>
+            </Link>
+          </div>
+        </Stack>
+      </AdminPageShell>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="px-4 py-6 sm:px-6 lg:px-8">
-          <h1 className="text-2xl font-bold text-gray-900">Edit Category</h1>
-          <p className="mt-1 text-sm text-gray-500">{category.name}</p>
-        </div>
-      </div>
-
-      {/* Form */}
-      <div className="p-4 sm:p-6 lg:p-8 max-w-3xl">
-        <CategoryForm category={category} onSave={handleSave} />
-      </div>
-    </div>
+    <AdminPageShell
+      title="Edit Category"
+      description={category.name}
+      backHref="/admin/categories"
+    >
+      <CategoryForm category={category} onSave={handleSave} />
+    </AdminPageShell>
   );
 }

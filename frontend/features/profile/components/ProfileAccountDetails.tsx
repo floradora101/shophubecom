@@ -10,6 +10,7 @@ import { updateProfileSchema, changePasswordSchema } from "../schemas";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { FormField } from "@/components/ui/form-field";
 import { extractErrorMessage } from "@/lib/utils/error-handler";
 
 export function ProfileAccountDetails() {
@@ -129,25 +130,26 @@ export function ProfileAccountDetails() {
           )}
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Input
-              label="First Name *"
-              {...register("firstName")}
+            <FormField
+              label="First Name"
+              required
               error={errors.firstName?.message}
-            />
+            >
+              <Input {...register("firstName")} error={!!errors.firstName} />
+            </FormField>
 
-            <Input
-              label="Last Name *"
-              {...register("lastName")}
+            <FormField
+              label="Last Name"
+              required
               error={errors.lastName?.message}
-            />
+            >
+              <Input {...register("lastName")} error={!!errors.lastName} />
+            </FormField>
           </div>
 
-          <Input
-            label="Email *"
-            type="email"
-            {...register("email")}
-            error={errors.email?.message}
-          />
+          <FormField label="Email" required error={errors.email?.message}>
+            <Input type="email" {...register("email")} error={!!errors.email} />
+          </FormField>
 
           <div className="pt-4">
             <Button type="submit" isLoading={isLoading} size="lg">
@@ -181,26 +183,41 @@ export function ProfileAccountDetails() {
             </Alert>
           )}
 
-          <Input
-            label="Current Password *"
-            type="password"
-            {...registerPassword("currentPassword")}
+          <FormField
+            label="Current Password"
+            required
             error={passwordErrors.currentPassword?.message}
-          />
+          >
+            <Input
+              type="password"
+              {...registerPassword("currentPassword")}
+              error={!!passwordErrors.currentPassword}
+            />
+          </FormField>
 
-          <Input
-            label="New Password *"
-            type="password"
-            {...registerPassword("newPassword")}
+          <FormField
+            label="New Password"
+            required
             error={passwordErrors.newPassword?.message}
-          />
+          >
+            <Input
+              type="password"
+              {...registerPassword("newPassword")}
+              error={!!passwordErrors.newPassword}
+            />
+          </FormField>
 
-          <Input
-            label="Confirm New Password *"
-            type="password"
-            {...registerPassword("confirmPassword")}
+          <FormField
+            label="Confirm New Password"
+            required
             error={passwordErrors.confirmPassword?.message}
-          />
+          >
+            <Input
+              type="password"
+              {...registerPassword("confirmPassword")}
+              error={!!passwordErrors.confirmPassword}
+            />
+          </FormField>
 
           <div className="pt-4">
             <Button type="submit" isLoading={isPasswordLoading} size="lg">

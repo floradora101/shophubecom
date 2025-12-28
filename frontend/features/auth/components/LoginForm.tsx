@@ -111,7 +111,7 @@ export function LoginForm({ onSuccess, redirectUrl }: LoginFormProps) {
             type="email"
             placeholder="Enter your email"
             {...register("email")}
-            className={errors.email ? "border-red-500" : ""}
+            error={!!errors.email}
           />
         </FormField>
 
@@ -120,7 +120,7 @@ export function LoginForm({ onSuccess, redirectUrl }: LoginFormProps) {
             type="password"
             placeholder="Enter your password"
             {...register("password")}
-            className={errors.password ? "border-red-500" : ""}
+            error={!!errors.password}
           />
         </FormField>
       </div>

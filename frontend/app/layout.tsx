@@ -1,62 +1,29 @@
 // Root layout defining shared metadata and structure.
 import type { Metadata } from "next";
-import {
-  Geist,
-  Geist_Mono,
-  Poppins,
-  Righteous,
-  Playfair_Display,
-  Inter,
-  Caveat,
-  Montserrat,
-} from "next/font/google";
+import { Geist_Mono, DM_Sans, Inter } from "next/font/google";
 import "./globals.css";
 import { AppProviders } from "./providers";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+// Tech-focused font stack - clean, modern, professional
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
-const poppins = Poppins({
-  variable: "--font-poppins",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-});
-
-const righteous = Righteous({
-  variable: "--font-righteous",
-  subsets: ["latin"],
-  weight: ["400"],
-});
-
-const playfairDisplay = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
-});
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-});
-
-const caveat = Caveat({
-  variable: "--font-caveat",
+// DM Sans - modern display font for tech stores
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
 });
 
-const montserrat = Montserrat({
-  variable: "--font-montserrat",
+// Inter - primary body font for optimal readability
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap", // Optimize loading
 });
 
 export const metadata: Metadata = {
@@ -70,9 +37,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="[scrollbar-gutter:stable]">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${righteous.variable} ${playfairDisplay.variable} ${inter.variable} ${caveat.variable} ${montserrat.variable} antialiased`}
+        className={`${geistMono.variable} ${dmSans.variable} ${inter.variable} antialiased overflow-x-hidden`}
       >
         <AppProviders>{children}</AppProviders>
       </body>

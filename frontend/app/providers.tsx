@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/features/auth/components/AuthProvider";
+import { BackgroundProvider } from "@/components/ui/background";
 
 interface AppProvidersProps {
   children: React.ReactNode;
@@ -26,10 +27,12 @@ export function AppProviders({ children }: AppProvidersProps) {
   );
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>{children}</AuthProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
-      <Toaster />
-    </QueryClientProvider>
+    <BackgroundProvider variant="vibrant">
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>{children}</AuthProvider>
+        <ReactQueryDevtools initialIsOpen={false} />
+        <Toaster />
+      </QueryClientProvider>
+    </BackgroundProvider>
   );
 }

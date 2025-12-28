@@ -97,7 +97,9 @@ export function SectionTitle({
       </h2>
 
       {/* Subtitle */}
-      <p className={`text-slate-600 max-w-md mx-auto ${subtitleClassName}`}>
+      <p
+        className={`text-slate-600 max-w-none mx-auto whitespace-normal break-word lg:max-w-md ${subtitleClassName}`}
+      >
         {subtitle}
       </p>
     </div>
@@ -134,7 +136,7 @@ Usage Examples:
 
 // 4. Special offers with custom styling
 <SectionTitle
-  badgeText="🔥 Special Offers"
+  badgeText="SPECIAL OFFERS"
   title="Limited Time Deals"
   subtitle="Don't miss out on these amazing discounts"
   showHearts={false}

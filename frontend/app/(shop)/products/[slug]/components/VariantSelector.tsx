@@ -45,12 +45,12 @@ export function VariantSelector({
   if (!optionKeys.length) return null;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 sm:space-y-5">
       {/* Error Message - More prominent */}
       {isInvalidSelection && (
-        <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <X className="h-4 w-4 text-red-500 shrink-0" />
-          <span className="text-sm text-red-700 font-medium">
+        <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg">
+          <X className="h-4 w-4 sm:h-5 sm:w-5 text-red-500 shrink-0" />
+          <span className="text-sm sm:text-base text-red-700 font-medium">
             This combination is not available
           </span>
         </div>
@@ -63,21 +63,25 @@ export function VariantSelector({
         const isColorOption = key === "color";
 
         return (
-          <div key={key} className="space-y-3">
+          <div key={key} className="space-y-2 sm:space-y-3">
             {/* Option Header */}
             <div className="flex items-center justify-between">
-              <label className="text-sm font-semibold text-slate-900 capitalize">
+              <label className="text-sm sm:text-base font-semibold text-slate-900 capitalize">
                 {key}
               </label>
               {selectedValue && (
-                <span className="text-xs text-slate-500 font-medium">
+                <span className="text-xs text-slate-500 font-medium truncate max-w-24 sm:max-w-none">
                   Selected: {selectedValue}
                 </span>
               )}
             </div>
 
             {/* Option Values */}
-            <div className="flex flex-wrap gap-3">
+            <div
+              className={`flex flex-wrap gap-2 sm:gap-3 ${
+                isColorOption ? "justify-start" : ""
+              }`}
+            >
               {values.map(({ value, totalStock }) => {
                 const isSelected = selectedValue === value;
                 const isOutOfStock = totalStock === 0;
@@ -91,11 +95,11 @@ export function VariantSelector({
                       onClick={() => !isDisabled && onOptionSelect(key, value)}
                       disabled={isDisabled}
                       className={`
-                        group relative w-10 h-10 rounded-full border-2 transition-all duration-200 ease-in-out
+                        group relative w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 rounded-full border-2 transition-all duration-200 ease-in-out
                         ${
                           isSelected
                             ? "border-slate-900 ring-2 ring-slate-900/20 scale-110"
-                            : "border-slate-300 hover:border-slate-400 hover:scale-105"
+                            : "border-slate-300 hover:border-slate-400 hover:scale-105 active:scale-95"
                         }
                         ${
                           isDisabled
@@ -112,20 +116,20 @@ export function VariantSelector({
 
                       {/* Selection indicator */}
                       {isSelected && (
-                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-slate-900 rounded-full flex items-center justify-center">
-                          <Check className="h-3 w-3 text-white" />
+                        <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-4 h-4 sm:w-5 sm:h-5 bg-slate-900 rounded-full flex items-center justify-center">
+                          <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-white" />
                         </div>
                       )}
 
                       {/* Out of stock indicator */}
                       {isOutOfStock && (
                         <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-full">
-                          <X className="h-4 w-4 text-white font-bold" />
+                          <X className="h-3 w-3 sm:h-4 sm:w-4 text-white font-bold" />
                         </div>
                       )}
 
-                      {/* Tooltip on hover */}
-                      <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                      {/* Tooltip on hover - hide on mobile */}
+                      <div className="hidden sm:block absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
                         <div className="bg-slate-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
                           {value}
                         </div>
@@ -140,11 +144,11 @@ export function VariantSelector({
                       onClick={() => !isDisabled && onOptionSelect(key, value)}
                       disabled={isDisabled}
                       className={`
-                        group relative px-4 py-2.5 text-sm font-medium rounded-lg border transition-all duration-200 ease-in-out
+                        group relative px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-lg border transition-all duration-200 ease-in-out
                         ${
                           isSelected
                             ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                            : "border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50"
+                            : "border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 active:bg-slate-100"
                         }
                         ${
                           isDisabled
@@ -153,12 +157,14 @@ export function VariantSelector({
                         }
                       `}
                     >
-                      <span className="relative z-10">{value}</span>
+                      <span className="relative z-10 truncate max-w-20 sm:max-w-none">
+                        {value}
+                      </span>
 
                       {/* Selection indicator */}
                       {isSelected && (
-                        <div className="absolute top-1 right-1">
-                          <Check className="h-3 w-3 text-white" />
+                        <div className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1">
+                          <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-white" />
                         </div>
                       )}
 

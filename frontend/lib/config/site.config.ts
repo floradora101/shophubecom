@@ -21,8 +21,8 @@ export interface SiteConfig {
  */
 export const siteConfig: SiteConfig = {
   heroCarousel: {
-    backgroundColor: "#f3f4f6", // Light gray - can be changed to any color
-    textColor: "#171717", // Dark gray for text
+    backgroundColor: "var(--light-gray)", // Light gray - can be changed to any color
+    textColor: "var(--gray-900)", // Dark gray for text
   },
 };
 
@@ -37,5 +37,5 @@ export function getHeroCarouselBackground(): string {
  * Get hero carousel text color
  */
 export function getHeroCarouselTextColor(): string {
-  return siteConfig.heroCarousel.textColor || "#171717";
+  return siteConfig.heroCarousel.textColor || "var(--gray-900)";
 }

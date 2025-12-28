@@ -7,12 +7,12 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-neutral-100 text-neutral-800 hover:bg-neutral-200",
+        default: "bg-gray-100 text-gray-800 hover:bg-gray-200",
         primary: "bg-primary-100 text-primary-800 hover:bg-primary-200",
-        secondary: "bg-neutral-200 text-neutral-700 hover:bg-neutral-300",
-        success: "bg-green-100 text-green-800 hover:bg-green-200",
-        warning: "bg-yellow-100 text-yellow-800 hover:bg-yellow-200",
-        destructive: "bg-red-100 text-red-800 hover:bg-red-200",
+        secondary: "bg-warm-gray-200 text-warm-gray-700 hover:bg-warm-gray-300",
+        success: "bg-success text-white",
+        warning: "bg-warning text-white",
+        destructive: "bg-error text-white",
       },
       size: {
         sm: "px-2 py-0.5 text-xs",

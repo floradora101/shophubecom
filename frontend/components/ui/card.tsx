@@ -1,28 +1,39 @@
 // Card component for content containers
 import { cn } from "@/lib/utils/cn";
 import { forwardRef } from "react";
+import { cva, type VariantProps } from "class-variance-authority";
 
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: "default" | "elevated" | "bordered";
-}
+const cardVariants = cva("rounded-lg overflow-hidden bg-white", {
+  variants: {
+    variant: {
+      default: "border border-warm-gray-200",
+      elevated:
+        "border border-warm-gray-200 shadow-md hover:shadow-lg transition-shadow duration-normal",
+      bordered: "border-2 border-warm-gray-300",
+    },
+    padding: {
+      none: "",
+      sm: "p-4",
+      md: "p-6",
+      lg: "p-8",
+    },
+  },
+  defaultVariants: {
+    variant: "default",
+    padding: "none",
+  },
+});
+
+export interface CardProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof cardVariants> {}
 
 const Card = forwardRef<HTMLDivElement, CardProps>(
-  ({ className, variant = "default", ...props }, ref) => {
-    const variantClasses = {
-      default: "bg-white border border-neutral-200",
-      elevated:
-        "bg-white border border-neutral-200 shadow-md hover:shadow-lg transition-shadow duration-300",
-      bordered: "bg-white border-2 border-neutral-300",
-    };
-
+  ({ className, variant, padding, ...props }, ref) => {
     return (
       <div
         ref={ref}
-        className={cn(
-          "rounded-xl overflow-hidden",
-          variantClasses[variant],
-          className
-        )}
+        className={cn(cardVariants({ variant, padding }), className)}
         {...props}
       />
     );
@@ -31,4 +42,4 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
 
 Card.displayName = "Card";
 
-export { Card };
+export { Card, cardVariants };

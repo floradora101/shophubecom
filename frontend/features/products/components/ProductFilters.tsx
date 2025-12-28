@@ -4,6 +4,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import type { Category } from "../types";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface ProductFiltersProps {
   categories: Category[];
@@ -102,17 +104,12 @@ export function ProductFilters({
           Stock Status
         </h3>
         <div className="w-10 h-0.5 bg-warm-gray-300 mb-4"></div>
-        <label className="flex items-center gap-3 cursor-pointer group">
-          <input
-            type="checkbox"
-            checked={showInStockOnly}
-            onChange={(e) => onStockFilterChange(e.target.checked)}
-            className="w-4 h-4 rounded border-warm-gray-300 text-primary-500 focus:ring-primary-500"
-          />
-          <span className="text-sm text-warm-gray-700 group-hover:text-primary-600">
-            Show In-Stock Products Only
-          </span>
-        </label>
+        <Checkbox
+          checked={showInStockOnly}
+          onCheckedChange={(checked) => onStockFilterChange(checked as boolean)}
+          label="Show In-Stock Products Only"
+          className="text-sm text-warm-gray-700"
+        />
       </div>
 
       {/* Price Filter */}
@@ -124,24 +121,20 @@ export function ProductFilters({
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <div className="flex-1">
-              <label className="sr-only">Min price</label>
-              <input
+              <Input
                 type="number"
                 placeholder="Min"
                 value={localMin}
                 onChange={(e) => setLocalMin(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-warm-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
             <span className="text-warm-gray-400">—</span>
             <div className="flex-1">
-              <label className="sr-only">Max price</label>
-              <input
+              <Input
                 type="number"
                 placeholder="Max"
                 value={localMax}
                 onChange={(e) => setLocalMax(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-warm-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
               />
             </div>
           </div>

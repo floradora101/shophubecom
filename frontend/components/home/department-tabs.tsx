@@ -4,18 +4,22 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import {
+  Smartphone,
+  Tablet,
   Laptop,
-  Shirt,
-  Home,
-  BookOpen,
-  Sparkles,
-  ArrowRight,
+  Watch,
   Zap,
+  Gamepad2,
+  Package,
+  Grid3X3,
+  ArrowRight,
 } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { ProductCard } from "@/features/products/components/ProductCard";
 import { ProductCardSkeleton } from "./ProductCardSkeleton";
+import { ProgressiveSkeletonGrid } from "@/components/ui/loading-spinner";
+import { SectionTitle } from "./shared/section-header";
 import type { Product, Category } from "@/features/products/types";
 
 interface DepartmentTabsProps {
@@ -37,35 +41,122 @@ const departmentConfig: Record<
     tagline: string;
   }
 > = {
-  electronics: {
+  phones: {
+    icon: Smartphone,
+    gradient: "from-blue-500 to-cyan-600",
+    bgGradient: "from-blue-50 to-cyan-50",
+    description: "Latest smartphones and mobile technology",
+    tagline: "Stay Connected",
+  },
+  tablets: {
+    icon: Tablet,
+    gradient: "from-purple-500 to-pink-600",
+    bgGradient: "from-purple-50 to-pink-50",
+    description: "Powerful tablets for work and entertainment",
+    tagline: "Portable Power",
+  },
+  laptops: {
     icon: Laptop,
-    gradient: "from-blue-500 to-purple-600",
-    bgGradient: "from-blue-50 to-purple-50",
-    description: "Cutting-edge technology and innovation",
-    tagline: "Tech That Transforms",
+    gradient: "from-indigo-500 to-blue-600",
+    bgGradient: "from-indigo-50 to-blue-50",
+    description: "High-performance laptops for every need",
+    tagline: "Unleash Productivity",
   },
-  clothing: {
-    icon: Shirt,
-    gradient: "from-pink-500 to-rose-600",
-    bgGradient: "from-pink-50 to-rose-50",
-    description: "Style that speaks your language",
-    tagline: "Fashion Forward",
+  wearables: {
+    icon: Watch,
+    gradient: "from-emerald-500 to-teal-600",
+    bgGradient: "from-emerald-50 to-teal-50",
+    description: "Wearable technology and accessories",
+    tagline: "Tech on Your Wrist",
   },
-  "home-garden": {
-    icon: Home,
-    gradient: "from-green-500 to-emerald-600",
-    bgGradient: "from-green-50 to-emerald-50",
-    description: "Transform your living space",
-    tagline: "Home Sweet Home",
+  "smart-gadgets": {
+    icon: Zap,
+    gradient: "from-orange-500 to-red-600",
+    bgGradient: "from-orange-50 to-red-50",
+    description: "Smart home devices and gadgets",
+    tagline: "Smart Living",
   },
-  books: {
-    icon: BookOpen,
-    gradient: "from-amber-500 to-orange-600",
-    bgGradient: "from-amber-50 to-orange-50",
-    description: "Stories that inspire and educate",
-    tagline: "Read. Learn. Grow.",
+  "gaming-console": {
+    icon: Gamepad2,
+    gradient: "from-violet-500 to-purple-600",
+    bgGradient: "from-violet-50 to-purple-50",
+    description: "Gaming consoles and accessories",
+    tagline: "Game On",
+  },
+  accessories: {
+    icon: Package,
+    gradient: "from-slate-500 to-gray-600",
+    bgGradient: "from-slate-50 to-gray-50",
+    description: "Device cases, bags, and protection",
+    tagline: "Complete Your Setup",
   },
 };
+
+/**
+ * Skeleton loader for DepartmentTabs component
+ * Shows tab navigation skeleton and product grid skeleton
+ */
+export function DepartmentTabsSkeleton() {
+  return (
+    <Section spacing="md" className="relative overflow-hidden bg-transparent">
+      <Container className="relative z-10">
+        <div className="space-y-6">
+          {/* Header - Typography set once at container level */}
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="text-center md:text-left space-y-4 flex-1">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary-100 via-primary-100 to-primary-200 mb-2">
+                <div className="animate-shimmer h-4 w-4 rounded bg-current" />
+                <div className="animate-shimmer h-4 w-32 rounded bg-current" />
+              </div>
+              <div className="animate-shimmer h-10 w-80 rounded bg-current" />
+              <div className="animate-shimmer h-5 w-96 rounded bg-current" />
+            </div>
+          </div>
+
+          {/* Enhanced Tabs with Icons */}
+          <div className="flex flex-wrap justify-center gap-2.5 pb-4">
+            {Array.from({ length: 7 }, (_, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-gray-200 animate-shimmer"
+                style={{ animationDelay: `${i * 0.1}s` }}
+              >
+                <div className="animate-shimmer w-4 h-4 rounded" />
+                <div className="animate-shimmer h-4 w-20 rounded" />
+              </div>
+            ))}
+          </div>
+
+          {/* Department Info Banner Skeleton */}
+          <div className="relative overflow-hidden rounded-lg p-5 bg-gradient-to-r from-gray-50 to-gray-100 border border-white/20 animate-shimmer">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="animate-shimmer p-2.5 rounded-xl w-10 h-10 bg-current" />
+                <div>
+                  <div className="animate-shimmer h-5 w-32 rounded mb-0.5" />
+                  <div className="animate-shimmer h-4 w-48 rounded" />
+                </div>
+              </div>
+              <div className="animate-shimmer w-20 h-8 rounded-lg bg-current" />
+            </div>
+            {/* Subtle decorative elements */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
+          </div>
+
+          {/* Content - Grid layout only, consistent across all tabs */}
+          <div className="min-h-[350px] transition-all duration-300 ease-in-out">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-fade-in">
+              {Array.from({ length: 8 }, (_, index) => (
+                <ProductCardSkeleton key={`skeleton-${index}`} />
+              ))}
+            </div>
+          </div>
+        </div>
+      </Container>
+    </Section>
+  );
+}
 
 export function DepartmentTabs({
   categories,
@@ -189,19 +280,12 @@ export function DepartmentTabs({
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="text-center md:text-left space-y-4 flex-1">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary-100 via-primary-100 to-primary-200 mb-2">
-                <Sparkles className="h-4 w-4 text-primary-600" />
-                <span className="text-sm font-semibold text-primary-700 font-[var(--font-poppins)]">
+                <Grid3X3 className="h-4 w-4 text-primary-600" />
+                <span className="text-sm font-semibold text-primary-700 font-[var(--font-inter)]">
                   Explore Collections
                 </span>
               </div>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl text-gray-900 leading-tight">
-                <span className="font-[var(--font-playfair)] font-bold italic">
-                  Shop by
-                </span>
-                <span className="font-[var(--font-poppins)] font-bold text-primary-600 ml-2">
-                  Department
-                </span>
-              </h2>
+              <SectionTitle italic="Shop by" bold="Category" />
               <p className="text-gray-600 max-w-2xl text-lg font-[var(--font-inter)] font-light leading-relaxed">
                 Discover curated collections tailored to your lifestyle
               </p>
@@ -247,7 +331,7 @@ export function DepartmentTabs({
 
           {/* Department Info Banner */}
           <div
-            className={`relative overflow-hidden rounded-2xl p-5 bg-gradient-to-r ${activeConfig.bgGradient} border border-white/20 transition-all duration-500 ease-in-out`}
+            className={`relative overflow-hidden rounded-lg p-5 bg-gradient-to-r ${activeConfig.bgGradient} border border-white/20 transition-all duration-500 ease-in-out`}
           >
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-3">
               <div className="flex items-center gap-3">

@@ -1,193 +1,261 @@
-// BrandStory: Creative and unique story section with logo
+// BrandStory: Tech-focused brand story section
 "use client";
 
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
-import { Heart, Sparkles, Award, Users } from "lucide-react";
+import { Cpu, Zap, Shield, Users, TrendingUp } from "lucide-react";
+import Image from "next/image";
+import { SectionTitle } from "./shared/section-header";
 
-const stats = [
-  { value: "500K+", label: "Happy Customers", icon: Users },
-  { value: "10K+", label: "Products Available", icon: Sparkles },
-  { value: "100+", label: "Expert Curators", icon: Award },
+const techValues = [
+  {
+    title: "Innovation First",
+    description:
+      "Curating cutting-edge technology that shapes tomorrow's solutions",
+    icon: Cpu,
+  },
+  {
+    title: "Performance Driven",
+    description: "Every product tested for peak performance and reliability",
+    icon: Zap,
+  },
+  {
+    title: "Trusted Quality",
+    description:
+      "Rigorous quality standards ensure lasting value and satisfaction",
+    icon: Shield,
+  },
 ];
 
-const values = [
-  {
-    title: "Quality First",
-    description: "Every product is handpicked by our expert team",
-    icon: Award,
-  },
-  {
-    title: "Customer Love",
-    description: "Your satisfaction is our top priority",
-    icon: Heart,
-  },
-  {
-    title: "Curated Selection",
-    description: "Only the best products make it to our collection",
-    icon: Sparkles,
-  },
+const achievements = [
+  { value: "50K+", label: "Tech Enthusiasts", icon: Users },
+  { value: "15K+", label: "Premium Gadgets", icon: Cpu },
+  { value: "99%", label: "Satisfaction Rate", icon: TrendingUp },
 ];
 
 export function BrandStory() {
   return (
-    <Section spacing="md" className="relative overflow-hidden bg-transparent">
-      {/* Decorative background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-20 -right-20 w-96 h-96 bg-primary-100 rounded-full blur-3xl opacity-20"></div>
-        <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-primary-200 rounded-full blur-3xl opacity-20"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-br from-primary-50 to-primary-100 rounded-full blur-3xl opacity-30"></div>
-      </div>
-
+    <Section spacing="xl" className="relativ">
       <Container size="lg" className="relative z-10">
-        <div className="space-y-16">
-          {/* Logo and Title Section */}
-          <div className="text-center space-y-6">
-            {/* Logo */}
-            <div className="flex justify-center mb-6">
-              <div className="relative group">
-                <div className="absolute inset-0 bg-primary-500 rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                <div className="relative flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 text-white shadow-2xl transform group-hover:scale-105 transition-transform duration-300">
-                  <span className="text-4xl font-[var(--font-righteous)]">
-                    S
-                  </span>
-                </div>
-              </div>
+        <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+          {/* Left Side - Brand Story */}
+          <div className="space-y-8">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-primary-50 to-primary-100/50 rounded-full border border-primary-200/50 backdrop-blur-sm">
+              <div
+                className="w-2 h-2 bg-primary-500 rounded-full shadow-sm shadow-primary-500/50"
+                style={{
+                  animation: "pulse 3s ease-in-out infinite",
+                }}
+              ></div>
+              <span className="text-sm font-[var(--font-inter)] font-semibold tracking-wide text-primary-700">
+                Tech Excellence
+              </span>
             </div>
 
-            {/* Title */}
-            <div className="space-y-4">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary-100 via-primary-100 to-primary-200 mb-2">
-                <Sparkles className="h-4 w-4 text-primary-600" />
-                <span className="text-sm font-semibold text-primary-700 font-[var(--font-poppins)]">
-                  About Us
-                </span>
-              </div>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl text-gray-900 leading-tight">
-                <span className="font-[var(--font-playfair)] font-bold italic">
-                  Our
-                </span>
-                <span className="font-[var(--font-poppins)] font-bold text-primary-600 ml-2">
-                  Story
-                </span>
-              </h2>
-              <p className="text-gray-600 max-w-2xl mx-auto text-lg font-[var(--font-inter)] font-light leading-relaxed">
-                Quality over quantity, design that lasts, service that goes
-                beyond expectations
+            {/* Main Title - Exact same style as Department and Trending sections */}
+            <div className="space-y-6">
+              <SectionTitle italic="Empowering" bold="Tomorrow's Tech" />
+
+              <p className="text-warm-gray-600 max-w-2xl text-lg font-[var(--font-inter)] font-light leading-relaxed">
+                We&apos;re not just selling gadgets—we&apos;re connecting
+                innovators with the tools that drive progress. Every device in
+                our collection represents the perfect fusion of cutting-edge
+                technology and practical utility.
               </p>
             </div>
-          </div>
 
-          {/* Main Story Content */}
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            {/* Left: Story Text */}
+            {/* Tech Values */}
             <div className="space-y-6">
-              <div className="space-y-4">
-                <p className="text-xl md:text-2xl text-gray-700 leading-relaxed font-medium">
-                  Founded with a simple mission: to bring you thoughtfully
-                  curated products that enhance your everyday life.
-                </p>
-                <p className="text-lg text-gray-600 leading-relaxed">
-                  We believe in quality over quantity, design that lasts, and
-                  service that goes beyond expectations. Every product in our
-                  collection is handpicked by our team of experts, ensuring that
-                  you receive only the best.
-                </p>
-                <p className="text-lg text-gray-600 leading-relaxed">
-                  From modern electronics to timeless home essentials, we're
-                  here to help you create a space that reflects your unique
-                  style. Join us on this journey of discovery, where every
-                  purchase tells a story.
-                </p>
-              </div>
-            </div>
-
-            {/* Right: Values Grid */}
-            <div className="grid grid-cols-1 gap-6">
-              {values.map((value, index) => {
-                const Icon = value.icon;
-                return (
-                  <div
-                    key={value.title}
-                    className="group relative p-6 rounded-2xl bg-gradient-to-br from-white to-cream-50 border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
-                    style={{
-                      animationDelay: `${index * 100}ms`,
-                    }}
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary-100 text-primary-600 group-hover:bg-primary-500 group-hover:text-white transition-colors duration-300">
-                          <Icon className="h-6 w-6" />
-                        </div>
+              <h3 className="text-xl lg:text-2xl font-bold text-gray-900 font-[var(--font-inter)]">
+                Why Choose ShopHub Tech
+              </h3>
+              <div className="space-y-5">
+                {techValues.map((value) => {
+                  const Icon = value.icon;
+                  return (
+                    <div
+                      key={value.title}
+                      className="flex items-start gap-4 group"
+                    >
+                      <div className="shrink-0 w-12 h-12 bg-gradient-to-br from-primary-50 to-primary-100/50 rounded-xl flex items-center justify-center border border-primary-200/30 group-hover:shadow-lg transition-all duration-300">
+                        <Icon className="h-6 w-6 text-primary-600" />
                       </div>
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-gray-900 mb-2 font-[var(--font-inter)] text-lg">
                           {value.title}
-                        </h3>
-                        <p className="text-sm text-gray-600 leading-relaxed">
+                        </h4>
+                        <p className="text-gray-600 leading-relaxed font-[var(--font-inter)]">
                           {value.description}
                         </p>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Side - Logo & Achievements */}
+          <div className="space-y-12">
+            {/* Logo Section */}
+            <div className="flex justify-center lg:justify-start">
+              <div className="relative group">
+                {/* Background glow */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary-500/10 via-primary-400/5 to-primary-600/10 rounded-full blur-2xl scale-125 group-hover:scale-150 transition-transform duration-700"></div>
+
+                {/* Logo container */}
+                <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-white/30">
+                  <Image
+                    src="/logo.png"
+                    alt="ShopHub Logo"
+                    width={140}
+                    height={140}
+                    className="relative object-contain drop-shadow-sm"
+                  />
+                </div>
+
+                {/* Decorative elements - slower animations */}
+                <div
+                  className="absolute -top-2 -right-2 w-4 h-4 bg-primary-500 rounded-full shadow-lg shadow-primary-500/50"
+                  style={{
+                    animation: "pulse 3.5s ease-in-out infinite",
+                  }}
+                ></div>
+                <div
+                  className="absolute -bottom-1 -left-1 w-3 h-3 bg-primary-400 rounded-full shadow-md shadow-primary-400/40"
+                  style={{
+                    animation: "pulse 4s ease-in-out infinite",
+                    animationDelay: "1s",
+                  }}
+                ></div>
+              </div>
+            </div>
+
+            {/* Achievements Grid */}
+            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/20">
+              <div className="text-center mb-8">
+                <h3 className="text-xl lg:text-2xl font-bold text-gray-900 mb-2 font-[var(--font-inter)]">
+                  Our Impact
+                </h3>
+                <p className="text-gray-600 font-[var(--font-inter)]">
+                  Numbers that drive our mission forward
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 gap-6">
+                {achievements.map((achievement, index) => {
+                  const Icon = achievement.icon;
+                  return (
+                    <div
+                      key={achievement.label}
+                      className="flex items-center gap-4 p-4 bg-white/40 rounded-xl border border-white/30 hover:bg-white/60 transition-all duration-300"
+                    >
+                      <div className="shrink-0 w-12 h-12 bg-gradient-to-br from-primary-50 to-primary-100/50 rounded-xl flex items-center justify-center border border-primary-200/30">
+                        <Icon className="h-6 w-6 text-primary-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-2xl lg:text-3xl font-black text-gray-900 font-[var(--font-inter)]">
+                          {achievement.value}
+                        </div>
+                        <div className="text-sm font-medium text-gray-600 uppercase tracking-wide font-[var(--font-inter)]">
+                          {achievement.label}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      </Container>
+    </Section>
+  );
+}
+
+/**
+ * Skeleton loader for BrandStory component
+ * Shows brand story layout with stats, values, and content placeholders
+ */
+export function BrandStorySkeleton() {
+  return (
+    <Section
+      spacing="xl"
+      className="relative bg-gradient-to-br from-gray-50 to-white"
+    >
+      <Container size="lg" className="relative z-10">
+        <div className="space-y-20">
+          {/* Hero Section */}
+          <div className="text-center space-y-8 max-w-4xl mx-auto">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-50 border border-primary-100">
+              <div className="animate-shimmer w-4 h-4 rounded bg-current" />
+              <div className="animate-shimmer h-4 w-24 rounded bg-current" />
+            </div>
+
+            {/* Title */}
+            <div className="space-y-4">
+              <div className="animate-shimmer h-12 w-96 mx-auto rounded bg-current" />
+              <div className="animate-shimmer h-6 w-80 mx-auto rounded bg-current" />
+            </div>
+
+            {/* Description */}
+            <div className="space-y-3 max-w-2xl mx-auto">
+              <div className="animate-shimmer h-4 w-full rounded bg-current" />
+              <div className="animate-shimmer h-4 w-5/6 mx-auto rounded bg-current" />
+              <div className="animate-shimmer h-4 w-4/5 mx-auto rounded bg-current" />
             </div>
           </div>
 
           {/* Stats Section */}
-          <div className="pt-12 border-t border-gray-200">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {stats.map((stat, index) => {
-                const Icon = stat.icon;
-                return (
-                  <div
-                    key={stat.label}
-                    className="text-center group"
-                    style={{
-                      animationDelay: `${index * 150}ms`,
-                    }}
-                  >
-                    <div className="inline-flex items-center justify-center mb-4">
-                      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-50 to-primary-100 text-primary-600 group-hover:from-primary-500 group-hover:to-primary-600 group-hover:text-white transition-all duration-300 group-hover:scale-110">
-                        <Icon className="h-8 w-8" />
-                      </div>
-                    </div>
-                    <div className="text-5xl md:text-6xl font-bold text-primary-600 mb-2 group-hover:scale-105 transition-transform duration-300">
-                      {stat.value}
-                    </div>
-                    <div className="text-sm font-medium text-gray-600 uppercase tracking-wider">
-                      {stat.label}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {Array.from({ length: 3 }, (_, i) => (
+              <div
+                key={i}
+                className="text-center space-y-4"
+                style={{ animationDelay: `${i * 0.1}s` }}
+              >
+                <div className="animate-shimmer w-8 h-8 mx-auto rounded bg-current" />
+                <div className="animate-shimmer h-8 w-16 mx-auto rounded bg-current" />
+                <div className="animate-shimmer h-4 w-24 mx-auto rounded bg-current" />
+              </div>
+            ))}
           </div>
 
-          {/* Bottom Quote */}
-          <div className="text-center pt-8">
-            <div className="inline-block max-w-2xl">
-              <div className="relative">
-                <div className="absolute -top-4 -left-4 text-6xl text-primary-200 font-[var(--font-playfair)] leading-none">
-                  "
-                </div>
-                <p className="relative text-xl md:text-2xl text-gray-700 italic font-[var(--font-playfair)] leading-relaxed px-8">
-                  We don't just sell products, we curate experiences that enrich
-                  your life.
-                </p>
-                <div className="absolute -bottom-4 -right-4 text-6xl text-primary-200 font-[var(--font-playfair)] leading-none">
-                  "
+          {/* Content Section */}
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            {/* Left side - Content */}
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <div className="animate-shimmer h-8 w-48 rounded bg-current" />
+                <div className="space-y-3">
+                  <div className="animate-shimmer h-4 w-full rounded bg-current" />
+                  <div className="animate-shimmer h-4 w-5/6 rounded bg-current" />
+                  <div className="animate-shimmer h-4 w-4/5 rounded bg-current" />
                 </div>
               </div>
-              <div className="mt-6 flex items-center justify-center gap-2">
-                <div className="h-px w-12 bg-primary-300"></div>
-                <span className="text-sm font-medium text-primary-600 uppercase tracking-wider">
-                  The ShopHub Team
-                </span>
-                <div className="h-px w-12 bg-primary-300"></div>
+
+              {/* Values */}
+              <div className="space-y-6">
+                {Array.from({ length: 3 }, (_, i) => (
+                  <div
+                    key={i}
+                    className="flex items-start gap-4"
+                    style={{ animationDelay: `${i * 0.1 + 0.3}s` }}
+                  >
+                    <div className="animate-shimmer w-6 h-6 rounded bg-current mt-1" />
+                    <div className="flex-1 space-y-2">
+                      <div className="animate-shimmer h-5 w-32 rounded bg-current" />
+                      <div className="animate-shimmer h-4 w-full rounded bg-current" />
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
+
+            {/* Right side - Image */}
+            <div className="animate-shimmer aspect-square w-full rounded-2xl bg-current" />
           </div>
         </div>
       </Container>

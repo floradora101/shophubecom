@@ -1,26 +1,48 @@
 // Order complete page - shows thank you message and order details
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Section } from "@/components/ui/section";
+import { Container } from "@/components/ui/container";
+import { Stack } from "@/components/ui/stack";
+import { Card } from "@/components/ui/card";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { Stepper } from "@/components/ui/stepper";
+import { Heading, Text } from "@/components/ui/typography";
 import { ordersApi } from "@/features/orders/api";
-import { formatPrice } from "@/lib/utils";
+import { DEMO_CHECKOUT } from "@/lib/flags";
+import { getDemoOrder } from "@/features/orders/demo/demoOrders";
+import { SuccessHeader } from "@/features/orders/components/SuccessHeader";
+import { OrderSummaryCard } from "@/features/orders/components/OrderSummaryCard";
 import type { BackendOrderResponseDto } from "@/features/orders/api";
 
 const steps = [
-  { label: "Shopping Cart", active: false, completed: true },
-  { label: "Checkout Details", active: false, completed: true },
-  { label: "Order Complete", active: true, completed: false },
+  { label: "Shopping Cart", href: "/cart", state: "done" as const },
+  { label: "Checkout Details", href: "/checkout", state: "done" as const },
+  { label: "Order Complete", state: "done" as const },
 ];
 
 export default function OrderCompletePage() {
   const params = useParams();
+  const searchParams = useSearchParams();
+  const isDemo = DEMO_CHECKOUT || searchParams?.get("demo") === "1";
   const orderIdParam = params?.orderId;
   const orderId = Array.isArray(orderIdParam) ? orderIdParam[0] : orderIdParam;
+
+  // Dev-only debug log for demo mode
+  if (process.env.NODE_ENV === "development") {
+    console.log(
+      "OrderCompletePage - DEMO_CHECKOUT:",
+      DEMO_CHECKOUT,
+      "isDemo:",
+      isDemo
+    );
+  }
+
+  // For demo mode, load demo order immediately
+  const demoOrder = isDemo ? getDemoOrder(orderId!) : null;
 
   // Fetch order by id (token is in httpOnly cookie, automatically sent by browser)
   const {
@@ -31,42 +53,49 @@ export default function OrderCompletePage() {
   } = useQuery<BackendOrderResponseDto>({
     queryKey: ["order", orderId],
     queryFn: () => ordersApi.getOrderByIdRaw(orderId!),
-    enabled: !!orderId,
+    enabled: !!orderId && !isDemo,
     retry: false, // Don't retry on error for better UX
   });
 
+  // Use demo order if in demo mode, otherwise use backend order (or fallback to demo if backend fails)
+  const finalOrder =
+    demoOrder || order || (isError ? getDemoOrder(orderId!) : null);
+
   if (!orderId) {
     return (
-      <main className="flex-1 bg-white py-8">
-          <div className="container mx-auto px-4 md:px-6 lg:px-8">
-            <div className="rounded-xl border border-gray-200 bg-white p-10 text-center">
-              <p className="text-lg font-semibold text-gray-800">
-                Order not found
-              </p>
-              <div className="mt-5">
+      <Section spacing="lg">
+        <Container size="lg">
+          <Card className="p-12 text-center">
+            <Stack spacing="md" align="center">
+              <Heading level="h3">Order not found</Heading>
+              <Text>Unable to locate the requested order.</Text>
+              <div className="pt-4">
                 <Link href="/products">
-                  <Button className="rounded-full px-6">
+                  <button className="rounded-full bg-red-500 px-8 py-3 text-sm font-medium text-white transition-colors hover:bg-red-600">
                     Continue shopping
-                  </Button>
+                  </button>
                 </Link>
               </div>
-            </div>
-          </div>
-        </main>
+            </Stack>
+          </Card>
+        </Container>
+      </Section>
     );
   }
 
   if (isLoading) {
     return (
-      <main className="flex-1 bg-white py-8">
-          <div className="container mx-auto px-4 md:px-6 lg:px-8">
+      <Section spacing="lg">
+        <Container size="lg">
+          <div className="flex justify-center py-12">
             <LoadingSpinner />
           </div>
-        </main>
+        </Container>
+      </Section>
     );
   }
 
-  if (isError || !order) {
+  if ((isError && !demoOrder) || (!order && !demoOrder)) {
     // Extract error message for better debugging
     let errorMessage = "Order not found";
     if (error && typeof error === "object" && "response" in error) {
@@ -84,188 +113,82 @@ export default function OrderCompletePage() {
     }
 
     return (
-      <main className="flex-1 bg-white py-8">
-          <div className="container mx-auto px-4 md:px-6 lg:px-8">
-            <div className="rounded-xl border border-gray-200 bg-white p-10 text-center">
-              <p className="text-lg font-semibold text-gray-800">
-                {errorMessage}
-              </p>
+      <Section spacing="lg">
+        <Container size="lg">
+          <Card className="p-12 text-center">
+            <Stack spacing="md" align="center">
+              <Heading level="h3">{errorMessage}</Heading>
               {process.env.NODE_ENV === "development" && error && (
-                <p className="mt-2 text-sm text-gray-600">
+                <Text variant="meta" className="text-gray-500">
                   Order ID: {orderId}
-                </p>
+                </Text>
               )}
-              <div className="mt-5">
+              <div className="pt-4">
                 <Link href="/products">
-                  <Button className="rounded-full px-6">
+                  <button className="rounded-full bg-red-500 px-8 py-3 text-sm font-medium text-white transition-colors hover:bg-red-600">
                     Continue shopping
-                  </Button>
+                  </button>
                 </Link>
               </div>
-            </div>
-          </div>
-        </main>
+            </Stack>
+          </Card>
+        </Container>
+      </Section>
+    );
+  }
+
+  if (!finalOrder) {
+    return (
+      <Section spacing="lg">
+        <Container size="lg">
+          <Card className="p-12 text-center">
+            <Stack spacing="md" align="center">
+              <Heading level="h3">Order not found</Heading>
+              <Text>The requested order could not be located.</Text>
+              <div className="pt-4">
+                <Link href="/products">
+                  <button className="rounded-full bg-red-500 px-8 py-3 text-sm font-medium text-white transition-colors hover:bg-red-600">
+                    Continue shopping
+                  </button>
+                </Link>
+              </div>
+            </Stack>
+          </Card>
+        </Container>
+      </Section>
     );
   }
 
   return (
-    <main className="flex-1 bg-white py-8">
-        <div className="container mx-auto px-4 md:px-6 lg:px-8">
-          {/* Steps: hide on mobile for cleaner layout */}
-          <div className="mb-6 hidden flex-wrap items-center justify-center gap-3 text-sm font-semibold text-gray-700 text-center sm:flex">
-            {steps.map((step, idx) => {
-              const stepUrls = ["/cart", "/checkout", ""];
-              const stepUrl = stepUrls[idx];
-              const isClickable = stepUrl && idx < 2; // Only first 2 steps are clickable
-
-              const stepContent = (
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`flex h-8 w-8 items-center justify-center rounded-full border transition-colors ${
-                      step.active
-                        ? "border-primary-500 bg-primary-50 text-primary-700"
-                        : step.completed
-                        ? "border-emerald-500 bg-emerald-50 text-emerald-700"
-                        : "border-gray-300 bg-white text-gray-600"
-                    }`}
-                  >
-                    {step.completed ? (
-                      <CheckCircle2 className="h-4 w-4" />
-                    ) : (
-                      idx + 1
-                    )}
-                  </span>
-                  <span
-                    className={`transition-colors ${
-                      step.active
-                        ? "text-primary-700"
-                        : step.completed
-                        ? "text-emerald-700"
-                        : "text-gray-600"
-                    }`}
-                  >
-                    {step.label}
-                  </span>
-                  {idx < steps.length - 1 && (
-                    <span className="mx-2 text-gray-300">—</span>
-                  )}
-                </div>
-              );
-
-              return isClickable ? (
-                <Link
-                  key={step.label}
-                  href={stepUrl}
-                  className="hover:opacity-80 transition-opacity"
-                >
-                  {stepContent}
-                </Link>
-              ) : (
-                <div key={step.label}>{stepContent}</div>
-              );
-            })}
+    <Section spacing="lg">
+      <Container size="lg">
+        <Stack spacing="xl" align="stretch">
+          {/* Header */}
+          <div className="text-center space-y-2">
+            <Heading level="h2">Order Confirmation</Heading>
+            <Text className="text-gray-600 max-w-md mx-auto">
+              Your order has been successfully placed
+            </Text>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
-            {/* Thank You Section */}
-            <div className="rounded-lg border border-gray-200 bg-white p-6">
-              {/* Success Icon */}
-              <div className="mb-6 flex justify-center">
-                <div className="rounded-full bg-emerald-100 p-4">
-                  <CheckCircle2 className="h-12 w-12 text-emerald-600" />
-                </div>
-              </div>
+          {/* Stepper - hidden on mobile for cleaner layout */}
+          {/* Stepper - hidden on mobile for cleaner layout */}
+          <div className="hidden sm:block">
+            <Stepper steps={steps} />
+          </div>
 
-              {/* Thank You Message */}
-              <h1 className="mb-4 text-center text-3xl font-bold text-gray-900">
-                Thank you for your order!
-              </h1>
-              <p className="mb-6 text-center text-lg text-gray-600">
-                Your order has been received and is being processed.
-              </p>
+          {/* Main Content */}
+          <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
+            {/* Success Header */}
+            <SuccessHeader order={finalOrder} isDemo={isDemo} />
 
-              {/* Order Number */}
-              <div className="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-6 text-center">
-                <p className="mb-2 text-sm font-semibold text-gray-700 uppercase tracking-wide">
-                  Order Number
-                </p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {order.orderNumber}
-                </p>
-              </div>
-
-              {/* Continue Shopping Button */}
-              <div className="mt-6">
-                <Link href="/products">
-                  <Button className="w-full rounded-full">
-                    Continue Shopping
-                  </Button>
-                </Link>
-              </div>
-            </div>
-
-            {/* Order Summary */}
-            <div className="rounded-lg border border-gray-200 bg-white p-6">
-              <h2 className="text-base font-semibold uppercase text-gray-800">
-                Your order
-              </h2>
-              <div className="mt-4 space-y-3 text-sm text-gray-700">
-                <div className="flex items-center justify-between font-semibold text-gray-900">
-                  <span>Product</span>
-                  <span>Subtotal</span>
-                </div>
-                {order.items && order.items.length > 0 ? (
-                  <div className="divide-y divide-gray-100 rounded-lg border border-gray-200">
-                    {order.items.map((item) => (
-                      <div
-                        key={item.id}
-                        className="flex items-center justify-between px-3 py-2 text-sm"
-                      >
-                        <span className="text-gray-800">
-                          {item.title} × {item.quantity}
-                        </span>
-                        <span className="font-semibold text-gray-900">
-                          {formatPrice(item.total, {
-                            alwaysShowDecimals: true,
-                          })}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="rounded-lg border border-gray-200 p-4 text-center text-sm text-gray-600">
-                    No items available
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between pt-2 text-sm font-semibold text-gray-900">
-                  <span>Subtotal</span>
-                  <span>
-                    {formatPrice(order.subtotal, { alwaysShowDecimals: true })}
-                  </span>
-                </div>
-
-                {order.shipping > 0 && (
-                  <div className="flex items-center justify-between text-sm text-gray-700">
-                    <span>Shipping</span>
-                    <span className="font-semibold">
-                      {formatPrice(order.shipping, {
-                        alwaysShowDecimals: true,
-                      })}
-                    </span>
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between pt-1 text-base font-semibold text-gray-900">
-                  <span>Total</span>
-                  <span>
-                    {formatPrice(order.total, { alwaysShowDecimals: true })}
-                  </span>
-                </div>
-              </div>
+            {/* Order Summary - sticky on desktop */}
+            <div className="lg:sticky lg:top-6 h-fit">
+              <OrderSummaryCard order={finalOrder} />
             </div>
           </div>
-        </div>
-      </main>
+        </Stack>
+      </Container>
+    </Section>
   );
 }

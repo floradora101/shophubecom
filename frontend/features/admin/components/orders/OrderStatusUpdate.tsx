@@ -4,6 +4,14 @@
 import { useState, useEffect } from "react";
 import { Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import type { FullOrderDetail } from "@/features/admin/types";
 
 type OrderStatus = FullOrderDetail["status"];
@@ -92,7 +100,7 @@ export function OrderStatusUpdate({
       <Button
         variant="outline"
         onClick={() => setShowForm(true)}
-        className="w-full sm:w-auto"
+        className="w-full sm:w-auto rounded-xl hover:shadow-md transition-all duration-300 hover:scale-105"
       >
         Update Status
       </Button>
@@ -105,17 +113,21 @@ export function OrderStatusUpdate({
         <label className="block text-sm font-medium text-gray-700 mb-2">
           New Status
         </label>
-        <select
+        <Select
           value={selectedStatus}
-          onChange={(e) => setSelectedStatus(e.target.value as OrderStatus)}
-          className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+          onValueChange={(value) => setSelectedStatus(value as OrderStatus)}
         >
-          {statusOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {statusOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         {selectedStatus !== currentStatus && (
           <p className="mt-1 text-xs text-gray-500">
             {statusOptions.find((o) => o.value === selectedStatus)?.description}
@@ -127,12 +139,11 @@ export function OrderStatusUpdate({
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Note (optional)
         </label>
-        <textarea
+        <Textarea
           value={note}
           onChange={(e) => setNote(e.target.value)}
           rows={2}
           placeholder="Add a note about this status change..."
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
         />
       </div>
 
@@ -140,7 +151,7 @@ export function OrderStatusUpdate({
         <Button
           onClick={handleUpdate}
           disabled={isUpdating || selectedStatus === currentStatus}
-          className="gap-2"
+          className="gap-2 rounded-xl hover:shadow-md transition-all duration-300 hover:scale-105"
         >
           {isUpdating ? (
             <>
@@ -158,7 +169,7 @@ export function OrderStatusUpdate({
           variant="outline"
           onClick={handleCancel}
           disabled={isUpdating}
-          className="gap-2"
+          className="gap-2 rounded-xl hover:shadow-md transition-all duration-300 hover:scale-105"
         >
           <X className="h-4 w-4" />
           Cancel

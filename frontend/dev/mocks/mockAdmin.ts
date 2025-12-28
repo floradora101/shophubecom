@@ -382,8 +382,8 @@ export const mockCarouselTypes: CarouselType[] = [
     name: "Hero Carousel",
     slug: "hero",
     description: "Main banner carousel on homepage",
-    backgroundColor: "#f3f4f6", // Default light gray
-    textColor: "#171717", // Default dark gray
+    backgroundColor: "var(--light-gray)", // Default light gray
+    textColor: "var(--gray-900)", // Default dark gray
   },
   {
     id: "carousel-2",

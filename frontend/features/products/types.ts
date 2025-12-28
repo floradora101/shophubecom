@@ -132,6 +132,9 @@ export interface Product {
   // Legacy storefront fields for backward compatibility
   colors?: string[];
   storageOptions?: string[];
+  // Rating fields (frontend-only for now, to be added to backend later)
+  rating?: number; // Average rating out of 5
+  reviewCount?: number; // Number of reviews
 }
 
 export interface ProductsResponse {

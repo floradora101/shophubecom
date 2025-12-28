@@ -11,9 +11,18 @@ import {
 } from "@/features/admin/schemas/category";
 import { useCategoriesQuery } from "@/features/categories/queries";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { FormErrorAlert } from "@/components/ui/form-error-alert";
 import { FormField } from "@/components/ui/form-field";
+import { Stack } from "@/components/ui/stack";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { Category } from "@/features/products/types";
 import { useFormDraft } from "@/lib/forms/useFormDraft";
 import { useFormErrorHandler } from "@/lib/forms/useFormErrorHandler";
@@ -109,109 +118,97 @@ export function CategoryForm({ category, onSave }: CategoryFormProps) {
   return (
     <form
       onSubmit={handleSubmit(onSubmit, handleValidationError)}
-      className="space-y-6"
+      className="space-y-5"
       noValidate
       aria-label={category ? "Edit category form" : "Create category form"}
     >
       <FormErrorAlert error={formError} onDismiss={clearError} dismissible />
 
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Category Information
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="md:col-span-2">
-            <FormField
-              label="Category Name"
-              required
+      <Stack spacing="lg">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <FormField
+            label="Category Name"
+            required
+            error={errors.name?.message}
+          >
+            <Input
+              {...register("name")}
+              placeholder="e.g., Electronics, Clothing"
               error={errors.name?.message}
-            >
-              <Input
-                {...register("name")}
-                placeholder="e.g., Electronics, Clothing"
-                className={errors.name ? "border-red-500" : ""}
-              />
-            </FormField>
-          </div>
+            />
+          </FormField>
 
-          <div>
-            <FormField
-              label="Slug"
-              required
+          <FormField
+            label="Slug"
+            required
+            error={errors.slug?.message}
+            helpText="URL identifier"
+          >
+            <Input
+              {...register("slug")}
+              placeholder="category-slug"
+              className="font-mono text-sm"
               error={errors.slug?.message}
-              helpText="URL-friendly identifier (auto-generated from name)"
-            >
-              <Input
-                {...register("slug")}
-                placeholder="category-slug"
-                className={errors.slug ? "border-red-500" : ""}
-              />
-            </FormField>
-          </div>
+            />
+          </FormField>
+        </div>
 
-          <div className="md:col-span-2">
-            <FormField
-              label="Description"
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <FormField
+            label="Description"
+            error={errors.description?.message}
+            helpText="Optional brief description"
+          >
+            <Textarea
+              {...register("description")}
+              rows={2}
+              placeholder="Brief description..."
+              className="resize-none"
               error={errors.description?.message}
-              helpText="Optional brief description of this category"
-            >
-              <textarea
-                {...register("description")}
-                rows={3}
-                placeholder="Brief description of this category..."
-                className={`w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 ${
-                  errors.description ? "border-red-500" : ""
-                }`}
-                aria-invalid={!!errors.description}
-                aria-describedby={
-                  errors.description
-                    ? "field-description-error"
-                    : "field-description-help"
-                }
-              />
-            </FormField>
-          </div>
+            />
+          </FormField>
 
-          <div>
-            <FormField
-              label="Parent category"
-              error={errors.parentId?.message}
-              helpText="Optional - select a parent category to create a hierarchy"
+          <FormField
+            label="Parent Category"
+            error={errors.parentId?.message}
+            helpText="Optional hierarchy"
+          >
+            <Select
+              value={watchedParentId ?? ""}
+              onValueChange={(value) =>
+                setValue("parentId", value ? value : null)
+              }
             >
-              <select
-                {...register("parentId")}
-                value={watchedParentId ?? ""}
-                onChange={(e) =>
-                  setValue("parentId", e.target.value ? e.target.value : null)
-                }
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
-                aria-invalid={!!errors.parentId}
-              >
-                <option value="">No parent (root)</option>
+              <SelectTrigger>
+                <SelectValue placeholder="Top level category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Top level category</SelectItem>
                 {categories
                   .filter((c) => !category || c.id !== category.id)
                   .map((c) => (
-                    <option key={c.id} value={c.id}>
+                    <SelectItem key={c.id} value={c.id}>
                       {c.name}
-                    </option>
+                    </SelectItem>
                   ))}
-              </select>
-            </FormField>
-          </div>
+              </SelectContent>
+            </Select>
+          </FormField>
         </div>
-      </div>
+      </Stack>
 
       {/* Actions */}
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+      <div className="flex items-center justify-end gap-4 pt-6 border-t border-warm-gray-200">
         <Button
           type="button"
-          variant="outline"
+          variant="ghost"
           onClick={() => router.back()}
           disabled={isSubmitting}
+          className="text-warm-gray-600 hover:text-warm-gray-800"
         >
           Cancel
         </Button>
-        <Button type="submit" disabled={isSubmitting}>
+        <Button type="submit" disabled={isSubmitting} className="px-6">
           {isSubmitting
             ? "Saving..."
             : category

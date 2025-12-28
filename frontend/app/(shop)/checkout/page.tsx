@@ -9,20 +9,30 @@ import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { AddressSelector } from "@/features/checkout/components/AddressSelector";
+import { Textarea } from "@/components/ui/textarea";
+import { Card } from "@/components/ui/card";
+import { Container } from "@/components/ui/container";
+import { Section } from "@/components/ui/section";
+import { Stack } from "@/components/ui/stack";
+import { FormSection } from "@/components/ui/form-section";
+import { Stepper } from "@/components/ui/stepper";
+import { CardRadio } from "@/components/ui/card-radio";
+import { Heading, Text } from "@/components/ui/typography";
+import { AddressSelector, OrderSummaryCard } from "@/features/checkout";
 import { useCart } from "@/features/cart/hooks";
 import { apiClient } from "@/lib/api/client";
 import { cartKeys } from "@/features/cart/query-keys";
 import { useFormDraft } from "@/lib/forms/useFormDraft";
 import { useAddressesQuery } from "@/features/addresses/queries";
 import { extractErrorMessage } from "@/lib/utils/error-handler";
-import { formatPrice } from "@/lib/utils";
+import { DEMO_CHECKOUT } from "@/lib/flags";
+import { createDemoOrder } from "@/features/orders/demo/demoOrders";
 import type { Address } from "@/features/addresses/api";
 
 const steps = [
-  { label: "Shopping Cart", active: false, completed: false },
-  { label: "Checkout Details", active: true, completed: false },
-  { label: "Order Complete", active: false, completed: false },
+  { label: "Shopping Cart", href: "/cart", state: "done" as const },
+  { label: "Checkout Details", state: "active" as const },
+  { label: "Order Complete", state: "upcoming" as const },
 ];
 
 interface CheckoutFormData {
@@ -39,11 +49,44 @@ interface CheckoutFormData {
   shippingOption: "pickup" | "beirut" | "outside";
 }
 
+// Wrapper component to reduce repetition of Card + FormSection pattern
+function CheckoutCardSection({
+  title,
+  description,
+  children,
+  tone,
+}: {
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+  tone?: "default" | "subtle";
+}) {
+  return (
+    <Card
+      variant={tone === "subtle" ? "default" : "bordered"}
+      className={
+        tone === "subtle"
+          ? "border-warm-gray-200 bg-warm-gray-50/30"
+          : undefined
+      }
+    >
+      <FormSection title={title} description={description} className="p-6">
+        {children}
+      </FormSection>
+    </Card>
+  );
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { items, subtotal } = useCart();
+  const { items, clearCart } = useCart();
   const isEmpty = items.length === 0;
+
+  // Dev-only debug log for demo mode
+  if (process.env.NODE_ENV === "development") {
+    console.log("DEMO_CHECKOUT:", DEMO_CHECKOUT);
+  }
   const { data: addresses = [] } = useAddressesQuery();
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
 
@@ -155,10 +198,6 @@ export default function CheckoutPage() {
     enabled: !isEmpty,
   });
 
-  const shippingCost =
-    shippingOption === "pickup" ? 0 : shippingOption === "beirut" ? 3 : 5;
-  const total = subtotal + shippingCost;
-
   const onSubmit = async (data: CheckoutFormData) => {
     try {
       // Always use form data (user can edit even if address was selected)
@@ -175,6 +214,75 @@ export default function CheckoutPage() {
         notes: data.notes || undefined,
       };
 
+      if (DEMO_CHECKOUT) {
+        // Demo checkout mode - create order client-side
+        if (process.env.NODE_ENV === "development") {
+          console.log("Using demo checkout mode");
+        }
+
+        const shippingCost =
+          data.shippingOption === "pickup"
+            ? 0
+            : data.shippingOption === "beirut"
+            ? 3
+            : 5;
+        const subtotal = items.reduce(
+          (sum, item) => sum + item.price * item.quantity,
+          0
+        );
+        const total = subtotal + shippingCost;
+
+        const demoOrderItems = items.map((item) => ({
+          id: item.id,
+          productId: item.productId,
+          variantId: item.variantId,
+          quantity: item.quantity,
+          unitPrice: item.price,
+          total: item.price * item.quantity,
+          title: item.name,
+          attributes: null,
+          variant:
+            item.variantId && item.variantSku
+              ? {
+                  id: item.variantId,
+                  sku: item.variantSku,
+                  image: item.image,
+                  options: item.selectedOptions
+                    ? Object.entries(item.selectedOptions).map(
+                        ([name, value]) => ({ name, value })
+                      )
+                    : undefined,
+                }
+              : undefined,
+          product: {
+            id: item.productId,
+            name: item.name,
+            slug: item.slug,
+            images: [item.image],
+          },
+        }));
+
+        const order = createDemoOrder({
+          items: demoOrderItems,
+          subtotal,
+          shippingOption: data.shippingOption,
+          shippingCost,
+          total,
+          shippingAddress,
+        });
+
+        // Clear draft on successful order
+        clearDraft();
+
+        // Clear cart client-side
+        await clearCart();
+
+        // Redirect to order complete page with demo flag
+        router.replace(`/order-complete/${order.id}?demo=1`);
+        return;
+      }
+
+      // Original backend flow
       const response = await apiClient.post("/checkout/place-order", {
         shippingOption: data.shippingOption,
         shippingAddress,
@@ -211,81 +319,98 @@ export default function CheckoutPage() {
   };
 
   return (
-    <main className="flex-1 py-8">
-        <div className="container mx-auto px-4 md:px-6 lg:px-8">
-          {/* Steps: hide on mobile for cleaner layout */}
-          <div className="mb-6 hidden flex-wrap items-center justify-center gap-3 text-sm font-semibold text-gray-700 text-center sm:flex">
-            {steps.map((step, idx) => {
-              const stepUrls = ["/cart", "/checkout", ""];
-              const stepUrl = stepUrls[idx];
-              const isClickable = stepUrl && idx < 2; // Only first 2 steps are clickable
+    <Section spacing="lg">
+      <Container size="lg">
+        <Stack spacing="xl" align="stretch">
+          {/* Header */}
+          <div className="text-center space-y-2">
+            <Heading level="h2">Checkout</Heading>
+            <Text className="text-warm-gray-600 max-w-md mx-auto">
+              Complete your order by filling in the details below
+            </Text>
+          </div>
 
-              const stepContent = (
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`flex h-8 w-8 items-center justify-center rounded-full border transition-colors ${
-                      step.active
-                        ? "border-primary-500 bg-primary-50 text-primary-700"
-                        : "border-gray-300 bg-white text-gray-600"
-                    }`}
-                  >
-                    {idx + 1}
-                  </span>
-                  <span
-                    className={`transition-colors ${
-                      step.active ? "text-primary-700" : "text-gray-600"
-                    }`}
-                  >
-                    {step.label}
-                  </span>
-                  {idx < steps.length - 1 && (
-                    <span className="mx-2 text-gray-300">—</span>
-                  )}
-                </div>
-              );
-
-              return isClickable ? (
-                <Link
-                  key={step.label}
-                  href={stepUrl}
-                  className="hover:opacity-80 transition-opacity"
-                >
-                  {stepContent}
-                </Link>
-              ) : (
-                <div key={step.label}>{stepContent}</div>
-              );
-            })}
+          {/* Stepper - hidden on mobile for cleaner layout */}
+          <div className="hidden sm:block py-4">
+            <Stepper steps={steps} />
           </div>
 
           {isEmpty ? (
-            <div className="rounded-xl border border-gray-200 bg-white p-10 text-center">
-              <p className="text-lg font-semibold text-gray-800">
-                Your cart is empty.
-              </p>
-              <p className="text-sm text-gray-600">
-                Add items to proceed to checkout.
-              </p>
-              <div className="mt-5 flex flex-wrap justify-center gap-3">
-                <Link href="/products">
-                  <Button className="rounded-full px-6">Return to shop</Button>
-                </Link>
-                <Link href="/cart">
-                  <Button variant="secondary" className="rounded-full px-6">
-                    Go to cart
-                  </Button>
-                </Link>
+            <Card className="p-12 text-center">
+              <div className="space-y-4">
+                <Heading level="h3">Your cart is empty</Heading>
+                <Text className="text-warm-gray-600">
+                  Add items to proceed to checkout.
+                </Text>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+                  <Link href="/products">
+                    <Button className="rounded-full px-8 w-full sm:w-auto">
+                      Return to shop
+                    </Button>
+                  </Link>
+                  <Link href="/cart">
+                    <Button
+                      variant="secondary"
+                      className="rounded-full px-8 w-full sm:w-auto"
+                    >
+                      Go to cart
+                    </Button>
+                  </Link>
+                </div>
               </div>
-            </div>
+            </Card>
           ) : (
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
-                {/* Billing details */}
-                <div className="rounded-lg border border-gray-200 bg-white p-6">
-                  <h2 className="text-base font-semibold uppercase text-gray-800 mb-4">
-                    Shipping Address
-                  </h2>
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="grid gap-12 lg:grid-cols-[2fr_1fr]"
+            >
+              {/* Main form content */}
+              <Stack spacing="xl">
+                {/* Contact Information Section */}
+                <CheckoutCardSection
+                  title="Contact Information"
+                  description="We'll use this to send you updates about your order"
+                >
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <Input
+                      type="text"
+                      label="First name *"
+                      autoComplete="given-name"
+                      {...register("firstName", { required: true })}
+                      required
+                    />
+                    <Input
+                      type="text"
+                      label="Last name *"
+                      autoComplete="family-name"
+                      {...register("lastName", { required: true })}
+                      required
+                    />
+                    <div className="md:col-span-2">
+                      <Input
+                        type="email"
+                        label="Email address"
+                        autoComplete="email"
+                        {...register("email")}
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <Input
+                        type="tel"
+                        label="Phone number *"
+                        autoComplete="tel"
+                        {...register("phone", { required: true })}
+                        required
+                      />
+                    </div>
+                  </div>
+                </CheckoutCardSection>
 
+                {/* Shipping Address Section */}
+                <CheckoutCardSection
+                  title="Shipping Address"
+                  description="Where should we deliver your order?"
+                >
                   {/* Address Selector - Show saved addresses if available */}
                   {addresses.length > 0 && (
                     <div className="mb-6">
@@ -298,174 +423,138 @@ export default function CheckoutPage() {
                   )}
 
                   {/* Address Form - Always show form, always editable */}
-                  <div className="mt-4 grid gap-4 md:grid-cols-2">
-                    <Input
-                      type="text"
-                      label="First name *"
-                      {...register("firstName", { required: true })}
-                      required
-                    />
-                    <Input
-                      type="text"
-                      label="Last name *"
-                      {...register("lastName", { required: true })}
-                      required
-                    />
-                    <Input
-                      type="tel"
-                      label="Phone *"
-                      {...register("phone", { required: true })}
-                      required
-                    />
-                    <Input
-                      type="email"
-                      label="Email address"
-                      {...register("email")}
-                    />
-                    <Input
-                      type="text"
-                      label="Country / Region *"
-                      {...register("country", { required: true })}
-                      required
-                    />
-                    <Input
-                      type="text"
-                      label="City *"
-                      {...register("city", { required: true })}
-                      required
-                    />
-                    <Input
-                      type="text"
-                      label="District / State"
-                      placeholder="e.g., Beirut, Mount Lebanon"
-                      {...register("state")}
-                    />
-                    <div className="md:col-span-2">
+                  <div className="space-y-6">
+                    {/* Country & City Row */}
+                    <div className="grid gap-4 md:grid-cols-2">
                       <Input
                         type="text"
-                        label="Street address *"
-                        placeholder="House number and street name"
-                        {...register("street1", { required: true })}
+                        label="Country / Region *"
+                        autoComplete="country-name"
+                        {...register("country", { required: true })}
+                        required
+                      />
+                      <Input
+                        type="text"
+                        label="City *"
+                        autoComplete="address-level2"
+                        {...register("city", { required: true })}
                         required
                       />
                     </div>
-                    <div className="md:col-span-2">
+
+                    {/* District/State */}
+                    <Input
+                      type="text"
+                      label="District / State"
+                      autoComplete="address-level1"
+                      placeholder="e.g., Beirut, Mount Lebanon"
+                      {...register("state")}
+                    />
+
+                    {/* Street Address */}
+                    <Input
+                      type="text"
+                      label="Street address *"
+                      autoComplete="street-address"
+                      placeholder="House number and street name"
+                      {...register("street1", { required: true })}
+                      required
+                    />
+
+                    {/* Postal Code */}
+                    <div className="max-w-xs">
                       <Input
                         type="text"
                         label="Postal Code"
+                        autoComplete="postal-code"
                         placeholder="Optional"
                         {...register("postalCode")}
                       />
                     </div>
-                    <div className="md:col-span-2 space-y-1">
-                      <label className="text-sm font-semibold text-gray-800">
-                        Order notes (optional)
-                      </label>
-                      <textarea
-                        rows={3}
-                        {...register("notes")}
-                        className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
-                        placeholder="Notes about your order, e.g. special delivery instructions."
-                      />
-                    </div>
                   </div>
-                </div>
+                </CheckoutCardSection>
 
-                {/* Order summary */}
-                <div className="rounded-lg border border-gray-200 bg-white p-6">
-                  <h2 className="text-base font-semibold uppercase text-gray-800">
-                    Your order
-                  </h2>
-                  <div className="mt-4 space-y-3 text-sm text-gray-700">
-                    <div className="flex items-center justify-between font-semibold text-gray-900">
-                      <span>Product</span>
-                      <span>Subtotal</span>
-                    </div>
-                    <div className="divide-y divide-gray-100 rounded-lg border border-gray-200">
-                      {items.map((item) => (
-                        <div
-                          key={item.key}
-                          className="flex items-center justify-between px-3 py-2 text-sm"
-                        >
-                          <span className="text-gray-800">
-                            {item.name} × {item.quantity}
+                {/* Order Notes Section - Optional and visually de-emphasized */}
+                <CheckoutCardSection
+                  title="Order Notes"
+                  description="Any special instructions for delivery?"
+                  tone="subtle"
+                >
+                  <Textarea
+                    {...register("notes")}
+                    placeholder="Special delivery instructions, gate codes, or other notes..."
+                  />
+                </CheckoutCardSection>
+
+                {/* Shipping Options Section */}
+                <CheckoutCardSection
+                  title="Shipping Method"
+                  description="Choose how you'd like to receive your order"
+                >
+                  <CardRadio
+                    name="shippingOption"
+                    value={shippingOption}
+                    onValueChange={(value) =>
+                      setValue(
+                        "shippingOption",
+                        value as "pickup" | "beirut" | "outside",
+                        {
+                          shouldDirty: true,
+                          shouldTouch: true,
+                          shouldValidate: true,
+                        }
+                      )
+                    }
+                    options={[
+                      {
+                        value: "pickup",
+                        label: "Local pickup",
+                        title: "Local pickup",
+                        description: "Pick up your order from our store",
+                        rightAlignedMeta: (
+                          <span className="font-semibold text-warm-gray-900">
+                            Free
                           </span>
-                          <span className="font-semibold text-gray-900">
-                            {formatPrice(item.price * item.quantity, {
-                              alwaysShowDecimals: true,
-                            })}
+                        ),
+                      },
+                      {
+                        value: "beirut",
+                        label: "Beirut delivery",
+                        title: "Beirut delivery",
+                        description: "Delivery within Beirut area",
+                        rightAlignedMeta: (
+                          <span className="font-semibold text-warm-gray-900">
+                            $3.00
                           </span>
-                        </div>
-                      ))}
-                    </div>
+                        ),
+                      },
+                      {
+                        value: "outside",
+                        label: "Outside Beirut",
+                        title: "Outside Beirut",
+                        description: "Delivery outside Beirut area",
+                        rightAlignedMeta: (
+                          <span className="font-semibold text-warm-gray-900">
+                            $5.00
+                          </span>
+                        ),
+                      },
+                    ]}
+                  />
+                </CheckoutCardSection>
+              </Stack>
 
-                    <div className="flex items-center justify-between pt-2 text-sm font-semibold text-gray-900">
-                      <span>Subtotal</span>
-                      <span>
-                        {formatPrice(subtotal, { alwaysShowDecimals: true })}
-                      </span>
-                    </div>
-
-                    <div className="space-y-2">
-                      <p className="text-sm font-semibold text-gray-900">
-                        Shipping
-                      </p>
-                      <div className="space-y-2 rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
-                        <label className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            value="pickup"
-                            {...register("shippingOption")}
-                            className="h-4 w-4 accent-primary-600"
-                          />
-                          <span className="flex-1">Local pickup</span>
-                          <span className="font-semibold">$0</span>
-                        </label>
-                        <label className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            value="beirut"
-                            {...register("shippingOption")}
-                            className="h-4 w-4 accent-primary-600"
-                          />
-                          <span className="flex-1">Beirut</span>
-                          <span className="font-semibold">$3</span>
-                        </label>
-                        <label className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            value="outside"
-                            {...register("shippingOption")}
-                            className="h-4 w-4 accent-primary-600"
-                          />
-                          <span className="flex-1">Outside Beirut</span>
-                          <span className="font-semibold">$5</span>
-                        </label>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-1 text-base font-semibold text-gray-900">
-                      <span>Total</span>
-                      <span>
-                        {formatPrice(total, { alwaysShowDecimals: true })}
-                      </span>
-                    </div>
-
-                    <div className="pt-4">
-                      <Button
-                        type="submit"
-                        className="w-full rounded-full text-sm font-semibold"
-                        disabled={isSubmitting || isEmpty}
-                      >
-                        {isSubmitting ? "Placing order..." : "Place order"}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              {/* Order summary - sticky on desktop */}
+              <aside className="lg:sticky lg:top-6 h-fit">
+                <OrderSummaryCard
+                  shippingOption={shippingOption}
+                  isSubmitting={isSubmitting}
+                />
+              </aside>
             </form>
           )}
-        </div>
-      </main>
+        </Stack>
+      </Container>
+    </Section>
   );
 }

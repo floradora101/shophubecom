@@ -1,29 +1,38 @@
 // Container component for consistent max-width and centering
 import { cn } from "@/lib/utils/cn";
 import { forwardRef } from "react";
+import { cva, type VariantProps } from "class-variance-authority";
 
-interface ContainerProps extends React.HTMLAttributes<HTMLDivElement> {
-  size?: "sm" | "md" | "lg" | "xl" | "full";
-}
-
-const Container = forwardRef<HTMLDivElement, ContainerProps>(
-  ({ className, size = "lg", ...props }, ref) => {
-    const sizeClasses = {
+const containerVariants = cva("mx-auto", {
+  variants: {
+    size: {
       sm: "max-w-4xl",
       md: "max-w-6xl",
       lg: "max-w-7xl",
       xl: "max-w-screen-2xl",
       full: "max-w-full",
-    };
+    },
+    padding: {
+      default: "px-4 sm:px-6 lg:px-8",
+      none: "",
+    },
+  },
+  defaultVariants: {
+    size: "lg",
+    padding: "default",
+  },
+});
 
+export interface ContainerProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof containerVariants> {}
+
+const Container = forwardRef<HTMLDivElement, ContainerProps>(
+  ({ className, size, padding, ...props }, ref) => {
     return (
       <div
         ref={ref}
-        className={cn(
-          "mx-auto px-4 sm:px-6 lg:px-8",
-          sizeClasses[size],
-          className
-        )}
+        className={cn(containerVariants({ size, padding }), className)}
         {...props}
       />
     );
@@ -32,4 +41,4 @@ const Container = forwardRef<HTMLDivElement, ContainerProps>(
 
 Container.displayName = "Container";
 
-export { Container };
+export { Container, containerVariants };

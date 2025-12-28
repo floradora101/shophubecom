@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import { Stack } from "@/components/ui/stack";
 import type { Product } from "@/features/products/types";
 
 interface ProductDetailsTabsProps {
@@ -12,24 +13,31 @@ export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
   const [activeTab, setActiveTab] = useState("description");
 
   const tabs = [
-    { id: "description", label: "Description", content: product.description || "No description available." },
+    {
+      id: "description",
+      label: "Description",
+      content: product.description || "No description available.",
+    },
     {
       id: "specifications",
       label: "Specifications",
-      content: product.specs && Array.isArray(product.specs)
-        ? product.specs.map((spec, index) => (
-            <div key={index} className="flex gap-4 py-2">
-              <span className="font-medium text-slate-900 min-w-[120px]">{spec.label}:</span>
-              <span className="text-slate-600">{spec.value}</span>
-            </div>
-          ))
-        : "No specifications available."
+      content:
+        product.specs && Array.isArray(product.specs)
+          ? product.specs.map((spec, index) => (
+              <div key={index} className="flex gap-4 py-2">
+                <span className="font-medium text-slate-900 min-w-[120px]">
+                  {spec.label}:
+                </span>
+                <span className="text-slate-600">{spec.value}</span>
+              </div>
+            ))
+          : "No specifications available.",
     },
     {
       id: "shipping",
       label: "Shipping & Returns",
       content: (
-        <div className="space-y-4">
+        <Stack spacing="md">
           <div>
             <h4 className="font-medium text-slate-900 mb-2">Shipping</h4>
             <ul className="text-slate-600 space-y-1 text-sm">
@@ -48,9 +56,9 @@ export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
               <li>• Refunds processed within 5-7 business days</li>
             </ul>
           </div>
-        </div>
-      )
-    }
+        </Stack>
+      ),
+    },
   ];
 
   return (
@@ -79,9 +87,7 @@ export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
             key={tab.id}
             className={activeTab === tab.id ? "block" : "hidden"}
           >
-            <div className="text-slate-700 leading-relaxed">
-              {tab.content}
-            </div>
+            <div className="text-slate-700 leading-relaxed">{tab.content}</div>
           </div>
         ))}
       </div>

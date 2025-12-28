@@ -26,16 +26,16 @@ All design tokens are defined in `app/globals.css` and `tailwind.config.ts`. The
 - `--radius-xs`: 0.25rem (4px) - Small elements
 - `--radius-sm`: 0.375rem (6px) - Small inputs
 - `--radius-md`: 0.5rem (8px) - Default inputs
-- `--radius-lg`: 0.75rem (12px) - Buttons, cards
-- `--radius-xl`: 1rem (16px) - Large cards
-- `--radius-2xl`: 1.5rem (24px) - Hero sections
+- `--radius-lg`: 0.5rem (8px) - Buttons, cards
+- `--radius-xl`: 0.5rem (8px) - Small interactive elements
+- `--radius-2xl`: 0.75rem (12px) - Hero sections
 - `--radius-full`: 9999px - Pills, badges
 
 **Usage:**
 
-- Buttons: `rounded-lg` (12px)
-- Cards: `rounded-2xl` (24px)
-- Inputs: `rounded-lg` (12px)
+- Buttons: `rounded-lg` (8px)
+- Cards: `rounded-lg` (8px)
+- Inputs: `rounded-lg` (8px)
 - Badges: `rounded-full`
 
 ### Shadow Scale
@@ -314,7 +314,7 @@ import { Card } from "@/components/ui/card";
 
 ### Properties
 
-- **Radius:** `rounded-2xl` (24px) - fixed
+- **Radius:** `rounded-lg` (8px) - fixed
 - **Border:** `border-warm-gray-200` - fixed
 - **Background:** `bg-white` - fixed
 - **Padding:** `none | sm (p-4) | md (p-6) | lg (p-8)`
@@ -359,9 +359,9 @@ import { Heading, Text } from "@/components/ui/typography";
 
 ### Font Families
 
-- **Display:** `font-display` (Playfair Display) - Headlines
+- **Display:** `font-display` (Crimson Pro) - Headlines - more masculine serif
 - **Body:** `font-body` (Inter) - Body text (default)
-- **Accent:** `font-accent` (Caveat) - Special accents
+- **Accent:** `font-accent` (Righteous) - Special accents
 
 ### Color Scale
 
@@ -406,7 +406,7 @@ Always use Section component for consistent spacing:
 ### Primary Colors
 
 - `primary-50` through `primary-900`
-- Primary action: `primary-500` (#dc2626)
+- Primary action: `primary-500` (#fb0a03)
 - Hover: `primary-600`
 - Active: `primary-700`
 
@@ -416,6 +416,11 @@ Always use Section component for consistent spacing:
 - Borders: `warm-gray-200` / `warm-gray-300`
 - Text: `warm-gray-700` (body), `warm-gray-900` (headings)
 - Backgrounds: `warm-gray-50` / `warm-gray-100`
+
+### Secondary Colors
+
+- `secondary-50` through `secondary-800` (warm amber palette)
+- Secondary accent: `secondary-500` (#f59e0b)
 
 ### Semantic Colors
 
@@ -606,4 +611,3 @@ If you're unsure about styling decisions:
 4. Follow the examples above
 
 **Remember:** Consistency is key. When in doubt, use the shared components and tokens.
-

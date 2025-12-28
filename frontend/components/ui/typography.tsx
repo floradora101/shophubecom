@@ -2,29 +2,31 @@
 import { cn } from "@/lib/utils/cn";
 import { cva, type VariantProps } from "class-variance-authority";
 
-const headingVariants = cva("font-bold text-warm-gray-900", {
-  variants: {
-    level: {
-      1: "text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight",
-      2: "text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight",
-      3: "text-2xl md:text-3xl font-semibold tracking-tight",
-      4: "text-xl md:text-2xl font-semibold",
-      5: "text-lg md:text-xl font-semibold",
-      6: "text-base md:text-lg font-semibold",
+const headingVariants = cva(
+  "font-bold text-warm-gray-900 leading-tight tracking-tight",
+  {
+    variants: {
+      level: {
+        h1: "text-4xl md:text-5xl lg:text-6xl",
+        h2: "text-3xl md:text-4xl lg:text-5xl",
+        h3: "text-2xl md:text-3xl font-semibold",
+        h4: "text-xl md:text-2xl font-semibold",
+        h5: "text-lg md:text-xl font-semibold",
+        h6: "text-base md:text-lg font-semibold",
+      },
     },
-  },
-  defaultVariants: {
-    level: 1,
-  },
-});
+    defaultVariants: {
+      level: "h1",
+    },
+  }
+);
 
-const textVariants = cva("text-warm-gray-700", {
+const textVariants = cva("text-warm-gray-700 leading-normal", {
   variants: {
-    size: {
-      sm: "text-sm",
-      base: "text-base",
-      lg: "text-lg",
-      xl: "text-xl",
+    variant: {
+      body: "text-base",
+      meta: "text-sm text-warm-gray-600",
+      caption: "text-xs text-warm-gray-500",
     },
     weight: {
       normal: "font-normal",
@@ -34,7 +36,7 @@ const textVariants = cva("text-warm-gray-700", {
     },
   },
   defaultVariants: {
-    size: "base",
+    variant: "body",
     weight: "normal",
   },
 });
@@ -45,9 +47,13 @@ export interface HeadingProps
   as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 }
 
-export function Heading({ className, level = 1, as, ...props }: HeadingProps) {
-  const Component =
-    as || (`h${level}` as "h1" | "h2" | "h3" | "h4" | "h5" | "h6");
+export function Heading({
+  className,
+  level = "h1",
+  as,
+  ...props
+}: HeadingProps) {
+  const Component = as || (level as "h1" | "h2" | "h3" | "h4" | "h5" | "h6");
   return (
     <Component
       className={cn(headingVariants({ level }), className)}
@@ -64,7 +70,7 @@ export interface TextProps
 
 export function Text({
   className,
-  size,
+  variant,
   weight,
   as = "p",
   ...props
@@ -72,7 +78,7 @@ export function Text({
   const Component = as;
   return (
     <Component
-      className={cn(textVariants({ size, weight }), className)}
+      className={cn(textVariants({ variant, weight }), className)}
       {...props}
     />
   );

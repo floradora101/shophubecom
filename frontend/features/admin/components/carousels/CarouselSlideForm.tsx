@@ -7,6 +7,7 @@ import Image from "next/image";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { extractErrorMessage } from "@/lib/utils/error-handler";
 import type { CarouselSlide } from "@/features/admin/types";
 
@@ -37,7 +38,7 @@ export function CarouselSlideForm({
     badgeText: slide?.badgeText || "",
     mainTitle: slide?.mainTitle || "",
     leftBackgroundColor: slide?.leftBackgroundColor || "#fef3c7",
-    rightBackgroundColor: slide?.rightBackgroundColor || "#dc2626",
+    rightBackgroundColor: slide?.rightBackgroundColor || "#fb0a03",
     decorativeIcon: slide?.decorativeIcon || "",
     brandName: slide?.brandName || "",
     bundledItems: slide?.bundledItems || [],
@@ -77,14 +78,13 @@ export function CarouselSlideForm({
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Description
         </label>
-        <textarea
+        <Textarea
           value={formData.description}
           onChange={(e) =>
             setFormData({ ...formData, description: e.target.value })
           }
           rows={2}
           placeholder="Brief description..."
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
         />
       </div>
 
@@ -271,7 +271,7 @@ export function CarouselSlideForm({
                       rightBackgroundColor: e.target.value,
                     })
                   }
-                  placeholder="#dc2626"
+                  placeholder="#fb0a03"
                   className="flex-1"
                 />
               </div>
@@ -355,6 +355,7 @@ export function CarouselSlideForm({
                 <Button
                   type="button"
                   variant="outline"
+                  className="rounded-xl hover:shadow-md transition-all duration-300 hover:scale-105"
                   onClick={() => {
                     if (newBundledItem.trim()) {
                       setFormData({

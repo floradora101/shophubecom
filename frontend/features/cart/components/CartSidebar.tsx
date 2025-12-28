@@ -28,11 +28,21 @@ export function CartSidebar() {
     if (isOpen) {
       const original = document.body.style.overflow;
       document.body.style.overflow = "hidden";
+
+      // Handle escape key
+      const handleEscape = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          toggleCart(false);
+        }
+      };
+      document.addEventListener("keydown", handleEscape);
+
       return () => {
         document.body.style.overflow = original;
+        document.removeEventListener("keydown", handleEscape);
       };
     }
-  }, [isOpen]);
+  }, [isOpen, toggleCart]);
 
   if (!isOpen) return null;
 

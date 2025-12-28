@@ -8,12 +8,15 @@ import {
 } from "@/lib/mock-data/mock-data";
 import type { Category, Product } from "@/features/products/types";
 
-// Types for homepage data (reverted to match our conversation structure)
+// Types for homepage data (updated to match new category structure)
 export interface HomePageData {
-  electronicsProducts: Product[];
-  clothingProducts: Product[];
-  homeGardenProducts: Product[];
-  booksProducts: Product[];
+  phonesProducts: Product[];
+  tabletsProducts: Product[];
+  laptopsProducts: Product[];
+  wearablesProducts: Product[];
+  smartGadgetsProducts: Product[];
+  gamingConsoleProducts: Product[];
+  accessoriesProducts: Product[];
   featuredProducts: Product[];
   categories: Category[];
   trendingProducts: Product[];
@@ -30,45 +33,74 @@ const USE_MOCKS = process.env.NEXT_PUBLIC_USE_MOCKS !== "false";
 
 export async function getHomePageData(): Promise<HomePageData> {
   if (USE_MOCKS) {
-    // Return mock data in the old structure from our conversation
+    // Return mock data with new category structure
     return {
-      electronicsProducts: mockProducts
+      phonesProducts: mockProducts
         .filter(
           (p) =>
-            p.categorySlug === "electronics" ||
-            p.categorySlug?.startsWith("smartphones") ||
-            p.categorySlug?.startsWith("laptops") ||
-            p.categorySlug?.startsWith("headphones")
+            p.categorySlug === "phones" ||
+            p.categorySlug?.startsWith("iphone") ||
+            p.categorySlug?.startsWith("samsung-phones") ||
+            p.categorySlug?.startsWith("nokia")
         )
         .slice(0, 8)
         .map(mockProductToProduct),
-      clothingProducts: mockProducts
+      tabletsProducts: mockProducts
         .filter(
           (p) =>
-            p.categorySlug === "clothing" ||
-            p.categorySlug?.startsWith("mens-clothing") ||
-            p.categorySlug?.startsWith("womens-clothing") ||
-            p.categorySlug?.startsWith("kids-clothing")
+            p.categorySlug === "tablets" ||
+            p.categorySlug?.startsWith("apple-tablets") ||
+            p.categorySlug?.startsWith("samsung-tablets")
         )
         .slice(0, 8)
         .map(mockProductToProduct),
-      homeGardenProducts: mockProducts
+      laptopsProducts: mockProducts
         .filter(
           (p) =>
-            p.categorySlug === "home-garden" ||
-            p.categorySlug?.startsWith("kitchen-appliances") ||
-            p.categorySlug?.startsWith("gardening-tools") ||
-            p.categorySlug?.startsWith("home-decor")
+            p.categorySlug === "laptops" ||
+            p.categorySlug?.startsWith("macbook") ||
+            p.categorySlug?.startsWith("gaming-laptops") ||
+            p.categorySlug?.startsWith("business-laptops")
         )
         .slice(0, 8)
         .map(mockProductToProduct),
-      booksProducts: mockProducts
+      wearablesProducts: mockProducts
         .filter(
           (p) =>
-            p.categorySlug === "books" ||
-            p.categorySlug?.startsWith("fiction-books") ||
-            p.categorySlug?.startsWith("non-fiction-books") ||
-            p.categorySlug?.startsWith("children-books")
+            p.categorySlug === "wearables" ||
+            p.categorySlug?.startsWith("smart-watches") ||
+            p.categorySlug?.startsWith("earphones") ||
+            p.categorySlug?.startsWith("headsets")
+        )
+        .slice(0, 8)
+        .map(mockProductToProduct),
+      smartGadgetsProducts: mockProducts
+        .filter(
+          (p) =>
+            p.categorySlug === "smart-gadgets" ||
+            p.categorySlug?.startsWith("smart-cameras") ||
+            p.categorySlug?.startsWith("smart-stands") ||
+            p.categorySlug?.startsWith("other-gadgets")
+        )
+        .slice(0, 8)
+        .map(mockProductToProduct),
+      gamingConsoleProducts: mockProducts
+        .filter(
+          (p) =>
+            p.categorySlug === "gaming-console" ||
+            p.categorySlug?.startsWith("gaming-consoles") ||
+            p.categorySlug?.startsWith("gaming-controllers") ||
+            p.categorySlug?.startsWith("gaming-games")
+        )
+        .slice(0, 8)
+        .map(mockProductToProduct),
+      accessoriesProducts: mockProducts
+        .filter(
+          (p) =>
+            p.categorySlug === "accessories" ||
+            p.categorySlug?.startsWith("phone-cases") ||
+            p.categorySlug?.startsWith("bags-cases") ||
+            p.categorySlug?.startsWith("screen-protectors")
         )
         .slice(0, 8)
         .map(mockProductToProduct),
@@ -114,45 +146,74 @@ export async function getHomePageData(): Promise<HomePageData> {
   }
   */
 
-  // For now, always return mocks in old structure
+  // Return mock data with new category structure
   return {
-    electronicsProducts: mockProducts
+    phonesProducts: mockProducts
       .filter(
         (p) =>
-          p.categorySlug === "electronics" ||
-          p.categorySlug?.startsWith("smartphones") ||
-          p.categorySlug?.startsWith("laptops") ||
-          p.categorySlug?.startsWith("headphones")
+          p.categorySlug === "phones" ||
+          p.categorySlug?.startsWith("iphone") ||
+          p.categorySlug?.startsWith("samsung-phones") ||
+          p.categorySlug?.startsWith("nokia")
       )
       .slice(0, 8)
       .map(mockProductToProduct),
-    clothingProducts: mockProducts
+    tabletsProducts: mockProducts
       .filter(
         (p) =>
-          p.categorySlug === "clothing" ||
-          p.categorySlug?.startsWith("mens-clothing") ||
-          p.categorySlug?.startsWith("womens-clothing") ||
-          p.categorySlug?.startsWith("kids-clothing")
+          p.categorySlug === "tablets" ||
+          p.categorySlug?.startsWith("apple-tablets") ||
+          p.categorySlug?.startsWith("samsung-tablets")
       )
       .slice(0, 8)
       .map(mockProductToProduct),
-    homeGardenProducts: mockProducts
+    laptopsProducts: mockProducts
       .filter(
         (p) =>
-          p.categorySlug === "home-garden" ||
-          p.categorySlug?.startsWith("kitchen-appliances") ||
-          p.categorySlug?.startsWith("gardening-tools") ||
-          p.categorySlug?.startsWith("home-decor")
+          p.categorySlug === "laptops" ||
+          p.categorySlug?.startsWith("macbook") ||
+          p.categorySlug?.startsWith("gaming-laptops") ||
+          p.categorySlug?.startsWith("business-laptops")
       )
       .slice(0, 8)
       .map(mockProductToProduct),
-    booksProducts: mockProducts
+    wearablesProducts: mockProducts
       .filter(
         (p) =>
-          p.categorySlug === "books" ||
-          p.categorySlug?.startsWith("fiction-books") ||
-          p.categorySlug?.startsWith("non-fiction-books") ||
-          p.categorySlug?.startsWith("children-books")
+          p.categorySlug === "wearables" ||
+          p.categorySlug?.startsWith("smart-watches") ||
+          p.categorySlug?.startsWith("earphones") ||
+          p.categorySlug?.startsWith("headsets")
+      )
+      .slice(0, 8)
+      .map(mockProductToProduct),
+    smartGadgetsProducts: mockProducts
+      .filter(
+        (p) =>
+          p.categorySlug === "smart-gadgets" ||
+          p.categorySlug?.startsWith("smart-cameras") ||
+          p.categorySlug?.startsWith("smart-stands") ||
+          p.categorySlug?.startsWith("other-gadgets")
+      )
+      .slice(0, 8)
+      .map(mockProductToProduct),
+    gamingConsoleProducts: mockProducts
+      .filter(
+        (p) =>
+          p.categorySlug === "gaming-console" ||
+          p.categorySlug?.startsWith("gaming-consoles") ||
+          p.categorySlug?.startsWith("gaming-controllers") ||
+          p.categorySlug?.startsWith("gaming-games")
+      )
+      .slice(0, 8)
+      .map(mockProductToProduct),
+    accessoriesProducts: mockProducts
+      .filter(
+        (p) =>
+          p.categorySlug === "accessories" ||
+          p.categorySlug?.startsWith("phone-cases") ||
+          p.categorySlug?.startsWith("bags-cases") ||
+          p.categorySlug?.startsWith("screen-protectors")
       )
       .slice(0, 8)
       .map(mockProductToProduct),

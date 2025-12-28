@@ -13,6 +13,7 @@ import { ChevronRight, ChevronDown, Filter, Star } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { SectionTitle } from "@/components/ui/SectionTitle";
+import { Stack } from "@/components/ui/stack";
 import {
   mockProducts,
   mockProductToProduct,
@@ -34,6 +35,7 @@ import { FiltersDrawer } from "./components/FiltersDrawer";
 import { ActiveFilterChips } from "./components/ActiveFilterChips";
 import { ProductsGrid } from "./components/ProductsGrid";
 import { cn } from "@/lib/utils/cn";
+import { FiltersSidebarSkeleton } from "@/components/ui/loading-spinner";
 
 // Sort options for the dropdown
 const SORT_OPTIONS = [
@@ -149,9 +151,18 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
     [allMockProducts, filters, categoryTreeHelpers]
   );
 
-  // Mock loading states
-  const productsLoading = false;
-  const productsError = false;
+  // Simulate loading states for demonstration
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [productsError] = useState(false);
+
+  // Simulate loading delay for mock data
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setProductsLoading(false);
+    }, 1500); // 1.5 second delay to show skeletons
+
+    return () => clearTimeout(timer);
+  }, [filters]); // Re-trigger loading when filters change
 
   const isLoading = productsLoading;
   const [isFiltersDrawerOpen, setIsFiltersDrawerOpen] = useState(false);
@@ -325,18 +336,8 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-primary-50 via-cream-50 to-primary-100/50 relative">
-      {/* Enhanced Background layers - 2026 depth */}
-      <div className="fixed inset-0 bg-linear-to-br from-primary-50 via-cream-50 to-primary-100/50 opacity-60 -z-10" />
-      <div className="fixed inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(220,38,38,0.08),transparent_70%)] -z-10" />
-      <div className="fixed inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(220,38,38,0.06),transparent_70%)] -z-10" />
-      {/* Subtle animated gradient overlay */}
-      <div
-        className="fixed inset-0 bg-linear-to-br from-transparent via-primary-50/20 to-transparent opacity-30 animate-pulse -z-10"
-        style={{ animationDuration: "8s" }}
-      />
-
-      <div className="space-y-8 relative z-0">
+    <div className="min-h-screen relative">
+      <Stack spacing="xl" className="relative z-0">
         {/* Breadcrumb */}
         <div className="border-b border-slate-200/60">
           <Container className="py-4">
@@ -374,7 +375,7 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
         </div>
 
         {/* Immersive Main Content - 2026 Style */}
-        <Container className="pt-6 pb-10 md:pt-8 md:pb-16">
+        <Container size="full" className="pt-6 pb-10 md:pt-8 md:pb-16">
           {/* Results Count and Controls - Above Grid */}
           <div className="flex items-center justify-between gap-4 mb-8">
             {/* Results Count */}
@@ -449,36 +450,45 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
           <div className="flex gap-12 lg:gap-16">
             {/* Enhanced Desktop Sidebar Filters */}
             <aside className="hidden lg:block w-72 shrink-0">
-              <div className="sticky top-8 space-y-6 animate-in slide-in-from-left-4 duration-700 delay-200">
-                <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-lg border border-warm-gray-200/50 hover:shadow-xl transition-all duration-500 group">
-                  <div className="mb-6">
-                    <SectionTitle
-                      badgeText="Refine Your Search"
-                      title=""
-                      subtitle="Find exactly what you're looking for"
-                      icon={Star}
-                      showHearts={false}
-                      className="text-left"
-                      badgeClassName="justify-start"
-                    />
-                  </div>
-                  <FiltersSidebar
-                    categories={categories}
-                    selectedCategory={filters.category}
-                    onCategoryChange={updateFilters.setCategory}
-                    priceRange={priceRange}
-                    onPriceRangeChange={updateFilters.setPriceRange}
-                    inStockOnly={filters.inStockOnly}
-                    onInStockChange={updateFilters.setInStockOnly}
-                  />
-                  {/* Subtle hover effect */}
-                  <div className="absolute inset-0 bg-linear-to-br from-primary-50/20 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
-                </div>
+              <div className="sticky top-8">
+                <Stack
+                  spacing="lg"
+                  className="animate-in slide-in-from-left-4 duration-700 delay-200"
+                >
+                  {isLoading ? (
+                    <FiltersSidebarSkeleton />
+                  ) : (
+                    <div className="relative bg-white/80 backdrop-blur-xl rounded-lg p-8 shadow-lg border border-warm-gray-200/50 hover:shadow-xl transition-all duration-500 group">
+                      <div className="mb-6">
+                        <SectionTitle
+                          badgeText="Refine Your Search"
+                          title=""
+                          subtitle="Find exactly what you're looking for"
+                          icon={Star}
+                          showHearts={false}
+                          className="text-left"
+                          badgeClassName="justify-start"
+                        />
+                      </div>
+                      <FiltersSidebar
+                        categories={categories}
+                        selectedCategory={filters.category}
+                        onCategoryChange={updateFilters.setCategory}
+                        priceRange={priceRange}
+                        onPriceRangeChange={updateFilters.setPriceRange}
+                        inStockOnly={filters.inStockOnly}
+                        onInStockChange={updateFilters.setInStockOnly}
+                      />
+                      {/* Subtle hover effect */}
+                      <div className="absolute inset-0 bg-linear-to-br from-primary-50/20 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
+                    </div>
+                  )}
+                </Stack>
               </div>
             </aside>
 
             {/* Enhanced Products Content */}
-            <div className="flex-1 min-w-0 space-y-8">
+            <Stack spacing="xl" className="flex-1 min-w-0">
               {/* Smart Active Filter Chips */}
               <div className="animate-in slide-in-from-right-4 duration-700 delay-300">
                 <ActiveFilterChips
@@ -491,9 +501,9 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
 
               {/* Enhanced Error State with Micro-interactions */}
               {productsError && (
-                <div className="animate-in slide-in-from-bottom-4 duration-500 bg-red-50/80 backdrop-blur-sm rounded-2xl p-8 border border-red-200/50 shadow-lg">
+                <div className="animate-in slide-in-from-bottom-4 duration-500 bg-red-50/80 backdrop-blur-sm rounded-lg p-8 border border-red-200/50 shadow-lg">
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center shrink-0">
                       <svg
                         className="w-6 h-6 text-red-600"
                         fill="none"
@@ -541,7 +551,7 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
               {/* Premium Pagination with Smart Interactions */}
               {safeTotalPages > 1 && (
                 <div className="mt-12 animate-in slide-in-from-bottom-4 duration-700 delay-700">
-                  <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-warm-gray-200/40">
+                  <div className="bg-white/60 backdrop-blur-sm rounded-lg p-6 shadow-lg border border-warm-gray-200/40">
                     <div className="flex items-center justify-between">
                       <Button
                         variant="outline"
@@ -611,10 +621,10 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
                   </div>
                 </div>
               )}
-            </div>
+            </Stack>
           </div>
         </Container>
-      </div>
+      </Stack>
 
       {/* Mobile Filters Drawer */}
       <FiltersDrawer

@@ -19,8 +19,8 @@ const Radio = React.forwardRef<HTMLInputElement, RadioProps>(
             type="radio"
             id={radioId}
             className={cn(
-              "h-4 w-4 border-warm-gray-300 text-primary-500",
-              "focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-white",
+              "h-4 w-4 border-gray-300 text-primary-500",
+              "focus:ring-0",
               "cursor-pointer transition-colors",
               error && "border-error",
               className
@@ -45,4 +45,3 @@ const Radio = React.forwardRef<HTMLInputElement, RadioProps>(
 Radio.displayName = "Radio";
 
 export { Radio };
-

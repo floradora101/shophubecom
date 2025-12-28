@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DollarSign } from "lucide-react";
+import { Stack } from "@/components/ui/stack";
 import { theme } from "../../../../lib/config/theme";
 import { cn } from "@/lib/utils/cn";
 import type { Category } from "@/features/products/types";
@@ -50,7 +51,7 @@ export function FiltersSidebar({
   const [localMax, setLocalMax] = useState(() => priceRange.max.toString());
 
   // Reset local state when priceRange prop changes externally
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   useEffect(() => {
     setLocalMin(priceRange.min.toString());
     setLocalMax(priceRange.max.toString());
@@ -117,10 +118,9 @@ export function FiltersSidebar({
   };
 
   return (
-    <aside className="sticky top-24 self-start space-y-8">
+    <Stack spacing="xl" className="sticky top-24 self-start">
       {/* Category Filter */}
       <div>
-        
         <ul className="space-y-1">
           <li>
             <button
@@ -282,6 +282,6 @@ export function FiltersSidebar({
           </span>
         </label>
       </div>
-    </aside>
+    </Stack>
   );
 }

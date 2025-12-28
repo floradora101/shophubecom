@@ -112,7 +112,7 @@ export function RegisterForm({ onSuccess, redirectUrl }: RegisterFormProps) {
             type="email"
             placeholder="your@email.com"
             {...register("email")}
-            className={errors.email ? "border-red-500" : ""}
+            error={!!errors.email}
           />
         </FormField>
 
@@ -126,7 +126,7 @@ export function RegisterForm({ onSuccess, redirectUrl }: RegisterFormProps) {
             type="password"
             placeholder="Create a strong password"
             {...register("password")}
-            className={errors.password ? "border-red-500" : ""}
+            error={!!errors.password}
           />
         </FormField>
       </div>

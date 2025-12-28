@@ -6,9 +6,17 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { FormErrorAlert } from "@/components/ui/form-error-alert";
 import { FormField } from "@/components/ui/form-field";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useFormErrorHandler } from "@/lib/forms/useFormErrorHandler";
 import { useFormDraft } from "@/lib/forms/useFormDraft";
 import { useAdminAllCategoriesQuery } from "@/features/admin/queries/categories";
@@ -132,19 +140,25 @@ export function PromotionForm({ promotion, onSave }: PromotionFormProps) {
             <Input
               {...register("name")}
               placeholder="Holiday Sale"
-              className={errors.name ? "border-red-500" : ""}
+              error={!!errors.name}
             />
           </FormField>
 
           <FormField label="Type" required error={errors.type?.message}>
-            <select
-              {...register("type")}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
-              aria-invalid={!!errors.type}
+            <Select
+              value={watch("type")}
+              onValueChange={(value) =>
+                setValue("type", value as "PERCENTAGE" | "FIXED_AMOUNT")
+              }
             >
-              <option value="PERCENTAGE">Percentage</option>
-              <option value="FIXED_AMOUNT">Fixed amount</option>
-            </select>
+              <SelectTrigger>
+                <SelectValue placeholder="Select type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="PERCENTAGE">Percentage</SelectItem>
+                <SelectItem value="FIXED_AMOUNT">Fixed amount</SelectItem>
+              </SelectContent>
+            </Select>
           </FormField>
         </div>
 
@@ -155,14 +169,11 @@ export function PromotionForm({ promotion, onSave }: PromotionFormProps) {
               error={errors.description?.message}
               helpText="Optional description"
             >
-              <textarea
+              <Textarea
                 {...register("description")}
                 rows={3}
                 placeholder="Optional description"
-                className={`w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 ${
-                  errors.description ? "border-red-500" : ""
-                }`}
-                aria-invalid={!!errors.description}
+                error={!!errors.description}
               />
             </FormField>
           </div>
@@ -172,7 +183,7 @@ export function PromotionForm({ promotion, onSave }: PromotionFormProps) {
               step="0.01"
               min="0"
               {...register("value", { valueAsNumber: true })}
-              className={errors.value ? "border-red-500" : ""}
+              error={!!errors.value}
             />
           </FormField>
         </div>

@@ -15,6 +15,11 @@ import {
 } from "@/lib/mock-data/mock-data";
 import { getEffectiveStock } from "@/features/products/utils/inventory";
 import { useCart } from "@/features/cart/hooks";
+import {
+  getProductImageWithPlaceholder,
+  PLACEHOLDER_IMAGE,
+} from "@/lib/utils/products";
+import { getAllProductImages } from "@/features/products/utils/product-images";
 import { ProductGallery } from "./components/ProductGallery";
 import { ProductPurchasePanel } from "./components/ProductPurchasePanel";
 import { QualityMiniStrip } from "./components/QualityMiniStrip";
@@ -25,9 +30,6 @@ import { StickyPurchaseBar } from "./components/StickyPurchaseBar";
 interface ProductDetailClientProps {
   slug: string;
 }
-
-const PLACEHOLDER_IMAGE =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Crect fill='%23f3f4f6' width='600' height='600'/%3E%3Ctext fill='%239ca3af' font-family='sans-serif' font-size='20' x='50%25' y='50%25' text-anchor='middle' dominant-baseline='middle'%3ENo Image%3C/text%3E%3C/svg%3E";
 
 export function ProductDetailClient({ slug }: ProductDetailClientProps) {
   const router = useRouter();
@@ -229,15 +231,19 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
   // Gallery images
   const galleryImages = useMemo(() => {
     if (!product) return [PLACEHOLDER_IMAGE];
-    if (!selectedVariant)
-      return product.defaultVariant?.images || [PLACEHOLDER_IMAGE];
 
-    const images = [];
-    if (selectedVariant.image) images.push(selectedVariant.image);
-    if (selectedVariant.images?.length) images.push(...selectedVariant.images);
-    return images.length
-      ? images
-      : product.defaultVariant?.images || [PLACEHOLDER_IMAGE];
+    // If a specific variant is selected, prioritize its images
+    if (selectedVariant) {
+      const images = [];
+      if (selectedVariant.image) images.push(selectedVariant.image);
+      if (selectedVariant.images?.length)
+        images.push(...selectedVariant.images);
+      if (images.length > 0) return images;
+    }
+
+    // Fallback to all product images using the proper utility
+    const allImages = getAllProductImages(product);
+    return allImages.length > 0 ? allImages : [PLACEHOLDER_IMAGE];
   }, [selectedVariant, product]);
 
   // Handlers
@@ -277,7 +283,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
     addItem(product, {
       quantity: Math.min(quantity, effectiveStock),
       priceOverride: effectivePrice,
-      image: selectedVariant.image ?? product.defaultVariant?.image,
+      image: selectedVariant.image ?? getProductImageWithPlaceholder(product),
       variantId: selectedVariant.id,
       variantSku: selectedVariant.sku,
       color: selectedOptionsState.color ?? null,
@@ -301,10 +307,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
   // Product not found - clean error state
   if (!product) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-primary-50 via-cream-50 to-primary-100/50 relative flex items-center">
-        <div className="fixed inset-0 bg-linear-to-br from-primary-50 via-cream-50 to-primary-100/50 opacity-60 -z-10" />
-        <div className="fixed inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(220,38,38,0.1),transparent_50%)] -z-10" />
-        <div className="fixed inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(220,38,38,0.08),transparent_50%)] -z-10" />
+      <div className="min-h-screen relative flex items-center">
         <Container className="py-16 relative z-0">
           <div className="text-center max-w-md mx-auto">
             <AlertTriangle className="h-16 w-16 text-slate-400 mx-auto mb-6" />
@@ -325,45 +328,40 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-primary-50 via-cream-50 to-primary-100/50 relative">
-      {/* Background layers - consistent with homepage */}
-      <div className="fixed inset-0 bg-linear-to-br from-primary-50 via-cream-50 to-primary-100/50 opacity-60 -z-10" />
-      <div className="fixed inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(220,38,38,0.1),transparent_50%)] -z-10" />
-      <div className="fixed inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(220,38,38,0.08),transparent_50%)] -z-10" />
-
+    <div className="min-h-screen relative">
       {/* Breadcrumb */}
       <div className="border-b border-slate-200/60">
-        <Container className="py-4">
+        <Container className="py-3 sm:py-4">
           <nav
-            className="flex items-center gap-2 text-sm"
+            className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm overflow-x-auto scrollbar-hide"
             aria-label="Breadcrumb"
           >
             <Link
               href="/"
-              className="text-slate-600 hover:text-slate-900 transition-colors"
+              className="text-slate-600 hover:text-slate-900 transition-colors whitespace-nowrap shrink-0"
             >
               Home
             </Link>
-            <ChevronRight className="h-4 w-4 text-slate-400" />
+            <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-400 shrink-0" />
             <Link
               href="/products"
-              className="text-slate-600 hover:text-slate-900 transition-colors"
+              className="text-slate-600 hover:text-slate-900 transition-colors whitespace-nowrap shrink-0"
             >
               Products
             </Link>
             {category && (
               <>
-                <ChevronRight className="h-4 w-4 text-slate-400" />
+                <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-400 shrink-0" />
                 <Link
                   href={`/products/category/${category.slug}`}
-                  className="text-slate-600 hover:text-slate-900 transition-colors"
+                  className="text-slate-600 hover:text-slate-900 transition-colors whitespace-nowrap shrink-0"
                 >
                   {category.name}
                 </Link>
               </>
             )}
-            <ChevronRight className="h-4 w-4 text-slate-400" />
-            <span className="text-slate-900 font-medium truncate max-w-xs">
+            <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-400 shrink-0" />
+            <span className="text-slate-900 font-medium truncate max-w-32 sm:max-w-xs">
               {product.name}
             </span>
           </nav>
@@ -371,10 +369,20 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
       </div>
 
       {/* Main Content */}
-      <Container className="py-12">
-        <div className="grid gap-12 lg:grid-cols-[minmax(0,560px)_minmax(0,1fr)] lg:gap-16">
+      <Container className="py-6 sm:py-8 lg:py-12 pb-24 lg:pb-0 overflow-x-hidden">
+        {/* ShopHub Brand & Title */}
+        <div className="mx-auto lg:ml-auto lg:mr-0 w-full max-w-[420px] sm:max-w-[520px] mb-6 sm:mb-8 lg:mb-10">
+          <div className="text-xs sm:text-sm text-slate-500 uppercase tracking-wide font-medium mb-2">
+            ShopHub
+          </div>
+          <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-semibold text-slate-900 leading-tight">
+            {product.name}
+          </h1>
+        </div>
+
+        <div className="grid gap-8 sm:gap-12 lg:grid-cols-[1fr_1fr] lg:gap-12 xl:grid-cols-[minmax(0,600px)_minmax(0,1fr)] xl:gap-16 2xl:gap-20 min-w-0">
           {/* Gallery */}
-          <div className="order-2 lg:order-1 lg:sticky lg:top-24 self-start">
+          <div className="order-1 lg:order-1 lg:sticky lg:top-24 self-start min-w-0">
             <ProductGallery
               images={galleryImages}
               productName={product.name}
@@ -384,7 +392,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
           </div>
 
           {/* Purchase Panel + Accordions */}
-          <div className="order-1 lg:order-2 space-y-8">
+          <div className="order-2 lg:order-2 space-y-6 sm:space-y-8 min-w-0">
             <div id="purchase-section">
               <ProductPurchasePanel
                 product={product}

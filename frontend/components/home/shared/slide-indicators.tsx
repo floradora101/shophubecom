@@ -31,5 +31,3 @@ export function SlideIndicators({
     </div>
   );
 }
-
-

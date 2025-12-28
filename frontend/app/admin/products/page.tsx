@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ProductList } from "@/features/admin/components/products/ProductList";
 import { ProductFilters } from "@/features/admin/components/products/ProductFilters";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { LoadingSpinner, TableSkeleton } from "@/components/ui/loading-spinner";
 import { Pagination } from "@/components/ui/pagination";
 import {
   useAdminProductsQuery,
@@ -207,7 +207,7 @@ function AdminProductsContent() {
 
         {/* Products List */}
         {isLoading ? (
-          <LoadingSpinner />
+          <TableSkeleton rows={8} columns={6} />
         ) : (
           <>
             <ProductList
@@ -238,7 +238,7 @@ export default function AdminProductsPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen">
           <LoadingSpinner variant="full" />
         </div>
       }

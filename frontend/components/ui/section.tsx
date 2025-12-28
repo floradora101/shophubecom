@@ -1,33 +1,38 @@
 // Section component for consistent spacing and layout
 import { cn } from "@/lib/utils/cn";
 import { forwardRef } from "react";
+import { Container } from "./container";
+import { ui, type SectionSpacing } from "@/lib/ui-tokens";
 
 interface SectionProps extends React.HTMLAttributes<HTMLElement> {
-  spacing?: "sm" | "md" | "lg" | "xl";
+  spacing?: SectionSpacing;
   containerSize?: "sm" | "md" | "lg" | "xl" | "full";
+  withContainer?: boolean;
 }
 
 const Section = forwardRef<HTMLElement, SectionProps>(
   (
-    { className, spacing = "lg", containerSize = "lg", children, ...props },
+    {
+      className,
+      spacing = "lg",
+      containerSize = "lg",
+      withContainer = true,
+      children,
+      ...props
+    },
     ref
   ) => {
-    const spacingClasses = {
-      sm: "py-12",
-      md: "py-16",
-      lg: "py-20",
-      xl: "py-24",
-    };
-
     return (
       <section
         ref={ref}
-        className={cn(spacingClasses[spacing], className)}
+        className={cn(ui.sectionY[spacing], className)}
         {...props}
       >
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
-          {children}
-        </div>
+        {withContainer ? (
+          <Container size={containerSize}>{children}</Container>
+        ) : (
+          children
+        )}
       </section>
     );
   }

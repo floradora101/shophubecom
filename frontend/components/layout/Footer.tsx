@@ -15,11 +15,14 @@ import {
   Truck,
   Headphones,
   ArrowRight,
-  Sparkles,
   CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Heading, Text } from "@/components/ui/typography";
+import Image from "next/image";
+import { ui } from "@/lib/ui-tokens";
+import { cn } from "@/lib/utils/cn";
 
 export function Footer() {
   const [email, setEmail] = useState("");
@@ -42,41 +45,44 @@ export function Footer() {
   };
 
   return (
-    <footer className="relative bg-gradient-to-b from-white via-cream-50 to-warm-gray-50 border-t-2 border-primary-100">
-      {/* Decorative gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary-50/30 via-transparent to-orange-50/20 pointer-events-none" />
-
+    <footer className="relative border-t border-gray-200" role="contentinfo">
       {/* CTA Section */}
-      <div className="relative border-b border-primary-100 bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700">
+      <div className="relative border-b border-gray-200 bg-primary-600">
         <div className="container mx-auto px-4 md:px-6 lg:px-8 py-12 md:py-16">
           <div className="max-w-4xl mx-auto">
             <div className="text-center space-y-6">
               {/* Icon with animation */}
               <div className="flex justify-center">
                 <div className="relative">
-                  <div className="absolute inset-0 bg-white/20 rounded-full blur-xl animate-pulse-slow" />
-                  <div className="relative bg-white/10 backdrop-blur-sm rounded-full p-4 border-2 border-white/30">
-                    <Sparkles className="h-8 w-8 text-white" />
+                  <div className="absolute inset-0 bg-gray-900/10 rounded-full blur-xl animate-pulse-slow" />
+                  <div className="relative bg-gray-100/20 backdrop-blur-sm rounded-full p-4 border-2 border-gray-300/50">
+                    <Mail className="h-8 w-8 text-gray-900" />
                   </div>
                 </div>
               </div>
 
               <div className="space-y-3">
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white font-[var(--font-playfair)]">
+                <Heading
+                  level="h2"
+                  className="text-3xl md:text-4xl lg:text-5xl font-bold text-white font-display"
+                >
                   Stay in the Loop
-                </h2>
-                <p className="text-lg md:text-xl text-primary-50 font-[var(--font-inter)] max-w-2xl mx-auto">
+                </Heading>
+                <Text className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto font-body">
                   Get exclusive deals, new arrivals, and shopping tips delivered
                   straight to your inbox. Join{" "}
-                  <span className="font-semibold text-white">10,000+</span>{" "}
+                  <span className="font-semibold text-gray-900">10,000+</span>{" "}
                   happy shoppers!
-                </p>
+                </Text>
               </div>
 
               {/* Newsletter Form */}
               <form
                 onSubmit={handleNewsletterSubmit}
-                className="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto mt-8"
+                className={cn(
+                  "flex flex-col sm:flex-row max-w-lg mx-auto mt-8",
+                  ui.gap.xs
+                )}
               >
                 <div className="flex-1">
                   <Input
@@ -112,32 +118,46 @@ export function Footer() {
               </form>
 
               {submitted && (
-                <p className="text-primary-50 text-sm mt-2 animate-fade-in">
-                  🎉 Welcome! Check your inbox for a special welcome offer.
+                <p className="text-white/80 text-sm mt-2 animate-fade-in-up">
+                  Welcome! Check your inbox for a special welcome offer.
                 </p>
               )}
 
               {/* Trust Badges */}
-              <div className="flex flex-wrap justify-center gap-6 md:gap-8 mt-10 pt-8 border-t border-white/20">
-                <div className="flex items-center gap-2 text-white/90">
+              <div
+                className={cn(
+                  "flex flex-wrap justify-center mt-10 pt-8 border-t border-white/20",
+                  ui.gap.md,
+                  "md:" + ui.gap.lg
+                )}
+              >
+                <div
+                  className={cn("flex items-center text-white/90", ui.gap.xs)}
+                >
                   <div className="bg-white/20 rounded-full p-1.5">
                     <Truck className="h-4 w-4" />
                   </div>
                   <span className="text-sm font-medium">Free Shipping</span>
                 </div>
-                <div className="flex items-center gap-2 text-white/90">
+                <div
+                  className={cn("flex items-center text-white/90", ui.gap.xs)}
+                >
                   <div className="bg-white/20 rounded-full p-1.5">
                     <Shield className="h-4 w-4" />
                   </div>
                   <span className="text-sm font-medium">Secure Payment</span>
                 </div>
-                <div className="flex items-center gap-2 text-white/90">
+                <div
+                  className={cn("flex items-center text-white/90", ui.gap.xs)}
+                >
                   <div className="bg-white/20 rounded-full p-1.5">
                     <Headphones className="h-4 w-4" />
                   </div>
                   <span className="text-sm font-medium">24/7 Support</span>
                 </div>
-                <div className="flex items-center gap-2 text-white/90">
+                <div
+                  className={cn("flex items-center text-white/90", ui.gap.xs)}
+                >
                   <div className="bg-white/20 rounded-full p-1.5">
                     <CheckCircle2 className="h-4 w-4" />
                   </div>
@@ -151,33 +171,44 @@ export function Footer() {
 
       {/* Main Footer Content */}
       <div className="relative container mx-auto px-4 md:px-6 lg:px-8 py-12 md:py-16">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div
+          className={cn(
+            "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4",
+            ui.gap.lg
+          )}
+        >
           {/* Brand Section */}
           <div className="space-y-5 lg:col-span-1">
-            <div className="flex items-center gap-2">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 text-white font-bold text-xl shadow-lg">
-                S
-              </div>
-              <span className="text-2xl font-bold text-warm-gray-900 font-[var(--font-poppins)]">
-                ShopHub
-              </span>
+            <div
+              className={cn("flex items-center justify-center h-12", ui.gap.xs)}
+            >
+              <Image
+                src="/logo.png"
+                alt="ShopHub Logo"
+                width={48}
+                height={48}
+                className="object-contain hover:opacity-90 transition-opacity duration-200"
+              />
             </div>
-            <p className="text-sm text-warm-gray-600 leading-relaxed font-[var(--font-inter)]">
+            <Text
+              variant="meta"
+              className="text-warm-gray-600 leading-relaxed font-body"
+            >
               Your trusted online shopping destination. Quality products, fast
               delivery, and exceptional service. Shop smarter, live better.
-            </p>
+            </Text>
 
             {/* Social Media Links */}
             <div className="space-y-3">
               <p className="text-sm font-semibold text-warm-gray-900">
                 Follow Us
               </p>
-              <div className="flex gap-3">
+              <div className={cn("flex", ui.gap.xs)}>
                 <a
                   href="https://facebook.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex h-10 w-10 items-center justify-center rounded-lg bg-white border-2 border-warm-gray-200 text-warm-gray-600 hover:text-primary-600 transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                  className="group flex h-10 w-10 items-center justify-center rounded-lg bg-white border-2 border-warm-gray-200 text-warm-gray-600 hover:text-primary-600 transition-all duration-300 ease-out focus:outline-none"
                   aria-label="Facebook"
                 >
                   <Facebook className="h-5 w-5" />
@@ -186,7 +217,7 @@ export function Footer() {
                   href="https://twitter.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex h-10 w-10 items-center justify-center rounded-lg bg-white border-2 border-warm-gray-200 text-warm-gray-600 hover:text-primary-600 transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                  className="group flex h-10 w-10 items-center justify-center rounded-lg bg-white border-2 border-warm-gray-200 text-warm-gray-600 hover:text-primary-600 transition-all duration-300 ease-out focus:outline-none"
                   aria-label="Twitter"
                 >
                   <Twitter className="h-5 w-5" />
@@ -195,7 +226,7 @@ export function Footer() {
                   href="https://instagram.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex h-10 w-10 items-center justify-center rounded-lg bg-white border-2 border-warm-gray-200 text-warm-gray-600 hover:text-primary-600 transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                  className="group flex h-10 w-10 items-center justify-center rounded-lg bg-white border-2 border-warm-gray-200 text-warm-gray-600 hover:text-primary-600 transition-all duration-300 ease-out focus:outline-none"
                   aria-label="Instagram"
                 >
                   <Instagram className="h-5 w-5" />
@@ -204,7 +235,7 @@ export function Footer() {
                   href="https://youtube.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex h-10 w-10 items-center justify-center rounded-lg bg-white border-2 border-warm-gray-200 text-warm-gray-600 hover:text-primary-600 transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                  className="group flex h-10 w-10 items-center justify-center rounded-lg bg-white border-2 border-warm-gray-200 text-warm-gray-600 hover:text-primary-600 transition-all duration-300 ease-out focus:outline-none"
                   aria-label="YouTube"
                 >
                   <Youtube className="h-5 w-5" />
@@ -215,7 +246,7 @@ export function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="mb-5 text-base font-bold text-warm-gray-900 font-[var(--font-poppins)]">
+            <h3 className="mb-5 text-base font-bold text-warm-gray-900 font-[var(--font-inter)]">
               Quick Links
             </h3>
             <ul className="space-y-3">
@@ -236,7 +267,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="flex items-center text-sm text-warm-gray-600 hover:text-primary-600 transition-colors font-[var(--font-inter)] focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-xl px-1 py-1 -my-1"
+                    className="flex items-center text-sm text-warm-gray-600 hover:text-primary-600 transition-colors font-[var(--font-inter)] focus:outline-none rounded-xl px-1 py-1 -my-1"
                   >
                     {link.label}
                   </Link>
@@ -247,7 +278,7 @@ export function Footer() {
 
           {/* Customer Service */}
           <div>
-            <h3 className="mb-5 text-base font-bold text-warm-gray-900 font-[var(--font-poppins)]">
+            <h3 className="mb-5 text-base font-bold text-warm-gray-900 font-[var(--font-inter)]">
               Customer Service
             </h3>
             <ul className="space-y-3">
@@ -262,7 +293,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="flex items-center text-sm text-warm-gray-600 hover:text-primary-600 transition-colors font-[var(--font-inter)] focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-xl px-1 py-1 -my-1"
+                    className="flex items-center text-sm text-warm-gray-600 hover:text-primary-600 transition-colors font-[var(--font-inter)] focus:outline-none rounded-xl px-1 py-1 -my-1"
                   >
                     {link.label}
                   </Link>
@@ -273,11 +304,11 @@ export function Footer() {
 
           {/* Contact & Legal */}
           <div>
-            <h3 className="mb-5 text-base font-bold text-warm-gray-900 font-[var(--font-poppins)]">
+            <h3 className="mb-5 text-base font-bold text-warm-gray-900 font-[var(--font-inter)]">
               Get in Touch
             </h3>
             <ul className="space-y-4 mb-6">
-              <li className="flex items-start gap-3">
+              <li className={cn("flex items-start", ui.gap.xs)}>
                 <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-100 text-primary-600">
                   <Mail className="h-4 w-4" />
                 </div>
@@ -287,13 +318,13 @@ export function Footer() {
                   </p>
                   <a
                     href="mailto:support@shophub.com"
-                    className="text-sm text-warm-gray-700 hover:text-primary-600 transition-colors font-[var(--font-inter)] focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-xl px-1 py-0.5 -mx-1"
+                    className="text-sm text-warm-gray-700 hover:text-primary-600 transition-colors font-[var(--font-inter)] focus:outline-none rounded-xl px-1 py-0.5 -mx-1"
                   >
                     support@shophub.com
                   </a>
                 </div>
               </li>
-              <li className="flex items-start gap-3">
+              <li className={cn("flex items-start", ui.gap.xs)}>
                 <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-100 text-primary-600">
                   <Phone className="h-4 w-4" />
                 </div>
@@ -303,13 +334,13 @@ export function Footer() {
                   </p>
                   <a
                     href="tel:+15551234567"
-                    className="text-sm text-warm-gray-700 hover:text-primary-600 transition-colors font-[var(--font-inter)] focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-xl px-1 py-0.5 -mx-1"
+                    className="text-sm text-warm-gray-700 hover:text-primary-600 transition-colors font-[var(--font-inter)] focus:outline-none rounded-xl px-1 py-0.5 -mx-1"
                   >
                     +1 (555) 123-4567
                   </a>
                 </div>
               </li>
-              <li className="flex items-start gap-3">
+              <li className={cn("flex items-start", ui.gap.xs)}>
                 <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-100 text-primary-600">
                   <MapPin className="h-4 w-4" />
                 </div>
@@ -327,13 +358,13 @@ export function Footer() {
             <div className="pt-4 border-t border-warm-gray-200 space-y-2">
               <Link
                 href="/privacy"
-                className="text-xs text-warm-gray-500 hover:text-primary-600 transition-colors font-[var(--font-inter)] block focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-xl px-1 py-1 -my-1"
+                className="text-xs text-warm-gray-500 hover:text-primary-600 transition-colors font-[var(--font-inter)] block focus:outline-none rounded-xl px-1 py-1 -my-1"
               >
                 Privacy Policy
               </Link>
               <Link
                 href="/terms"
-                className="text-xs text-warm-gray-500 hover:text-primary-600 transition-colors font-[var(--font-inter)] block focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-xl px-1 py-1 -my-1"
+                className="text-xs text-warm-gray-500 hover:text-primary-600 transition-colors font-[var(--font-inter)] block focus:outline-none rounded-xl px-1 py-1 -my-1"
               >
                 Terms of Service
               </Link>
@@ -343,37 +374,30 @@ export function Footer() {
       </div>
 
       {/* Bottom Bar */}
-      <div className="relative border-t border-warm-gray-200 bg-white/50 backdrop-blur-sm">
+      <div className="relative border-t border-gray-200">
         <div className="container mx-auto px-4 md:px-6 lg:px-8 py-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-warm-gray-600 text-center md:text-left font-[var(--font-inter)]">
+          <div
+            className={cn(
+              "flex flex-col md:flex-row items-center justify-between",
+              ui.gap.sm
+            )}
+          >
+            <p className="text-sm text-gray-700 text-center md:text-left font-[var(--font-inter)]">
               &copy; {new Date().getFullYear()} ShopHub. All rights reserved.
             </p>
-            <div className="flex items-center gap-2 text-sm text-warm-gray-600">
-              <span className="font-[var(--font-inter)]">Made with</span>
-              <span className="text-primary-500 animate-pulse-slow">❤️</span>
-              <span className="font-[var(--font-inter)]">for shoppers</span>
+            <div
+              className={cn(
+                "flex items-center text-sm text-gray-700",
+                ui.gap.xs
+              )}
+            >
+              <span className="font-[var(--font-inter)]">
+                Made for shoppers
+              </span>
             </div>
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(-4px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .animate-fade-in {
-          animation: fade-in 0.3s ease-out;
-        }
-      `}</style>
     </footer>
   );
 }
