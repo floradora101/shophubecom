@@ -130,7 +130,7 @@ export function CouponForm({ coupon, onSave }: CouponFormProps) {
           <Input
             {...register("code")}
             placeholder="SALE20"
-            error={errors.code?.message}
+            error={!!errors.code}
           />
         </FormField>
 
@@ -174,7 +174,6 @@ export function CouponForm({ coupon, onSave }: CouponFormProps) {
               step="0.01"
               min="0"
               {...register("value", { valueAsNumber: true })}
-              error={errors.value?.message}
             />
           </FormField>
           <FormField

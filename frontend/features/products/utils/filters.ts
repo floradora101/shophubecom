@@ -63,7 +63,10 @@ export function parseFiltersFromSearchParams(
   // Category is now handled by routes, not URL params
   const category = null;
 
-  const searchRaw = searchParams.get("search")?.trim();
+  // Check for both 'q' (from search page) and 'search' parameters
+  const searchRaw = (
+    searchParams.get("q") || searchParams.get("search")
+  )?.trim();
   const search = searchRaw && searchRaw.length > 0 ? searchRaw : null;
 
   const pageRaw = searchParams.get("page");

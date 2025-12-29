@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronRight, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
+import { SkeletonBlock } from "@/components/ui/skeleton";
 import {
   mockProducts,
   mockProductToProduct,
@@ -18,6 +19,7 @@ import { useCart } from "@/features/cart/hooks";
 import {
   getProductImageWithPlaceholder,
   PLACEHOLDER_IMAGE,
+  getDiscountInfo,
 } from "@/lib/utils/products";
 import { getAllProductImages } from "@/features/products/utils/product-images";
 import { ProductGallery } from "./components/ProductGallery";
@@ -29,6 +31,205 @@ import { StickyPurchaseBar } from "./components/StickyPurchaseBar";
 
 interface ProductDetailClientProps {
   slug: string;
+}
+
+/**
+ * Product Gallery Skeleton - matches ProductGallery layout
+ */
+function ProductGallerySkeleton() {
+  return (
+    <div className="w-full">
+      {/* Main image area */}
+      <div className="relative aspect-square w-full rounded-2xl overflow-hidden border border-gray-200 shadow-lg bg-white">
+        <SkeletonBlock className="absolute inset-0 rounded-none" />
+      </div>
+
+      {/* Thumbnails */}
+      <div className="flex gap-3 mt-4 overflow-x-auto pb-2">
+        {Array.from({ length: 4 }, (_, i) => (
+          <div
+            key={i}
+            className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border border-gray-200"
+          >
+            <SkeletonBlock className="w-full h-full rounded-none" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Product Purchase Panel Skeleton - matches ProductPurchasePanel layout
+ */
+function ProductPurchasePanelSkeleton() {
+  return (
+    <div className="space-y-6">
+      {/* Price section */}
+      <div className="space-y-2">
+        <div className="flex items-baseline gap-3">
+          <SkeletonBlock className="h-8 w-24" />
+          <SkeletonBlock className="h-6 w-16" />
+        </div>
+        <SkeletonBlock className="h-4 w-32" />
+      </div>
+
+      {/* Variant selectors */}
+      <div className="space-y-4">
+        {Array.from({ length: 2 }, (_, i) => (
+          <div key={i} className="space-y-3">
+            <SkeletonBlock className="h-4 w-20" />
+            <div className="grid grid-cols-3 gap-2">
+              {Array.from({ length: 3 }, (_, j) => (
+                <SkeletonBlock key={j} className="h-10 rounded-lg" />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Quantity and add to cart */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-4">
+          <SkeletonBlock className="h-10 w-32" />
+          <SkeletonBlock className="h-12 flex-1 rounded-lg" />
+        </div>
+      </div>
+
+      {/* Stock info */}
+      <SkeletonBlock className="h-4 w-40" />
+    </div>
+  );
+}
+
+/**
+ * Product Details Accordion Skeleton - matches ProductDetailsAccordion layout
+ */
+function ProductDetailsAccordionSkeleton() {
+  return (
+    <div className="space-y-4">
+      {Array.from({ length: 3 }, (_, i) => (
+        <div
+          key={i}
+          className="border border-gray-200 rounded-lg overflow-hidden"
+        >
+          <div className="flex items-center justify-between p-4 bg-gray-50">
+            <SkeletonBlock className="h-5 w-48" />
+            <SkeletonBlock className="w-5 h-5 rounded" />
+          </div>
+          <div className="p-4 space-y-3">
+            <SkeletonBlock className="h-4 w-full" />
+            <SkeletonBlock className="h-4 w-5/6" />
+            <SkeletonBlock className="h-4 w-4/5" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * You May Also Like Skeleton - matches YouMayAlsoLike layout
+ */
+function YouMayAlsoLikeSkeleton() {
+  return (
+    <div className="space-y-8 mt-12 sm:mt-16">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <SkeletonBlock className="w-6 h-6 rounded" />
+        <SkeletonBlock className="h-8 w-64" />
+      </div>
+
+      {/* Products grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+        {Array.from({ length: 4 }, (_, i) => (
+          <div key={i} className="w-full">
+            <div className="group flex flex-col w-full">
+              {/* Image */}
+              <SkeletonBlock className="relative aspect-square rounded-lg overflow-hidden border border-warm-gray-200" />
+
+              {/* Info */}
+              <div className="mt-3 space-y-1 min-h-16 flex flex-col justify-end">
+                <SkeletonBlock className="h-4 md:h-5" />
+                <SkeletonBlock className="h-4 md:h-5 w-3/4" />
+                <SkeletonBlock className="h-3 w-1/2 mt-1" />
+                <div className="flex items-baseline gap-2 flex-wrap mt-2">
+                  <SkeletonBlock className="h-4 md:h-5 w-16" />
+                  <SkeletonBlock className="h-3 w-12" />
+                  <SkeletonBlock className="h-3 w-20" />
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Product Detail Page Skeleton - full page loading state
+ */
+export function ProductDetailSkeleton() {
+  return (
+    <div className="min-h-screen relative">
+      {/* Breadcrumb */}
+      <div className="border-b border-gray-200/60">
+        <Container className="py-3 sm:py-4">
+          <nav className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
+            <SkeletonBlock className="h-4 w-12" />
+            <div className="w-3.5 h-3.5 rounded" />
+            <SkeletonBlock className="h-4 w-20" />
+            <div className="w-3.5 h-3.5 rounded" />
+            <SkeletonBlock className="h-4 w-16" />
+            <div className="w-3.5 h-3.5 rounded" />
+            <SkeletonBlock className="h-4 w-32" />
+          </nav>
+        </Container>
+      </div>
+
+      {/* Main Content */}
+      <Container className="py-6 sm:py-8 lg:py-12 pb-24 lg:pb-0">
+        {/* ShopHub Brand & Title */}
+        <div className="mx-auto lg:ml-auto lg:mr-0 w-full max-w-[420px] sm:max-w-[520px] mb-6 sm:mb-8 lg:mb-10">
+          <div className="text-xs sm:text-sm text-gray-500 uppercase tracking-wide font-medium mb-2">
+            <SkeletonBlock className="h-4 w-16" />
+          </div>
+          <SkeletonBlock className="h-10 w-full" />
+        </div>
+
+        <div className="grid gap-8 sm:gap-12 lg:grid-cols-[1fr_1fr] lg:gap-12 xl:grid-cols-[minmax(0,600px)_minmax(0,1fr)] xl:gap-16 2xl:gap-20 min-w-0">
+          {/* Gallery */}
+          <div className="order-1 lg:order-1 lg:sticky lg:top-24 self-start min-w-0">
+            <ProductGallerySkeleton />
+          </div>
+
+          {/* Purchase Panel + Accordions */}
+          <div className="order-2 lg:order-2 space-y-6 sm:space-y-8 min-w-0">
+            <div id="purchase-section">
+              <ProductPurchasePanelSkeleton />
+            </div>
+
+            {/* Quality Strip */}
+            <div className="flex items-center justify-center gap-6 py-4">
+              {Array.from({ length: 3 }, (_, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <SkeletonBlock className="w-5 h-5 rounded" />
+                  <SkeletonBlock className="h-4 w-20" />
+                </div>
+              ))}
+            </div>
+
+            {/* Product Details */}
+            <ProductDetailsAccordionSkeleton />
+          </div>
+        </div>
+
+        {/* You May Also Like Section */}
+        <YouMayAlsoLikeSkeleton />
+      </Container>
+    </div>
+  );
 }
 
 export function ProductDetailClient({ slug }: ProductDetailClientProps) {
@@ -209,14 +410,35 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
 
   // Price and stock calculations
   const effectivePrice = selectedVariant?.price ?? product?.price ?? 0;
-  const hasDiscount =
-    product?.originalPrice && product.originalPrice > effectivePrice;
-  const discountPercent = hasDiscount
-    ? Math.round(
-        ((product.originalPrice! - effectivePrice) / product.originalPrice!) *
-          100
-      )
-    : 0;
+
+  // Use getDiscountInfo for base product discount, then adjust for variant pricing
+  const baseDiscountInfo = product
+    ? getDiscountInfo(product)
+    : {
+        hasDiscount: false,
+        discountPercent: 0,
+        originalPrice: null,
+        savings: 0,
+      };
+
+  // For variants, we need to calculate discount relative to the effective price
+  // If variant has different pricing, adjust the discount calculation
+  let hasDiscount = baseDiscountInfo.hasDiscount;
+  let discountPercent = baseDiscountInfo.discountPercent;
+  let originalPrice = baseDiscountInfo.originalPrice;
+
+  // If we have a selected variant with different price, recalculate discount
+  if (
+    selectedVariant &&
+    product?.originalPrice &&
+    product.originalPrice > effectivePrice
+  ) {
+    originalPrice = product.originalPrice;
+    discountPercent = Math.round(
+      ((originalPrice - effectivePrice) / originalPrice) * 100
+    );
+    hasDiscount = true;
+  }
 
   const variantStock = selectedVariant?.stock ?? 0;
   const isOutOfStock = selectedVariant && variantStock <= 0;
@@ -310,11 +532,11 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
       <div className="min-h-screen relative flex items-center">
         <Container className="py-16 relative z-0">
           <div className="text-center max-w-md mx-auto">
-            <AlertTriangle className="h-16 w-16 text-slate-400 mx-auto mb-6" />
-            <h1 className="text-2xl font-semibold text-slate-900 mb-3">
+            <AlertTriangle className="h-16 w-16 text-gray-400 mx-auto mb-6" />
+            <h1 className="text-2xl font-semibold text-gray-900 mb-3">
               Product Not Found
             </h1>
-            <p className="text-slate-600 mb-8">
+            <p className="text-gray-600 mb-8">
               The product you&apos;re looking for doesn&apos;t exist or may have
               been removed.
             </p>
@@ -327,10 +549,13 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
     );
   }
 
+  // Show skeleton while loading (we can add a loading state if needed)
+  // For now, we render the full component since we have the product data
+
   return (
     <div className="min-h-screen relative">
       {/* Breadcrumb */}
-      <div className="border-b border-slate-200/60">
+      <div className="border-b border-gray-200/60">
         <Container className="py-3 sm:py-4">
           <nav
             className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm overflow-x-auto scrollbar-hide"
@@ -338,30 +563,30 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
           >
             <Link
               href="/"
-              className="text-slate-600 hover:text-slate-900 transition-colors whitespace-nowrap shrink-0"
+              className="text-gray-600 hover:text-gray-900 transition-colors whitespace-nowrap shrink-0"
             >
               Home
             </Link>
-            <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-400 shrink-0" />
+            <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400 shrink-0" />
             <Link
               href="/products"
-              className="text-slate-600 hover:text-slate-900 transition-colors whitespace-nowrap shrink-0"
+              className="text-gray-600 hover:text-gray-900 transition-colors whitespace-nowrap shrink-0"
             >
               Products
             </Link>
             {category && (
               <>
-                <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-400 shrink-0" />
+                <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400 shrink-0" />
                 <Link
                   href={`/products/category/${category.slug}`}
-                  className="text-slate-600 hover:text-slate-900 transition-colors whitespace-nowrap shrink-0"
+                  className="text-gray-600 hover:text-gray-900 transition-colors whitespace-nowrap shrink-0"
                 >
                   {category.name}
                 </Link>
               </>
             )}
-            <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-400 shrink-0" />
-            <span className="text-slate-900 font-medium truncate max-w-32 sm:max-w-xs">
+            <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400 shrink-0" />
+            <span className="text-gray-900 font-medium truncate max-w-32 sm:max-w-xs">
               {product.name}
             </span>
           </nav>
@@ -372,10 +597,10 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
       <Container className="py-6 sm:py-8 lg:py-12 pb-24 lg:pb-0 overflow-x-hidden">
         {/* ShopHub Brand & Title */}
         <div className="mx-auto lg:ml-auto lg:mr-0 w-full max-w-[420px] sm:max-w-[520px] mb-6 sm:mb-8 lg:mb-10">
-          <div className="text-xs sm:text-sm text-slate-500 uppercase tracking-wide font-medium mb-2">
+          <div className="text-xs sm:text-sm text-gray-500 uppercase tracking-wide font-medium mb-2">
             ShopHub
           </div>
-          <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-semibold text-slate-900 leading-tight">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-semibold text-gray-900 leading-tight">
             {product.name}
           </h1>
         </div>

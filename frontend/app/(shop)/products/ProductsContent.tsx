@@ -50,14 +50,24 @@ interface ProductsContentProps {
 }
 
 export function ProductsContent({ categorySlug }: ProductsContentProps) {
+  // All hooks must be declared first, in order
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const isCategoryPage = pathname?.startsWith("/products/category/");
+
+  // Performance guard: delay expensive computations until user interacts
+  // Initialize this FIRST before any other state to avoid "before initialization" errors
+  const [hasInteractedState, setHasInteracted] = useState(false);
+  // Use a const to ensure it's always available (no temporal dead zone issues)
+  const hasInteracted = hasInteractedState;
 
   // Sort dropdown state
   const [isSortOpen, setIsSortOpen] = useState(false);
   const sortRef = useRef<HTMLDivElement>(null);
+
+  // Derived values (non-hook computations)
+  const isCategoryPage = pathname?.startsWith("/products/category/");
+  const isSearchResultsPage = pathname?.startsWith("/search/results");
 
   // Close sort dropdown when clicking outside
   useEffect(() => {
@@ -98,24 +108,30 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
     return "/products";
   }, [isCategoryPage, categorySlug]);
 
-  // Use mock categories
-  const categories = useMemo(
-    () => mockCategories.map(mockCategoryToCategory),
-    []
-  );
+  // Use mock categories - only compute when user has interacted
+  const categories = useMemo(() => {
+    if (!hasInteracted) return [];
+    return mockCategories.map(mockCategoryToCategory);
+  }, [hasInteracted]);
 
-  // Normalize mock products once to avoid repeated conversions
-  const allMockProducts = useMemo(
-    () => mockProducts.map(mockProductToProduct),
-    []
-  );
+  // Normalize mock products once to avoid repeated conversions - only when user has interacted
+  const allMockProducts = useMemo(() => {
+    if (!hasInteracted) return [];
+    return mockProducts.map(mockProductToProduct);
+  }, [hasInteracted]);
 
-  // Build category tree helpers for filtering
+  // Build category tree helpers for filtering - only when user has interacted
   const categoryTreeHelpers = useMemo((): CategoryTreeHelpers => {
+    if (!hasInteracted) {
+      return { categoryIdMap: new Map(), getDescendantIds: () => new Set() };
+    }
+
+    // Compute categories internally to avoid dependency issues
+    const computedCategories = mockCategories.map(mockCategoryToCategory);
     const categoryIdMap = new Map<string, string>();
     const childrenByParentId = new Map<string, string[]>();
 
-    categories.forEach((cat) => {
+    computedCategories.forEach((cat) => {
       categoryIdMap.set(cat.slug, cat.id);
       if (cat.parentId) {
         childrenByParentId.set(cat.parentId, [
@@ -143,26 +159,51 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
     };
 
     return { categoryIdMap, getDescendantIds };
-  }, [categories]);
+  }, [hasInteracted]);
 
-  // Filter and sort products using pure function
-  const filteredProducts = useMemo(
-    () => filterSortProducts(allMockProducts, filters, categoryTreeHelpers),
-    [allMockProducts, filters, categoryTreeHelpers]
-  );
+  // Filter and sort products using pure function - only when user has interacted
+  const filteredProducts = useMemo(() => {
+    if (!hasInteracted) return [];
+    return filterSortProducts(allMockProducts, filters, categoryTreeHelpers);
+  }, [allMockProducts, filters, categoryTreeHelpers, hasInteracted]);
+
+  // Track user interaction (scroll, click, etc.)
+  useEffect(() => {
+    const handleInteraction = () => setHasInteracted(true);
+
+    // Listen for user interactions that indicate they're ready to see content
+    window.addEventListener("scroll", handleInteraction, {
+      once: true,
+      passive: true,
+    });
+    window.addEventListener("click", handleInteraction, { once: true });
+    window.addEventListener("keydown", handleInteraction, { once: true });
+
+    // Auto-enable after a short delay as fallback
+    const timer = setTimeout(() => setHasInteracted(true), 100);
+
+    return () => {
+      window.removeEventListener("scroll", handleInteraction);
+      window.removeEventListener("click", handleInteraction);
+      window.removeEventListener("keydown", handleInteraction);
+      clearTimeout(timer);
+    };
+  }, []);
 
   // Simulate loading states for demonstration
   const [productsLoading, setProductsLoading] = useState(true);
   const [productsError] = useState(false);
 
-  // Simulate loading delay for mock data
+  // Simulate loading delay for mock data - only when user has interacted
   useEffect(() => {
+    if (!hasInteracted) return;
+
     const timer = setTimeout(() => {
       setProductsLoading(false);
     }, 1500); // 1.5 second delay to show skeletons
 
     return () => clearTimeout(timer);
-  }, [filters]); // Re-trigger loading when filters change
+  }, [filters, hasInteracted]); // Re-trigger loading when filters change
 
   const isLoading = productsLoading;
   const [isFiltersDrawerOpen, setIsFiltersDrawerOpen] = useState(false);
@@ -347,26 +388,39 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
             >
               <Link
                 href="/"
-                className="text-slate-600 hover:text-slate-900 transition-colors"
+                className="text-slate-600 hover:text-gray-900 transition-colors"
               >
                 Home
               </Link>
               <ChevronRight className="h-4 w-4 text-slate-400" />
-              {currentCategory ? (
+              {isSearchResultsPage ? (
+                <>
+                  <Link
+                    href="/search"
+                    className="text-slate-600 hover:text-gray-900 transition-colors"
+                  >
+                    Search
+                  </Link>
+                  <ChevronRight className="h-4 w-4 text-slate-400" />
+                  <span className="text-gray-900 font-medium truncate max-w-xs">
+                    Results
+                  </span>
+                </>
+              ) : currentCategory ? (
                 <>
                   <Link
                     href="/products"
-                    className="text-slate-600 hover:text-slate-900 transition-colors"
+                    className="text-slate-600 hover:text-gray-900 transition-colors"
                   >
                     Products
                   </Link>
                   <ChevronRight className="h-4 w-4 text-slate-400" />
-                  <span className="text-slate-900 font-medium truncate max-w-xs">
+                  <span className="text-gray-900 font-medium truncate max-w-xs">
                     {currentCategory.name}
                   </span>
                 </>
               ) : (
-                <span className="text-slate-900 font-medium truncate max-w-xs">
+                <span className="text-gray-900 font-medium truncate max-w-xs">
                   Products
                 </span>
               )}
@@ -380,11 +434,11 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
           <div className="flex items-center justify-between gap-4 mb-8">
             {/* Results Count */}
             <div className="text-sm text-slate-600">
-              <span className="font-semibold text-slate-900">
+              <span className="font-semibold text-gray-900">
                 {products.length}
               </span>
               <span className="mx-1">of</span>
-              <span className="text-slate-700">{totalResults}</span>
+              <span className="text-gray-700">{totalResults}</span>
               <span className="ml-1">products</span>
             </div>
 
@@ -423,8 +477,8 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
                         "block w-full text-left px-3 py-2 text-sm transition-colors",
                         "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2",
                         filters.sortBy === option.value
-                          ? "text-primary-700 font-medium bg-primary-50"
-                          : "text-slate-700 hover:bg-slate-50"
+                          ? "text-primary-600 font-medium bg-primary-50"
+                          : "text-gray-700 hover:bg-slate-50"
                       )}
                     >
                       {option.label}
@@ -581,7 +635,7 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
 
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2 px-4 py-2 bg-primary-50 rounded-xl">
-                          <span className="text-sm font-medium text-primary-700">
+                          <span className="text-sm font-medium text-primary-600">
                             Page {filters.page} of {safeTotalPages}
                           </span>
                           {isLoading && (

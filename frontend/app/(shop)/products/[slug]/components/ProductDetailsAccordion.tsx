@@ -64,7 +64,7 @@ function AccordionItem({
             </div>
 
             <div className="space-y-0.5 sm:space-y-1 min-w-0 flex-1">
-              <span className="text-sm sm:text-base font-semibold text-slate-900 tracking-wide block truncate">
+              <span className="text-sm sm:text-base font-semibold text-gray-900 tracking-wide block truncate">
                 {title}
               </span>
               <div className="text-xs text-slate-500 uppercase tracking-wider font-medium">
@@ -90,7 +90,7 @@ function AccordionItem({
         >
           <div className="px-4 sm:px-6 pb-4 sm:pb-6 border-t border-slate-100 bg-linear-to-b from-slate-50/50 to-transparent">
             <div className="pt-3 sm:pt-4">
-              <div className="text-slate-700 leading-relaxed text-sm sm:text-base whitespace-pre-line prose prose-sm max-w-none">
+              <div className="text-gray-700 leading-relaxed text-sm sm:text-base whitespace-pre-line prose prose-sm max-w-none">
                 {content}
               </div>
             </div>

@@ -1,6 +1,30 @@
 import type { HeroSlide } from "@/lib/types/heroSlides.types";
 import type { Product } from "@/features/products/types";
 import { mockHeroSlides, getHeroSlides } from "@/dev/mocks/heroSlides.mock";
+import { getDiscountInfo } from "@/lib/utils/products";
+
+export interface DiscountInfo {
+  discountPercent: number;
+  originalPrice?: number;
+  hasDiscount: boolean;
+}
+
+/**
+ * Calculate discount information for a product
+ */
+export function calculateProductDiscountInfo(product?: Product): DiscountInfo {
+  if (!product) {
+    return {
+      discountPercent: 0,
+      originalPrice: undefined,
+      hasDiscount: false,
+    };
+  }
+
+  const { hasDiscount, discountPercent, originalPrice } = getDiscountInfo(product);
+
+  return { discountPercent, originalPrice: originalPrice || undefined, hasDiscount };
+}
 
 /**
  * Resolve product data for a slide if it references a product

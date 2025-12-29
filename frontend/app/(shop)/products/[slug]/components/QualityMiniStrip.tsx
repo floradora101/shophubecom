@@ -14,7 +14,7 @@ function QualityItem({ icon, label, subtext }: QualityItemProps) {
         {icon}
       </div>
       <div className="flex flex-col">
-        <span className="text-xs sm:text-sm font-medium text-slate-700 group-hover:text-slate-900 transition-colors duration-200">
+        <span className="text-xs sm:text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors duration-200">
           {label}
         </span>
         <span className="text-xs text-slate-500">{subtext}</span>

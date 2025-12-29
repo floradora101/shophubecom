@@ -25,7 +25,7 @@ export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
         product.specs && Array.isArray(product.specs)
           ? product.specs.map((spec, index) => (
               <div key={index} className="flex gap-4 py-2">
-                <span className="font-medium text-slate-900 min-w-[120px]">
+                <span className="font-medium text-gray-900 min-w-[120px]">
                   {spec.label}:
                 </span>
                 <span className="text-slate-600">{spec.value}</span>
@@ -39,7 +39,7 @@ export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
       content: (
         <Stack spacing="md">
           <div>
-            <h4 className="font-medium text-slate-900 mb-2">Shipping</h4>
+            <h4 className="font-medium text-gray-900 mb-2">Shipping</h4>
             <ul className="text-slate-600 space-y-1 text-sm">
               <li>• Free standard shipping on orders over $50</li>
               <li>• Express shipping available for $10</li>
@@ -48,7 +48,7 @@ export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
             </ul>
           </div>
           <div>
-            <h4 className="font-medium text-slate-900 mb-2">Returns</h4>
+            <h4 className="font-medium text-gray-900 mb-2">Returns</h4>
             <ul className="text-slate-600 space-y-1 text-sm">
               <li>• 30-day return window</li>
               <li>• Items must be unused and in original packaging</li>
@@ -71,8 +71,8 @@ export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
             onClick={() => setActiveTab(tab.id)}
             className={`flex-1 px-6 py-4 text-sm font-medium transition-colors ${
               activeTab === tab.id
-                ? "text-slate-900 bg-slate-50 border-b-2 border-slate-900"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                ? "text-gray-900 bg-slate-50 border-b-2 border-gray-900"
+                : "text-slate-600 hover:text-gray-900 hover:bg-slate-50"
             }`}
           >
             {tab.label}
@@ -87,7 +87,7 @@ export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
             key={tab.id}
             className={activeTab === tab.id ? "block" : "hidden"}
           >
-            <div className="text-slate-700 leading-relaxed">{tab.content}</div>
+            <div className="text-gray-700 leading-relaxed">{tab.content}</div>
           </div>
         ))}
       </div>

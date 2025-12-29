@@ -6,7 +6,7 @@ import { Price } from "@/components/ui/price";
 import { Badge } from "@/components/ui/badge";
 import { Heading, Text } from "@/components/ui/typography";
 import { useCart } from "@/features/cart/hooks";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice } from "@/lib/utils/price";
 import { cn } from "@/lib/utils/cn";
 import { ShoppingBag, Truck, Package } from "lucide-react";
 
@@ -112,7 +112,7 @@ export function OrderSummaryCard({
           <div className="flex items-center gap-2 pb-2 border-b border-warm-gray-100">
             <ShoppingBag className="h-4 w-4 text-warm-gray-500" />
             <Text
-              size="sm"
+              variant="meta"
               className="font-medium text-warm-gray-900 uppercase tracking-wide"
             >
               Products
@@ -146,7 +146,7 @@ export function OrderSummaryCard({
                         <div className="flex flex-wrap gap-1 mt-1">
                           {Object.entries(item.selectedOptions).map(
                             ([key, value]) => (
-                              <Badge key={key} variant="secondary" size="sm">
+                              <Badge key={key} variant="secondary">
                                 {value}
                               </Badge>
                             )
@@ -180,7 +180,7 @@ export function OrderSummaryCard({
           <div className="flex items-center gap-2 pb-2 border-b border-warm-gray-100">
             <Truck className="h-4 w-4 text-warm-gray-500" />
             <Text
-              size="sm"
+              variant="meta"
               className="font-medium text-warm-gray-900 uppercase tracking-wide"
             >
               Order Total

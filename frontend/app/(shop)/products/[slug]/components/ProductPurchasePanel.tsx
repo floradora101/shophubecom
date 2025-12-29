@@ -73,7 +73,7 @@ export function ProductPurchasePanel({
       {/* Price Block */}
       <div className="space-y-1 sm:space-y-2">
         <div className="flex items-baseline gap-2 sm:gap-3 flex-wrap">
-          <span className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-slate-900">
+          <span className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-gray-900">
             {formatPrice(effectivePrice)}
           </span>
           {hasDiscount && originalPrice && (
@@ -110,7 +110,7 @@ export function ProductPurchasePanel({
       <div className="space-y-3 sm:space-y-4">
         {/* Quantity Selector */}
         <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-slate-900 min-w-fit">
+          <span className="text-sm font-medium text-gray-900 min-w-fit">
             Quantity
           </span>
           <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden">

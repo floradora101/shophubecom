@@ -18,13 +18,13 @@ export function QualityStrip() {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-6 border-t border-slate-200">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-6 border-t border-gray-200">
       {qualityItems.map((item, index) => (
         <div key={index} className="text-center">
-          <h4 className="text-sm font-medium text-slate-900 mb-1">
+          <h4 className="text-sm font-medium text-gray-900 mb-1">
             {item.title}
           </h4>
-          <p className="text-sm text-slate-600 leading-relaxed">
+          <p className="text-sm text-gray-600 leading-relaxed">
             {item.description}
           </p>
         </div>

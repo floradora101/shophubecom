@@ -6,7 +6,6 @@ export * from "./schemas";
 export * from "./components/ProductCard";
 // ProductFilters component is not exported here to avoid conflict with ProductFilters interface in types
 // Import directly: import { ProductFilters } from "@/features/products/components/ProductFilters"
-export * from "./components/HeroCarousel";
 export * from "./utils/product-images";
 // Note: ProductFilters interface from utils/filters.ts conflicts with ProductFilters from types.ts
 // Import directly: import { ProductFilters as URLProductFilters } from "@/features/products/utils/filters"

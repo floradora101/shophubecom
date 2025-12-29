@@ -86,7 +86,7 @@ export function ProductGallery({
                 onClick={() => handleThumbnailClick(index)}
                 className={`relative w-16 h-16 xl:w-20 xl:h-20 rounded-lg xl:rounded-xl border-2 overflow-hidden transition-all duration-200 ${
                   index === activeIndex
-                    ? "border-slate-900 ring-2 ring-slate-100 shadow-sm"
+                    ? "border-gray-900 ring-2 ring-slate-100 shadow-sm"
                     : "border-slate-200/60 hover:border-slate-300"
                 }`}
                 aria-label={`View image ${index + 1} of ${images.length}`}
@@ -145,14 +145,14 @@ export function ProductGallery({
                   className="absolute left-2 sm:left-3 lg:left-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full bg-white/90 backdrop-blur-sm border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 lg:opacity-100 transition-opacity duration-200 hover:bg-white shadow-sm"
                   aria-label="Previous image"
                 >
-                  <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-slate-700" />
+                  <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-gray-700" />
                 </button>
                 <button
                   onClick={handleNext}
                   className="absolute right-2 sm:right-3 lg:right-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full bg-white/90 backdrop-blur-sm border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 lg:opacity-100 transition-opacity duration-200 hover:bg-white shadow-sm"
                   aria-label="Next image"
                 >
-                  <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-slate-700" />
+                  <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-gray-700" />
                 </button>
               </>
             )}
@@ -163,13 +163,13 @@ export function ProductGallery({
               className="absolute top-2 right-2 sm:top-3 sm:right-3 lg:top-4 lg:right-4 w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full bg-white/90 backdrop-blur-sm border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 lg:opacity-100 transition-opacity duration-200 hover:bg-white shadow-sm"
               aria-label="View fullscreen"
             >
-              <Expand className="h-3.5 w-3.5 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-slate-700" />
+              <Expand className="h-3.5 w-3.5 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-gray-700" />
             </button>
 
             {/* Out of Stock Overlay */}
             {(isOutOfStock || isUnavailable) && (
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[1px]">
-                <span className="bg-white/95 backdrop-blur-sm px-4 py-2 rounded-lg text-sm font-medium text-slate-900 uppercase tracking-wide border border-white/20">
+                <span className="bg-white/95 backdrop-blur-sm px-4 py-2 rounded-lg text-sm font-medium text-gray-900 uppercase tracking-wide border border-white/20">
                   {isUnavailable ? "Unavailable" : "Out of Stock"}
                 </span>
               </div>
@@ -203,7 +203,7 @@ export function ProductGallery({
                   onClick={() => handleThumbnailClick(index)}
                   className={`relative shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-lg border-2 overflow-hidden transition-all duration-200 ${
                     index === activeIndex
-                      ? "border-slate-900 ring-2 ring-slate-100 shadow-sm scale-105"
+                      ? "border-gray-900 ring-2 ring-slate-100 shadow-sm scale-105"
                       : "border-slate-200/60 hover:border-slate-300 active:scale-95"
                   }`}
                   aria-label={`View image ${index + 1} of ${images.length}`}

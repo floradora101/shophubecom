@@ -44,20 +44,7 @@ export function YouMayAlsoLike({ currentProduct }: YouMayAlsoLikeProps) {
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
         {recommendations.map((product) => (
           <div key={product.id} className="w-full">
-            <ProductCard
-              product={{
-                ...product,
-                originalPrice: product.originalPrice,
-                discountPercent:
-                  product.originalPrice && product.originalPrice > product.price
-                    ? Math.round(
-                        ((product.originalPrice - product.price) /
-                          product.originalPrice) *
-                          100
-                      )
-                    : undefined,
-              }}
-            />
+            <ProductCard product={product} />
           </div>
         ))}
       </div>

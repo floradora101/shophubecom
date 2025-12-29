@@ -75,6 +75,7 @@ export function PromotionForm({ promotion, onSave }: PromotionFormProps) {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors, isSubmitting },
     reset,
   } = form;
@@ -173,7 +174,7 @@ export function PromotionForm({ promotion, onSave }: PromotionFormProps) {
                 {...register("description")}
                 rows={3}
                 placeholder="Optional description"
-                error={!!errors.description}
+                error={errors.description?.message}
               />
             </FormField>
           </div>

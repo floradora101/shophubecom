@@ -185,7 +185,7 @@ export async function getHomePageData(): Promise<HomePageData> {
           p.categorySlug?.startsWith("earphones") ||
           p.categorySlug?.startsWith("headsets")
       )
-      .slice(0, 8)
+      .slice(0, 12)
       .map(mockProductToProduct),
     smartGadgetsProducts: mockProducts
       .filter(

@@ -25,7 +25,7 @@ const Section = forwardRef<HTMLElement, SectionProps>(
     return (
       <section
         ref={ref}
-        className={cn(ui.sectionY[spacing], className)}
+        className={cn("w-full", ui.sectionY[spacing], className)}
         {...props}
       >
         {withContainer ? (

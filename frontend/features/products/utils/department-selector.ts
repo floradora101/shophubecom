@@ -1,5 +1,6 @@
 import type { Product } from "../types";
 import { getEffectiveStock } from "./inventory";
+import { getDiscountInfo } from "@/lib/utils/products";
 
 export type LayoutStyle = "grid" | "carousel" | "featured" | "masonry";
 
@@ -69,32 +70,17 @@ interface SelectorConfig {
 }
 
 /**
- * Calculate discount percentage from product fields
+ * Get discount percentage using utility function
  */
 function getDiscountPercent(product: Product): number {
-  if (product.discount?.discountPercent) {
-    return product.discount.discountPercent;
-  }
-  if (product.discountValue) {
-    return product.discountValue;
-  }
-  if (product.discountPercent) {
-    return product.discountPercent;
-  }
-  // Calculate from originalPrice if available
-  if (product.originalPrice && product.originalPrice > product.price) {
-    return (
-      ((product.originalPrice - product.price) / product.originalPrice) * 100
-    );
-  }
-  return 0;
+  const { discountPercent } = getDiscountInfo(product);
+  return discountPercent;
 }
 
 /**
  * Get rating from product (if available)
  */
 function getRating(product: Product): number {
-  // @ts-expect-error - rating may not be in type yet but could exist at runtime
   return product.rating ?? 0;
 }
 
@@ -102,7 +88,6 @@ function getRating(product: Product): number {
  * Get review count from product (if available)
  */
 function getReviewCount(product: Product): number {
-  // @ts-expect-error - reviewCount may not be in type yet but could exist at runtime
   return product.reviewCount ?? 0;
 }
 

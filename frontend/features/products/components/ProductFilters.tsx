@@ -106,7 +106,7 @@ export function ProductFilters({
         <div className="w-10 h-0.5 bg-warm-gray-300 mb-4"></div>
         <Checkbox
           checked={showInStockOnly}
-          onCheckedChange={(checked) => onStockFilterChange(checked as boolean)}
+          onChange={(e) => onStockFilterChange(e.target.checked)}
           label="Show In-Stock Products Only"
           className="text-sm text-warm-gray-700"
         />

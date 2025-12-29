@@ -5,67 +5,48 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "via.placeholder.com",
-        port: "",
+        hostname: "images.unsplash.com",
         pathname: "/**",
       },
       {
         protocol: "https",
-        hostname: "res.cloudinary.com",
-        port: "",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "**.amazonaws.com",
-        port: "",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "**.s3.amazonaws.com",
-        port: "",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "najemstarcall.com",
-        port: "",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "www.najemstarcall.com",
-        port: "",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "*.ufs.sh",
-        port: "",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "utfs.io",
-        port: "",
+        hostname: "unsplash.com",
         pathname: "/**",
       },
       {
         protocol: "https",
         hostname: "*.uploadthing.com",
-        port: "",
         pathname: "/**",
       },
       {
         protocol: "https",
-        hostname: "images.unsplash.com",
-        port: "",
+        hostname: "utfs.io",
         pathname: "/**",
       },
     ],
   },
-  // Webpack config (used for both dev and production builds)
+  async headers() {
+    return [
+      {
+        source: "/_next/static/(.*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        source: "/:path*.(jpg|jpeg|png|gif|webp|svg|ico|woff|woff2)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+    ];
+  },
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
@@ -74,7 +55,6 @@ const nextConfig: NextConfig = {
       };
     }
 
-    // Handle .cjs and .mjs files
     config.module.rules.push({
       test: /\.(cjs|mjs)$/,
       type: "javascript/auto",
@@ -85,7 +65,6 @@ const nextConfig: NextConfig = {
 
     return config;
   },
-  // Transpile these packages to ensure proper module resolution
   transpilePackages: ["@uploadthing/react", "@uploadthing/shared"],
 };
 

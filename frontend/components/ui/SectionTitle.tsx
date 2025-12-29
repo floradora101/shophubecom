@@ -25,7 +25,6 @@
  *   badgeClassName="bg-red-50 border-red-200"
  * />
  */
-"use client";
 
 import React from "react";
 import { Heart, LucideIcon } from "lucide-react";
@@ -74,24 +73,24 @@ export function SectionTitle({
             {icon ? (
               React.createElement(icon, {
                 className:
-                  "w-4 h-4 text-primary-500 fill-primary-500 animate-pulse",
+                  "w-4 h-4 text-primary-500 fill-primary-500",
               })
             ) : (
-              <Heart className="w-4 h-4 text-primary-500 fill-primary-500 animate-pulse" />
+              <Heart className="w-4 h-4 text-primary-500 fill-primary-500" />
             )}
-            <div className="absolute -top-1 -left-1 w-2 h-2 bg-primary-400 rounded-full animate-ping opacity-75" />
+            <div className="absolute -top-1 -left-1 w-2 h-2 bg-primary-400 rounded-full opacity-75" />
           </div>
         )}
 
         {/* Badge Text */}
-        <span className="text-sm font-medium text-primary-700 uppercase tracking-wide">
+        <span className="text-sm font-medium text-primary-600 uppercase tracking-wide">
           {badgeText}
         </span>
       </div>
 
       {/* Main Title */}
       <h2
-        className={`text-2xl md:text-3xl font-bold text-slate-900 ${titleClassName}`}
+        className={`text-2xl md:text-3xl font-bold text-gray-900 ${titleClassName}`}
       >
         {title}
       </h2>

@@ -140,6 +140,45 @@ export function mockProductToProduct(
     defaultV.images = baseImage ? [baseImage] : [];
   }
 
+  // Calculate discount information (use effectivePrice as the current price)
+  let discountPercent = 0;
+  let originalPrice = mock.originalPrice;
+  let hasDiscount = false;
+
+  if (mock.originalPrice && mock.originalPrice > effectivePrice) {
+    // Calculate discount percentage with better precision
+    const calculatedPercent =
+      ((mock.originalPrice - effectivePrice) / mock.originalPrice) * 100;
+    discountPercent = Math.round(calculatedPercent);
+    originalPrice = mock.originalPrice;
+    hasDiscount = true;
+  } else if (mock.discountValue && mock.discountType === "PERCENTAGE") {
+    discountPercent = mock.discountValue;
+    // Calculate original price with better precision (round to 2 decimal places for currency)
+    originalPrice =
+      Math.round((effectivePrice / (1 - discountPercent / 100)) * 100) / 100;
+    hasDiscount = true;
+  } else if (mock.discountValue && mock.discountType === "FIXED_AMOUNT") {
+    const discountAmount = mock.discountValue;
+    originalPrice = effectivePrice + discountAmount;
+    // Calculate percentage with better precision
+    const calculatedPercent = (discountAmount / originalPrice) * 100;
+    discountPercent = Math.round(calculatedPercent);
+    hasDiscount = true;
+  }
+
+  // Create discount object if there's a discount
+  const discount =
+    hasDiscount && originalPrice
+      ? {
+          originalPrice,
+          discountPercent,
+          isOnSale: mock.isOnSale || true,
+          saleStartDate: mock.saleStartsAt?.toISOString(),
+          saleEndDate: mock.saleEndsAt?.toISOString(),
+        }
+      : undefined;
+
   return {
     id,
     name: mock.name,
@@ -148,16 +187,9 @@ export function mockProductToProduct(
     price: effectivePrice,
     currency: "USD",
     stock: effectiveStock,
-    isOnSale: mock.isOnSale || !!mock.originalPrice,
-    discountType:
-      mock.discountType || (mock.originalPrice ? "PERCENTAGE" : undefined),
-    discountValue:
-      mock.discountValue ||
-      (mock.originalPrice
-        ? Math.round(
-            ((mock.originalPrice - mock.price) / mock.originalPrice) * 100
-          )
-        : undefined),
+    isOnSale: mock.isOnSale || hasDiscount,
+    discountType: mock.discountType,
+    discountValue: mock.discountValue,
     saleStartsAt: mock.saleStartsAt?.toISOString(),
     saleEndsAt: mock.saleEndsAt?.toISOString(),
     categoryId: categorySlug,
@@ -178,6 +210,7 @@ export function mockProductToProduct(
     specs,
     colors: mock.colors,
     originalPrice: mock.originalPrice,
+    discount,
     rating: mock.rating,
     reviewCount: mock.reviewCount,
     createdAt: "2025-12-23T00:00:00.000Z", // Fixed future-safe timestamp
@@ -529,6 +562,7 @@ export const mockProducts: MockProduct[] = [
     name: "iPhone 15 Pro Max",
     slug: "iphone-15-pro-max",
     price: 1199.99,
+    originalPrice: 1333.32,
     stock: 25,
     images: [
       "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=400&fit=crop",
@@ -833,6 +867,76 @@ export const mockProducts: MockProduct[] = [
   },
 
   // Wearables Products
+  {
+    id: "sony-wf-1000xm5-premium",
+    name: "Sony WF-1000XM5 Premium Edition",
+    slug: "sony-wf-1000xm5-premium",
+    price: 199.99,
+    originalPrice: 299.99,
+    stock: 50,
+    images: [
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "earphones",
+    description:
+      "Premium wireless earbuds with industry-leading noise cancellation, 30-hour battery, and crystal clear audio quality.",
+    isActive: true,
+    isOnSale: true,
+    discountType: "FIXED_AMOUNT",
+    discountValue: 100,
+    colors: ["Black", "Silver", "Blue", "White", "Red"],
+    specs: [
+      { label: "Driver", value: "30mm" },
+      { label: "Battery", value: "30 hours (ANC on)" },
+      { label: "ANC", value: "Industry-leading" },
+      { label: "Codec", value: "LDAC, AAC, SBC" },
+      { label: "Water Resistance", value: "IPX4" },
+    ],
+    rating: 4.9,
+    reviewCount: 2847,
+    variants: [
+      {
+        sku: "WF1000XM5-BLK",
+        price: 199.99,
+        stock: 15,
+        image:
+          "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop",
+        options: { color: "Black" },
+      },
+      {
+        sku: "WF1000XM5-SLV",
+        price: 199.99,
+        stock: 12,
+        image:
+          "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop",
+        options: { color: "Silver" },
+      },
+      {
+        sku: "WF1000XM5-BLU",
+        price: 199.99,
+        stock: 10,
+        image:
+          "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop",
+        options: { color: "Blue" },
+      },
+      {
+        sku: "WF1000XM5-WHT",
+        price: 199.99,
+        stock: 8,
+        image:
+          "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop",
+        options: { color: "White" },
+      },
+      {
+        sku: "WF1000XM5-RED",
+        price: 199.99,
+        stock: 5,
+        image:
+          "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop",
+        options: { color: "Red" },
+      },
+    ],
+  },
   {
     id: "apple-watch-ultra-2",
     name: "Apple Watch Ultra 2",
@@ -1242,6 +1346,626 @@ export const mockProducts: MockProduct[] = [
       { label: "Features", value: "Oleophobic coating" },
       { label: "Compatibility", value: "Precise fit" },
     ],
+  },
+
+  // Additional Phones
+  {
+    id: "google-pixel-8-pro",
+    name: "Google Pixel 8 Pro",
+    slug: "google-pixel-8-pro",
+    price: 899.99,
+    stock: 30,
+    images: [
+      "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "google-pixel",
+    description:
+      "AI-powered Pixel with exceptional camera and pure Android experience.",
+    isActive: true,
+    specs: [
+      { label: "Display", value: '6.7" LTPO OLED' },
+      { label: "Chip", value: "Google Tensor G3" },
+      {
+        label: "Camera",
+        value: "50MP Main + 48MP Ultra Wide + 48MP Telephoto",
+      },
+      { label: "Storage", value: "128GB" },
+      { label: "Battery", value: "Up to 34 hours video playback" },
+    ],
+    rating: 4.6,
+    reviewCount: 892,
+  },
+  {
+    id: "samsung-galaxy-s24-ultra",
+    name: "Samsung Galaxy S24 Ultra",
+    slug: "samsung-galaxy-s24-ultra",
+    price: 1299.99,
+    originalPrice: 1399.99,
+    stock: 20,
+    images: [
+      "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "samsung",
+    description:
+      "Premium Android flagship with S Pen and professional camera system.",
+    isActive: true,
+    isOnSale: true,
+    discountType: "PERCENTAGE",
+    discountValue: 7,
+    specs: [
+      { label: "Display", value: '6.8" Dynamic AMOLED 2X' },
+      { label: "Chip", value: "Snapdragon 8 Gen 3" },
+      {
+        label: "Camera",
+        value: "200MP Main + 50MP Periscope + 12MP Ultra Wide + 10MP Telephoto",
+      },
+      { label: "Storage", value: "256GB" },
+      { label: "S Pen", value: "Included" },
+    ],
+    rating: 4.7,
+    reviewCount: 1456,
+  },
+  {
+    id: "oneplus-12",
+    name: "OnePlus 12",
+    slug: "oneplus-12",
+    price: 799.99,
+    stock: 25,
+    images: [
+      "https://images.unsplash.com/photo-1605236453806-6ff36851218e?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "other-brands",
+    description: "Fast charging flagship with Hasselblad camera system.",
+    isActive: true,
+    specs: [
+      { label: "Display", value: '6.82" AMOLED' },
+      { label: "Chip", value: "Snapdragon 8 Gen 3" },
+      {
+        label: "Camera",
+        value: "50MP Main + 48MP Ultra Wide + 64MP Telephoto",
+      },
+      { label: "Charging", value: "100W SuperVOOC" },
+      { label: "Storage", value: "256GB" },
+    ],
+    rating: 4.4,
+    reviewCount: 567,
+  },
+
+  // Additional Tablets
+  {
+    id: "ipad-pro-12-9-m4",
+    name: 'iPad Pro 12.9" M4',
+    slug: "ipad-pro-12-9-m4",
+    price: 1099.99,
+    stock: 15,
+    images: [
+      "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "apple-tablets",
+    description:
+      "Ultra-thin laptop replacement with M4 chip and Apple Pencil support.",
+    isActive: true,
+    specs: [
+      { label: "Display", value: '12.9" Liquid Retina XDR' },
+      { label: "Chip", value: "Apple M4" },
+      { label: "Storage", value: "256GB" },
+      { label: "Battery", value: "Up to 10 hours" },
+      {
+        label: "Accessories",
+        value: "Apple Pencil & Magic Keyboard compatible",
+      },
+    ],
+    rating: 4.9,
+    reviewCount: 2341,
+  },
+  {
+    id: "samsung-galaxy-tab-s9-ultra",
+    name: "Samsung Galaxy Tab S9 Ultra",
+    slug: "samsung-galaxy-tab-s9-ultra",
+    price: 1199.99,
+    stock: 18,
+    images: [
+      "https://images.unsplash.com/photo-1584006682522-dc17d6c0d9ac?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "samsung-tablets",
+    description:
+      "Large format Android tablet with S Pen and productivity features.",
+    isActive: true,
+    specs: [
+      { label: "Display", value: '14.6" Dynamic AMOLED 2X' },
+      { label: "Chip", value: "Snapdragon 8 Gen 2" },
+      { label: "Storage", value: "256GB" },
+      { label: "S Pen", value: "Included" },
+      { label: "Battery", value: "11200mAh" },
+    ],
+    rating: 4.5,
+    reviewCount: 678,
+  },
+
+  // Additional Laptops
+  {
+    id: "dell-xps-13-9340",
+    name: "Dell XPS 13 9340",
+    slug: "dell-xps-13-9340",
+    price: 1299.99,
+    originalPrice: 1499.99,
+    stock: 12,
+    images: [
+      "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "business-laptops",
+    description: "Ultra-portable business laptop with InfinityEdge display.",
+    isActive: true,
+    isOnSale: true,
+    discountType: "PERCENTAGE",
+    discountValue: 13,
+    specs: [
+      { label: "Display", value: '13.4" FHD+ InfinityEdge' },
+      { label: "Processor", value: "Intel Core i7-1355U" },
+      { label: "RAM", value: "16GB LPDDR5" },
+      { label: "Storage", value: "512GB SSD" },
+      { label: "Weight", value: "2.59 lbs" },
+    ],
+    rating: 4.3,
+    reviewCount: 345,
+  },
+  {
+    id: "asus-rog-strix-g15",
+    name: "ASUS ROG Strix G15",
+    slug: "asus-rog-strix-g15",
+    price: 1499.99,
+    stock: 8,
+    images: [
+      "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "gaming-laptops",
+    description:
+      "High-performance gaming laptop with RGB keyboard and advanced cooling.",
+    isActive: true,
+    specs: [
+      { label: "Display", value: '15.6" FHD 144Hz' },
+      { label: "Processor", value: "AMD Ryzen 7 6800H" },
+      { label: "Graphics", value: "NVIDIA RTX 4060" },
+      { label: "RAM", value: "16GB DDR5" },
+      { label: "Storage", value: "512GB SSD" },
+    ],
+    rating: 4.6,
+    reviewCount: 892,
+  },
+  {
+    id: "hp-spectre-x360-14",
+    name: "HP Spectre x360 14",
+    slug: "hp-spectre-x360-14",
+    price: 1399.99,
+    stock: 10,
+    images: [
+      "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "business-laptops",
+    description:
+      "2-in-1 convertible laptop with premium build and all-day battery.",
+    isActive: true,
+    specs: [
+      { label: "Display", value: '13.5" OLED 3K 2-in-1' },
+      { label: "Processor", value: "Intel Core i7-1165G7" },
+      { label: "RAM", value: "16GB LPDDR4x" },
+      { label: "Storage", value: "1TB SSD" },
+      { label: "Battery", value: "Up to 17 hours" },
+    ],
+    rating: 4.4,
+    reviewCount: 567,
+  },
+
+  // Additional Wearables
+  {
+    id: "apple-watch-ultra-2",
+    name: "Apple Watch Ultra 2",
+    slug: "apple-watch-ultra-2",
+    price: 799.99,
+    stock: 22,
+    images: [
+      "https://images.unsplash.com/photo-1551816230-ef5deaed4a26?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "smart-watches",
+    description: "Rugged smartwatch for extreme sports and professional use.",
+    isActive: true,
+    specs: [
+      { label: "Display", value: "49mm Always-On Retina" },
+      { label: "Chip", value: "S9 SiP" },
+      { label: "Battery", value: "Up to 36 hours" },
+      { label: "Water Resistance", value: "100m" },
+      { label: "GPS", value: "Dual-frequency GPS" },
+    ],
+    rating: 4.8,
+    reviewCount: 1234,
+  },
+  {
+    id: "samsung-galaxy-watch-6",
+    name: "Samsung Galaxy Watch 6",
+    slug: "samsung-galaxy-watch-6",
+    price: 399.99,
+    originalPrice: 449.99,
+    stock: 35,
+    images: [
+      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "smart-watches",
+    description:
+      "Advanced health monitoring with comprehensive fitness tracking.",
+    isActive: true,
+    isOnSale: true,
+    discountType: "PERCENTAGE",
+    discountValue: 11,
+    specs: [
+      { label: "Display", value: "40mm Super AMOLED" },
+      { label: "Battery", value: "Up to 40 hours" },
+      { label: "Health", value: "ECG, blood oxygen, sleep tracking" },
+      { label: "Water Resistance", value: "50m" },
+      { label: "Compatibility", value: "Android & iOS" },
+    ],
+    rating: 4.3,
+    reviewCount: 789,
+  },
+  {
+    id: "sony-wh-1000xm5",
+    name: "Sony WH-1000XM5",
+    slug: "sony-wh-1000xm5",
+    price: 349.99,
+    stock: 28,
+    images: [
+      "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "headsets",
+    description: "Industry-leading noise canceling wireless headphones.",
+    isActive: true,
+    specs: [
+      { label: "Driver", value: "30mm dynamic drivers" },
+      { label: "Battery", value: "Up to 30 hours" },
+      { label: "ANC", value: "Industry-leading noise canceling" },
+      { label: "Codec", value: "LDAC, AAC, SBC" },
+      { label: "Weight", value: "250g" },
+    ],
+    rating: 4.7,
+    reviewCount: 2156,
+  },
+
+  // Additional Gaming Products
+  {
+    id: "playstation-5-slim",
+    name: "PlayStation 5 Slim",
+    slug: "playstation-5-slim",
+    price: 499.99,
+    stock: 5,
+    images: [
+      "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "consoles",
+    description: "Next-gen gaming console with Ultra HD Blu-ray and 3D audio.",
+    isActive: true,
+    specs: [
+      { label: "CPU", value: "AMD Zen 2-based CPU" },
+      { label: "GPU", value: "10.28 TFLOPs, 36 CUs at 2.23GHz" },
+      { label: "RAM", value: "16GB GDDR6" },
+      { label: "Storage", value: "1TB SSD" },
+      { label: "Optical", value: "Ultra HD Blu-ray" },
+    ],
+    rating: 4.9,
+    reviewCount: 3456,
+  },
+  {
+    id: "xbox-series-x",
+    name: "Xbox Series X",
+    slug: "xbox-series-x",
+    price: 499.99,
+    stock: 3,
+    images: [
+      "https://images.unsplash.com/photo-1621259182978-fbf93132d53d?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "consoles",
+    description:
+      "Most powerful Xbox ever with 4K gaming and Quick Resume technology.",
+    isActive: true,
+    specs: [
+      { label: "CPU", value: "8x Zen 2 Cores at 3.8GHz" },
+      { label: "GPU", value: "12 TFLOPs, 52 CUs at 1.825GHz" },
+      { label: "RAM", value: "16GB GDDR6" },
+      { label: "Storage", value: "1TB NVMe SSD" },
+      { label: "Resolution", value: "Up to 8K" },
+    ],
+    rating: 4.8,
+    reviewCount: 2876,
+  },
+  {
+    id: "nintendo-switch-oled",
+    name: "Nintendo Switch OLED",
+    slug: "nintendo-switch-oled",
+    price: 349.99,
+    stock: 15,
+    images: [
+      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "consoles",
+    description: "Enhanced Nintendo Switch with vibrant 7-inch OLED screen.",
+    isActive: true,
+    specs: [
+      { label: "Display", value: '7" OLED screen' },
+      { label: "CPU", value: "NVIDIA Custom Tegra processor" },
+      { label: "RAM", value: "4GB LPDDR4" },
+      { label: "Storage", value: "64GB internal" },
+      { label: "Battery", value: "Up to 9 hours" },
+    ],
+    rating: 4.5,
+    reviewCount: 1234,
+  },
+
+  // Additional Accessories
+  {
+    id: "anker-power-bank-20000",
+    name: "Anker PowerCore 20000",
+    slug: "anker-power-bank-20000",
+    price: 49.99,
+    stock: 50,
+    images: [
+      "https://images.unsplash.com/photo-1609594040435-3b39af0c3848?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "other-gadgets",
+    description:
+      "Compact high-speed charging power bank with 20000mAh capacity.",
+    isActive: true,
+    specs: [
+      { label: "Capacity", value: "20000mAh" },
+      { label: "Output", value: "22.5W USB-C" },
+      { label: "Input", value: "22.5W USB-C" },
+      { label: "Ports", value: "1x USB-C, 1x USB-A" },
+      { label: "Weight", value: "340g" },
+    ],
+    rating: 4.6,
+    reviewCount: 3456,
+  },
+  {
+    id: "logitech-mx-master-3s",
+    name: "Logitech MX Master 3S",
+    slug: "logitech-mx-master-3s",
+    price: 99.99,
+    stock: 25,
+    images: [
+      "https://images.unsplash.com/photo-1527814050087-3793815479db?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "other-gadgets",
+    description:
+      "Advanced wireless mouse with customizable buttons and precision scrolling.",
+    isActive: true,
+    specs: [
+      { label: "Sensor", value: "Logitech Darkfield high-precision" },
+      { label: "Battery", value: "Up to 70 days" },
+      { label: "Connectivity", value: "Bluetooth, USB receiver" },
+      { label: "Buttons", value: "7 customizable buttons" },
+      { label: "Compatibility", value: "Windows, macOS, Linux" },
+    ],
+    rating: 4.7,
+    reviewCount: 2156,
+  },
+  {
+    id: "jbl-go-3-portable-speaker",
+    name: "JBL GO 3 Portable Speaker",
+    slug: "jbl-go-3-portable-speaker",
+    price: 39.99,
+    stock: 40,
+    images: [
+      "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "other-gadgets",
+    description: "Compact waterproof Bluetooth speaker with powerful sound.",
+    isActive: true,
+    specs: [
+      { label: "Driver", value: "40mm" },
+      { label: "Battery", value: "Up to 5 hours" },
+      { label: "Waterproof", value: "IPX7" },
+      { label: "Connectivity", value: "Bluetooth 4.1" },
+      { label: "Weight", value: "209g" },
+    ],
+    rating: 4.2,
+    reviewCount: 1890,
+  },
+
+  // More Laptops
+  {
+    id: "lenovo-thinkpad-x1-carbon",
+    name: "Lenovo ThinkPad X1 Carbon Gen 11",
+    slug: "lenovo-thinkpad-x1-carbon",
+    price: 1599.99,
+    stock: 7,
+    images: [
+      "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "business-laptops",
+    description:
+      "Ultra-lightweight business laptop with legendary ThinkPad reliability.",
+    isActive: true,
+    specs: [
+      { label: "Display", value: '14" FHD+ IPS' },
+      { label: "Processor", value: "Intel Core i7-1355U" },
+      { label: "RAM", value: "16GB LPDDR5" },
+      { label: "Storage", value: "512GB SSD" },
+      { label: "Weight", value: "2.48 lbs" },
+    ],
+    rating: 4.5,
+    reviewCount: 678,
+  },
+  {
+    id: "microsoft-surface-laptop-5",
+    name: "Microsoft Surface Laptop 5",
+    slug: "microsoft-surface-laptop-5",
+    price: 1099.99,
+    originalPrice: 1199.99,
+    stock: 12,
+    images: [
+      "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "business-laptops",
+    description:
+      "Premium 2-in-1 laptop with all-day battery and stunning PixelSense display.",
+    isActive: true,
+    isOnSale: true,
+    discountType: "PERCENTAGE",
+    discountValue: 8,
+    specs: [
+      { label: "Display", value: '13.5" PixelSense 2256x1504' },
+      { label: "Processor", value: "Intel Core i5-1235U" },
+      { label: "RAM", value: "8GB LPDDR4x" },
+      { label: "Storage", value: "256GB SSD" },
+      { label: "Battery", value: "Up to 17.5 hours" },
+    ],
+    rating: 4.4,
+    reviewCount: 1234,
+  },
+
+  // More Wearables
+  {
+    id: "garmin-fenix-7",
+    name: "Garmin Fenix 7",
+    slug: "garmin-fenix-7",
+    price: 699.99,
+    stock: 8,
+    images: [
+      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "smart-watches",
+    description: "Rugged multisport GPS watch with advanced training metrics.",
+    isActive: true,
+    specs: [
+      { label: "Display", value: '1.3" MIP color' },
+      { label: "Battery", value: "Up to 57 days in smartwatch mode" },
+      { label: "GPS", value: "Multi-band GPS" },
+      { label: "Sports", value: "30+ sports modes" },
+      { label: "Water Rating", value: "100m" },
+    ],
+    rating: 4.6,
+    reviewCount: 892,
+  },
+  {
+    id: "airpods-pro-2",
+    name: "AirPods Pro (2nd generation)",
+    slug: "airpods-pro-2",
+    price: 249.99,
+    stock: 45,
+    images: [
+      "https://images.unsplash.com/photo-1606220945770-b5b6c2c9eaef?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "earphones",
+    description:
+      "Wireless earbuds with Active Noise Cancellation and transparency mode.",
+    isActive: true,
+    specs: [
+      { label: "Driver", value: "Custom high-excursion Apple driver" },
+      { label: "ANC", value: "Up to 2x better" },
+      { label: "Battery", value: "Up to 6 hours with ANC" },
+      { label: "Charging", value: "MagSafe, Lightning, wireless" },
+      { label: "Water Resistance", value: "IPX4" },
+    ],
+    rating: 4.7,
+    reviewCount: 3456,
+  },
+
+  // More Phones
+  {
+    id: "motorola-edge-40-pro",
+    name: "Motorola Edge 40 Pro",
+    slug: "motorola-edge-40-pro",
+    price: 699.99,
+    stock: 20,
+    images: [
+      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "other-brands",
+    description: "Premium Android phone with curved display and fast charging.",
+    isActive: true,
+    specs: [
+      { label: "Display", value: '6.67" pOLED 165Hz' },
+      { label: "Chip", value: "Qualcomm Snapdragon 8 Gen 2" },
+      {
+        label: "Camera",
+        value: "50MP Main + 50MP Ultra Wide + 12MP Telephoto",
+      },
+      { label: "Charging", value: "125W TurboPower" },
+      { label: "Storage", value: "256GB" },
+    ],
+    rating: 4.2,
+    reviewCount: 456,
+  },
+  {
+    id: "nothing-phone-2a",
+    name: "Nothing Phone (2a)",
+    slug: "nothing-phone-2a",
+    price: 349.99,
+    stock: 30,
+    images: [
+      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "other-brands",
+    description:
+      "Unique design Android phone with Glyph interface and clean software.",
+    isActive: true,
+    specs: [
+      { label: "Display", value: '6.7" AMOLED' },
+      { label: "Chip", value: "MediaTek Dimensity 7200 Pro" },
+      { label: "Camera", value: "50MP Main + 50MP Ultra Wide" },
+      { label: "Battery", value: "5000mAh" },
+      { label: "Storage", value: "128GB" },
+    ],
+    rating: 4.3,
+    reviewCount: 678,
+  },
+
+  // More Tablets
+  {
+    id: "amazon-fire-hd-10",
+    name: "Amazon Fire HD 10",
+    slug: "amazon-fire-hd-10",
+    price: 149.99,
+    originalPrice: 179.99,
+    stock: 40,
+    images: [
+      "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "other-brands-tablets",
+    description:
+      "Affordable Android tablet with Alexa integration and parental controls.",
+    isActive: true,
+    isOnSale: true,
+    discountType: "PERCENTAGE",
+    discountValue: 17,
+    specs: [
+      { label: "Display", value: '10.1" 1080p Full HD' },
+      { label: "Processor", value: "Octa-core" },
+      { label: "RAM", value: "3GB" },
+      { label: "Storage", value: "32GB" },
+      { label: "Battery", value: "Up to 13 hours" },
+    ],
+    rating: 4.1,
+    reviewCount: 2341,
+  },
+  {
+    id: "lenovo-tab-p12-pro",
+    name: "Lenovo Tab P12 Pro",
+    slug: "lenovo-tab-p12-pro",
+    price: 499.99,
+    stock: 15,
+    images: [
+      "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=400&fit=crop",
+    ],
+    categorySlug: "other-brands-tablets",
+    description: "Android tablet with OLED display and precision pen support.",
+    isActive: true,
+    specs: [
+      { label: "Display", value: '12.6" 2.8K OLED' },
+      { label: "Chip", value: "Qualcomm Snapdragon 870" },
+      { label: "RAM", value: "8GB LPDDR5" },
+      { label: "Storage", value: "256GB" },
+      { label: "Pen", value: "Precision Pen 3 included" },
+    ],
+    rating: 4.4,
+    reviewCount: 567,
   },
 ];
 

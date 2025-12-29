@@ -507,7 +507,7 @@ export function ProductForm({ product, onSave }: ProductFormProps) {
                 {...register("description")}
                 rows={3}
                 placeholder="Short description"
-                error={!!errors.description}
+                error={errors.description?.message}
               />
             </FormField>
           </div>

@@ -323,9 +323,9 @@ Ahmad (your client) has provided his requirements above. As a professional full-
 
 **File Upload:**
 
-   - Cloudinary
-   - AWS S3
-   - uploadthing
+- Cloudinary
+- AWS S3
+- uploadthing
 
 ---
 
@@ -486,3 +486,35 @@ If you finish all the core features and have extra time, Ahmad mentioned these w
 - Think about security from the start
 
 Good luck! Remember, Ahmad is counting on you to bring his store online.
+
+---
+
+## CDN and Deployment Configuration
+
+### Deployment Assumptions
+
+**Hosted on Vercel → static assets and images served via CDN automatically**
+
+ShopHub is configured to leverage CDN defaults for optimal performance:
+
+#### Image Configuration
+
+- All external images are served through Next.js Image Optimization
+- Only authorized domains are allowed via `images.remotePatterns`:
+  - `images.unsplash.com` - Product showcase images
+  - `unsplash.com` - Fallback images
+  - `uploadthing.com` - User-uploaded content
+  - `utfs.io` - File storage service
+- Images are automatically optimized and served via Next.js image optimizer
+
+#### Static Asset Caching
+
+- Static assets with hashed filenames (`/_next/static/*`) are cached with `immutable` headers (1 year)
+- Media files (images, fonts, etc.) are cached for 1 year with `immutable` headers
+- CDN automatically handles global distribution and caching
+
+#### Performance Benefits
+
+- Images are automatically optimized, resized, and converted to modern formats
+- Static assets are cached at the edge for fast global delivery
+- No manual CDN configuration required when deploying to Vercel

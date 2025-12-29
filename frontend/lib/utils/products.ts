@@ -19,32 +19,139 @@ export function getProductImageWithPlaceholder(product: Product): string {
  * Returns discount percentage, original price, savings, and whether discount exists
  */
 export function getDiscountInfo(product: Product) {
-  const originalPrice =
-    product.discount?.originalPrice || product.originalPrice;
-  const hasDiscount =
-    typeof originalPrice === "number" && originalPrice > product.price;
+  // Priority order for discount data:
+  // 1. product.discount (structured discount object)
+  // 2. product.originalPrice + product.price (legacy fields)
+  // 3. product.discountPercent or product.discountValue (percentage/fixed amount)
 
+  let originalPrice: number | null = null;
   let discountPercent = 0;
-  if (hasDiscount && originalPrice) {
-    discountPercent = Math.round(
-      ((originalPrice - product.price) / originalPrice) * 100
+  let hasDiscount = false;
+
+  // Case 1: Structured discount object (preferred)
+  if (
+    product.discount?.originalPrice &&
+    product.discount.originalPrice > product.price
+  ) {
+    originalPrice = product.discount.originalPrice;
+    // Always recalculate discount percentage from originalPrice to ensure accuracy
+    // This prevents issues where stored discountPercent might be incorrect (e.g., storing discountValue instead of percentage)
+    // Formula: discountPercent = ((originalPrice - currentPrice) / originalPrice) * 100
+    const discountAmount = originalPrice - product.price;
+    // Ensure we use originalPrice as denominator, not current price
+    discountPercent = Math.round((discountAmount / originalPrice) * 100);
+
+    // Validate the calculated percentage is reasonable
+    if (discountPercent <= 0 || discountPercent >= 100) {
+      hasDiscount = false;
+      discountPercent = 0;
+      originalPrice = null;
+    } else {
+      hasDiscount = true;
+    }
+  }
+  // Case 2: Legacy originalPrice field
+  else if (product.originalPrice && product.originalPrice > product.price) {
+    originalPrice = product.originalPrice;
+    // Always recalculate discount percentage from originalPrice to ensure accuracy
+    // Use precise calculation: ((original - current) / original) * 100
+    const discountAmount = originalPrice - product.price;
+    // Use Math.round for final percentage, but calculate with full precision first
+    discountPercent = Math.round((discountAmount / originalPrice) * 100);
+    // Ensure we have a valid discount percentage
+    if (discountPercent <= 0 || discountPercent >= 100) {
+      hasDiscount = false;
+      discountPercent = 0;
+      originalPrice = null;
+    } else {
+      hasDiscount = true;
+    }
+  }
+  // Case 3: Percentage discount (calculate original price)
+  else if (product.discountPercent && product.discountPercent > 0) {
+    // Validate discount percentage is reasonable (between 1% and 99%)
+    if (product.discountPercent < 100) {
+      discountPercent = product.discountPercent;
+      // Calculate original price: if price = originalPrice * (1 - discount/100)
+      // then originalPrice = price / (1 - discount/100)
+      originalPrice =
+        Math.round((product.price / (1 - discountPercent / 100)) * 100) / 100;
+      hasDiscount = true;
+    } else {
+      // Invalid discount percentage (>= 100%)
+      hasDiscount = false;
+      discountPercent = 0;
+      originalPrice = null;
+    }
+  }
+  // Case 4: discountValue as percentage
+  else if (product.discountValue && product.discountType === "PERCENTAGE") {
+    // Validate discount percentage is reasonable (between 1% and 99%)
+    if (product.discountValue > 0 && product.discountValue < 100) {
+      discountPercent = product.discountValue;
+      // Calculate original price: if price = originalPrice * (1 - discount/100)
+      // then originalPrice = price / (1 - discount/100)
+      originalPrice =
+        Math.round((product.price / (1 - discountPercent / 100)) * 100) / 100;
+      hasDiscount = true;
+    } else {
+      // Invalid discount percentage
+      hasDiscount = false;
+      discountPercent = 0;
+      originalPrice = null;
+    }
+  }
+  // Case 5: discountValue as fixed amount
+  else if (product.discountValue && product.discountType === "FIXED_AMOUNT") {
+    const discountAmount = product.discountValue;
+    // Ensure discount amount doesn't exceed price (can't discount more than 100%)
+    if (discountAmount > 0 && discountAmount < product.price) {
+      originalPrice = product.price + discountAmount;
+      // Calculate percentage: (discountAmount / originalPrice) * 100
+      discountPercent = Math.round((discountAmount / originalPrice) * 100);
+      // Validate the calculated percentage is reasonable
+      if (discountPercent > 0 && discountPercent < 100) {
+        hasDiscount = true;
+      } else {
+        hasDiscount = false;
+        discountPercent = 0;
+        originalPrice = null;
+      }
+    } else {
+      // Invalid discount amount
+      hasDiscount = false;
+      discountPercent = 0;
+      originalPrice = null;
+    }
+  }
+
+  // Final safety check: If we have both originalPrice and current price,
+  // always recalculate discountPercent to ensure accuracy
+  // This prevents any incorrect stored values from being used
+  if (hasDiscount && originalPrice && originalPrice > product.price) {
+    const discountAmount = originalPrice - product.price;
+    // Ensure we always use originalPrice as denominator (never current price)
+    const recalculatedPercent = Math.round(
+      (discountAmount / originalPrice) * 100
     );
-  } else {
-    // Fallback to discountPercent from product if available
-    discountPercent =
-      product.discount?.discountPercent ||
-      product.discountValue ||
-      product.discountPercent ||
-      0;
+    // Only update if recalculated value is valid
+    if (recalculatedPercent > 0 && recalculatedPercent < 100) {
+      discountPercent = recalculatedPercent;
+    } else {
+      // Invalid calculation - disable discount
+      hasDiscount = false;
+      discountPercent = 0;
+      originalPrice = null;
+    }
   }
 
   const savings =
     hasDiscount && originalPrice ? originalPrice - product.price : 0;
 
   return {
-    hasDiscount: hasDiscount || discountPercent > 0,
+    hasDiscount,
     discountPercent,
-    originalPrice: originalPrice || null,
+    originalPrice,
     savings,
   };
 }

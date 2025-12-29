@@ -2,9 +2,11 @@
 "use client";
 
 import { useRef, useMemo } from "react";
-import { ChevronLeft, ChevronRight, Clock } from "lucide-react";
+import { Clock } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
+import { SkeletonBlock } from "@/components/ui/skeleton";
+import { NavigationButton } from "@/components/ui/navigation-button";
 import { ProductCard } from "@/features/products/components/ProductCard";
 import { SectionHeader } from "./shared/section-header";
 import { mockProducts, mockProductToProduct } from "@/lib/mock-data/mock-data";
@@ -53,20 +55,18 @@ export function LatestProductsCarousel() {
             description="Discover our newest arrivals and trending items"
             actions={
               <div className="hidden md:flex gap-2">
-                <button
+                <NavigationButton
+                  variant="primary"
+                  direction="left"
                   onClick={() => scroll("left")}
-                  className="p-3 rounded-full border-2 border-primary-300 bg-white hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110"
                   aria-label="Scroll left"
-                >
-                  <ChevronLeft className="h-5 w-5 text-primary-600" />
-                </button>
-                <button
+                />
+                <NavigationButton
+                  variant="primary"
+                  direction="right"
                   onClick={() => scroll("right")}
-                  className="p-3 rounded-full border-2 border-primary-300 bg-white hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110"
                   aria-label="Scroll right"
-                >
-                  <ChevronRight className="h-5 w-5 text-primary-600" />
-                </button>
+                />
               </div>
             }
           />
@@ -104,38 +104,34 @@ export function LatestProductsCarouselSkeleton() {
           {/* Header skeleton */}
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 mb-4">
-              <div className="animate-shimmer w-5 h-5 rounded bg-current" />
-              <div className="animate-shimmer h-6 w-32 rounded bg-current" />
+              <SkeletonBlock className="w-5 h-5 rounded" />
+              <SkeletonBlock className="h-6 w-32 rounded" />
             </div>
-            <div className="animate-shimmer h-10 w-80 mx-auto rounded bg-current mb-2" />
-            <div className="animate-shimmer h-5 w-64 mx-auto rounded bg-current" />
+            <SkeletonBlock className="h-10 w-80 mx-auto rounded mb-2" />
+            <SkeletonBlock className="h-5 w-64 mx-auto rounded" />
           </div>
 
           {/* Navigation arrows skeleton */}
           <div className="flex justify-between items-center">
-            <div className="animate-shimmer w-12 h-12 rounded-full bg-current" />
-            <div className="animate-shimmer w-12 h-12 rounded-full bg-current" />
+            <SkeletonBlock className="w-12 h-12 rounded-full" />
+            <SkeletonBlock className="w-12 h-12 rounded-full" />
           </div>
 
           {/* Carousel skeleton */}
           <div className="flex gap-6 overflow-x-auto pb-6">
             {Array.from({ length: 6 }, (_, i) => (
-              <div
-                key={i}
-                className="shrink-0 w-[280px]"
-                style={{ animationDelay: `${i * 0.1}s` }}
-              >
+              <div key={i} className="shrink-0 w-[280px]">
                 <div className="bg-white rounded-2xl shadow-lg border border-warm-gray-200 overflow-hidden">
                   {/* Image */}
-                  <div className="aspect-square animate-shimmer bg-current" />
+                  <SkeletonBlock className="aspect-square" />
 
                   {/* Content */}
                   <div className="p-4 space-y-3">
-                    <div className="animate-shimmer h-5 w-full rounded bg-current" />
-                    <div className="animate-shimmer h-4 w-3/4 rounded bg-current" />
+                    <SkeletonBlock className="h-5 w-full rounded" />
+                    <SkeletonBlock className="h-4 w-3/4 rounded" />
                     <div className="flex items-center justify-between">
-                      <div className="animate-shimmer h-6 w-16 rounded bg-current" />
-                      <div className="animate-shimmer h-8 w-8 rounded bg-current" />
+                      <SkeletonBlock className="h-6 w-16 rounded" />
+                      <SkeletonBlock className="h-8 w-8 rounded" />
                     </div>
                   </div>
                 </div>

@@ -1503,6 +1503,160 @@ export function useFormErrorHandler() {
 
 ---
 
+## 17. CDN and Static Asset Optimization
+
+### Overview
+
+ShopHub is designed to leverage Next.js's built-in CDN optimization features, ensuring optimal performance through proper static asset serving and image optimization.
+
+### Next.js Static Asset Serving
+
+**Configuration in `next.config.ts`:**
+
+```typescript
+const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "*.uploadthing.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        port: "",
+        pathname: "/**",
+      },
+    ],
+  },
+  // Add caching headers for static assets
+  async headers() {
+    return [
+      {
+        // Cache static assets (images, fonts, etc.) for 1 year
+        source: "/_next/static/(.*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        // Cache images and other media files for 1 year
+        source: "/(.*\\.(jpg|jpeg|png|gif|webp|svg|ico|woff|woff2))",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+    ];
+  },
+};
+```
+
+### Image Optimization
+
+**Next.js Image Component (`next/image`):**
+
+- Automatic image optimization and WebP conversion
+- Responsive image generation
+- Lazy loading by default
+- Optimized loading with priority hints
+
+**Usage:**
+
+```typescript
+import Image from "next/image";
+
+// Optimized product image
+<Image
+  src={product.image}
+  alt={product.name}
+  width={400}
+  height={300}
+  className="object-cover rounded-lg"
+  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+/>;
+```
+
+### External Image Sources
+
+**Allowed Sources:**
+
+- `images.unsplash.com`: Used for demo/mock data only
+- `*.uploadthing.com`: User-uploaded product images
+
+**Restrictions:**
+
+- No random external URLs allowed
+- All external images must be configured in `images.remotePatterns`
+- Ensures security and performance optimization
+
+### Font Optimization
+
+**Next.js Font (`next/font`):**
+
+```typescript
+import { Inter } from "next/font/google";
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap", // Prevents layout shift
+});
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en" className={inter.className}>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+**Benefits:**
+
+- Automatic font loading optimization
+- Self-hosted fonts served via CDN
+- Prevents layout shift with `display: swap`
+- Font files cached with immutable headers
+
+### Deployment Assumptions
+
+**Hosted on Vercel → Static Assets and Images Served via CDN Automatically**
+
+**Vercel CDN Benefits:**
+
+- Global edge network for static assets
+- Automatic image optimization at edge locations
+- Built-in caching headers for Next.js assets
+- No additional configuration required
+
+**Static Asset Serving:**
+
+- `_next/static/` files: JavaScript, CSS, fonts
+- `/public/` files: Images, icons, other assets
+- All served with optimized caching headers
+
+**Image CDN:**
+
+- Next.js images automatically served via Vercel Image Optimization
+- WebP conversion and responsive sizing
+- Cached at edge locations globally
+
+**Performance Impact:**
+
+- Static assets cached for 1 year (immutable)
+- Images optimized and cached at edge
+- Reduced server load and improved user experience
+- Faster page loads worldwide
+
+---
+
 ## Summary
 
 This documentation covers the complete architecture of the ShopHub e-commerce platform, including:

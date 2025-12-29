@@ -408,7 +408,7 @@ Always use Section component for consistent spacing:
 - `primary-50` through `primary-900`
 - Primary action: `primary-500` (#fb0a03)
 - Hover: `primary-600`
-- Active: `primary-700`
+- Active: `primary-600`
 
 ### Neutral Colors (Warm Gray)
 

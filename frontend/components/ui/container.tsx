@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils/cn";
 import { forwardRef } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 
-const containerVariants = cva("mx-auto", {
+const containerVariants = cva("w-full mx-auto px-4 sm:px-6 lg:px-8", {
   variants: {
     size: {
       sm: "max-w-4xl",
@@ -13,7 +13,7 @@ const containerVariants = cva("mx-auto", {
       full: "max-w-full",
     },
     padding: {
-      default: "px-4 sm:px-6 lg:px-8",
+      default: "",
       none: "",
     },
   },

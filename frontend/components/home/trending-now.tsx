@@ -1,12 +1,13 @@
 // TrendingNow: Slot-based stage/coverflow carousel
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, useRef, memo } from "react";
+import { useState, useEffect, useCallback, useMemo, memo } from "react";
 import type { MouseEvent } from "react";
-import { ChevronLeft } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
+import { SkeletonBlock } from "@/components/ui/skeleton";
 import { SlotStageCarousel } from "@/components/ui/slot-stage-carousel";
+import { NavigationButton } from "@/components/ui/navigation-button";
 import { Text } from "@/components/ui/typography";
 import { SectionTitle } from "./shared/section-header";
 import { ui } from "@/lib/ui-tokens";
@@ -17,7 +18,7 @@ import type { Product, Category } from "@/features/products/types";
 import { useCart } from "@/features/cart/hooks";
 import { getEffectiveStock } from "@/features/products/utils/inventory";
 import { formatPrice } from "@/lib/utils";
-import { getProductImageWithPlaceholder } from "@/lib/utils/products";
+import { getProductImageWithPlaceholder, getDiscountInfo } from "@/lib/utils/products";
 import { ShoppingCart, Sparkles } from "lucide-react";
 import { getGradientClass } from "@/lib/utils/gradients";
 
@@ -32,18 +33,18 @@ export function TrendingNowSkeleton() {
         {/* Header skeleton */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="animate-shimmer w-6 h-6 rounded bg-current" />
-            <div className="animate-shimmer h-8 w-48 rounded bg-current" />
+            <SkeletonBlock className="w-6 h-6 rounded" />
+            <SkeletonBlock className="h-8 w-48 rounded" />
           </div>
-          <div className="animate-shimmer h-5 w-64 mx-auto rounded bg-current" />
+          <SkeletonBlock className="h-5 w-64 mx-auto rounded" />
         </div>
 
         {/* Carousel container skeleton */}
         <div className="relative">
           {/* Navigation arrows skeleton */}
           <div className="flex justify-between items-center mb-8">
-            <div className="animate-shimmer w-12 h-12 rounded-full bg-current" />
-            <div className="animate-shimmer w-12 h-12 rounded-full bg-current" />
+            <SkeletonBlock className="w-12 h-12 rounded-full" />
+            <SkeletonBlock className="w-12 h-12 rounded-full" />
           </div>
 
           {/* Cards container - showing 5 cards in carousel layout */}
@@ -54,29 +55,28 @@ export function TrendingNowSkeleton() {
                 className={`flex-shrink-0 transition-all duration-300 ${
                   i === 2 ? "scale-110 opacity-100 z-10" : "scale-90 opacity-60"
                 }`}
-                style={{ animationDelay: `${i * 0.1}s` }}
               >
                 <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 w-64">
                   {/* Category badge */}
                   <div className="flex justify-between items-start mb-3">
-                    <div className="animate-shimmer w-16 h-6 rounded-full bg-current" />
-                    <div className="animate-shimmer w-5 h-5 rounded bg-current" />
+                    <SkeletonBlock className="w-16 h-6 rounded-full" />
+                    <SkeletonBlock className="w-5 h-5 rounded" />
                   </div>
 
                   {/* Product image */}
-                  <div className="aspect-square rounded-lg animate-shimmer bg-current mb-4" />
+                  <SkeletonBlock className="aspect-square rounded-lg mb-4" />
 
                   {/* Product details */}
                   <div className="space-y-2">
-                    <div className="animate-shimmer h-5 w-full rounded bg-current" />
-                    <div className="animate-shimmer h-4 w-3/4 rounded bg-current" />
-                    <div className="animate-shimmer h-4 w-1/2 rounded bg-current" />
+                    <SkeletonBlock className="h-5 w-full rounded" />
+                    <SkeletonBlock className="h-4 w-3/4 rounded" />
+                    <SkeletonBlock className="h-4 w-1/2 rounded" />
                   </div>
 
                   {/* Price and button */}
                   <div className="flex items-center justify-between mt-4">
-                    <div className="animate-shimmer w-16 h-6 rounded bg-current" />
-                    <div className="animate-shimmer w-20 h-8 rounded-lg bg-current" />
+                    <SkeletonBlock className="w-16 h-6 rounded" />
+                    <SkeletonBlock className="w-20 h-8 rounded-lg" />
                   </div>
                 </div>
               </div>
@@ -88,11 +88,10 @@ export function TrendingNowSkeleton() {
             {Array.from({ length: 5 }, (_, i) => (
               <div
                 key={i}
-                className={`w-2 h-2 rounded-full animate-shimmer bg-current ${
-                  i === 0 ? "w-8" : ""
-                }`}
-                style={{ animationDelay: `${i * 0.05}s` }}
-              />
+                className={`w-2 h-2 rounded-full ${i === 0 ? "w-8" : ""}`}
+              >
+                <SkeletonBlock className="w-full h-full rounded-full" />
+              </div>
             ))}
           </div>
         </div>
@@ -107,13 +106,7 @@ interface TrendingNowProps {
 }
 
 const TrendingProductCard = memo(
-  ({
-    product,
-    onCardClick,
-  }: {
-    product: Product;
-    onCardClick: () => void;
-  }) => {
+  ({ product, onCardClick }: { product: Product; onCardClick: () => void }) => {
     const { addItem, toggleCart } = useCart();
     const router = useRouter();
 
@@ -123,14 +116,9 @@ const TrendingProductCard = memo(
     const variantCount = product.variants?.length ?? 0;
     const requiresSelection = variantCount !== 1;
 
-    const discountPercent =
-      product.discount?.discountPercent || product.discountValue || 0;
-    const originalPrice =
-      product.discount?.originalPrice || product.originalPrice;
-    const hasDiscount =
-      !!originalPrice &&
-      originalPrice > product.price &&
-      (product.discount?.isOnSale ?? product.isOnSale ?? discountPercent > 0);
+    // Calculate discount info using utility function
+    const discountInfo = getDiscountInfo(product);
+    const { hasDiscount, discountPercent, originalPrice } = discountInfo;
 
     const handlePrimaryAction = (event: MouseEvent<HTMLButtonElement>) => {
       event.preventDefault();
@@ -181,7 +169,6 @@ const TrendingProductCard = memo(
               )}
             />
           </div>
-
 
           {/* Discount Badge */}
           {hasDiscount && discountPercent > 0 && (
@@ -289,78 +276,43 @@ export function TrendingNow({ trendingProducts }: TrendingNowProps) {
     requestAnimationFrame(() => setMounted(true));
   }, []);
 
-  // =========================
-  // 🔒 Nav lock to prevent "skip 2" (logic-only, no design changes)
-  // =========================
-  const navLockRef = useRef(false);
-  const navTimerRef = useRef<number | null>(null);
-  const resumeTimerRef = useRef<number | null>(null);
-
-  const LOCK_MS = 800; // >= SlotStageCarousel transition (700ms)
-
-  const startNavLock = useCallback((ms: number) => {
-    navLockRef.current = true;
-    if (navTimerRef.current) window.clearTimeout(navTimerRef.current);
-    navTimerRef.current = window.setTimeout(() => {
-      navLockRef.current = false;
-    }, ms);
-  }, []);
-
+  // Auto-play functionality
   const pauseAutoplayFor = useCallback((ms = 5000) => {
     setIsAutoPlaying(false);
-    if (resumeTimerRef.current) window.clearTimeout(resumeTimerRef.current);
-    resumeTimerRef.current = window.setTimeout(() => {
+    const timer = setTimeout(() => {
       setIsAutoPlaying(true);
     }, ms);
+    return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    return () => {
-      if (navTimerRef.current) window.clearTimeout(navTimerRef.current);
-      if (resumeTimerRef.current) window.clearTimeout(resumeTimerRef.current);
-    };
-  }, []);
-
-  const goToIndex = useCallback(
+  // Simplified navigation handlers that work with SlotStageCarousel
+  const handleIndexChange = useCallback(
     (index: number) => {
-      if (navLockRef.current) return;
-      startNavLock(LOCK_MS);
       pauseAutoplayFor(5000);
       setActiveIndex(index);
     },
-    [pauseAutoplayFor, startNavLock]
+    [pauseAutoplayFor]
   );
 
   const goToPrev = useCallback(() => {
     const len = safeTrendingProducts.length;
-    if (len <= 1 || navLockRef.current) return;
-    startNavLock(LOCK_MS);
+    if (len <= 1) return;
     pauseAutoplayFor(5000);
     setActiveIndex((prev) => (prev === 0 ? len - 1 : prev - 1));
-  }, [pauseAutoplayFor, safeTrendingProducts.length, startNavLock]);
+  }, [pauseAutoplayFor, safeTrendingProducts.length]);
 
-  const goToNext = useCallback(() => {
-    const len = safeTrendingProducts.length;
-    if (len <= 1 || navLockRef.current) return;
-    startNavLock(LOCK_MS);
-    pauseAutoplayFor(5000);
-    setActiveIndex((prev) => (prev === len - 1 ? 0 : prev + 1));
-  }, [pauseAutoplayFor, safeTrendingProducts.length, startNavLock]);
-
-  // Auto-play functionality (guarded by nav lock)
+  // Auto-play functionality
   useEffect(() => {
     if (!isAutoPlaying || safeTrendingProducts.length <= 1) return;
 
     const interval = setInterval(() => {
-      if (navLockRef.current) return;
-      startNavLock(LOCK_MS);
       setActiveIndex(
         (prevIndex) => (prevIndex + 1) % safeTrendingProducts.length
       );
     }, 4000);
 
     return () => clearInterval(interval);
-  }, [isAutoPlaying, safeTrendingProducts.length, startNavLock]);
+  }, [isAutoPlaying, safeTrendingProducts.length]);
 
   if (!mounted || safeTrendingProducts.length === 0) return null;
 
@@ -386,7 +338,7 @@ export function TrendingNow({ trendingProducts }: TrendingNowProps) {
                   ui.gap.xs
                 )}
               >
-                <Text className="text-sm font-semibold text-primary-700 font-card">
+                <Text className="text-sm font-semibold text-primary-600 font-card">
                   Hot Right Now
                 </Text>
               </div>
@@ -400,13 +352,12 @@ export function TrendingNow({ trendingProducts }: TrendingNowProps) {
             {/* Additional Navigation Arrows - For larger screens */}
             {!isNavigationDisabled && !isMobile && (
               <div className={cn("flex", ui.gap.xs)}>
-                <button
+                <NavigationButton
+                  variant="primary"
+                  direction="left"
                   onClick={goToPrev}
-                  className="p-3 rounded-full border-2 border-primary-300 bg-white hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110"
                   aria-label="Previous product"
-                >
-                  <ChevronLeft className="h-5 w-5 text-primary-600" />
-                </button>
+                />
               </div>
             )}
           </div>
@@ -420,12 +371,12 @@ export function TrendingNow({ trendingProducts }: TrendingNowProps) {
             <SlotStageCarousel
               items={safeTrendingProducts}
               activeIndex={activeIndex}
-              onActiveIndexChange={goToIndex}
+              onActiveIndexChange={handleIndexChange}
               isMobile={isMobile}
               renderCard={(product, index, isCenter) => (
                 <TrendingProductCard
                   product={product}
-                  onCardClick={() => goToIndex(index)}
+                  onCardClick={() => handleIndexChange(index)}
                 />
               )}
             />

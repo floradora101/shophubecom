@@ -1,5 +1,4 @@
 // Service Showcase: Premium professional tech services with elevated design
-"use client";
 
 import {
   Smartphone,
@@ -11,6 +10,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
+import { SkeletonBlock } from "@/components/ui/skeleton";
 import { SectionTitle } from "./shared/section-header";
 
 // Enhanced floating decorative elements with premium styling
@@ -99,7 +99,7 @@ const services = [
       "Water Damage",
     ],
     icon: Smartphone,
-    gradient: "from-primary-500 via-primary-600 to-primary-700",
+    gradient: "from-primary-500 via-primary-600 to-primary-600",
     iconBg: "bg-gradient-to-br from-primary-50 via-primary-100 to-primary-200",
     accentColor: "text-primary-600",
   },
@@ -115,9 +115,9 @@ const services = [
       "Secure Payment",
     ],
     icon: CreditCard,
-    gradient: "from-primary-600 via-primary-700 to-primary-800",
+    gradient: "from-primary-600 via-primary-600 to-primary-600",
     iconBg: "bg-gradient-to-br from-primary-100 via-primary-200 to-primary-300",
-    accentColor: "text-primary-700",
+    accentColor: "text-primary-600",
   },
   {
     title: "Audio Device Cleaning",
@@ -181,9 +181,9 @@ export function ServiceShowcase() {
           {/* Enhanced Header Section */}
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
             <div className="text-left space-y-6 flex-1">
-              <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-linear-to-r from-primary-100 via-primary-200/80 to-primary-100 shadow-sm border border-primary-200/50">
+              <div className="inline-flex items-center w-fit gap-2 px-4 py-2 rounded-full bg-linear-to-r from-primary-100 via-primary-200/80 to-primary-100 shadow-sm border border-primary-200/50">
                 <Sparkles className="h-4 w-4 text-primary-600" />
-                <span className="text-sm font-semibold text-primary-700 font-(--font-inter) tracking-wide">
+                <span className="text-sm font-semibold text-primary-600 font-(--font-inter) tracking-wide">
                   Professional Tech Services
                 </span>
               </div>
@@ -258,7 +258,7 @@ export function ServiceShowcase() {
                   {/* Premium Content Section */}
                   <div className="relative text-center space-y-5 flex-1 flex flex-col">
                     <div className="space-y-4">
-                      <h3 className="text-xl font-bold text-warm-gray-900 font-(--font-dm-sans) leading-tight group-hover:text-primary-700 transition-colors duration-500">
+                      <h3 className="text-xl font-bold text-warm-gray-900 font-(--font-dm-sans) leading-tight group-hover:text-primary-600 transition-colors duration-500">
                         {service.title}
                       </h3>
 
@@ -314,21 +314,18 @@ export function ServiceShowcaseSkeleton() {
           {/* Enhanced Header Skeleton */}
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
             <div className="text-left space-y-6 flex-1">
-              <div className="animate-shimmer h-10 w-56 rounded-full bg-warm-gray-200" />
+              <SkeletonBlock className="h-10 w-56 rounded-full" />
               <div className="space-y-4">
-                <div className="animate-shimmer h-14 w-80 rounded bg-warm-gray-200" />
-                <div className="animate-shimmer h-6 w-96 rounded bg-warm-gray-200" />
-                <div className="animate-shimmer h-6 w-80 rounded bg-warm-gray-200" />
+                <SkeletonBlock className="h-14 w-80 rounded" />
+                <SkeletonBlock className="h-6 w-96 rounded" />
+                <SkeletonBlock className="h-6 w-80 rounded" />
               </div>
             </div>
 
             {/* Trust indicators skeleton */}
             <div className="flex flex-col gap-3 md:ml-8 space-y-2">
               {Array.from({ length: 3 }, (_, i) => (
-                <div
-                  key={i}
-                  className="animate-shimmer h-5 w-32 rounded bg-warm-gray-200"
-                />
+                <SkeletonBlock key={i} className="h-5 w-32 rounded" />
               ))}
             </div>
           </div>
@@ -338,35 +335,26 @@ export function ServiceShowcaseSkeleton() {
             {Array.from({ length: 4 }, (_, i) => (
               <div
                 key={i}
-                className="animate-shimmer bg-white/95 backdrop-blur-xl rounded-2xl p-8 shadow-xl border border-white/30 min-h-[380px] flex flex-col"
-                style={{
-                  animationDelay: `${i * 150}ms`,
-                }}
+                className="bg-white/95 backdrop-blur-xl rounded-2xl p-8 shadow-xl border border-white/30 min-h-[380px] flex flex-col"
               >
                 {/* Icon placeholder */}
                 <div className="flex justify-center mb-6">
-                  <div className="animate-shimmer w-20 h-20 rounded-3xl bg-warm-gray-200" />
+                  <SkeletonBlock className="w-20 h-20 rounded-3xl" />
                 </div>
 
                 {/* Content skeleton */}
                 <div className="space-y-5 flex-1">
                   <div className="text-center space-y-4">
-                    <div className="animate-shimmer h-6 w-24 mx-auto rounded bg-warm-gray-200" />
-                    <div className="animate-shimmer h-4 w-20 mx-auto rounded bg-warm-gray-200" />
-                    <div className="animate-shimmer h-4 w-full rounded bg-warm-gray-200" />
-                    <div className="animate-shimmer h-4 w-3/4 mx-auto rounded bg-warm-gray-200" />
+                    <SkeletonBlock className="h-6 w-24 mx-auto rounded" />
+                    <SkeletonBlock className="h-4 w-20 mx-auto rounded" />
+                    <SkeletonBlock className="h-4 w-full rounded" />
+                    <SkeletonBlock className="h-4 w-3/4 mx-auto rounded" />
                   </div>
 
                   {/* Features skeleton */}
                   <div className="flex flex-wrap justify-center gap-1.5">
                     {Array.from({ length: 4 }, (_, j) => (
-                      <div
-                        key={j}
-                        className="animate-shimmer h-6 w-16 rounded-md bg-warm-gray-200"
-                        style={{
-                          animationDelay: `${(i * 4 + j) * 100}ms`,
-                        }}
-                      />
+                      <SkeletonBlock key={j} className="h-6 w-16 rounded-md" />
                     ))}
                   </div>
                 </div>

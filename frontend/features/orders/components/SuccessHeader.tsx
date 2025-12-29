@@ -21,7 +21,7 @@ export function SuccessHeader({ order, isDemo }: SuccessHeaderProps) {
       <Stack spacing="lg" align="center">
         {/* Success Icon */}
         <div className="rounded-full bg-primary-100 p-4">
-          <CheckCircle2 className="h-12 w-12 text-primary-700" />
+          <CheckCircle2 className="h-12 w-12 text-primary-600" />
         </div>
 
         {/* Thank You Message */}
@@ -42,7 +42,7 @@ export function SuccessHeader({ order, isDemo }: SuccessHeaderProps) {
         {/* Order Number */}
         <Card className="bg-gray-50 px-6 py-4 text-center">
           <Text
-            size="sm"
+            variant="meta"
             className="font-medium text-gray-600 uppercase tracking-wide"
           >
             Order Number

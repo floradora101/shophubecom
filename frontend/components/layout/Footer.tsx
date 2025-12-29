@@ -16,6 +16,8 @@ import {
   Headphones,
   ArrowRight,
   CheckCircle2,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,11 +25,25 @@ import { Heading, Text } from "@/components/ui/typography";
 import Image from "next/image";
 import { ui } from "@/lib/ui-tokens";
 import { cn } from "@/lib/utils/cn";
+import { getMainCategories, getSubcategories } from "@/lib/mock-data/mock-data";
 
 export function Footer() {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  // Accordion state for mobile
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+
+  // Get categories from mock data
+  const mainCategories = getMainCategories();
+
+  const toggleSection = (section: string) => {
+    setOpenSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -171,39 +187,32 @@ export function Footer() {
 
       {/* Main Footer Content */}
       <div className="relative container mx-auto px-4 md:px-6 lg:px-8 py-12 md:py-16">
-        <div
-          className={cn(
-            "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4",
-            ui.gap.lg
-          )}
-        >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12 divide-y lg:divide-y-0 lg:divide-x divide-warm-gray-200">
           {/* Brand Section */}
-          <div className="space-y-5 lg:col-span-1">
-            <div
-              className={cn("flex items-center justify-center h-12", ui.gap.xs)}
-            >
+          <div className="lg:col-span-1 lg:pr-8">
+            <div className="flex items-center justify-center h-16 mb-5">
               <Image
                 src="/logo.png"
                 alt="ShopHub Logo"
-                width={48}
-                height={48}
+                width={64}
+                height={64}
                 className="object-contain hover:opacity-90 transition-opacity duration-200"
               />
             </div>
             <Text
               variant="meta"
-              className="text-warm-gray-600 leading-relaxed font-body"
+              className="text-warm-gray-600 leading-relaxed font-body text-center lg:text-left"
             >
               Your trusted online shopping destination. Quality products, fast
               delivery, and exceptional service. Shop smarter, live better.
             </Text>
 
             {/* Social Media Links */}
-            <div className="space-y-3">
-              <p className="text-sm font-semibold text-warm-gray-900">
+            <div className="mt-6">
+              <p className="text-sm font-semibold text-warm-gray-900 mb-3 text-center lg:text-left">
                 Follow Us
               </p>
-              <div className={cn("flex", ui.gap.xs)}>
+              <div className="flex justify-center lg:justify-start gap-3">
                 <a
                   href="https://facebook.com"
                   target="_blank"
@@ -244,56 +253,53 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h3 className="mb-5 text-base font-bold text-warm-gray-900 font-[var(--font-inter)]">
-              Quick Links
+          {/* Shop by Category Section */}
+          <div className="hidden lg:block lg:px-8">
+            <h3 className="mb-5 text-base font-semibold text-warm-gray-900">
+              Shop by Category
             </h3>
-            <ul className="space-y-3">
-              {[
-                { href: "/products", label: "All Products" },
-                {
-                  href: "/products/category/electronics",
-                  label: "Electronics",
-                },
-                { href: "/products/category/clothing", label: "Clothing" },
-                {
-                  href: "/products/category/home-garden",
-                  label: "Home & Garden",
-                },
-                { href: "/products/category/books", label: "Books" },
-                { href: "/cart", label: "Shopping Cart" },
-              ].map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="flex items-center text-sm text-warm-gray-600 hover:text-primary-600 transition-colors font-[var(--font-inter)] focus:outline-none rounded-xl px-1 py-1 -my-1"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
+            <div className="grid grid-cols-2 gap-3">
+              <Link
+                href="/products"
+                className="flex items-center text-sm text-warm-gray-600 hover:text-primary-600 transition-colors focus:outline-none rounded-xl px-1 py-1 -my-1"
+              >
+                All Products
+              </Link>
+              {mainCategories.map((category) => (
+                <Link
+                  key={category.id}
+                  href={`/products/category/${category.slug}`}
+                  className="flex items-center text-sm text-warm-gray-600 hover:text-primary-600 transition-colors focus:outline-none rounded-xl px-1 py-1 -my-1"
+                >
+                  {category.name}
+                </Link>
               ))}
-            </ul>
+              <Link
+                href="/cart"
+                className="flex items-center text-sm text-warm-gray-600 hover:text-primary-600 transition-colors focus:outline-none rounded-xl px-1 py-1 -my-1"
+              >
+                Shopping Cart
+              </Link>
+            </div>
           </div>
 
-          {/* Customer Service */}
-          <div>
-            <h3 className="mb-5 text-base font-bold text-warm-gray-900 font-[var(--font-inter)]">
-              Customer Service
+          {/* Support Section */}
+          <div className="hidden lg:block lg:px-8">
+            <h3 className="mb-5 text-base font-semibold text-warm-gray-900">
+              Support
             </h3>
             <ul className="space-y-3">
               {[
                 { href: "/shipping", label: "Shipping Info" },
                 { href: "/returns", label: "Returns & Exchanges" },
                 { href: "/faq", label: "FAQ" },
-                { href: "/contact", label: "Contact Us" },
                 { href: "/track-order", label: "Track Your Order" },
                 { href: "/size-guide", label: "Size Guide" },
               ].map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="flex items-center text-sm text-warm-gray-600 hover:text-primary-600 transition-colors font-[var(--font-inter)] focus:outline-none rounded-xl px-1 py-1 -my-1"
+                    className="flex items-center text-sm text-warm-gray-600 hover:text-primary-600 transition-colors focus:outline-none rounded-xl px-1 py-1 -my-1"
                   >
                     {link.label}
                   </Link>
@@ -302,13 +308,38 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Contact & Legal */}
-          <div>
-            <h3 className="mb-5 text-base font-bold text-warm-gray-900 font-[var(--font-inter)]">
+          {/* Company Section */}
+          <div className="hidden lg:block lg:px-8">
+            <h3 className="mb-5 text-base font-semibold text-warm-gray-900">
+              Company
+            </h3>
+            <ul className="space-y-3">
+              {[
+                { href: "/about", label: "About Us" },
+                { href: "/careers", label: "Careers" },
+                { href: "/blog", label: "Blog" },
+                { href: "/press", label: "Press" },
+                { href: "/contact", label: "Contact Us" },
+              ].map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="flex items-center text-sm text-warm-gray-600 hover:text-primary-600 transition-colors focus:outline-none rounded-xl px-1 py-1 -my-1"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact Section */}
+          <div className="hidden lg:block lg:pl-8">
+            <h3 className="mb-5 text-base font-semibold text-warm-gray-900">
               Get in Touch
             </h3>
             <ul className="space-y-4 mb-6">
-              <li className={cn("flex items-start", ui.gap.xs)}>
+              <li className="flex items-start gap-3">
                 <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-100 text-primary-600">
                   <Mail className="h-4 w-4" />
                 </div>
@@ -318,13 +349,13 @@ export function Footer() {
                   </p>
                   <a
                     href="mailto:support@shophub.com"
-                    className="text-sm text-warm-gray-700 hover:text-primary-600 transition-colors font-[var(--font-inter)] focus:outline-none rounded-xl px-1 py-0.5 -mx-1"
+                    className="text-sm text-warm-gray-700 hover:text-primary-600 transition-colors focus:outline-none rounded-xl px-1 py-0.5 -mx-1"
                   >
                     support@shophub.com
                   </a>
                 </div>
               </li>
-              <li className={cn("flex items-start", ui.gap.xs)}>
+              <li className="flex items-start gap-3">
                 <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-100 text-primary-600">
                   <Phone className="h-4 w-4" />
                 </div>
@@ -334,13 +365,13 @@ export function Footer() {
                   </p>
                   <a
                     href="tel:+15551234567"
-                    className="text-sm text-warm-gray-700 hover:text-primary-600 transition-colors font-[var(--font-inter)] focus:outline-none rounded-xl px-1 py-0.5 -mx-1"
+                    className="text-sm text-warm-gray-700 hover:text-primary-600 transition-colors focus:outline-none rounded-xl px-1 py-0.5 -mx-1"
                   >
                     +1 (555) 123-4567
                   </a>
                 </div>
               </li>
-              <li className={cn("flex items-start", ui.gap.xs)}>
+              <li className="flex items-start gap-3">
                 <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-100 text-primary-600">
                   <MapPin className="h-4 w-4" />
                 </div>
@@ -348,25 +379,238 @@ export function Footer() {
                   <p className="text-xs font-semibold text-warm-gray-500 uppercase tracking-wide mb-0.5">
                     Hours
                   </p>
-                  <p className="text-sm text-warm-gray-700 font-[var(--font-inter)]">
+                  <p className="text-sm text-warm-gray-700">
                     Mon-Fri: 9AM-6PM EST
                   </p>
                 </div>
               </li>
             </ul>
+          </div>
 
-            <div className="pt-4 border-t border-warm-gray-200 space-y-2">
+          {/* Mobile Accordion Sections */}
+          <div className="lg:hidden space-y-4">
+            {/* Shop by Category Section - Mobile */}
+            <div className="border-b border-warm-gray-200 pb-4">
+              <button
+                onClick={() => toggleSection("shop")}
+                className="flex items-center justify-between w-full text-left mb-3 focus:outline-none"
+                aria-expanded={openSections.shop}
+              >
+                <h3 className="text-base font-semibold text-warm-gray-900">
+                  Shop by Category
+                </h3>
+                {openSections.shop ? (
+                  <ChevronUp className="h-5 w-5 text-warm-gray-600" />
+                ) : (
+                  <ChevronDown className="h-5 w-5 text-warm-gray-600" />
+                )}
+              </button>
+              {openSections.shop && (
+                <ul className="space-y-3 pl-4">
+                  <li>
+                    <Link
+                      href="/products"
+                      className="flex items-center text-sm text-warm-gray-600 hover:text-primary-600 transition-colors focus:outline-none rounded-xl px-1 py-1 -my-1"
+                    >
+                      All Products
+                    </Link>
+                  </li>
+                  {mainCategories.map((category) => (
+                    <li key={category.id}>
+                      <Link
+                        href={`/products/category/${category.slug}`}
+                        className="flex items-center text-sm text-warm-gray-600 hover:text-primary-600 transition-colors focus:outline-none rounded-xl px-1 py-1 -my-1"
+                      >
+                        {category.name}
+                      </Link>
+                    </li>
+                  ))}
+                  <li>
+                    <Link
+                      href="/cart"
+                      className="flex items-center text-sm text-warm-gray-600 hover:text-primary-600 transition-colors focus:outline-none rounded-xl px-1 py-1 -my-1"
+                    >
+                      Shopping Cart
+                    </Link>
+                  </li>
+                </ul>
+              )}
+            </div>
+
+            {/* Support Section - Mobile */}
+            <div className="border-b border-warm-gray-200 pb-4">
+              <button
+                onClick={() => toggleSection("support")}
+                className="flex items-center justify-between w-full text-left mb-3 focus:outline-none"
+                aria-expanded={openSections.support}
+              >
+                <h3 className="text-base font-semibold text-warm-gray-900">
+                  Support
+                </h3>
+                {openSections.support ? (
+                  <ChevronUp className="h-5 w-5 text-warm-gray-600" />
+                ) : (
+                  <ChevronDown className="h-5 w-5 text-warm-gray-600" />
+                )}
+              </button>
+              {openSections.support && (
+                <ul className="space-y-3 pl-4">
+                  {[
+                    { href: "/shipping", label: "Shipping Info" },
+                    { href: "/returns", label: "Returns & Exchanges" },
+                    { href: "/faq", label: "FAQ" },
+                    { href: "/track-order", label: "Track Your Order" },
+                    { href: "/size-guide", label: "Size Guide" },
+                  ].map((link) => (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        className="flex items-center text-sm text-warm-gray-600 hover:text-primary-600 transition-colors focus:outline-none rounded-xl px-1 py-1 -my-1"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* Company Section - Mobile */}
+            <div className="border-b border-warm-gray-200 pb-4">
+              <button
+                onClick={() => toggleSection("company")}
+                className="flex items-center justify-between w-full text-left mb-3 focus:outline-none"
+                aria-expanded={openSections.company}
+              >
+                <h3 className="text-base font-semibold text-warm-gray-900">
+                  Company
+                </h3>
+                {openSections.company ? (
+                  <ChevronUp className="h-5 w-5 text-warm-gray-600" />
+                ) : (
+                  <ChevronDown className="h-5 w-5 text-warm-gray-600" />
+                )}
+              </button>
+              {openSections.company && (
+                <ul className="space-y-3 pl-4">
+                  {[
+                    { href: "/about", label: "About Us" },
+                    { href: "/careers", label: "Careers" },
+                    { href: "/blog", label: "Blog" },
+                    { href: "/press", label: "Press" },
+                    { href: "/contact", label: "Contact Us" },
+                  ].map((link) => (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        className="flex items-center text-sm text-warm-gray-600 hover:text-primary-600 transition-colors focus:outline-none rounded-xl px-1 py-1 -my-1"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* Contact Section - Mobile */}
+            <div className="border-b border-warm-gray-200 pb-4">
+              <button
+                onClick={() => toggleSection("contact")}
+                className="flex items-center justify-between w-full text-left mb-3 focus:outline-none"
+                aria-expanded={openSections.contact}
+              >
+                <h3 className="text-base font-semibold text-warm-gray-900">
+                  Get in Touch
+                </h3>
+                {openSections.contact ? (
+                  <ChevronUp className="h-5 w-5 text-warm-gray-600" />
+                ) : (
+                  <ChevronDown className="h-5 w-5 text-warm-gray-600" />
+                )}
+              </button>
+              {openSections.contact && (
+                <div className="pl-4">
+                  <ul className="space-y-4 mb-6">
+                    <li className="flex items-start gap-3">
+                      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-100 text-primary-600">
+                        <Mail className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-warm-gray-500 uppercase tracking-wide mb-0.5">
+                          Email
+                        </p>
+                        <a
+                          href="mailto:support@shophub.com"
+                          className="text-sm text-warm-gray-700 hover:text-primary-600 transition-colors focus:outline-none rounded-xl px-1 py-0.5 -mx-1"
+                        >
+                          support@shophub.com
+                        </a>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-100 text-primary-600">
+                        <Phone className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-warm-gray-500 uppercase tracking-wide mb-0.5">
+                          Phone
+                        </p>
+                        <a
+                          href="tel:+15551234567"
+                          className="text-sm text-warm-gray-700 hover:text-primary-600 transition-colors focus:outline-none rounded-xl px-1 py-0.5 -mx-1"
+                        >
+                          +1 (555) 123-4567
+                        </a>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-100 text-primary-600">
+                        <MapPin className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold text-warm-gray-500 uppercase tracking-wide mb-0.5">
+                          Hours
+                        </p>
+                        <p className="text-sm text-warm-gray-700">
+                          Mon-Fri: 9AM-6PM EST
+                        </p>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Legal Links - Separated for better organization */}
+        <div className="mt-12 pt-8 border-t border-warm-gray-200">
+          <div className="flex flex-col md:flex-row justify-center items-center gap-6">
+            <div className="flex flex-wrap justify-center gap-6">
               <Link
                 href="/privacy"
-                className="text-xs text-warm-gray-500 hover:text-primary-600 transition-colors font-[var(--font-inter)] block focus:outline-none rounded-xl px-1 py-1 -my-1"
+                className="text-sm text-warm-gray-500 hover:text-primary-600 transition-colors focus:outline-none rounded-xl px-2 py-1 -my-1"
               >
                 Privacy Policy
               </Link>
               <Link
                 href="/terms"
-                className="text-xs text-warm-gray-500 hover:text-primary-600 transition-colors font-[var(--font-inter)] block focus:outline-none rounded-xl px-1 py-1 -my-1"
+                className="text-sm text-warm-gray-500 hover:text-primary-600 transition-colors focus:outline-none rounded-xl px-2 py-1 -my-1"
               >
                 Terms of Service
+              </Link>
+              <Link
+                href="/cookies"
+                className="text-sm text-warm-gray-500 hover:text-primary-600 transition-colors focus:outline-none rounded-xl px-2 py-1 -my-1"
+              >
+                Cookie Policy
+              </Link>
+              <Link
+                href="/accessibility"
+                className="text-sm text-warm-gray-500 hover:text-primary-600 transition-colors focus:outline-none rounded-xl px-2 py-1 -my-1"
+              >
+                Accessibility
               </Link>
             </div>
           </div>
@@ -382,7 +626,7 @@ export function Footer() {
               ui.gap.sm
             )}
           >
-            <p className="text-sm text-gray-700 text-center md:text-left font-[var(--font-inter)]">
+            <p className="text-sm text-gray-700 text-center md:text-left">
               &copy; {new Date().getFullYear()} ShopHub. All rights reserved.
             </p>
             <div
@@ -391,9 +635,7 @@ export function Footer() {
                 ui.gap.xs
               )}
             >
-              <span className="font-[var(--font-inter)]">
-                Made for shoppers
-              </span>
+              <span>Made for shoppers</span>
             </div>
           </div>
         </div>

@@ -45,7 +45,7 @@ export default function CartPage() {
                 <span
                   className={`flex h-8 w-8 items-center justify-center rounded-full border transition-colors ${
                     step.active
-                      ? "border-primary-500 bg-primary-50 text-primary-700"
+                      ? "border-primary-500 bg-primary-50 text-primary-600"
                       : "border-gray-300 bg-white text-gray-600"
                   }`}
                 >
@@ -53,7 +53,7 @@ export default function CartPage() {
                 </span>
                 <span
                   className={`transition-colors ${
-                    step.active ? "text-primary-700" : "text-gray-600"
+                    step.active ? "text-primary-600" : "text-gray-600"
                   }`}
                 >
                   {step.label}
@@ -271,7 +271,7 @@ export default function CartPage() {
                   </p>
                   <button
                     type="button"
-                    className="text-xs font-semibold text-primary-600 hover:text-primary-700"
+                    className="text-xs font-semibold text-primary-600 hover:text-primary-600"
                   >
                     Calculate shipping
                   </button>

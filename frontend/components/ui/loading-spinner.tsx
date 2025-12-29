@@ -4,6 +4,7 @@
  */
 
 import { cn } from "@/lib/utils/cn";
+import { SkeletonBlock, SkeletonText } from "@/components/ui/skeleton";
 import type { ComponentType } from "react";
 
 /**
@@ -13,7 +14,7 @@ import type { ComponentType } from "react";
 interface ProgressiveSkeletonGridProps {
   count: number;
   className?: string;
-  itemComponent?: ComponentType<{ delayClass: string }>;
+  itemComponent?: ComponentType;
   gridCols?: string;
 }
 
@@ -23,34 +24,21 @@ export function ProgressiveSkeletonGrid({
   itemComponent: ItemComponent,
   gridCols = "grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
 }: ProgressiveSkeletonGridProps) {
-  const delayClasses = [
-    "animate-shimmer",
-    "animate-shimmer-delay-100",
-    "animate-shimmer-delay-200",
-    "animate-shimmer-delay-300",
-    "animate-shimmer-delay-400",
-    "animate-shimmer-delay-500",
-  ];
-
   return (
     <div className={cn("grid w-full gap-4 md:gap-6", gridCols, className)}>
       {Array.from({ length: count }, (_, i) => {
-        const delayClass = delayClasses[i % delayClasses.length];
-
         if (ItemComponent) {
-          return <ItemComponent key={i} delayClass={delayClass} />;
+          return <ItemComponent key={i} />;
         }
 
-        // Default skeleton item if no component provided
+        // Default skeleton item if no component provided - now uses SkeletonBlock
         return (
           <div key={i} className="flex flex-col space-y-3">
-            <div
-              className={cn("aspect-square w-full rounded-lg", delayClass)}
-            />
+            <SkeletonBlock className="aspect-square w-full rounded-lg" />
             <div className="space-y-2">
-              <div className={cn("h-4 rounded", delayClass)} />
-              <div className={cn("h-4 rounded w-3/4", delayClass)} />
-              <div className={cn("h-3 rounded w-1/2", delayClass)} />
+              <SkeletonBlock className="h-4 rounded" />
+              <SkeletonBlock className="h-4 rounded w-3/4" />
+              <SkeletonBlock className="h-3 rounded w-1/2" />
             </div>
           </div>
         );
@@ -169,7 +157,6 @@ interface ResponsiveSkeletonProps {
   size?: "sm" | "base" | "lg" | "xl" | "2xl" | "3xl";
   lines?: number;
   className?: string;
-  delayClass?: string;
 }
 
 export function ResponsiveSkeleton({
@@ -177,14 +164,11 @@ export function ResponsiveSkeleton({
   size = "base",
   lines = 1,
   className = "",
-  delayClass = "animate-shimmer",
 }: ResponsiveSkeletonProps) {
-  const baseClasses = `${delayClass} rounded ${className}`;
-
   if (variant === "image") {
     return (
-      <div
-        className={`${baseClasses} skeleton-aspect-square bg-current`}
+      <SkeletonBlock
+        className={`${className} skeleton-aspect-square`}
         style={{ width: "100%" }}
       />
     );
@@ -192,47 +176,33 @@ export function ResponsiveSkeleton({
 
   if (variant === "card") {
     return (
-      <div className={`${baseClasses} p-4 border border-warm-gray-200`}>
+      <div className={`p-4 border border-warm-gray-200 ${className}`}>
         {/* Card image */}
-        <div
-          className={`${delayClass} skeleton-aspect-card rounded mb-3 bg-current`}
-        />
+        <SkeletonBlock className="skeleton-aspect-card rounded mb-3" />
 
         {/* Card content */}
         <div className="space-y-2">
-          <div
-            className={`${delayClass} skeleton-text-lg skeleton-w-mobile rounded bg-current`}
-          />
-          <div
-            className={`${delayClass} skeleton-text-base skeleton-w-mobile rounded bg-current`}
-            style={{ animationDelay: "0.1s" }}
-          />
-          <div
-            className={`${delayClass} skeleton-text-sm skeleton-w-mobile rounded bg-current`}
-            style={{ animationDelay: "0.2s" }}
-          />
+          <SkeletonBlock className="skeleton-text-lg skeleton-w-mobile rounded" />
+          <SkeletonBlock className="skeleton-text-base skeleton-w-mobile rounded" />
+          <SkeletonBlock className="skeleton-text-sm skeleton-w-mobile rounded" />
         </div>
       </div>
     );
   }
 
   if (variant === "button") {
-    return (
-      <div className={`${baseClasses} h-10 skeleton-w-mobile bg-current`} />
-    );
+    return <SkeletonBlock className={`h-10 skeleton-w-mobile ${className}`} />;
   }
 
   if (variant === "avatar") {
-    return (
-      <div className={`${baseClasses} w-10 h-10 rounded-full bg-current`} />
-    );
+    return <SkeletonBlock className={`w-10 h-10 rounded-full ${className}`} />;
   }
 
   // Default text variant
   if (lines === 1) {
     return (
-      <div
-        className={`${baseClasses} skeleton-text-${size} skeleton-w-mobile bg-current`}
+      <SkeletonBlock
+        className={`skeleton-text-${size} skeleton-w-mobile ${className}`}
       />
     );
   }
@@ -240,11 +210,10 @@ export function ResponsiveSkeleton({
   return (
     <div className="skeleton-spacing-normal">
       {Array.from({ length: lines }, (_, i) => (
-        <div
+        <SkeletonBlock
           key={i}
-          className={`${delayClass} skeleton-text-${size} skeleton-w-mobile rounded bg-current`}
+          className={`skeleton-text-${size} skeleton-w-mobile rounded`}
           style={{
-            animationDelay: `${i * 0.1}s`,
             width: i === lines - 1 ? "60%" : "100%", // Last line shorter
           }}
         />
@@ -261,56 +230,53 @@ export function FiltersSidebarSkeleton() {
   return (
     <div className="relative bg-white/80 backdrop-blur-xl rounded-lg p-8 shadow-lg border border-warm-gray-200/50">
       <div className="mb-6">
-        <div className="animate-shimmer h-6 bg-gray-200 rounded w-3/4 mb-2" />
-        <div className="animate-shimmer h-4 bg-gray-200 rounded w-1/2" />
+        <SkeletonBlock className="h-6 w-3/4 mb-2" />
+        <SkeletonBlock className="h-4 w-1/2" />
       </div>
 
       {/* Category section skeleton */}
       <div className="space-y-3 mb-8">
-        <div className="animate-shimmer h-4 bg-gray-200 rounded w-full" />
-        <div className="animate-shimmer h-4 bg-gray-200 rounded w-5/6 ml-4" />
-        <div className="animate-shimmer h-4 bg-gray-200 rounded w-4/6 ml-4" />
-        <div className="animate-shimmer h-4 bg-gray-200 rounded w-full ml-8" />
-        <div className="animate-shimmer h-4 bg-gray-200 rounded w-3/4 ml-8" />
-        <div className="animate-shimmer h-4 bg-gray-200 rounded w-5/6" />
-        <div className="animate-shimmer h-4 bg-gray-200 rounded w-2/3 ml-4" />
+        <SkeletonBlock className="h-4 w-full" />
+        <SkeletonBlock className="h-4 w-5/6 ml-4" />
+        <SkeletonBlock className="h-4 w-4/6 ml-4" />
+        <SkeletonBlock className="h-4 w-full ml-8" />
+        <SkeletonBlock className="h-4 w-3/4 ml-8" />
+        <SkeletonBlock className="h-4 w-5/6" />
+        <SkeletonBlock className="h-4 w-2/3 ml-4" />
       </div>
 
       {/* Price range section skeleton */}
       <div className="space-y-4 mb-8">
         <div className="flex items-center gap-2 mb-4">
-          <div className="animate-shimmer w-4 h-4 bg-gray-200 rounded" />
-          <div className="animate-shimmer h-4 bg-gray-200 rounded w-24" />
+          <SkeletonBlock className="w-4 h-4 rounded" />
+          <SkeletonBlock className="h-4 w-24" />
         </div>
 
         <div className="space-y-2">
-          <div className="animate-shimmer h-3 bg-gray-200 rounded w-20" />
+          <SkeletonBlock className="h-3 w-20" />
           <div className="grid grid-cols-1 gap-1">
             {Array.from({ length: 5 }, (_, i) => (
-              <div
-                key={i}
-                className="animate-shimmer h-8 bg-gray-200 rounded-lg"
-              />
+              <SkeletonBlock key={i} className="h-8 rounded-lg" />
             ))}
           </div>
         </div>
 
         <div className="space-y-2">
-          <div className="animate-shimmer h-3 bg-gray-200 rounded w-24" />
+          <SkeletonBlock className="h-3 w-24" />
           <div className="flex items-center gap-2">
-            <div className="animate-shimmer h-8 bg-gray-200 rounded flex-1" />
-            <div className="animate-shimmer h-8 bg-gray-200 rounded flex-1" />
+            <SkeletonBlock className="h-8 flex-1 rounded" />
+            <SkeletonBlock className="h-8 flex-1 rounded" />
           </div>
-          <div className="animate-shimmer h-8 bg-gray-200 rounded w-full" />
+          <SkeletonBlock className="h-8 w-full rounded" />
         </div>
       </div>
 
       {/* Availability section skeleton */}
       <div>
-        <div className="animate-shimmer h-4 bg-gray-200 rounded w-20 mb-4" />
+        <SkeletonBlock className="h-4 w-20 mb-4" />
         <div className="flex items-center gap-3">
-          <div className="animate-shimmer w-4 h-4 bg-gray-200 rounded" />
-          <div className="animate-shimmer h-4 bg-gray-200 rounded w-24" />
+          <SkeletonBlock className="w-4 h-4 rounded" />
+          <SkeletonBlock className="h-4 w-24" />
         </div>
       </div>
     </div>
@@ -345,9 +311,7 @@ export function TableSkeleton({
               <tr>
                 {Array.from({ length: columns }, (_, i) => (
                   <th key={i} className="px-6 py-3">
-                    <div
-                      className={`animate-shimmer skeleton-text-sm skeleton-w-mobile rounded bg-current h-4`}
-                    />
+                    <SkeletonBlock className="skeleton-text-sm skeleton-w-mobile rounded h-4" />
                   </th>
                 ))}
               </tr>
@@ -361,44 +325,21 @@ export function TableSkeleton({
                     {colIndex === 0 ? (
                       // First column - more content (like product name + details)
                       <div className="space-y-1">
-                        <div
-                          className={`animate-shimmer skeleton-text-base skeleton-w-mobile rounded bg-current`}
-                          style={{ animationDelay: `${rowIndex * 0.05}s` }}
-                        />
-                        <div
-                          className={`animate-shimmer skeleton-text-sm skeleton-w-mobile rounded bg-current`}
-                          style={{
-                            animationDelay: `${rowIndex * 0.05 + 0.1}s`,
-                            width: "70%",
-                          }}
+                        <SkeletonBlock className="skeleton-text-base skeleton-w-mobile rounded" />
+                        <SkeletonBlock
+                          className="skeleton-text-sm skeleton-w-mobile rounded"
+                          style={{ width: "70%" }}
                         />
                       </div>
                     ) : colIndex === columns - 1 ? (
                       // Last column - action buttons
                       <div className="flex gap-2">
-                        <div
-                          className={`animate-shimmer w-8 h-8 rounded bg-current`}
-                          style={{
-                            animationDelay: `${rowIndex * 0.05 + 0.2}s`,
-                          }}
-                        />
-                        <div
-                          className={`animate-shimmer w-8 h-8 rounded bg-current`}
-                          style={{
-                            animationDelay: `${rowIndex * 0.05 + 0.3}s`,
-                          }}
-                        />
+                        <SkeletonBlock className="w-8 h-8 rounded" />
+                        <SkeletonBlock className="w-8 h-8 rounded" />
                       </div>
                     ) : (
                       // Other columns - simple text
-                      <div
-                        className={`animate-shimmer skeleton-text-sm skeleton-w-mobile rounded bg-current`}
-                        style={{
-                          animationDelay: `${
-                            rowIndex * 0.05 + colIndex * 0.05
-                          }s`,
-                        }}
-                      />
+                      <SkeletonBlock className="skeleton-text-sm skeleton-w-mobile rounded" />
                     )}
                   </td>
                 ))}

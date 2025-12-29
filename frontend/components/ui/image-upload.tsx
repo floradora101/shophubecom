@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useCallback, useState } from "react";
+import Image from "next/image";
 import { Upload, X } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/cn";
 
 interface ImageUploadProps {
   value?: string[];
@@ -145,11 +146,13 @@ export function ImageUpload({
           {value.map((url, index) => (
             <div key={index} className="relative group">
               <div className="aspect-square rounded-lg border border-gray-200 overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={url}
                   alt={`Upload ${index + 1}`}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  unoptimized={url.startsWith("data:")}
                 />
               </div>
               <button

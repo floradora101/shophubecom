@@ -66,11 +66,11 @@ export function VariantSelector({
           <div key={key} className="space-y-2 sm:space-y-3">
             {/* Option Header */}
             <div className="flex items-center justify-between">
-              <label className="text-sm sm:text-base font-semibold text-slate-900 capitalize">
+              <label className="text-sm sm:text-base font-semibold text-gray-900 capitalize">
                 {key}
               </label>
               {selectedValue && (
-                <span className="text-xs text-slate-500 font-medium truncate max-w-24 sm:max-w-none">
+                <span className="text-xs text-gray-500 font-medium truncate max-w-24 sm:max-w-none">
                   Selected: {selectedValue}
                 </span>
               )}
@@ -98,8 +98,8 @@ export function VariantSelector({
                         group relative w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 rounded-full border-2 transition-all duration-200 ease-in-out
                         ${
                           isSelected
-                            ? "border-slate-900 ring-2 ring-slate-900/20 scale-110"
-                            : "border-slate-300 hover:border-slate-400 hover:scale-105 active:scale-95"
+                            ? "border-gray-900 ring-2 ring-gray-900/20 scale-110"
+                            : "border-gray-300 hover:border-slate-400 hover:scale-105 active:scale-95"
                         }
                         ${
                           isDisabled
@@ -116,7 +116,7 @@ export function VariantSelector({
 
                       {/* Selection indicator */}
                       {isSelected && (
-                        <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-4 h-4 sm:w-5 sm:h-5 bg-slate-900 rounded-full flex items-center justify-center">
+                        <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-4 h-4 sm:w-5 sm:h-5 bg-gray-900 rounded-full flex items-center justify-center">
                           <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-white" />
                         </div>
                       )}
@@ -130,7 +130,7 @@ export function VariantSelector({
 
                       {/* Tooltip on hover - hide on mobile */}
                       <div className="hidden sm:block absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
-                        <div className="bg-slate-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                        <div className="bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
                           {value}
                         </div>
                       </div>
@@ -147,8 +147,8 @@ export function VariantSelector({
                         group relative px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-lg border transition-all duration-200 ease-in-out
                         ${
                           isSelected
-                            ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                            : "border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50 active:bg-slate-100"
+                            ? "bg-gray-900 text-white border-gray-900 shadow-sm"
+                            : "border-gray-300 text-gray-700 hover:border-slate-400 hover:bg-gray-50 active:bg-slate-100"
                         }
                         ${
                           isDisabled
@@ -171,7 +171,7 @@ export function VariantSelector({
                       {/* Out of stock overlay */}
                       {isOutOfStock && (
                         <div className="absolute inset-0 bg-slate-200 rounded-lg flex items-center justify-center">
-                          <span className="text-xs text-slate-500 font-medium">
+                          <span className="text-xs text-gray-500 font-medium">
                             Sold out
                           </span>
                         </div>

@@ -2,32 +2,72 @@ import type { HeroSlide } from "@/lib/types/heroSlides.types";
 
 export const HERO_SLIDES: HeroSlide[] = [
   {
-    id: "product-spotlight-1",
-    type: "PRODUCT_SPOTLIGHT",
-    priority: 10,
+    id: "landscape-hero-1",
+    type: "LANDSCAPE_HERO",
+    priority: 5, // Lowest priority
     isActive: true,
     // startsAt: undefined (always active)
     // No endsAt - no expiry
 
-    badgeText: "Limited Time Deal",
-    headline: "Experience",
-    highlight: "Next-Gen Performance",
+    badgeText: "Discover Excellence",
+    subtitle: "Elevate your lifestyle with premium technology",
+    headline: "Welcome to the",
+    highlight: "Future of Tech",
     description:
-      "The latest flagship smartphone delivers incredible speed with its A17 Pro chip, stunning camera system, and all-day battery life. Don't miss out on this premium device.",
+      "Experience cutting-edge innovation with our curated selection of premium electronics. From the latest smartphones to professional-grade accessories, discover products that blend performance, style, and reliability.",
 
     ctaPrimary: {
-      label: "Shop Now",
-      href: "/products/iphone-15-pro-max",
+      label: "Explore Collection",
+      href: "/categories",
     },
     ctaSecondary: {
-      label: "Compare Models",
-      href: "/categories/smartphones",
+      label: "Shop Deals",
+      href: "/offers",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1484788984921-03950022c9ef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+      alt: "Minimalist technology workspace with essential devices",
+      position: "center", // Optional: center|top|bottom|left|right for deliberate cropping
+    },
+
+    theme: {
+      accentToken: "primary",
+    },
+
+    // Landscape hero specific properties
+    textPosition: "center",
+    overlayOpacity: 0.1,
+  },
+  {
+    id: "product-spotlight-1",
+    type: "PRODUCT_SPOTLIGHT",
+    priority: 30, // Highest priority
+    isActive: true,
+    // startsAt: undefined (always active)
+    // No endsAt - no expiry
+
+    badgeText: "Mega Sale - 33% Off",
+    headline: "Premium Audio",
+    highlight: "Redefined",
+    description:
+      "Experience industry-leading noise cancellation with crystal clear sound quality. Available in 5 stunning colors with premium comfort and 30-hour battery life.",
+
+    ctaPrimary: {
+      label: "Shop Premium Audio",
+      href: "/products/sony-wf-1000xm5-premium",
+    },
+    ctaSecondary: {
+      label: "View All Earbuds",
+      href: "/categories/earphones",
     },
 
     media: {
       kind: "product",
-      productSlug: "iphone-15-pro-max",
-      alt: "iPhone 15 Pro Max in Natural Titanium",
+      productSlug: "sony-wf-1000xm5-premium",
+      alt: "Sony WF-1000XM5 Premium Edition Wireless Earbuds",
     },
 
     theme: {
@@ -43,20 +83,20 @@ export const HERO_SLIDES: HeroSlide[] = [
     // No endsAt - no expiry
 
     badgeText: "Shop by Category",
-    headline: "Gaming",
+    headline: "iPhone",
     highlight: "Perfection Awaits",
     description:
-      "Level up your gaming experience with our curated selection of high-performance laptops designed for gamers who demand the best.",
+      "Discover the latest iPhone models with cutting-edge technology, stunning cameras, and premium performance that sets the standard for smartphones.",
 
     categoryBullets: [
-      "Latest RTX 40-series graphics cards",
-      "144Hz+ displays with ultra-low latency",
-      "Premium cooling systems for marathon sessions",
+      "Latest A17 Pro chip for incredible speed",
+      "Advanced camera systems with ProRAW",
+      "All-day battery life with fast charging",
     ],
 
     ctaPrimary: {
-      label: "Explore Gaming Laptops",
-      href: "/categories/gaming-laptops",
+      label: "Explore iPhones",
+      href: "/categories/phones",
     },
     ctaSecondary: {
       label: "View All Categories",
@@ -66,12 +106,13 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://najemstarcall.com/wp-content/uploads/2024/01/honor-400-27.jpg",
-      alt: "High-performance Honor phone with premium features",
+        "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+      alt: "Latest iPhone 16 Pro in Natural Titanium",
+      aspect: "landscape", // Optional: landscape|default - landscape uses wider aspect ratios and always object-cover
     },
 
     theme: {
-      accentToken: "blue",
+      accentToken: "primary",
     },
   },
   {
@@ -109,7 +150,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     },
 
     theme: {
-      accentToken: "green",
+      accentToken: "success",
     },
   },
   {
@@ -148,12 +189,49 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://najemstarcall.com/wp-content/uploads/2024/09/Apple-iPhone-16-Pro-Natural-Titanium.jpg",
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
       alt: "Happy customer with iPhone 16 Pro",
     },
 
     theme: {
-      accentToken: "primary",
+      accentToken: "cream",
+    },
+  },
+  {
+    id: "delivery-payment-slide-1",
+    type: "CATEGORY_SPOTLIGHT",
+    priority: 12,
+    isActive: true,
+    // startsAt: undefined (always active)
+    // No endsAt - no expiry
+
+    badgeText: "Fast & Reliable",
+    headline: "Free Delivery",
+    highlight: "Across Lebanon",
+    description:
+      "Shop with confidence knowing your orders arrive safely and quickly, with flexible payment options.",
+
+    categoryBullets: [
+      "FREE DELIVERY ALL OVER LEBANON",
+      "Same-day delivery in Beirut",
+      "3-day exchange policy",
+      "Secure payment processing",
+    ],
+
+    ctaPrimary: {
+      label: "Start Shopping",
+      href: "/categories",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+      alt: "Fast delivery service with secure packaging for electronics",
+    },
+
+    theme: {
+      accentToken: "warning",
     },
   },
 ];

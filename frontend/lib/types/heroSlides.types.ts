@@ -2,7 +2,8 @@ export type HeroSlideType =
   | "PRODUCT_SPOTLIGHT"
   | "CATEGORY_SPOTLIGHT"
   | "OFFER"
-  | "TESTIMONIAL";
+  | "TESTIMONIAL"
+  | "LANDSCAPE_HERO";
 
 export interface BaseHeroSlide {
   id: string;
@@ -34,11 +35,19 @@ export interface BaseHeroSlide {
     productSlug?: string;
     imageUrl?: string;
     alt?: string;
+    position?: "center" | "top" | "bottom" | "left" | "right"; // For LANDSCAPE_HERO cropping
+    aspect?: "landscape" | "default"; // For non-fullscreen slides
   };
 
   // Theme
   theme?: {
-    accentToken?: "primary" | "blue" | "green";
+    accentToken?:
+      | "primary"
+      | "secondary"
+      | "blue"
+      | "success"
+      | "warning"
+      | "cream";
   };
 }
 
@@ -70,8 +79,17 @@ export interface TestimonialSlide extends BaseHeroSlide {
   }>;
 }
 
+export interface LandscapeHeroSlide extends BaseHeroSlide {
+  type: "LANDSCAPE_HERO";
+  // Landscape hero specific fields
+  subtitle?: string; // Optional subtitle text
+  textPosition?: "left" | "center" | "right"; // Text positioning on the image
+  overlayOpacity?: number; // Dark overlay opacity (0-1)
+}
+
 export type HeroSlide =
   | ProductSpotlightSlide
   | CategorySpotlightSlide
   | OfferSlide
-  | TestimonialSlide;
+  | TestimonialSlide
+  | LandscapeHeroSlide;

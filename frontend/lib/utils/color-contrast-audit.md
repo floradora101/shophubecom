@@ -18,7 +18,7 @@
 - **WCAG AA**: ✅ Passes for normal text (4.5:1 required)
 - **WCAG AAA**: ❌ Fails for normal text (7:1 required)
 - **Status**: ✅ Acceptable for body text, buttons, and large text
-- **Usage**: Safe for buttons, links, and UI elements. For small text requiring AAA, use primary-600 or primary-700.
+- **Usage**: Safe for buttons, links, and UI elements. For small text requiring AAA, use primary-600.
 
 #### Primary-600 (#b91c1c) on White (#ffffff)
 
@@ -75,14 +75,12 @@
 | ----------- | ----------- | -------- | --------------------------------- |
 | primary-500 | white       | 5.25:1   | Buttons, links, UI elements       |
 | primary-600 | white       | 6.5:1    | Hover states, emphasis            |
-| primary-700 | white       | 8.2:1    | Small text, AAA compliance        |
 | gray-600    | white       | 7.1:1    | Body text, descriptions           |
 | gray-700    | white       | 9.2:1    | Headings, important text          |
 | gray-800    | white       | 11.4:1   | Primary headings                  |
 | gray-900    | white       | 12.6:1   | Maximum contrast text             |
 | white       | primary-500 | 5.25:1   | Button text, labels on colored bg |
 | white       | primary-600 | 6.5:1    | Button text (hover)               |
-| white       | primary-700 | 8.2:1    | Button text (active)              |
 
 ### ⚠️ Use with Caution
 
@@ -115,7 +113,7 @@
 
 ### 3. Small Text Recommendations
 
-- For text smaller than 14px, prefer `primary-700` or `gray-700` over `primary-500` or `gray-500`
+- For text smaller than 14px, prefer `primary-600` or `gray-700` over `primary-500` or `gray-500`
 - Use `gray-600` minimum for any readable text on white backgrounds
 
 ## Testing Checklist

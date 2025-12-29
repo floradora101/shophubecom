@@ -150,7 +150,7 @@ export function OrderList({
                 <td className="px-6 py-4 whitespace-nowrap">
                   <Link
                     href={`/admin/orders/${order.id}`}
-                    className="text-sm font-medium text-primary-600 hover:text-primary-700"
+                    className="text-sm font-medium text-primary-600 hover:text-primary-600"
                   >
                     {order.orderNumber}
                   </Link>

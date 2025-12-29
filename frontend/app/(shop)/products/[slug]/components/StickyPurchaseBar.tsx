@@ -43,7 +43,7 @@ export function StickyPurchaseBar({
       <div className="max-w-7xl mx-auto">
         {/* Product Title (mobile only) */}
         <div className="block sm:hidden mb-3">
-          <h3 className="text-sm font-medium text-slate-900 truncate">
+          <h3 className="text-sm font-medium text-gray-900 truncate">
             {product.name}
           </h3>
         </div>
@@ -51,7 +51,7 @@ export function StickyPurchaseBar({
         <div className="flex items-center justify-between gap-3 sm:gap-4">
           <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
             <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-              <div className="font-bold text-slate-900 text-lg sm:text-base">
+              <div className="font-bold text-gray-900 text-lg sm:text-base">
                 {formatPrice(effectivePrice)}
               </div>
               {hasDiscount && originalPrice && (

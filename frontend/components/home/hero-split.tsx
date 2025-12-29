@@ -1,10 +1,12 @@
-// Hero slider with smooth sliding animations and synchronized sections
 "use client";
 
+// Hero slider with smooth sliding animations and synchronized sections
+
 import { useState, useEffect, useRef, useMemo } from "react";
-import { ChevronLeft, ChevronRight, Play, Pause } from "lucide-react";
-import { Container } from "@/components/ui/container";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Section } from "@/components/ui/section";
+import { SkeletonBlock } from "@/components/ui/skeleton";
+import { NavigationButton } from "@/components/ui/navigation-button";
 import { SlideIndicators } from "./shared/slide-indicators";
 import { HeroSlideRenderer } from "./heroSlideRenderer";
 import {
@@ -16,10 +18,6 @@ import {
 import type { HeroSlide } from "@/lib/types/heroSlides.types";
 import type { Product } from "@/features/products/types";
 
-/**
- * Skeleton loader for HeroSplit component
- * Shows carousel layout with image and content placeholders
- */
 // Predefined floating element positions (avoid Math.random in render)
 const floatingPositions = [
   { left: 10, top: 20, delay: 0 },
@@ -40,65 +38,63 @@ export function HeroSplitSkeleton() {
   return (
     <Section
       spacing="md"
-      className="relative overflow-hidden min-h-[85vh] flex items-center"
+      className="relative overflow-hidden min-h-[70svh] py-10 sm:py-14"
       withContainer={false}
     >
-      {/* Floating background elements skeleton */}
-      <div className="absolute inset-0 -z-10">
-        {floatingPositions.map((pos, i) => (
-          <div
-            key={i}
-            className="absolute w-2 h-2 rounded-full animate-shimmer bg-current"
-            style={{
-              left: `${pos.left}%`,
-              top: `${pos.top}%`,
-              animationDelay: `${pos.delay}s`,
-            }}
-          />
-        ))}
-      </div>
-
-      <Container size="xl" className="relative z-10">
+      {/* Match HeroSplit wrapper exactly */}
+      <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8">
         <div className="relative">
-          {/* Main carousel container skeleton */}
-          <div className="relative overflow-hidden rounded-lg bg-white/30 backdrop-blur-sm border border-white/30 shadow-lg w-full min-h-[60vh] lg:min-h-[70vh]">
-            <div className="grid lg:grid-cols-2 h-full">
-              {/* Left side - Image area */}
-              <div className="relative">
-                <div className="aspect-square md:aspect-auto md:h-full animate-shimmer rounded-l-lg bg-current" />
-                {/* Overlay content */}
-                <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6">
-                  <div className="animate-shimmer h-6 w-32 rounded bg-white/20 mb-2" />
-                  <div className="animate-shimmer h-4 w-24 rounded bg-white/20" />
+          {/* Solid hero frame (no blur / no glass) */}
+          <div className="relative overflow-hidden rounded-2xl bg-white border border-border shadow-2xl ring-1 ring-black/5 w-full">
+            <div className="w-full min-h-[70svh] grid grid-cols-1 lg:grid-cols-2 items-center gap-8 lg:gap-12 xl:gap-20 px-5 py-6 lg:px-14 lg:py-8">
+              {/* Left: Content */}
+              <div className="flex flex-col justify-center space-y-5 min-w-0 text-center lg:text-left">
+                {/* Badge */}
+                <div className="inline-flex w-fit gap-2 px-4 py-2 rounded-full mx-auto lg:mx-0 bg-gray-100">
+                  <SkeletonBlock className="w-4 h-4 rounded" />
+                  <SkeletonBlock className="h-4 w-28 rounded" />
+                </div>
+
+                {/* Title */}
+                <div className="space-y-3">
+                  <SkeletonBlock className="h-12 w-[85%] mx-auto lg:mx-0" />
+                  <SkeletonBlock className="h-12 w-[70%] mx-auto lg:mx-0" />
+                </div>
+
+                {/* Description */}
+                <div className="space-y-2">
+                  <SkeletonBlock className="h-4 w-[90%] mx-auto lg:mx-0" />
+                  <SkeletonBlock className="h-4 w-[82%] mx-auto lg:mx-0" />
+                  <SkeletonBlock className="h-4 w-[75%] mx-auto lg:mx-0" />
+                </div>
+
+                {/* Pricing Area (generic card block) */}
+                <SkeletonBlock className="h-40 w-full max-w-sm mx-auto lg:mx-0 rounded-xl" />
+
+                {/* CTAs */}
+                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                  <SkeletonBlock className="h-12 w-full sm:w-40 rounded-xl" />
+                  <SkeletonBlock className="h-12 w-full sm:w-40 rounded-xl" />
+                </div>
+
+                {/* Trust pills */}
+                <div className="flex flex-wrap items-center gap-4 sm:gap-6 lg:gap-8 justify-center lg:justify-start">
+                  <SkeletonBlock className="h-10 w-36 rounded-lg" />
+                  <SkeletonBlock className="h-10 w-32 rounded-lg" />
                 </div>
               </div>
 
-              {/* Right side - Content area */}
-              <div className="p-8 md:p-12 flex flex-col justify-center">
-                <div className="space-y-6">
-                  {/* Badge */}
-                  <div className="animate-shimmer h-6 w-20 rounded-full bg-current" />
-
-                  {/* Title */}
-                  <div className="space-y-3">
-                    <div className="animate-shimmer h-10 w-full rounded bg-current" />
-                    <div className="animate-shimmer h-10 w-3/4 rounded bg-current" />
+              {/* Right: Media */}
+              <div className="w-full h-full flex items-center justify-center min-w-0">
+                <div className="relative w-full max-w-[560px] aspect-[16/10] lg:aspect-square">
+                  {/* Media frame */}
+                  <div className="absolute inset-0 rounded-2xl bg-white border border-border shadow-xl overflow-hidden">
+                    <SkeletonBlock className="absolute inset-0 rounded-none" />
                   </div>
 
-                  {/* Description */}
-                  <div className="space-y-2">
-                    <div className="animate-shimmer h-4 w-full rounded bg-current" />
-                    <div className="animate-shimmer h-4 w-5/6 rounded bg-current" />
-                    <div className="animate-shimmer h-4 w-4/5 rounded bg-current" />
-                  </div>
-
-                  {/* Price */}
-                  <div className="animate-shimmer h-8 w-24 rounded bg-current" />
-
-                  {/* Buttons */}
-                  <div className="flex gap-4 pt-4">
-                    <div className="animate-shimmer h-12 w-32 rounded-lg bg-current" />
-                    <div className="animate-shimmer h-12 w-24 rounded-lg bg-current" />
+                  {/* Floating badge */}
+                  <div className="absolute top-4 right-4 z-10">
+                    <SkeletonBlock className="h-9 w-28 rounded-xl" />
                   </div>
                 </div>
               </div>
@@ -108,21 +104,17 @@ export function HeroSplitSkeleton() {
           {/* Controls skeleton */}
           <div className="flex justify-between items-center mt-6">
             <div className="flex gap-2">
-              {Array.from({ length: 3 }, (_, i) => (
-                <div
-                  key={i}
-                  className={`w-3 h-3 rounded-full animate-shimmer bg-current`}
-                  style={{ animationDelay: `${i * 0.1}s` }}
-                />
-              ))}
+              <SkeletonBlock className="w-3 h-3 rounded-full" />
+              <SkeletonBlock className="w-3 h-3 rounded-full" />
+              <SkeletonBlock className="w-3 h-3 rounded-full" />
             </div>
             <div className="flex gap-4">
-              <div className="animate-shimmer w-12 h-12 rounded-full bg-current" />
-              <div className="animate-shimmer w-12 h-12 rounded-full bg-current" />
+              <SkeletonBlock className="w-12 h-12 rounded-full" />
+              <SkeletonBlock className="w-12 h-12 rounded-full" />
             </div>
           </div>
         </div>
-      </Container>
+      </div>
     </Section>
   );
 }
@@ -156,7 +148,6 @@ export function HeroSplit({
         console.warn("unique slide check failed", e);
       }
 
-      // Dev-only console.table for debugging
       console.table(
         sorted.map((slide) => ({
           id: slide.id,
@@ -173,7 +164,6 @@ export function HeroSplit({
     return sorted;
   }, [slides]);
 
-  // Check for prefers-reduced-motion (memoized since it won't change during component lifecycle)
   const prefersReducedMotion = useMemo(
     () =>
       typeof window !== "undefined"
@@ -182,15 +172,12 @@ export function HeroSplit({
     []
   );
 
-  // Auto-play functionality with motion preference support
   useEffect(() => {
-    // Clear existing interval
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
 
-    // Set up new interval only if autoplay is enabled and we have multiple slides
     if (isPlaying && sortedSlides.length > 1 && !prefersReducedMotion) {
       intervalRef.current = setInterval(() => {
         setCurrentSlide((prev) => (prev + 1) % sortedSlides.length);
@@ -205,12 +192,7 @@ export function HeroSplit({
     };
   }, [isPlaying, sortedSlides.length, prefersReducedMotion, intervalMs]);
 
-  // Early return if no slides (after hooks)
-  if (!sortedSlides || sortedSlides.length === 0) {
-    return null;
-  }
-
-  // No more hardcoded slide content - slides come from props or backend
+  if (!sortedSlides || sortedSlides.length === 0) return null;
 
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
@@ -220,25 +202,20 @@ export function HeroSplit({
     }
   };
 
-  const nextSlide = () => {
-    goToSlide((currentSlide + 1) % sortedSlides.length);
-  };
-
-  const prevSlide = () => {
+  const nextSlide = () => goToSlide((currentSlide + 1) % sortedSlides.length);
+  const prevSlide = () =>
     goToSlide((currentSlide - 1 + sortedSlides.length) % sortedSlides.length);
-  };
 
   return (
     <Section
       spacing="md"
-      className="relative overflow-hidden min-h-[70vh] sm:min-h-[80vh] lg:min-h-[90vh] py-10 sm:py-14 overflow-x-hidden"
+      className="relative overflow-hidden min-h-[70svh] py-10 sm:py-14 overflow-x-hidden"
       withContainer={false}
     >
       <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8">
         <div className="relative">
-          {/* Unified Background with Floating Elements */}
+          {/* Floating Background */}
           <div className="absolute inset-0 -z-10">
-            {/* Integrated floating background elements */}
             {floatingPositions.map((pos, i) => (
               <div
                 key={i}
@@ -252,47 +229,46 @@ export function HeroSplit({
             ))}
           </div>
 
-          {/* Slide Container - Unified Background */}
-          <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-white/95 via-white/90 to-white/85 backdrop-blur-sm border border-white/30 shadow-2xl shadow-slate-900/5 w-full ring-1 ring-white/20">
-            {/* Active Slide */}
-            {(() => {
-              const activeSlide = sortedSlides[currentSlide];
-              const product = resolveSlideProduct(activeSlide, productsBySlug);
-              return (
-                <div
-                  key={activeSlide.id}
-                  className="transition-opacity duration-500 ease-in-out"
-                >
-                  <HeroSlideRenderer
-                    slide={activeSlide}
-                    product={product}
-                    isActive={true}
-                  />
-                </div>
-              );
-            })()}
+          {/* Slides Frame */}
+          <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-white/95 via-white/90 to-white/85 backdrop-blur-sm border border-white/30 shadow-2xl shadow-slate-900/5 w-full ring-1 ring-white/20">
+            <div
+              className="flex transition-transform duration-500 ease-in-out"
+              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+            >
+              {sortedSlides.map((slide, index) => {
+                const product = resolveSlideProduct(slide, productsBySlug);
+                return (
+                  <div key={slide.id} className="shrink-0 w-full min-h-[70svh]">
+                    <HeroSlideRenderer
+                      slide={slide}
+                      product={product}
+                      isActive={index === currentSlide}
+                    />
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Navigation Controls */}
           {sortedSlides.length > 1 && (
             <>
-              {/* Arrow Navigation */}
+              {/* Arrows */}
               <button
                 onClick={prevSlide}
                 className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-30 p-2 sm:p-3 rounded-full border-2 border-primary-300 bg-white hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110"
                 aria-label="Previous slide"
               >
-                <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 text-primary-600" />
+                <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 text-primary-500" />
               </button>
               <button
                 onClick={nextSlide}
                 className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-30 p-2 sm:p-3 rounded-full border-2 border-primary-300 bg-white hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110"
                 aria-label="Next slide"
               >
-                <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 text-primary-600" />
+                <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 text-primary-500" />
               </button>
 
-              {/* Simple Minimalist Slide Indicators */}
+              {/* Indicators */}
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30">
                 <SlideIndicators
                   count={sortedSlides.length}
@@ -301,19 +277,15 @@ export function HeroSplit({
                 />
               </div>
 
-              {/* Play/Pause Button - Only show if motion is not reduced */}
+              {/* Play/Pause */}
               {!prefersReducedMotion && (
-                <button
+                <NavigationButton
+                  direction={isPlaying ? "pause" : "play"}
                   onClick={() => setIsPlaying(!isPlaying)}
-                  className="absolute top-2 right-2 sm:top-4 sm:right-4 lg:top-6 lg:right-6 z-30 p-2 sm:p-3 rounded-full border-2 border-primary-300 bg-white hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110"
+                  className="absolute top-2 right-2 sm:top-4 sm:right-4 lg:top-6 lg:right-6 z-30"
+                  size="sm"
                   aria-label={isPlaying ? "Pause slideshow" : "Play slideshow"}
-                >
-                  {isPlaying ? (
-                    <Pause className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-primary-600" />
-                  ) : (
-                    <Play className="h-3 w-3 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-primary-600" />
-                  )}
-                </button>
+                />
               )}
             </>
           )}

@@ -162,7 +162,7 @@ export function SwipeRevealCard({
                 <Tag className="h-5 w-5 text-primary-600 animate-pulse" />
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping"></div>
               </div>
-              <span className="text-sm font-bold text-primary-700 font-[var(--font-inter)] uppercase tracking-wide">
+              <span className="text-sm font-bold text-primary-600 font-[var(--font-inter)] uppercase tracking-wide">
                 Secret Deal
               </span>
               <div className="flex gap-1">

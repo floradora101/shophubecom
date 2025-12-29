@@ -134,7 +134,7 @@ export function CategoryForm({ category, onSave }: CategoryFormProps) {
             <Input
               {...register("name")}
               placeholder="e.g., Electronics, Clothing"
-              error={errors.name?.message}
+              error={!!errors.name}
             />
           </FormField>
 
@@ -148,7 +148,7 @@ export function CategoryForm({ category, onSave }: CategoryFormProps) {
               {...register("slug")}
               placeholder="category-slug"
               className="font-mono text-sm"
-              error={errors.slug?.message}
+              error={!!errors.slug}
             />
           </FormField>
         </div>

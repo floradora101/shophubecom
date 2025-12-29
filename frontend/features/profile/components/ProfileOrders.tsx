@@ -68,7 +68,7 @@ export function ProfileOrders() {
         <p className="text-gray-600">You haven&apos;t placed any orders yet.</p>
         <Link
           href="/products"
-          className="mt-4 inline-block text-primary-600 hover:text-primary-700 font-medium"
+          className="mt-4 inline-block text-primary-600 hover:text-primary-600 font-medium"
         >
           Start Shopping
         </Link>

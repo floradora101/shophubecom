@@ -16,11 +16,13 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
+import { SkeletonBlock } from "@/components/ui/skeleton";
 import { ProductCard } from "@/features/products/components/ProductCard";
 import { ProductCardSkeleton } from "./ProductCardSkeleton";
 import { ProgressiveSkeletonGrid } from "@/components/ui/loading-spinner";
 import { SectionTitle } from "./shared/section-header";
 import type { Product, Category } from "@/features/products/types";
+import { getDiscountInfo } from "@/lib/utils/products";
 
 interface DepartmentTabsProps {
   categories: Category[];
@@ -105,11 +107,11 @@ export function DepartmentTabsSkeleton() {
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="text-center md:text-left space-y-4 flex-1">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary-100 via-primary-100 to-primary-200 mb-2">
-                <div className="animate-shimmer h-4 w-4 rounded bg-current" />
-                <div className="animate-shimmer h-4 w-32 rounded bg-current" />
+                <SkeletonBlock className="h-4 w-4 rounded" />
+                <SkeletonBlock className="h-4 w-32 rounded" />
               </div>
-              <div className="animate-shimmer h-10 w-80 rounded bg-current" />
-              <div className="animate-shimmer h-5 w-96 rounded bg-current" />
+              <SkeletonBlock className="h-10 w-80 rounded" />
+              <SkeletonBlock className="h-5 w-96 rounded" />
             </div>
           </div>
 
@@ -118,26 +120,25 @@ export function DepartmentTabsSkeleton() {
             {Array.from({ length: 7 }, (_, i) => (
               <div
                 key={i}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-gray-200 animate-shimmer"
-                style={{ animationDelay: `${i * 0.1}s` }}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-gray-200"
               >
-                <div className="animate-shimmer w-4 h-4 rounded" />
-                <div className="animate-shimmer h-4 w-20 rounded" />
+                <SkeletonBlock className="w-4 h-4 rounded" />
+                <SkeletonBlock className="h-4 w-20 rounded" />
               </div>
             ))}
           </div>
 
           {/* Department Info Banner Skeleton */}
-          <div className="relative overflow-hidden rounded-lg p-5 bg-gradient-to-r from-gray-50 to-gray-100 border border-white/20 animate-shimmer">
+          <div className="relative overflow-hidden rounded-lg p-5 bg-gradient-to-r from-gray-50 to-gray-100 border border-white/20">
             <div className="flex flex-col md:flex-row items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <div className="animate-shimmer p-2.5 rounded-xl w-10 h-10 bg-current" />
+                <SkeletonBlock className="p-2.5 rounded-xl w-10 h-10" />
                 <div>
-                  <div className="animate-shimmer h-5 w-32 rounded mb-0.5" />
-                  <div className="animate-shimmer h-4 w-48 rounded" />
+                  <SkeletonBlock className="h-5 w-32 mb-0.5" />
+                  <SkeletonBlock className="h-4 w-48" />
                 </div>
               </div>
-              <div className="animate-shimmer w-20 h-8 rounded-lg bg-current" />
+              <SkeletonBlock className="w-20 h-8 rounded-lg" />
             </div>
             {/* Subtle decorative elements */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
@@ -206,15 +207,10 @@ export function DepartmentTabs({
     const selectedIds = new Set<string>();
     const selected: Product[] = [];
 
-    // Helper to get discount percentage
+    // Helper to get discount percentage using utility function
     const getDiscount = (p: Product): number => {
-      if (p.discount?.discountPercent) return p.discount.discountPercent;
-      if (p.discountValue) return p.discountValue;
-      if (p.discountPercent) return p.discountPercent;
-      if (p.originalPrice && p.originalPrice > p.price) {
-        return ((p.originalPrice - p.price) / p.originalPrice) * 100;
-      }
-      return 0;
+      const { discountPercent } = getDiscountInfo(p);
+      return discountPercent;
     };
 
     // Sort: featured first, then by discount (desc), then by createdAt (desc)
@@ -281,7 +277,7 @@ export function DepartmentTabs({
             <div className="text-center md:text-left space-y-4 flex-1">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary-100 via-primary-100 to-primary-200 mb-2">
                 <Grid3X3 className="h-4 w-4 text-primary-600" />
-                <span className="text-sm font-semibold text-primary-700 font-[var(--font-inter)]">
+                <span className="text-sm font-semibold text-primary-600 font-[var(--font-inter)]">
                   Explore Collections
                 </span>
               </div>

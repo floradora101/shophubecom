@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { toast } from "sonner";
 import { UploadDropzone } from "@/features/admin/uploadthing";
 import { Button } from "@/components/ui/button";
@@ -108,13 +109,14 @@ export function VariantImagesUploader({
         </label>
         {mainImage ? (
           <div className="relative inline-block">
-            {/* Using <img> instead of Next/Image to avoid optimizer 500s during dev */}
             <div className="relative w-32 h-32 rounded-lg border border-gray-300 overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={mainImage}
                 alt="Variant main image"
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
+                sizes="128px"
+                unoptimized={mainImage.startsWith("data:")}
               />
             </div>
             <Button
@@ -150,13 +152,14 @@ export function VariantImagesUploader({
           <div className="mb-3 flex flex-wrap gap-2">
             {normalizedGallery.map((url, idx) => (
               <div key={idx} className="relative">
-                {/* Using <img> instead of Next/Image to avoid optimizer 500s during dev */}
                 <div className="relative w-24 h-24 rounded-lg border border-gray-300 overflow-hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <Image
                     src={url}
                     alt={`Gallery image ${idx + 1}`}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    sizes="96px"
+                    unoptimized={url.startsWith("data:")}
                   />
                 </div>
                 <Button

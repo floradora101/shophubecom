@@ -206,7 +206,9 @@ const mockProducts: (Product & { images?: string[] })[] = [
     price: 2999.99, // Base price before sale/promo
     currency: "USD",
     stock: 15,
-    images: ["https://via.placeholder.com/500x500?text=Gaming+Laptop"],
+    images: [
+      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=800&h=800&fit=crop",
+    ],
     isActive: true,
     categoryId: categoryBySlug["gaming-laptops"].id,
     category: categoryBySlug["gaming-laptops"],
@@ -224,7 +226,8 @@ const mockProducts: (Product & { images?: string[] })[] = [
         sku: "SKU-GLP-SIL-1TB",
         price: 2499.99,
         stock: 8,
-        image: "https://via.placeholder.com/500x500?text=Gaming+Laptop",
+        image:
+          "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=800&h=800&fit=crop",
         options: {
           color: "Silver",
           storage: "1TB SSD",
@@ -235,7 +238,8 @@ const mockProducts: (Product & { images?: string[] })[] = [
         sku: "SKU-GLP-BLK-2TB",
         price: 2699.99,
         stock: 7,
-        image: "https://via.placeholder.com/500x500?text=Gaming+Laptop",
+        image:
+          "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=800&h=800&fit=crop",
         options: {
           color: "Black",
           storage: "2TB SSD",
@@ -266,10 +270,10 @@ const mockProducts: (Product & { images?: string[] })[] = [
     currency: "USD",
     stock: 13,
     images: [
-      "https://najemstarcall.com/wp-content/uploads/2024/09/Apple-iPhone-16-Pro-Desert-Titanium.jpg",
-      "https://najemstarcall.com/wp-content/uploads/2024/09/Apple-iPhone-16-Pro-Black-Titanium.jpg",
-      "https://najemstarcall.com/wp-content/uploads/2024/09/Apple-iPhone-16-Pro-Natural-Titanium.jpg",
-      "https://najemstarcall.com/wp-content/uploads/2024/09/Apple-iPhone-16-Pro-White-Titanium.jpg",
+      "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop&q=90",
     ],
     isActive: true,
     categoryId: categoryBySlug["iphone"].id,
@@ -289,7 +293,7 @@ const mockProducts: (Product & { images?: string[] })[] = [
         price: 1325,
         stock: 8,
         image:
-          "https://najemstarcall.com/wp-content/uploads/2024/09/Apple-iPhone-16-Pro-Black-Titanium.jpg",
+          "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop",
         options: {
           color: "Black Titanium",
           storage: "256GB",
@@ -301,7 +305,7 @@ const mockProducts: (Product & { images?: string[] })[] = [
         price: 1325,
         stock: 0,
         image:
-          "https://najemstarcall.com/wp-content/uploads/2024/09/Apple-iPhone-16-Pro-Desert-Titanium.jpg",
+          "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop&q=80",
         options: {
           color: "Desert Titanium",
           storage: "256GB",
@@ -313,7 +317,7 @@ const mockProducts: (Product & { images?: string[] })[] = [
         price: 1325,
         stock: 5,
         image:
-          "https://najemstarcall.com/wp-content/uploads/2024/09/Apple-iPhone-16-Pro-Natural-Titanium.jpg",
+          "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop",
         options: {
           color: "Natural Titanium",
           storage: "256GB",
@@ -325,7 +329,7 @@ const mockProducts: (Product & { images?: string[] })[] = [
         price: 1325,
         stock: 0,
         image:
-          "https://najemstarcall.com/wp-content/uploads/2024/09/Apple-iPhone-16-Pro-White-Titanium.jpg",
+          "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop&q=90",
         options: {
           color: "White Titanium",
           storage: "256GB",
@@ -337,7 +341,7 @@ const mockProducts: (Product & { images?: string[] })[] = [
         price: 1495,
         stock: 3,
         image:
-          "https://najemstarcall.com/wp-content/uploads/2024/09/Apple-iPhone-16-Pro-Natural-Titanium.jpg",
+          "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop",
         options: {
           color: "Natural Titanium",
           storage: "512GB",
@@ -355,10 +359,10 @@ const mockProducts: (Product & { images?: string[] })[] = [
     currency: "USD",
     stock: 24,
     images: [
-      "https://najemstarcall.com/wp-content/uploads/2024/01/honor-400-26.jpg",
-      "https://najemstarcall.com/wp-content/uploads/2024/01/honor-400-27.jpg",
-      "https://najemstarcall.com/wp-content/uploads/2024/01/honor-400-28.jpg",
-      "https://najemstarcall.com/wp-content/uploads/2024/01/honor-400-29.jpg",
+      "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop&q=60",
+      "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop&q=70",
     ],
     isActive: true,
     isFeatured: true,
@@ -384,12 +388,12 @@ const mockProducts: (Product & { images?: string[] })[] = [
         price: 370,
         stock: 8,
         image:
-          "https://najemstarcall.com/wp-content/uploads/2024/01/honor-400-26.jpg",
+          "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop",
         images: [
-          "https://najemstarcall.com/wp-content/uploads/2024/01/honor-400-26.jpg",
-          "https://najemstarcall.com/wp-content/uploads/2024/01/honor-400-27.jpg",
-          "https://najemstarcall.com/wp-content/uploads/2024/01/honor-400-28.jpg",
-          "https://najemstarcall.com/wp-content/uploads/2024/01/honor-400-29.jpg",
+          "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop",
+          "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop&q=80",
+          "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop&q=60",
+          "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop&q=70",
         ],
         options: {
           color: "Black",
@@ -402,12 +406,12 @@ const mockProducts: (Product & { images?: string[] })[] = [
         price: 370,
         stock: 8,
         image:
-          "https://najemstarcall.com/wp-content/uploads/2024/01/honor-400-27.jpg",
+          "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop&q=80",
         images: [
-          "https://najemstarcall.com/wp-content/uploads/2024/01/honor-400-27.jpg",
-          "https://najemstarcall.com/wp-content/uploads/2024/01/honor-400-28.jpg",
-          "https://najemstarcall.com/wp-content/uploads/2024/01/honor-400-29.jpg",
-          "https://najemstarcall.com/wp-content/uploads/2024/01/honor-400-26.jpg",
+          "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop&q=80",
+          "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop&q=60",
+          "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop&q=70",
+          "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop",
         ],
         options: {
           color: "Gold",
@@ -420,12 +424,12 @@ const mockProducts: (Product & { images?: string[] })[] = [
         price: 370,
         stock: 8,
         image:
-          "https://najemstarcall.com/wp-content/uploads/2024/01/honor-400-28.jpg",
+          "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop&q=60",
         images: [
-          "https://najemstarcall.com/wp-content/uploads/2024/01/honor-400-28.jpg",
-          "https://najemstarcall.com/wp-content/uploads/2024/01/honor-400-29.jpg",
-          "https://najemstarcall.com/wp-content/uploads/2024/01/honor-400-26.jpg",
-          "https://najemstarcall.com/wp-content/uploads/2024/01/honor-400-27.jpg",
+          "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop&q=60",
+          "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop&q=70",
+          "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop",
+          "https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&h=800&fit=crop&q=80",
         ],
         options: {
           color: "Silver",
@@ -443,7 +447,9 @@ const mockProducts: (Product & { images?: string[] })[] = [
     price: 199.99,
     currency: "USD",
     stock: 0,
-    images: ["https://via.placeholder.com/500x500?text=Headphones"],
+    images: [
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&h=800&fit=crop",
+    ],
     isActive: true,
     categoryId: categoryBySlug["earphones"].id,
     category: categoryBySlug["earphones"],
@@ -465,7 +471,9 @@ const mockProducts: (Product & { images?: string[] })[] = [
     price: 399.99,
     currency: "USD",
     stock: 30,
-    images: ["https://via.placeholder.com/500x500?text=Smart+Watch"],
+    images: [
+      "https://images.unsplash.com/photo-1544117519-31a4b719223d?w=800&h=800&fit=crop",
+    ],
     isActive: true,
     categoryId: categoryBySlug["smart-watches"].id,
     category: categoryBySlug["smart-watches"],
@@ -486,7 +494,9 @@ const mockProducts: (Product & { images?: string[] })[] = [
     price: 999.99,
     currency: "USD",
     stock: 20,
-    images: ["https://via.placeholder.com/500x500?text=TV"],
+    images: [
+      "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=800&h=800&fit=crop",
+    ],
     isActive: true,
     categoryId: categoryBySlug["gaming-console"].id,
     category: categoryBySlug["gaming-console"],
@@ -521,7 +531,9 @@ const mockProducts: (Product & { images?: string[] })[] = [
     price: 29.99,
     currency: "USD",
     stock: 100,
-    images: ["https://via.placeholder.com/500x500?text=Mouse"],
+    images: [
+      "https://images.unsplash.com/photo-1527814050087-3793815479db?w=800&h=800&fit=crop",
+    ],
     isActive: true,
     categoryId: categoryBySlug["accessories"].id,
     category: categoryBySlug["accessories"],

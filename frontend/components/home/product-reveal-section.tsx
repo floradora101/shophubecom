@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { Zap, Tag } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
+import { SkeletonBlock } from "@/components/ui/skeleton";
 import { SwipeRevealCard } from "./swipe-reveal-card";
 import { SectionHeader } from "./shared/section-header";
 import { BackgroundGradients } from "./shared/background-gradients";
@@ -141,48 +142,57 @@ export function ProductRevealSectionSkeleton() {
 
       <Container className="relative z-10">
         <div className="space-y-8">
-          {/* Header */}
+          {/* Header - matches SectionHeader structure */}
           <div className="space-y-4">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary-100 via-primary-200 to-primary-100">
-              <div className="animate-shimmer w-4 h-4 rounded bg-current" />
-              <div className="animate-shimmer h-4 w-40 rounded bg-current" />
+              <SkeletonBlock className="w-4 h-4 rounded" />
+              <SkeletonBlock className="h-4 w-40 rounded" />
             </div>
-            <div className="animate-shimmer h-10 w-64 rounded bg-current" />
-            <div className="animate-shimmer h-5 w-96 rounded bg-current" />
+            <SkeletonBlock className="h-10 w-64 rounded" />
+            <SkeletonBlock className="h-5 w-96 rounded" />
           </div>
 
-          {/* Reveal Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Reveal Cards Grid - matches production: grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {Array.from({ length: 4 }, (_, i) => (
               <div
                 key={i}
-                className="relative bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden animate-shimmer"
-                style={{ animationDelay: `${i * 0.15}s` }}
+                className="relative bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden min-h-[300px] md:min-h-[350px]"
               >
-                {/* Card content skeleton */}
-                <div className="p-6">
-                  {/* Image area */}
-                  <div className="aspect-square w-full rounded-lg bg-current mb-4" />
+                {/* Card content skeleton - matches SwipeRevealCard structure */}
+                <div className="p-4 h-full">
+                  {/* ProductCard inside SwipeRevealCard */}
+                  <div className="flex flex-col w-full">
+                    {/* Image area - aspect-square */}
+                    <SkeletonBlock className="aspect-square rounded-lg border border-warm-gray-200 mb-3" />
 
-                  {/* Text content */}
-                  <div className="space-y-3">
-                    <div className="h-6 w-3/4 rounded bg-current" />
-                    <div className="h-4 w-full rounded bg-current" />
-                    <div className="h-4 w-2/3 rounded bg-current" />
+                    {/* Product info */}
+                    <div className="mt-3 space-y-1 min-h-16 flex flex-col justify-end">
+                      {/* Product name skeleton - matches line-clamp-2 */}
+                      <SkeletonBlock className="h-4 md:h-5" />
+                      <SkeletonBlock className="h-4 md:h-5 w-3/4" />
 
-                    {/* Price area */}
-                    <div className="flex items-center gap-2 mt-4">
-                      <div className="h-5 w-16 rounded bg-current" />
-                      <div className="h-5 w-20 rounded bg-current" />
+                      {/* Rating skeleton (optional) */}
+                      <SkeletonBlock className="h-3 w-1/2 mt-1" />
+
+                      {/* Price skeleton - matches pricing layout */}
+                      <div className="flex items-baseline gap-2 flex-wrap mt-2">
+                        <SkeletonBlock className="h-4 md:h-5 w-16" />
+                        <SkeletonBlock className="h-3 w-12" />
+                        <SkeletonBlock className="h-3 w-20" />
+                      </div>
                     </div>
                   </div>
+                </div>
 
-                  {/* Swipe indicator */}
-                  <div className="mt-4 pt-4 border-t border-gray-100">
-                    <div className="flex items-center justify-between">
-                      <div className="h-4 w-32 rounded bg-current" />
-                      <div className="w-8 h-8 rounded-full bg-current" />
-                    </div>
+                {/* Swipe handle - matches SwipeRevealCard handle structure */}
+                <div
+                  className="absolute top-0 bottom-0 z-20 flex items-center justify-center select-none"
+                  style={{ left: "50%", transform: "translateX(-50%)" }}
+                >
+                  <div className="flex items-center gap-1.5">
+                    <SkeletonBlock className="flex items-center justify-center w-6 h-6 rounded-full" />
+                    <SkeletonBlock className="flex items-center justify-center w-6 h-6 rounded-full" />
                   </div>
                 </div>
               </div>
@@ -190,15 +200,11 @@ export function ProductRevealSectionSkeleton() {
           </div>
 
           {/* Helper Text */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 text-sm text-gray-500">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded animate-shimmer bg-current" />
-              <div className="h-4 w-40 rounded animate-shimmer bg-current" />
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded animate-shimmer bg-current" />
-              <div className="h-4 w-48 rounded animate-shimmer bg-current" />
-            </div>
+          <div className="flex items-center justify-center gap-2 pt-4 text-sm text-gray-500">
+            <Tag className="h-4 w-4 text-primary-500" />
+            <span className="font-[var(--font-inter)]">
+              Drag to reveal price drops
+            </span>
           </div>
         </div>
       </Container>

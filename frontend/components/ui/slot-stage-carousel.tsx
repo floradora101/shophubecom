@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useCallback, useMemo, useState } from "react";
 import type { ReactNode } from "react";
+import { NavigationButton } from "./navigation-button";
+import { DotIndicator } from "./dot-indicator";
 
 interface SlotStageCarouselProps<T> {
   items: T[];
@@ -77,9 +79,6 @@ export function SlotStageCarousel<T>({
 }: SlotStageCarouselProps<T>) {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // UI state (used for disabled styles)
-  const [isTransitioning, setIsTransitioning] = useState(false);
-
   // Refs to prevent double moves in the same tick (snap + click, etc.)
   const transitioningRef = useRef(false);
   const transitionTimerRef = useRef<number | null>(null);
@@ -100,14 +99,12 @@ export function SlotStageCarousel<T>({
   // Transition lock helper (prevents double navigation)
   const startTransitionLock = useCallback((ms: number) => {
     transitioningRef.current = true;
-    setIsTransitioning(true);
 
     if (transitionTimerRef.current)
       window.clearTimeout(transitionTimerRef.current);
 
     transitionTimerRef.current = window.setTimeout(() => {
       transitioningRef.current = false;
-      setIsTransitioning(false);
     }, ms);
   }, []);
 
@@ -125,15 +122,6 @@ export function SlotStageCarousel<T>({
     startTransitionLock(LOCK_MS);
     onActiveIndexChange((activeIndex - 1 + total) % total);
   }, [activeIndex, total, onActiveIndexChange, startTransitionLock]);
-
-  const goToIndex = useCallback(
-    (index: number) => {
-      if (transitioningRef.current) return;
-      startTransitionLock(LOCK_MS);
-      onActiveIndexChange(index);
-    },
-    [onActiveIndexChange, startTransitionLock]
-  );
 
   // Keyboard nav
   const handleKeyDown = (event: React.KeyboardEvent) => {
@@ -296,74 +284,34 @@ export function SlotStageCarousel<T>({
       {/* Navigation Buttons */}
       {total > 1 && (
         <>
-          <button
-            type="button"
+          <NavigationButton
+            variant="primary"
+            direction="left"
             onMouseDown={(e) => e.stopPropagation()}
             onClick={goToPrev}
-            disabled={isTransitioning}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full border-2 border-primary-300 bg-white hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label="Previous item"
-          >
-            <svg
-              className="w-5 h-5 text-primary-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-10"
+          />
 
-          <button
-            type="button"
+          <NavigationButton
+            variant="primary"
+            direction="right"
             onMouseDown={(e) => e.stopPropagation()}
             onClick={goToNext}
-            disabled={isTransitioning}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-3 rounded-full border-2 border-primary-300 bg-white hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label="Next item"
-          >
-            <svg
-              className="w-5 h-5 text-primary-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </button>
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-10"
+          />
         </>
       )}
 
       {/* Dots Indicator */}
       {total > 1 && (
-        <div className="flex justify-center items-center gap-2 mt-8">
-          {items.map((_, index) => (
-            <button
-              type="button"
-              key={index}
-              onMouseDown={(e) => e.stopPropagation()}
-              onClick={() => goToIndex(index)}
-              disabled={isTransitioning}
-              className={`transition-all duration-500 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed ${
-                index === activeIndex
-                  ? "w-3 h-3 bg-primary-600 shadow-lg"
-                  : "w-2.5 h-2.5 bg-primary-200 hover:bg-primary-400 hover:scale-110"
-              }`}
-              aria-label={`Go to item ${index + 1} of ${items.length}`}
-              aria-current={index === activeIndex ? "true" : "false"}
-            />
-          ))}
-        </div>
+        <DotIndicator
+          count={total}
+          activeIndex={activeIndex}
+          onSelect={onActiveIndexChange}
+          shape="circle"
+          size="md"
+          className="mt-8"
+        />
       )}
     </div>
   );

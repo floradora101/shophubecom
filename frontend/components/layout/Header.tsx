@@ -1,7 +1,7 @@
 // Professional consolidated header with navigation and actions for tech store.
 "use client";
 
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
@@ -12,6 +12,7 @@ import { useAuthStore } from "@/store/auth-store";
 import { useCart } from "@/features/cart/hooks";
 import { CartSidebar } from "@/features/cart/components/CartSidebar";
 import { AuthModal } from "@/features/auth";
+import * as NavigationMenu from "@radix-ui/react-navigation-menu";
 import {
   mockCategories,
   mockCategoryToCategory,
@@ -80,7 +81,7 @@ const MegaMenu = ({ categoryTree }: { categoryTree: CategoryNode[] }) => {
                 href={`/products/category/${category.slug}`}
                 className={MENU_HEADING_LINK_CLASS}
               >
-                {category.name}
+                {category.name.toUpperCase()}
               </Link>
             </h3>
 
@@ -148,9 +149,6 @@ export function Header() {
     "login"
   );
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isShopAllOpen, setIsShopAllOpen] = useState(false);
-  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const prevPathnameRef = useRef(pathname);
 
   // Category data
   const categories = useMemo(
@@ -177,54 +175,6 @@ export function Header() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [pathname, router]);
 
-  // Shop All mega menu handlers
-  const openShopAll = useCallback(() => {
-    if (closeTimeoutRef.current) {
-      clearTimeout(closeTimeoutRef.current);
-      closeTimeoutRef.current = null;
-    }
-    setIsShopAllOpen(true);
-  }, []);
-
-  const closeShopAll = useCallback(() => {
-    closeTimeoutRef.current = setTimeout(() => {
-      setIsShopAllOpen(false);
-    }, 150); // 150ms delay to prevent flicker
-  }, []);
-
-  // Close on escape key
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isShopAllOpen) {
-        setIsShopAllOpen(false);
-      }
-    };
-
-    window.addEventListener("keydown", handleEscape);
-    return () => window.removeEventListener("keydown", handleEscape);
-  }, [isShopAllOpen]);
-
-  // Close on outside click
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as Element;
-      if (isShopAllOpen && !target.closest("[data-shop-all]")) {
-        setIsShopAllOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isShopAllOpen]);
-
-  // Close on route change
-  useEffect(() => {
-    if (prevPathnameRef.current !== pathname) {
-      setIsShopAllOpen(false);
-      prevPathnameRef.current = pathname;
-    }
-  }, [pathname]);
-
   return (
     <>
       {/* Sticky Header Stack */}
@@ -238,7 +188,7 @@ export function Header() {
           className="w-full bg-white border-b border-gray-200 shadow-sm"
           role="banner"
         >
-          <div className="container mx-auto px-4 md:px-6 lg:px-8">
+          <div className="container mx-auto px-4 md:px-6 lg:px-8 relative">
             {/* Top Bar - Logo, Search, Cart, Auth */}
             <div className="flex h-16 items-center justify-between">
               {/* Logo */}
@@ -256,100 +206,90 @@ export function Header() {
               </Link>
 
               {/* Desktop Navigation - Categories */}
-              <nav className="hidden lg:flex items-center justify-center flex-1 mx-8">
-                {/* Shop All Mega Menu */}
-                <div
-                  className="h-full"
-                  data-shop-all
-                  onMouseEnter={openShopAll}
-                  onMouseLeave={closeShopAll}
-                >
-                  <button
-                    type="button"
-                    className="flex h-full items-center gap-2 px-4 text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors rounded-lg hover:bg-gray-50"
-                    aria-haspopup="menu"
-                    aria-expanded={isShopAllOpen}
-                    aria-controls="shop-all-menu"
-                  >
-                    Shop All
-                    <ChevronDown
-                      className={`h-4 w-4 transition-transform ${
-                        isShopAllOpen ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
+              <NavigationMenu.Root className="hidden lg:flex items-center justify-center flex-1 mx-8">
+                <NavigationMenu.List className="flex items-center w-full justify-center">
+                  {/* Shop All Mega Menu */}
+                  <NavigationMenu.Item>
+                    <NavigationMenu.Trigger className="flex h-full items-center gap-2 px-4 text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors rounded-lg hover:bg-gray-50 data-[state=open]:text-primary-700 data-[state=open]:bg-gray-50">
+                      Shop All
+                      <ChevronDown className="h-4 w-4 transition-transform data-[state=open]:rotate-180" />
+                    </NavigationMenu.Trigger>
 
-                  {isShopAllOpen && (
-                    <div className="absolute left-1/2 top-full z-60 pt-6">
-                      <div className="-translate-x-1/2 w-[min(100vw-2rem,80rem)]">
+                    <NavigationMenu.Content className="absolute left-1/2 top-full mt-2 z-50">
+                      <div className="fixed left-[50vw] -translate-x-1/2 w-[min(100vw-2rem,80rem)]">
                         <MegaMenu categoryTree={categoryTree} />
                       </div>
-                    </div>
-                  )}
-                </div>
+                    </NavigationMenu.Content>
+                  </NavigationMenu.Item>
 
-                {/* Individual Category Links */}
-                {categoryTree.slice(0, 6).map((category) => (
-                  <div key={category.id} className="relative h-full">
-                    {category.children?.length > 0 ? (
-                      <>
-                        <button
-                          type="button"
-                          className="peer flex h-full items-center gap-1.5 px-4 text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors rounded-lg hover:bg-gray-50"
-                          aria-haspopup="menu"
-                        >
-                          {category.name}
-                          <ChevronDown className="h-3 w-3 transition-transform peer-hover:rotate-180" />
-                        </button>
+                  {/* Individual Category Links */}
+                  {categoryTree.slice(0, 6).map((category) => (
+                    <NavigationMenu.Item
+                      key={category.id}
+                      className="relative h-full"
+                    >
+                      {category.children?.length > 0 ? (
+                        <>
+                          <NavigationMenu.Trigger className="flex h-full items-center gap-1.5 px-4 text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors rounded-lg hover:bg-gray-50 data-[state=open]:text-primary-600 data-[state=open]:bg-gray-50">
+                            {category.name.toUpperCase()}
+                            <ChevronDown className="h-3 w-3 transition-transform data-[state=open]:rotate-180" />
+                          </NavigationMenu.Trigger>
 
-                        <div className="absolute left-1/2 top-full z-50 -translate-x-1/2 pt-6 hidden peer-hover:block hover:block">
-                          <div
-                            className={`${MENU_PANEL_CLASS} w-72 ${MENU_PAD_CLASS}`}
-                          >
-                            <div className={MENU_SECTION_GAP}>
-                              <Link
-                                href={`/products/category/${category.slug}`}
-                                className={MENU_HEADING_LINK_CLASS}
-                              >
-                                {category.name}
-                              </Link>
+                          <NavigationMenu.Content className="absolute left-1/2 top-full -translate-x-1/2 mt-2 z-50">
+                            <div
+                              className={`${MENU_PANEL_CLASS} w-72 ${MENU_PAD_CLASS}`}
+                            >
+                              <div className={MENU_SECTION_GAP}>
+                                <Link
+                                  href={`/products/category/${category.slug}`}
+                                  className={MENU_HEADING_LINK_CLASS}
+                                >
+                                  {category.name.toUpperCase()}
+                                </Link>
 
-                              <div className="space-y-1">
-                                {category.children.map((child) => (
-                                  <Link
-                                    key={child.id}
-                                    href={`/products/category/${child.slug}`}
-                                    className={MENU_ITEM_LINK_CLASS}
-                                  >
-                                    {child.name}
-                                  </Link>
-                                ))}
+                                <div className="space-y-1">
+                                  {category.children.map((child) => (
+                                    <Link
+                                      key={child.id}
+                                      href={`/products/category/${child.slug}`}
+                                      className={MENU_ITEM_LINK_CLASS}
+                                    >
+                                      {child.name}
+                                    </Link>
+                                  ))}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </div>
-                      </>
-                    ) : (
-                      <Link
-                        href={`/products/category/${category.slug}`}
-                        className="flex h-full items-center px-4 text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors rounded-lg hover:bg-gray-50"
-                      >
-                        {category.name}
-                      </Link>
-                    )}
-                  </div>
-                ))}
+                          </NavigationMenu.Content>
+                        </>
+                      ) : (
+                        <NavigationMenu.Link asChild>
+                          <Link
+                            href={`/products/category/${category.slug}`}
+                            className="flex h-full items-center px-4 text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors rounded-lg hover:bg-gray-50"
+                          >
+                            {category.name.toUpperCase()}
+                          </Link>
+                        </NavigationMenu.Link>
+                      )}
+                    </NavigationMenu.Item>
+                  ))}
 
-                {/* More Categories */}
-                {categoryTree.length > 6 && (
-                  <Link
-                    href="/products"
-                    className="flex h-full items-center px-4 text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors rounded-lg hover:bg-gray-50"
-                  >
-                    More
-                  </Link>
-                )}
-              </nav>
+                  {/* More Categories */}
+                  {categoryTree.length > 6 && (
+                    <NavigationMenu.Item>
+                      <NavigationMenu.Link asChild>
+                        <Link
+                          href="/products"
+                          className="flex h-full items-center px-4 text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors rounded-lg hover:bg-gray-50"
+                        >
+                          More
+                        </Link>
+                      </NavigationMenu.Link>
+                    </NavigationMenu.Item>
+                  )}
+                </NavigationMenu.List>
+              </NavigationMenu.Root>
 
               {/* Actions */}
               <div className="flex items-center gap-2">
@@ -410,7 +350,7 @@ export function Header() {
                         setAuthModalTab("login");
                         setAuthModalOpen(true);
                       }}
-                      className="bg-white border border-warm-gray-300 text-warm-gray-700 hover:text-primary-600 hover:border-primary-500 transition-colors rounded-lg"
+                      className="bg-white border border-warm-gray-300 text-warm-gray-700 hover:bg-primary-500 hover:text-white hover:border-primary-500 transition-colors rounded-lg"
                     >
                       Login
                     </Button>
@@ -450,7 +390,7 @@ export function Header() {
                   {/* Shop All */}
                   <Link
                     href="/products"
-                    className="block px-4 py-2 text-base font-semibold text-primary-600 hover:text-primary-700 transition-colors"
+                    className="block px-4 py-2 text-base font-semibold text-primary-600 hover:text-primary-600 transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Shop All
@@ -468,7 +408,7 @@ export function Header() {
                           className="block px-4 py-2 text-sm font-medium text-gray-900 hover:text-primary-600 transition-colors uppercase"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
-                          {category.name}
+                          {category.name.toUpperCase()}
                         </Link>
 
                         {category.children?.length > 0 && (
