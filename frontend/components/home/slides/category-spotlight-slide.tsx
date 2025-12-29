@@ -55,7 +55,7 @@ export const CategorySpotlightSlide = memo(function CategorySpotlightSlide({
                 "bg-"
               )} rounded-full mt-2 flex-shrink-0`}
             ></div>
-            <span className="text-gray-700 font-[var(--font-inter)]">
+            <span className="text-sm sm:text-base text-gray-700 font-[var(--font-inter)]">
               {bullet}
             </span>
           </div>
@@ -65,7 +65,7 @@ export const CategorySpotlightSlide = memo(function CategorySpotlightSlide({
       {/* CTAs */}
       <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
         <Link href={slide.ctaPrimary.href}>
-          <Button className="group w-full sm:w-auto">
+          <Button className="group w-auto">
             <span className="flex items-center gap-2">
               {slide.ctaPrimary.label}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -74,7 +74,7 @@ export const CategorySpotlightSlide = memo(function CategorySpotlightSlide({
         </Link>
         {slide.ctaSecondary && (
           <Link href={slide.ctaSecondary.href}>
-            <Button variant="outline" className="w-full sm:w-auto">
+            <Button variant="outline" className="w-auto">
               {slide.ctaSecondary.label}
             </Button>
           </Link>

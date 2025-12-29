@@ -366,7 +366,11 @@ export function DepartmentTabs({
           >
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-fade-in">
               {selectedProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  layout="vertical"
+                />
               ))}
               {/* Render skeleton placeholders to maintain grid shape */}
               {Array.from({ length: skeletonCount }).map((_, index) => (

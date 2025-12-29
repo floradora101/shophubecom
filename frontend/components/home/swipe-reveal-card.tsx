@@ -101,7 +101,7 @@ export function SwipeRevealCard({
       {/* Reveal Layer - Use standard ProductCard component */}
       <div className="absolute inset-0 z-0 bg-white">
         <div className="p-4 h-full">
-          <ProductCard product={product} />
+          <ProductCard product={product} layout="vertical" />
         </div>
       </div>
 

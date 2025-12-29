@@ -1,7 +1,7 @@
 // Modern Product Detail Page - 2026 Editorial Style
 "use client";
 
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronRight, AlertTriangle } from "lucide-react";
@@ -24,7 +24,8 @@ import {
 import { getAllProductImages } from "@/features/products/utils/product-images";
 import { ProductGallery } from "./components/ProductGallery";
 import { ProductPurchasePanel } from "./components/ProductPurchasePanel";
-import { QualityMiniStrip } from "./components/QualityMiniStrip";
+import { TrustBadges } from "./components/TrustBadges";
+import { SecureCheckoutBadge } from "./components/SecureCheckoutBadge";
 import { ProductDetailsAccordion } from "./components/ProductDetailsAccordion";
 import { YouMayAlsoLike } from "./components/YouMayAlsoLike";
 import { StickyPurchaseBar } from "./components/StickyPurchaseBar";
@@ -49,7 +50,7 @@ function ProductGallerySkeleton() {
         {Array.from({ length: 4 }, (_, i) => (
           <div
             key={i}
-            className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border border-gray-200"
+            className="shrink-0 w-16 h-16 rounded-lg overflow-hidden border border-gray-200"
           >
             <SkeletonBlock className="w-full h-full rounded-none" />
           </div>
@@ -190,43 +191,48 @@ export function ProductDetailSkeleton() {
 
       {/* Main Content */}
       <Container className="py-6 sm:py-8 lg:py-12 pb-24 lg:pb-0">
-        {/* ShopHub Brand & Title */}
-        <div className="mx-auto lg:ml-auto lg:mr-0 w-full max-w-[420px] sm:max-w-[520px] mb-6 sm:mb-8 lg:mb-10">
-          <div className="text-xs sm:text-sm text-gray-500 uppercase tracking-wide font-medium mb-2">
-            <SkeletonBlock className="h-4 w-16" />
-          </div>
-          <SkeletonBlock className="h-10 w-full" />
-        </div>
-
-        <div className="grid gap-8 sm:gap-12 lg:grid-cols-[1fr_1fr] lg:gap-12 xl:grid-cols-[minmax(0,600px)_minmax(0,1fr)] xl:gap-16 2xl:gap-20 min-w-0">
-          {/* Gallery */}
-          <div className="order-1 lg:order-1 lg:sticky lg:top-24 self-start min-w-0">
+        <div className="grid gap-8 sm:gap-12 lg:grid-cols-[minmax(0,600px)_minmax(0,1fr)] lg:gap-12 xl:gap-16 2xl:gap-20 min-w-0">
+          {/* Left Column - Gallery Only */}
+          <div className="order-1 lg:order-1 min-w-0 lg:min-h-[calc(100vh-var(--sticky-top)-16px)]">
             <ProductGallerySkeleton />
           </div>
 
-          {/* Purchase Panel + Accordions */}
-          <div className="order-2 lg:order-2 space-y-6 sm:space-y-8 min-w-0">
-            <div id="purchase-section">
-              <ProductPurchasePanelSkeleton />
-            </div>
-
-            {/* Quality Strip */}
-            <div className="flex items-center justify-center gap-6 py-4">
-              {Array.from({ length: 3 }, (_, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <SkeletonBlock className="w-5 h-5 rounded" />
-                  <SkeletonBlock className="h-4 w-20" />
+          {/* Right Column - Sticky Sidebar */}
+          <div className="order-2 lg:order-2 min-w-0 lg:sticky lg:top-(--sticky-top) self-start">
+            <div className="space-y-6 sm:space-y-8 lg:h-[calc(100vh-var(--sticky-top)-16px)] lg:overflow-y-auto scrollbar-hide">
+              {/* ShopHub Brand & Title - Inside scrollable container */}
+              <div className="w-full mb-6 sm:mb-8 lg:mb-10 text-left">
+                <div className="text-xs sm:text-sm text-gray-500 uppercase tracking-wide font-medium mb-2">
+                  <SkeletonBlock className="h-4 w-16" />
                 </div>
-              ))}
-            </div>
+                <SkeletonBlock className="h-10 w-full" />
+              </div>
 
-            {/* Product Details */}
-            <ProductDetailsAccordionSkeleton />
+              <div id="purchase-section">
+                <ProductPurchasePanelSkeleton />
+              </div>
+
+              {/* Quality Strip */}
+              <div className="flex items-center justify-center gap-6 py-4">
+                {Array.from({ length: 3 }, (_, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <SkeletonBlock className="w-5 h-5 rounded" />
+                    <SkeletonBlock className="h-4 w-20" />
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* You May Also Like Section */}
-        <YouMayAlsoLikeSkeleton />
+        {/* Full-width sections below the grid */}
+        <div className="mt-12 sm:mt-16 lg:mt-20 space-y-12 sm:space-y-16 lg:space-y-20">
+          {/* Product Details Accordion */}
+          <ProductDetailsAccordionSkeleton />
+
+          {/* You May Also Like Section */}
+          <YouMayAlsoLikeSkeleton />
+        </div>
       </Container>
     </div>
   );
@@ -273,6 +279,10 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
   const [showStickyBar, setShowStickyBar] = useState(false);
   const [showSelectionError, setShowSelectionError] = useState(false);
 
+  // Refs for scroll hijacking
+  const pdpSectionRef = useRef<HTMLDivElement>(null);
+  const sidebarScrollerRef = useRef<HTMLDivElement>(null);
+
   // Update URL when selections change
   const updateUrlWithSelections = useCallback(
     (newSelections: Record<string, string>) => {
@@ -299,10 +309,82 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
       { threshold: 0, rootMargin: "-100px 0px 0px 0px" }
     );
 
-    const purchaseSection = document.getElementById("purchase-section");
-    if (purchaseSection) observer.observe(purchaseSection);
+    const productGallery = document.getElementById("product-gallery");
+    if (productGallery) observer.observe(productGallery);
 
     return () => observer.disconnect();
+  }, []);
+
+  // Global scroll hijacking for PDP section (desktop only)
+  useEffect(() => {
+    let rafId: number | null = null;
+    let lastTime = 0;
+
+    const isDesktop = () => window.matchMedia("(min-width: 1024px)").matches;
+    const isTouchDevice = () =>
+      "ontouchstart" in window || navigator.maxTouchPoints > 0;
+
+    const onWheel = (e: WheelEvent) => {
+      // Only handle on desktop, not on touch devices
+      if (!isDesktop() || isTouchDevice()) return;
+
+      const pdpSection = pdpSectionRef.current;
+      const sidebarScroller = sidebarScrollerRef.current;
+
+      // Only hijack if PDP section is in view and sidebar exists
+      if (!pdpSection || !sidebarScroller) return;
+
+      const rect = pdpSection.getBoundingClientRect();
+      const isInView = rect.top < window.innerHeight && rect.bottom > 0;
+
+      if (!isInView) return;
+
+      // Ignore horizontal scroll (don't break horizontal gestures)
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+
+      const deltaY = e.deltaY;
+      const { scrollTop, scrollHeight, clientHeight } = sidebarScroller;
+
+      // Check if sidebar can scroll in the intended direction
+      const canScrollUp = scrollTop > 0;
+      const canScrollDown = scrollTop < scrollHeight - clientHeight - 1;
+
+      let shouldHijack = false;
+
+      if (deltaY > 0 && canScrollDown) {
+        // Scrolling down and sidebar can scroll down
+        shouldHijack = true;
+      } else if (deltaY < 0 && canScrollUp) {
+        // Scrolling up and sidebar can scroll up
+        shouldHijack = true;
+      }
+
+      if (shouldHijack) {
+        e.preventDefault();
+
+        // Throttle with requestAnimationFrame
+        const now = Date.now();
+        if (now - lastTime >= 16) {
+          // ~60fps
+          lastTime = now;
+          sidebarScroller.scrollTop += deltaY;
+        } else {
+          if (rafId) cancelAnimationFrame(rafId);
+          rafId = requestAnimationFrame(() => {
+            sidebarScroller.scrollTop += deltaY;
+            rafId = null;
+          });
+        }
+      }
+      // If can't hijack (at scroll limits), let normal page scroll happen
+    };
+
+    window.addEventListener("wheel", onWheel, { passive: false });
+
+    return () => {
+      window.removeEventListener("wheel", onWheel);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   // Get category for breadcrumbs
@@ -594,20 +676,27 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
       </div>
 
       {/* Main Content */}
-      <Container className="py-6 sm:py-8 lg:py-12 pb-24 lg:pb-0 overflow-x-hidden">
-        {/* ShopHub Brand & Title */}
-        <div className="mx-auto lg:ml-auto lg:mr-0 w-full max-w-[420px] sm:max-w-[520px] mb-6 sm:mb-8 lg:mb-10">
+      <Container className="py-6 sm:py-8 lg:py-12 pb-24 lg:pb-0">
+        {/* Product Title - Show first on small screens */}
+        <div className="w-full mb-6 sm:mb-8 lg:hidden text-left">
           <div className="text-xs sm:text-sm text-gray-500 uppercase tracking-wide font-medium mb-2">
             ShopHub
           </div>
-          <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-semibold text-gray-900 leading-tight">
+          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 leading-tight">
             {product.name}
           </h1>
         </div>
 
-        <div className="grid gap-8 sm:gap-12 lg:grid-cols-[1fr_1fr] lg:gap-12 xl:grid-cols-[minmax(0,600px)_minmax(0,1fr)] xl:gap-16 2xl:gap-20 min-w-0">
-          {/* Gallery */}
-          <div className="order-1 lg:order-1 lg:sticky lg:top-24 self-start min-w-0">
+        {/* PDP Grid Section */}
+        <div
+          ref={pdpSectionRef}
+          className="grid gap-8 sm:gap-12 lg:grid-cols-[minmax(0,600px)_minmax(0,1fr)] lg:gap-12 xl:gap-16 2xl:gap-20 min-w-0"
+        >
+          {/* Left Column - Gallery Only */}
+          <div
+            id="product-gallery"
+            className="order-2 lg:order-1 min-w-0 lg:min-h-[calc(100vh-var(--sticky-top)-16px)]"
+          >
             <ProductGallery
               images={galleryImages}
               productName={product.name}
@@ -616,44 +705,68 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
             />
           </div>
 
-          {/* Purchase Panel + Accordions */}
-          <div className="order-2 lg:order-2 space-y-6 sm:space-y-8 min-w-0">
-            <div id="purchase-section">
-              <ProductPurchasePanel
-                product={product}
-                category={category}
-                selectedVariant={selectedVariant}
-                effectivePrice={effectivePrice}
-                hasDiscount={!!hasDiscount}
-                discountPercent={discountPercent}
-                originalPrice={product.originalPrice}
-                isOutOfStock={!!isOutOfStock}
-                isUnavailable={!!isUnavailable}
-                effectiveStock={effectiveStock}
-                canAddToCart={!!canAddToCart}
-                quantity={quantity}
-                optionKeys={optionKeys}
-                allOptionValues={allOptionValues}
-                selectedOptions={selectedOptionsState}
-                isUserSelectionComplete={isUserSelectionComplete}
-                isInvalidSelection={isInvalidSelection}
-                showSelectionError={showSelectionError}
-                onOptionSelect={handleOptionSelect}
-                onQuantityChange={handleQuantityChange}
-                onAddToCart={handleAddToCart}
-              />
+          {/* Right Column - Sticky Sidebar */}
+          <div className="order-3 lg:order-2 min-w-0 lg:sticky lg:top-(--sticky-top) self-start">
+            {/* Internal Scroll Container */}
+            <div
+              ref={sidebarScrollerRef}
+              className="space-y-6 sm:space-y-8 scrollbar-hide lg:h-[calc(100vh-var(--sticky-top)-16px)] lg:overflow-y-auto"
+            >
+              {/* ShopHub Brand & Title - Inside scrollable container (hidden on lg+) */}
+              <div className="w-full mb-6 sm:mb-8 lg:mb-10 text-left hidden lg:block">
+                <div className="text-xs sm:text-sm text-gray-500 uppercase tracking-wide font-medium mb-2">
+                  ShopHub
+                </div>
+                <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-semibold text-gray-900 leading-tight">
+                  {product.name}
+                </h1>
+              </div>
+
+              <div id="purchase-section">
+                <ProductPurchasePanel
+                  product={product}
+                  category={category}
+                  selectedVariant={selectedVariant}
+                  effectivePrice={effectivePrice}
+                  hasDiscount={!!hasDiscount}
+                  discountPercent={discountPercent}
+                  originalPrice={product.originalPrice}
+                  isOutOfStock={!!isOutOfStock}
+                  isUnavailable={!!isUnavailable}
+                  effectiveStock={effectiveStock}
+                  canAddToCart={!!canAddToCart}
+                  quantity={quantity}
+                  optionKeys={optionKeys}
+                  allOptionValues={allOptionValues}
+                  selectedOptions={selectedOptionsState}
+                  isUserSelectionComplete={isUserSelectionComplete}
+                  isInvalidSelection={isInvalidSelection}
+                  showSelectionError={showSelectionError}
+                  onOptionSelect={handleOptionSelect}
+                  onQuantityChange={handleQuantityChange}
+                  onAddToCart={handleAddToCart}
+                />
+              </div>
+
+              {/* Trust Badges */}
+              <TrustBadges />
+
+              {/* Secure Checkout Badge */}
+              <div className="flex justify-center mt-4">
+                <SecureCheckoutBadge />
+              </div>
             </div>
-
-            {/* Quality Strip */}
-            <QualityMiniStrip />
-
-            {/* Product Details */}
-            <ProductDetailsAccordion product={product} />
           </div>
         </div>
 
-        {/* You May Also Like Section */}
-        <YouMayAlsoLike currentProduct={product} />
+        {/* Full-width sections below the grid */}
+        <div className="mt-12 sm:mt-16 lg:mt-20 space-y-12 sm:space-y-16 lg:space-y-20">
+          {/* Product Details Accordion */}
+          <ProductDetailsAccordion product={product} />
+
+          {/* You May Also Like Section */}
+          <YouMayAlsoLike currentProduct={product} />
+        </div>
       </Container>
 
       {/* Mobile Sticky Purchase Bar */}

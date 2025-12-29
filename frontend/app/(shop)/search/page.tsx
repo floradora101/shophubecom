@@ -5,6 +5,7 @@ import React, {
   useEffect,
   useRef,
   useCallback,
+  useReducer,
   Suspense,
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -13,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { ProductCard } from "@/features/products/components/ProductCard";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import {
   mockProducts,
   mockProductToProduct,
@@ -168,91 +170,143 @@ function SearchPage() {
   // Refs
   const inputRef = useRef<HTMLInputElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const countAbortControllerRef = useRef<AbortController | null>(null);
 
   // Caches for results and counts
   const liveResultsCache = useRef<Map<string, Product[]>>(new Map());
   const resultsCountCache = useRef<Map<string, number>>(new Map());
 
-  // Live search results (always shown as user types)
-  const [liveResults, setLiveResults] = useState<Product[]>([]);
-  const [totalResultsCount, setTotalResultsCount] = useState<number>(0);
+  // Search state reducer
+  type SearchState = {
+    liveResults: Product[];
+    totalResultsCount: number;
+    isLoadingResults: boolean;
+    isLoadingCount: boolean;
+  };
 
-  // Load live results when input changes
+  type SearchAction =
+    | { type: "CLEAR_RESULTS" }
+    | { type: "SET_LOADING_RESULTS"; payload: boolean }
+    | { type: "SET_LOADING_COUNT"; payload: boolean }
+    | { type: "SET_LIVE_RESULTS"; payload: Product[] }
+    | { type: "SET_TOTAL_COUNT"; payload: number };
+
+  const initialSearchState: SearchState = {
+    liveResults: [],
+    totalResultsCount: 0,
+    isLoadingResults: false,
+    isLoadingCount: false,
+  };
+
+  const searchReducer = (
+    state: SearchState,
+    action: SearchAction
+  ): SearchState => {
+    switch (action.type) {
+      case "CLEAR_RESULTS":
+        return {
+          ...state,
+          liveResults: [],
+          totalResultsCount: 0,
+          isLoadingResults: false,
+          isLoadingCount: false,
+        };
+      case "SET_LOADING_RESULTS":
+        return { ...state, isLoadingResults: action.payload };
+      case "SET_LOADING_COUNT":
+        return { ...state, isLoadingCount: action.payload };
+      case "SET_LIVE_RESULTS":
+        return { ...state, liveResults: action.payload };
+      case "SET_TOTAL_COUNT":
+        return { ...state, totalResultsCount: action.payload };
+      default:
+        return state;
+    }
+  };
+
+  const [searchState, dispatch] = useReducer(searchReducer, initialSearchState);
+
+  // Extract values for easier access
+  const { liveResults, totalResultsCount, isLoadingResults, isLoadingCount } =
+    searchState;
+
+  // Load live results and count when input changes
   useEffect(() => {
     const trimmedInput = inputValue.trim();
 
     // Clear results if input is empty
     if (!trimmedInput.length) {
-      setLiveResults([]);
+      dispatch({ type: "CLEAR_RESULTS" });
       return;
     }
 
-    // Check cache first
+    // Check cache first for live results
     if (liveResultsCache.current.has(trimmedInput)) {
-      setLiveResults(liveResultsCache.current.get(trimmedInput)!);
-      return;
-    }
-
-    // Abort previous request
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
-
-    fetchResults(trimmedInput, controller.signal)
-      .then((fetchedResults) => {
-        if (!controller.signal.aborted) {
-          liveResultsCache.current.set(trimmedInput, fetchedResults);
-          setLiveResults(fetchedResults);
-        }
-      })
-      .catch((error) => {
-        if (!controller.signal.aborted) {
-          console.error("Failed to fetch live results:", error);
-          setLiveResults([]);
-        }
+      dispatch({
+        type: "SET_LIVE_RESULTS",
+        payload: liveResultsCache.current.get(trimmedInput)!,
       });
-  }, [inputValue]);
+      dispatch({ type: "SET_LOADING_RESULTS", payload: false });
+    } else {
+      // Abort previous request
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
 
-  // Load total results count when input changes
-  useEffect(() => {
-    const trimmedInput = inputValue.trim();
+      dispatch({ type: "SET_LOADING_RESULTS", payload: true });
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
 
-    // Clear count if input is empty
-    if (!trimmedInput.length) {
-      setTotalResultsCount(0);
-      return;
+      fetchResults(trimmedInput, controller.signal)
+        .then((fetchedResults) => {
+          if (!controller.signal.aborted) {
+            liveResultsCache.current.set(trimmedInput, fetchedResults);
+            dispatch({ type: "SET_LIVE_RESULTS", payload: fetchedResults });
+            dispatch({ type: "SET_LOADING_RESULTS", payload: false });
+          }
+        })
+        .catch((error) => {
+          if (!controller.signal.aborted) {
+            console.error("Failed to fetch live results:", error);
+            dispatch({ type: "SET_LIVE_RESULTS", payload: [] });
+            dispatch({ type: "SET_LOADING_RESULTS", payload: false });
+          }
+        });
     }
 
-    // Check cache first
+    // Check cache first for count
     if (resultsCountCache.current.has(trimmedInput)) {
-      setTotalResultsCount(resultsCountCache.current.get(trimmedInput)!);
-      return;
-    }
-
-    // Abort previous request
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    const controller = new AbortController();
-    abortControllerRef.current = controller;
-
-    fetchResultsCount(trimmedInput, controller.signal)
-      .then((count) => {
-        if (!controller.signal.aborted) {
-          resultsCountCache.current.set(trimmedInput, count);
-          setTotalResultsCount(count);
-        }
-      })
-      .catch((error) => {
-        if (!controller.signal.aborted) {
-          console.error("Failed to fetch results count:", error);
-          setTotalResultsCount(0);
-        }
+      dispatch({
+        type: "SET_TOTAL_COUNT",
+        payload: resultsCountCache.current.get(trimmedInput)!,
       });
+      dispatch({ type: "SET_LOADING_COUNT", payload: false });
+    } else {
+      // Abort previous count request
+      if (countAbortControllerRef.current) {
+        countAbortControllerRef.current.abort();
+      }
+
+      dispatch({ type: "SET_LOADING_COUNT", payload: true });
+      const countController = new AbortController();
+      countAbortControllerRef.current = countController;
+
+      fetchResultsCount(trimmedInput, countController.signal)
+        .then((count) => {
+          if (!countController.signal.aborted) {
+            resultsCountCache.current.set(trimmedInput, count);
+            dispatch({ type: "SET_TOTAL_COUNT", payload: count });
+            dispatch({ type: "SET_LOADING_COUNT", payload: false });
+          }
+        })
+        .catch((error) => {
+          if (!countController.signal.aborted) {
+            console.error("Failed to fetch results count:", error);
+            dispatch({ type: "SET_TOTAL_COUNT", payload: 0 });
+            dispatch({ type: "SET_LOADING_COUNT", payload: false });
+          }
+        });
+    }
   }, [inputValue]);
 
   // Update URL when input changes (for bookmarking)
@@ -346,61 +400,78 @@ function SearchPage() {
 
       {/* Search Results */}
       <Container className="py-8">
-        {inputValue.trim() && liveResults.length > 0 ? (
-          // Live search results
+        {inputValue.trim() ? (
+          // Show search results or loading state
           <>
-            <div className="mb-6">
-              <div className="flex items-center justify-between gap-4">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  {totalResultsCount} result
-                  {totalResultsCount === 1 ? "" : "s"} for &ldquo;{inputValue}
-                  &rdquo;
-                </h2>
-                {totalResultsCount >= 2 && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      router.push(
-                        `/search/results?q=${encodeURIComponent(inputValue)}`
-                      )
-                    }
-                    className="gap-2"
-                  >
-                    View all results ({totalResultsCount})
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
+            {!isLoadingResults && !isLoadingCount && (
+              <div className="mb-6">
+                <div className="flex items-center justify-between gap-4">
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    {totalResultsCount} result
+                    {totalResultsCount === 1 ? "" : "s"} for &ldquo;
+                    {inputValue}
+                    &rdquo;
+                  </h2>
+                  {totalResultsCount >= 2 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        router.push(
+                          `/search/results?q=${encodeURIComponent(inputValue)}`
+                        )
+                      }
+                      className="gap-2"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {liveResults.map((product) => (
-                <div
-                  key={product.id}
-                  className="transform scale-95 hover:scale-100 transition-transform cursor-pointer"
-                  onClick={() => router.push(`/products/${product.slug}`)}
-                >
-                  <ProductCard product={product} compact />
+                      View all results ({totalResultsCount})
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
+                    </Button>
+                  )}
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
+
+            {isLoadingResults || isLoadingCount ? (
+              <div className="flex justify-center py-12">
+                <LoadingSpinner
+                  variant="card"
+                  size="lg"
+                  message="Searching for products..."
+                />
+              </div>
+            ) : liveResults.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {liveResults.map((product) => (
+                  <div
+                    key={product.id}
+                    className="transform scale-95 hover:scale-100 transition-transform cursor-pointer"
+                    onClick={() => router.push(`/products/${product.slug}`)}
+                  >
+                    <ProductCard
+                      product={product}
+                      compact
+                      layout="horizontal"
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              // No results found - only show when not loading
+              <EmptyState query={inputValue} />
+            )}
           </>
-        ) : inputValue.trim() && liveResults.length === 0 ? (
-          // No results found
-          <EmptyState query={inputValue} />
         ) : (
           // Empty state when no input
           <EmptyState query="" />

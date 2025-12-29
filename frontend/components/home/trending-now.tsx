@@ -7,7 +7,6 @@ import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { SkeletonBlock } from "@/components/ui/skeleton";
 import { SlotStageCarousel } from "@/components/ui/slot-stage-carousel";
-import { NavigationButton } from "@/components/ui/navigation-button";
 import { Text } from "@/components/ui/typography";
 import { SectionTitle } from "./shared/section-header";
 import { ui } from "@/lib/ui-tokens";
@@ -18,7 +17,10 @@ import type { Product, Category } from "@/features/products/types";
 import { useCart } from "@/features/cart/hooks";
 import { getEffectiveStock } from "@/features/products/utils/inventory";
 import { formatPrice } from "@/lib/utils";
-import { getProductImageWithPlaceholder, getDiscountInfo } from "@/lib/utils/products";
+import {
+  getProductImageWithPlaceholder,
+  getDiscountInfo,
+} from "@/lib/utils/products";
 import { ShoppingCart, Sparkles } from "lucide-react";
 import { getGradientClass } from "@/lib/utils/gradients";
 
@@ -260,8 +262,6 @@ export function TrendingNow({ trendingProducts }: TrendingNowProps) {
     [trendingProducts]
   );
 
-  const isNavigationDisabled = safeTrendingProducts.length <= 1;
-
   // Detect mobile breakpoint
   useEffect(() => {
     const checkMobile = () => {
@@ -293,13 +293,6 @@ export function TrendingNow({ trendingProducts }: TrendingNowProps) {
     },
     [pauseAutoplayFor]
   );
-
-  const goToPrev = useCallback(() => {
-    const len = safeTrendingProducts.length;
-    if (len <= 1) return;
-    pauseAutoplayFor(5000);
-    setActiveIndex((prev) => (prev === 0 ? len - 1 : prev - 1));
-  }, [pauseAutoplayFor, safeTrendingProducts.length]);
 
   // Auto-play functionality
   useEffect(() => {
@@ -348,18 +341,6 @@ export function TrendingNow({ trendingProducts }: TrendingNowProps) {
                 are flying off the shelves!
               </Text>
             </div>
-
-            {/* Additional Navigation Arrows - For larger screens */}
-            {!isNavigationDisabled && !isMobile && (
-              <div className={cn("flex", ui.gap.xs)}>
-                <NavigationButton
-                  variant="primary"
-                  direction="left"
-                  onClick={goToPrev}
-                  aria-label="Previous product"
-                />
-              </div>
-            )}
           </div>
 
           {/* Slot Stage Carousel with Auto-play */}
@@ -373,7 +354,7 @@ export function TrendingNow({ trendingProducts }: TrendingNowProps) {
               activeIndex={activeIndex}
               onActiveIndexChange={handleIndexChange}
               isMobile={isMobile}
-              renderCard={(product, index, isCenter) => (
+              renderCard={(product, index) => (
                 <TrendingProductCard
                   product={product}
                   onCardClick={() => handleIndexChange(index)}

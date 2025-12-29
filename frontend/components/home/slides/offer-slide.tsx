@@ -42,7 +42,7 @@ export const OfferSlide = memo(function OfferSlide({
       {/* Headline with Offer Label */}
       <div className="space-y-4">
         <div
-          className={`inline-block px-6 py-3 rounded-2xl ${accentClasses.bgGradient} border-2 ${accentClasses.border} shadow-xl text-[clamp(2.25rem,8vw,3.75rem)] font-bold ${accentClasses.accentDark} font-[var(--font-dm-sans)] tracking-tight`}
+          className={`inline-block px-4 py-2 sm:px-6 sm:py-3 rounded-2xl ${accentClasses.bgGradient} border-2 ${accentClasses.border} shadow-xl text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold ${accentClasses.accentDark} font-[var(--font-dm-sans)] tracking-tight`}
         >
           {slide.offerLabel}
         </div>
@@ -89,7 +89,7 @@ export const OfferSlide = memo(function OfferSlide({
       {/* CTAs */}
       <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
         <Link href={slide.ctaPrimary.href}>
-          <Button className="group w-full sm:w-auto">
+          <Button className="group w-auto">
             <span className="flex items-center gap-2">
               {slide.ctaPrimary.label}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -98,7 +98,7 @@ export const OfferSlide = memo(function OfferSlide({
         </Link>
         {slide.ctaSecondary && (
           <Link href={slide.ctaSecondary.href}>
-            <Button variant="outline" className="w-full sm:w-auto">
+            <Button variant="outline" className="w-auto">
               {slide.ctaSecondary.label}
             </Button>
           </Link>

@@ -39,7 +39,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="[scrollbar-gutter:stable]">
       <body
-        className={`${geistMono.variable} ${dmSans.variable} ${inter.variable} antialiased overflow-x-hidden`}
+        className={`${geistMono.variable} ${dmSans.variable} ${inter.variable} antialiased`}
       >
         <AppProviders>{children}</AppProviders>
       </body>

@@ -3,7 +3,6 @@
 // Hero slider with smooth sliding animations and synchronized sections
 
 import { useState, useEffect, useRef, useMemo } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Section } from "@/components/ui/section";
 import { SkeletonBlock } from "@/components/ui/skeleton";
 import { NavigationButton } from "@/components/ui/navigation-button";
@@ -253,20 +252,20 @@ export function HeroSplit({
           {sortedSlides.length > 1 && (
             <>
               {/* Arrows */}
-              <button
+              <NavigationButton
+                variant="primary"
+                direction="left"
                 onClick={prevSlide}
-                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-30 p-2 sm:p-3 rounded-full border-2 border-primary-300 bg-white hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110"
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-30"
                 aria-label="Previous slide"
-              >
-                <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 text-primary-500" />
-              </button>
-              <button
+              />
+              <NavigationButton
+                variant="primary"
+                direction="right"
                 onClick={nextSlide}
-                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-30 p-2 sm:p-3 rounded-full border-2 border-primary-300 bg-white hover:bg-primary-50 hover:border-primary-500 transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110"
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-30"
                 aria-label="Next slide"
-              >
-                <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 text-primary-500" />
-              </button>
+              />
 
               {/* Indicators */}
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30">

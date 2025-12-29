@@ -103,7 +103,7 @@ export const LandscapeHeroSlide = memo(function LandscapeHeroSlide({
               }`}
             >
               <Link href={slide.ctaPrimary.href}>
-                <Button className="group w-full sm:w-auto">
+                <Button className="group w-auto">
                   <span className="flex items-center gap-2">
                     {slide.ctaPrimary.label}
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -112,7 +112,7 @@ export const LandscapeHeroSlide = memo(function LandscapeHeroSlide({
               </Link>
               {slide.ctaSecondary && (
                 <Link href={slide.ctaSecondary.href}>
-                  <Button variant="outline" className="w-full sm:w-auto">
+                  <Button variant="outline" className="w-auto">
                     {slide.ctaSecondary.label}
                   </Button>
                 </Link>

@@ -3,7 +3,7 @@
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { SkeletonBlock } from "@/components/ui/skeleton";
-import { Cpu, Zap, Shield, Users, TrendingUp } from "lucide-react";
+import { Cpu, Zap, Shield } from "lucide-react";
 import Image from "next/image";
 import { SectionTitle } from "./shared/section-header";
 import { BackgroundGradients } from "./shared/background-gradients";
@@ -26,12 +26,6 @@ const techValues = [
       "Rigorous quality standards ensure lasting value and satisfaction",
     icon: Shield,
   },
-];
-
-const achievements = [
-  { value: "50K+", label: "Tech Enthusiasts", icon: Users },
-  { value: "15K+", label: "Premium Gadgets", icon: Cpu },
-  { value: "99%", label: "Satisfaction Rate", icon: TrendingUp },
 ];
 
 export function BrandStory() {
@@ -138,42 +132,6 @@ export function BrandStory() {
                 ></div>
               </div>
             </div>
-
-            {/* Achievements Grid */}
-            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 lg:p-8 shadow-lg border border-white/20">
-              <div className="text-center mb-6 sm:mb-8">
-                <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-2 font-[var(--font-inter)]">
-                  Our Impact
-                </h3>
-                <p className="text-gray-600 font-[var(--font-inter)] text-sm sm:text-base">
-                  Numbers that drive our mission forward
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 sm:gap-6">
-                {achievements.map((achievement, index) => {
-                  const Icon = achievement.icon;
-                  return (
-                    <div
-                      key={achievement.label}
-                      className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-white/40 rounded-xl border border-white/30 hover:bg-white/60 transition-all duration-300"
-                    >
-                      <div className="shrink-0 w-12 h-12 bg-gradient-to-br from-primary-50 to-primary-100/50 rounded-xl flex items-center justify-center border border-primary-200/30">
-                        <Icon className="h-6 w-6 text-primary-600" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-2xl lg:text-3xl font-black text-gray-900 font-[var(--font-inter)]">
-                          {achievement.value}
-                        </div>
-                        <div className="text-sm font-medium text-gray-600 uppercase tracking-wide font-[var(--font-inter)]">
-                          {achievement.label}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
           </div>
         </div>
       </Container>
@@ -216,17 +174,6 @@ export function BrandStorySkeleton() {
               <SkeletonBlock className="h-4 w-5/6 mx-auto rounded" />
               <SkeletonBlock className="h-4 w-4/5 mx-auto rounded" />
             </div>
-          </div>
-
-          {/* Stats Section */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {Array.from({ length: 3 }, (_, i) => (
-              <div key={i} className="text-center space-y-4">
-                <SkeletonBlock className="w-8 h-8 mx-auto rounded" />
-                <SkeletonBlock className="h-8 w-16 mx-auto rounded" />
-                <SkeletonBlock className="h-4 w-24 mx-auto rounded" />
-              </div>
-            ))}
           </div>
 
           {/* Content Section */}

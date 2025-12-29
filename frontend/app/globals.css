@@ -170,6 +170,12 @@
   --z-index-tooltip: 1070;
   --z-index-toast: 1080;
 
+  /* Sticky Top Offset - Header height + spacing */
+  --sticky-top: 96px;
+
+  /* Sticky Top Offset - Header height + spacing */
+  --sticky-top: 96px;
+
   /* Animation Durations */
   --duration-fast: 150ms;
   --duration-normal: 300ms;

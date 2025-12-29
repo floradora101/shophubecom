@@ -157,7 +157,7 @@ export function ProductPurchasePanel({
         onClick={canAddToCart ? onAddToCart : undefined}
         disabled={!canAddToCart}
         variant="destructive"
-        className="w-full sm:w-auto h-12 sm:h-10 text-sm font-medium rounded-lg"
+        className="w-auto h-10 sm:h-9 text-sm font-medium rounded-lg"
         size="default"
       >
         {isOutOfStock

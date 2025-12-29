@@ -1,11 +1,12 @@
-// ProductRevealSection: Swipe-to-reveal section with price drops
+// ProductRevealSection: Swipe-to-reveal carousel with price drops
 "use client";
 
-import { useMemo } from "react";
+import { useRef, useMemo } from "react";
 import { Zap, Tag } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { SkeletonBlock } from "@/components/ui/skeleton";
+import { NavigationButton } from "@/components/ui/navigation-button";
 import { SwipeRevealCard } from "./swipe-reveal-card";
 import { SectionHeader } from "./shared/section-header";
 import { BackgroundGradients } from "./shared/background-gradients";
@@ -24,7 +25,9 @@ interface RevealProduct {
 }
 
 export function ProductRevealSection({ products }: ProductRevealSectionProps) {
-  // Prepare reveal products: 4 price drop reveals
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Prepare reveal products: 8 price drop reveals for carousel
   const revealProducts = useMemo<RevealProduct[]>(() => {
     const safeProducts = ensureArray(products);
     if (safeProducts.length === 0) return [];
@@ -43,8 +46,8 @@ export function ProductRevealSection({ products }: ProductRevealSectionProps) {
 
     const reveals: RevealProduct[] = [];
 
-    // Add exactly 4 price drop reveals
-    productsWithDiscounts.slice(0, 4).forEach((product) => {
+    // Add up to 8 price drop reveals
+    productsWithDiscounts.slice(0, 8).forEach((product) => {
       reveals.push({
         product,
         revealType: "price",
@@ -52,11 +55,11 @@ export function ProductRevealSection({ products }: ProductRevealSectionProps) {
     });
 
     // Fallback: if not enough discounted products found, create sale-like experiences
-    if (reveals.length < 4) {
+    if (reveals.length < 8) {
       const remainingProducts = safeProducts.filter(
         (p) => !reveals.some((r) => r.product.id === p.id)
       );
-      remainingProducts.slice(0, 4 - reveals.length).forEach((product) => {
+      remainingProducts.slice(0, 8 - reveals.length).forEach((product) => {
         // Create a simulated discount for products without real discounts
         const simulatedProduct = {
           ...product,
@@ -74,9 +77,18 @@ export function ProductRevealSection({ products }: ProductRevealSectionProps) {
       });
     }
 
-    // Return exactly 4 price reveals
-    return reveals.slice(0, 4);
+    // Return up to 8 price reveals
+    return reveals.slice(0, 8);
   }, [products]);
+
+  const scroll = (direction: "left" | "right") => {
+    if (!scrollRef.current) return;
+    const scrollAmount = 320;
+    scrollRef.current.scrollBy({
+      left: direction === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth",
+    });
+  };
 
   if (revealProducts.length === 0) {
     return null;
@@ -101,16 +113,39 @@ export function ProductRevealSection({ products }: ProductRevealSectionProps) {
             }}
             title={{ italic: "Swipe", bold: "to Reveal" }}
             description="Discover exclusive price drops by dragging the handle"
+            actions={
+              <div className="hidden md:flex gap-2">
+                <NavigationButton
+                  variant="primary"
+                  direction="left"
+                  onClick={() => scroll("left")}
+                  aria-label="Scroll left"
+                />
+                <NavigationButton
+                  variant="primary"
+                  direction="right"
+                  onClick={() => scroll("right")}
+                  aria-label="Scroll right"
+                />
+              </div>
+            }
           />
 
-          {/* Reveal Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Reveal Cards Carousel */}
+          <div
+            ref={scrollRef}
+            className="flex gap-6 overflow-x-auto pb-6 scrollbar-hide scroll-smooth"
+          >
             {revealProducts.map((reveal) => (
-              <SwipeRevealCard
+              <div
                 key={`${reveal.product.id}-${reveal.revealType}`}
-                product={reveal.product}
-                revealType={reveal.revealType}
-              />
+                className="shrink-0 w-[280px]"
+              >
+                <SwipeRevealCard
+                  product={reveal.product}
+                  revealType={reveal.revealType}
+                />
+              </div>
             ))}
           </div>
 
@@ -152,47 +187,46 @@ export function ProductRevealSectionSkeleton() {
             <SkeletonBlock className="h-5 w-96 rounded" />
           </div>
 
-          {/* Reveal Cards Grid - matches production: grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {Array.from({ length: 4 }, (_, i) => (
-              <div
-                key={i}
-                className="relative bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden min-h-[300px] md:min-h-[350px]"
-              >
-                {/* Card content skeleton - matches SwipeRevealCard structure */}
-                <div className="p-4 h-full">
-                  {/* ProductCard inside SwipeRevealCard */}
-                  <div className="flex flex-col w-full">
-                    {/* Image area - aspect-square */}
-                    <SkeletonBlock className="aspect-square rounded-lg border border-warm-gray-200 mb-3" />
+          {/* Reveal Cards Carousel - matches production: horizontal scroll with w-[280px] cards */}
+          <div className="flex gap-6 overflow-x-auto pb-6">
+            {Array.from({ length: 6 }, (_, i) => (
+              <div key={i} className="shrink-0 w-[280px]">
+                <div className="relative bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden min-h-[300px] md:min-h-[350px]">
+                  {/* Card content skeleton - matches SwipeRevealCard structure */}
+                  <div className="p-4 h-full">
+                    {/* ProductCard inside SwipeRevealCard */}
+                    <div className="flex flex-col w-full">
+                      {/* Image area - aspect-square */}
+                      <SkeletonBlock className="aspect-square rounded-lg border border-warm-gray-200 mb-3" />
 
-                    {/* Product info */}
-                    <div className="mt-3 space-y-1 min-h-16 flex flex-col justify-end">
-                      {/* Product name skeleton - matches line-clamp-2 */}
-                      <SkeletonBlock className="h-4 md:h-5" />
-                      <SkeletonBlock className="h-4 md:h-5 w-3/4" />
+                      {/* Product info */}
+                      <div className="mt-3 space-y-1 min-h-16 flex flex-col justify-end">
+                        {/* Product name skeleton - matches line-clamp-2 */}
+                        <SkeletonBlock className="h-4 md:h-5" />
+                        <SkeletonBlock className="h-4 md:h-5 w-3/4" />
 
-                      {/* Rating skeleton (optional) */}
-                      <SkeletonBlock className="h-3 w-1/2 mt-1" />
+                        {/* Rating skeleton (optional) */}
+                        <SkeletonBlock className="h-3 w-1/2 mt-1" />
 
-                      {/* Price skeleton - matches pricing layout */}
-                      <div className="flex items-baseline gap-2 flex-wrap mt-2">
-                        <SkeletonBlock className="h-4 md:h-5 w-16" />
-                        <SkeletonBlock className="h-3 w-12" />
-                        <SkeletonBlock className="h-3 w-20" />
+                        {/* Price skeleton - matches pricing layout */}
+                        <div className="flex items-baseline gap-2 flex-wrap mt-2">
+                          <SkeletonBlock className="h-4 md:h-5 w-16" />
+                          <SkeletonBlock className="h-3 w-12" />
+                          <SkeletonBlock className="h-3 w-20" />
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Swipe handle - matches SwipeRevealCard handle structure */}
-                <div
-                  className="absolute top-0 bottom-0 z-20 flex items-center justify-center select-none"
-                  style={{ left: "50%", transform: "translateX(-50%)" }}
-                >
-                  <div className="flex items-center gap-1.5">
-                    <SkeletonBlock className="flex items-center justify-center w-6 h-6 rounded-full" />
-                    <SkeletonBlock className="flex items-center justify-center w-6 h-6 rounded-full" />
+                  {/* Swipe handle - matches SwipeRevealCard handle structure */}
+                  <div
+                    className="absolute top-0 bottom-0 z-20 flex items-center justify-center select-none"
+                    style={{ left: "50%", transform: "translateX(-50%)" }}
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <SkeletonBlock className="flex items-center justify-center w-6 h-6 rounded-full" />
+                      <SkeletonBlock className="flex items-center justify-center w-6 h-6 rounded-full" />
+                    </div>
                   </div>
                 </div>
               </div>

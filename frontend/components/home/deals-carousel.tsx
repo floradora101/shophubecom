@@ -78,7 +78,7 @@ export function LatestProductsCarousel() {
           >
             {latestProducts.map((product) => (
               <div key={product.id} className="shrink-0 w-[280px]">
-                <ProductCard product={product} />
+                <ProductCard product={product} layout="vertical" />
               </div>
             ))}
           </div>

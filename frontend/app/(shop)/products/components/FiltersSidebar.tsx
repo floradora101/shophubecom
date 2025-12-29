@@ -398,9 +398,9 @@ export function FiltersSidebar({
               <Truck className="w-5 h-5 text-primary-600 shrink-0" />
               <div>
                 <p className="text-sm font-medium text-primary-700">
-                  Free Shipping
+                  Free Delivery
                 </p>
-                <p className="text-xs text-primary-600">On orders over $50</p>
+                <p className="text-xs text-primary-600">All over Lebanon</p>
               </div>
             </div>
 
@@ -422,7 +422,9 @@ export function FiltersSidebar({
                 <p className="text-sm font-medium text-primary-900">
                   Easy Exchange
                 </p>
-                <p className="text-xs text-primary-800">30-day return policy</p>
+                <p className="text-xs text-primary-800">
+                  3 days exchange policy
+                </p>
               </div>
             </div>
           </div>
@@ -463,9 +465,7 @@ export function FiltersSidebar({
                 <p className="text-sm font-medium text-primary-700">
                   Phone Support
                 </p>
-                <p className="text-xs text-primary-600 font-mono">
-                  +961 3 123 456
-                </p>
+                <p className="text-xs text-primary-600">+961 3 123 456</p>
               </div>
             </div>
 

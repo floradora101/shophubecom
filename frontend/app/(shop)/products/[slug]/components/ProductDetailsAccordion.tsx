@@ -1,9 +1,10 @@
-// Modern Professional Product Details Accordion - Trendy & Unique Design
+// Premium Product Details Accordion - Matching TrustBadges Styling
 "use client";
 
 import React, { useState } from "react";
 import { ChevronDown, FileText, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { Stack } from "@/components/ui/stack";
 import type { Product } from "@/features/products/types";
@@ -30,74 +31,80 @@ function AccordionItem({
   index,
 }: AccordionItemProps) {
   return (
-    <div className="group relative overflow-hidden">
-      {/* Subtle gradient background */}
-      <div
-        className={`absolute inset-0 bg-linear-to-r from-transparent via-slate-50/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
-      />
+    <Card
+      variant="default"
+      padding="none"
+      className="group relative bg-white/95 backdrop-blur-xl shadow-xl border border-white/30 hover:shadow-2xl hover:shadow-primary-500/15 transition-all duration-700 hover:-translate-y-3 overflow-hidden mb-3"
+    >
+      {/* Premium background gradient overlay */}
+      <div className="absolute inset-0 bg-linear-to-br from-white/40 via-transparent to-primary-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-lg" />
 
       {/* Main content */}
-      <div className="relative border border-slate-200/60 rounded-lg sm:rounded-xl mb-2 sm:mb-3 overflow-hidden bg-white/80 backdrop-blur-sm hover:bg-white hover:border-slate-300 transition-all duration-300 hover:shadow-md active:scale-[0.99] sm:active:scale-100">
+      <div className="relative">
         <Button
           variant="ghost"
           onClick={onToggle}
-          className="w-full justify-between p-4 sm:p-6 text-left hover:bg-transparent transition-all duration-200 rounded-none h-auto min-h-[60px] sm:min-h-[72px]"
+          className="w-full justify-between p-4 sm:p-5 text-left hover:bg-transparent transition-all duration-200 rounded-none h-auto min-h-[60px] sm:min-h-[72px]"
         >
           <div className="flex items-center gap-3 sm:gap-4">
-            {/* Icon with animated background */}
-            <div
-              className={`relative p-1.5 sm:p-2 rounded-lg transition-all duration-300 ${
-                isOpen
-                  ? "bg-primary-100 text-primary-600 shadow-sm"
-                  : "bg-slate-100 text-slate-500 group-hover:bg-slate-200"
-              }`}
-            >
-              <div className="w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
-                {icon}
+            {/* Enhanced Icon Section */}
+            <div className="relative shrink-0">
+              <div className="relative">
+                {/* Icon glow effect */}
+                <div className="absolute inset-0 bg-linear-to-br from-primary-50 via-primary-100 to-primary-200 rounded-lg blur-lg opacity-0 group-hover:opacity-60 transition-opacity duration-700 scale-150" />
+
+                {/* Main icon container */}
+                <div
+                  className={`relative w-7 h-7 sm:w-8 sm:h-8 bg-linear-to-br from-primary-50 via-primary-100 to-primary-200 rounded-lg shadow-lg border border-white/50 group-hover:shadow-xl group-hover:scale-110 group-hover:-rotate-3 transition-all duration-700 flex items-center justify-center ${
+                    isOpen ? "scale-110 -rotate-3" : ""
+                  }`}
+                >
+                  <div className="text-primary-600">{icon}</div>
+                </div>
+
+                {/* Subtle shine effect */}
+                <div className="absolute inset-0 rounded-lg bg-linear-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
               </div>
-              {/* Animated dot indicator */}
-              <div
-                className={`absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all duration-300 ${
-                  isOpen ? "bg-primary-500 scale-100" : "bg-slate-400 scale-0"
-                }`}
-              />
             </div>
 
-            <div className="space-y-0.5 sm:space-y-1 min-w-0 flex-1">
-              <span className="text-sm sm:text-base font-semibold text-gray-900 tracking-wide block truncate">
+            <div className="flex-1 min-w-0">
+              <span className="text-sm sm:text-base font-bold text-warm-gray-900 leading-tight group-hover:text-primary-600 transition-colors duration-500 block truncate mb-0.5">
                 {title}
               </span>
-              <div className="text-xs text-slate-500 uppercase tracking-wider font-medium">
+              <div className="text-xs text-warm-gray-600 uppercase tracking-wider font-medium group-hover:text-warm-gray-700 transition-colors duration-300">
                 Section {index + 1}
               </div>
             </div>
           </div>
 
           <ChevronDown
-            className={`h-4 w-4 sm:h-5 sm:w-5 text-slate-400 transition-all duration-300 shrink-0 ${
+            className={`h-4 w-4 sm:h-5 sm:w-5 text-warm-gray-400 transition-all duration-700 shrink-0 ${
               isOpen
                 ? "rotate-180 text-primary-500"
-                : "group-hover:text-slate-600"
+                : "group-hover:text-warm-gray-600"
             }`}
           />
         </Button>
 
         {/* Expandable content with smooth animation */}
         <div
-          className={`overflow-hidden transition-all duration-400 ease-in-out ${
+          className={`overflow-hidden transition-all duration-700 ease-in-out ${
             isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
           }`}
         >
-          <div className="px-4 sm:px-6 pb-4 sm:pb-6 border-t border-slate-100 bg-linear-to-b from-slate-50/50 to-transparent">
+          <div className="px-4 sm:px-6 pb-4 sm:pb-6 border-t border-warm-gray-100 bg-linear-to-b from-warm-gray-50/50 to-transparent">
             <div className="pt-3 sm:pt-4">
-              <div className="text-gray-700 leading-relaxed text-sm sm:text-base whitespace-pre-line prose prose-sm max-w-none">
+              <div className="text-warm-gray-700 leading-relaxed text-sm sm:text-base whitespace-pre-line prose prose-sm max-w-none">
                 {content}
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Premium gradient accent */}
+      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-8 h-0.5 bg-linear-to-r from-primary-400 via-primary-500 to-primary-600 rounded-full opacity-60 group-hover:opacity-100 group-hover:w-12 transition-all duration-700" />
+    </Card>
   );
 }
 
@@ -161,24 +168,25 @@ export function ProductDetailsAccordion({
   };
 
   return (
-    <Stack
-      spacing="xs"
-      className="sm:space-y-4 mx-auto w-full max-w-[420px] sm:max-w-[520px]"
-    >
-      {/* Product Details Header using SectionTitle */}
-      <div className="w-full sm:w-auto lg:w-full">
-        <SectionTitle
-          badgeText="Product Details"
-          title="Learn More"
-          subtitle="Detailed information and specifications"
-          showHearts={false}
-          className="w-full text-center sm:text-left mx-auto mb-6 sm:mb-8"
-          badgeClassName="bg-slate-50 border-slate-200"
-        />
+    <div className="w-full space-y-6">
+      {/* Product Details Header - Premium styling */}
+      <div className="w-full text-center">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r from-primary-100 via-primary-50 to-primary-100 shadow-sm border border-primary-200/50 mb-4">
+          <FileText className="h-4 w-4 text-primary-600" />
+          <span className="text-sm font-semibold text-primary-600 font-inter tracking-wide">
+            Product Details
+          </span>
+        </div>
+        <h2 className="text-xl sm:text-2xl font-semibold text-warm-gray-900 mb-2">
+          Learn More
+        </h2>
+        <p className="text-sm text-warm-gray-600 max-w-xs mx-auto">
+          Detailed information and specifications
+        </p>
       </div>
 
-      {/* Modern accordion items */}
-      <Stack spacing="xs" className="sm:space-y-3">
+      {/* Premium accordion items */}
+      <div className="space-y-3">
         {sections.map((section, index) => {
           return (
             <AccordionItem
@@ -192,7 +200,7 @@ export function ProductDetailsAccordion({
             />
           );
         })}
-      </Stack>
-    </Stack>
+      </div>
+    </div>
   );
 }
