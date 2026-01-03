@@ -38,8 +38,8 @@ export function ProductGallery({
   }, []);
 
   const handleFullscreenToggle = useCallback(() => {
-    setShowFullscreen(!showFullscreen);
-  }, [showFullscreen]);
+    setShowFullscreen((prev) => !prev);
+  }, []);
 
   // Touch handlers for swipe functionality
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -68,8 +68,8 @@ export function ProductGallery({
 
   if (images.length === 0) {
     return (
-      <div className="aspect-4/5 rounded-2xl bg-slate-100 flex items-center justify-center">
-        <span className="text-slate-400 text-sm">No image available</span>
+      <div className="aspect-4/5 rounded-2xl bg-surface-muted flex items-center justify-center">
+        <span className="text-muted-fg text-sm">No image available</span>
       </div>
     );
   }
@@ -86,8 +86,8 @@ export function ProductGallery({
                 onClick={() => handleThumbnailClick(index)}
                 className={`relative w-16 h-16 xl:w-20 xl:h-20 rounded-lg xl:rounded-xl border-2 overflow-hidden transition-all duration-200 ${
                   index === activeIndex
-                    ? "border-gray-900 ring-2 ring-slate-100 shadow-sm"
-                    : "border-slate-200/60 hover:border-slate-300"
+                    ? "border-fg ring-2 ring-surface-muted shadow-sm"
+                    : "border-border hover:border-border-hover"
                 }`}
                 aria-label={`View image ${index + 1} of ${images.length}`}
               >
@@ -142,34 +142,35 @@ export function ProductGallery({
               <>
                 <button
                   onClick={handlePrevious}
-                  className="absolute left-2 sm:left-3 lg:left-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full bg-white/90 backdrop-blur-sm border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 lg:opacity-100 transition-opacity duration-200 hover:bg-white shadow-sm"
+                  className="absolute left-2 sm:left-3 lg:left-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full bg-surface/90 backdrop-blur-sm border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 lg:opacity-100 transition-opacity duration-200 hover:bg-surface shadow-sm"
                   aria-label="Previous image"
                 >
-                  <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-gray-700" />
+                  <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-fg" />
                 </button>
                 <button
                   onClick={handleNext}
-                  className="absolute right-2 sm:right-3 lg:right-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full bg-white/90 backdrop-blur-sm border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 lg:opacity-100 transition-opacity duration-200 hover:bg-white shadow-sm"
+                  className="absolute right-2 sm:right-3 lg:right-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full bg-surface/90 backdrop-blur-sm border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 lg:opacity-100 transition-opacity duration-200 hover:bg-surface shadow-sm"
                   aria-label="Next image"
                 >
-                  <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-gray-700" />
+                  <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-fg" />
                 </button>
               </>
             )}
 
             {/* Fullscreen Toggle */}
             <button
+              type="button"
               onClick={handleFullscreenToggle}
-              className="absolute top-2 right-2 sm:top-3 sm:right-3 lg:top-4 lg:right-4 w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full bg-white/90 backdrop-blur-sm border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 lg:opacity-100 transition-opacity duration-200 hover:bg-white shadow-sm"
+              className="absolute top-2 right-2 sm:top-3 sm:right-3 lg:top-4 lg:right-4 w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-full bg-surface/90 backdrop-blur-sm border border-white/20 flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity duration-200 hover:bg-surface shadow-sm z-10"
               aria-label="View fullscreen"
             >
-              <Expand className="h-3.5 w-3.5 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-gray-700" />
+              <Expand className="h-3.5 w-3.5 sm:h-4 sm:w-4 lg:h-5 lg:w-5 text-fg" />
             </button>
 
             {/* Out of Stock Overlay */}
             {(isOutOfStock || isUnavailable) && (
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[1px]">
-                <span className="bg-white/95 backdrop-blur-sm px-4 py-2 rounded-lg text-sm font-medium text-gray-900 uppercase tracking-wide border border-white/20">
+                <span className="bg-surface/95 backdrop-blur-sm px-4 py-2 rounded-lg text-sm font-medium text-fg uppercase tracking-wide border border-white/20">
                   {isUnavailable ? "Unavailable" : "Out of Stock"}
                 </span>
               </div>
@@ -203,8 +204,8 @@ export function ProductGallery({
                   onClick={() => handleThumbnailClick(index)}
                   className={`relative shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-lg border-2 overflow-hidden transition-all duration-200 ${
                     index === activeIndex
-                      ? "border-gray-900 ring-2 ring-slate-100 shadow-sm scale-105"
-                      : "border-slate-200/60 hover:border-slate-300 active:scale-95"
+                      ? "border-fg ring-2 ring-slate-100 shadow-sm scale-105"
+                      : "border-border hover:border-border-hover active:scale-95"
                   }`}
                   aria-label={`View image ${index + 1} of ${images.length}`}
                 >
@@ -223,7 +224,7 @@ export function ProductGallery({
 
           {/* Image Counter */}
           {images.length > 1 && (
-            <div className="text-center text-sm text-slate-500">
+            <div className="text-center text-sm text-muted-fg">
               {activeIndex + 1} of {images.length}
             </div>
           )}
@@ -237,7 +238,7 @@ export function ProductGallery({
           onClick={handleFullscreenToggle}
         >
           <div
-            className="relative w-full max-w-xs sm:max-w-sm md:max-w-2xl lg:max-w-4xl xl:max-w-5xl max-h-screen"
+            className="relative w-full max-w-xs sm:max-w-sm md:max-w-2xl lg:max-w-4xl xl:max-w-5xl h-[85vh]"
             onClick={(e) => e.stopPropagation()}
           >
             <Image
@@ -251,6 +252,7 @@ export function ProductGallery({
 
             {/* Close Button */}
             <button
+              type="button"
               onClick={handleFullscreenToggle}
               className="absolute top-2 right-2 sm:top-4 sm:right-4 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
               aria-label="Close fullscreen"
@@ -262,6 +264,7 @@ export function ProductGallery({
             {images.length > 1 && (
               <>
                 <button
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     handlePrevious();
@@ -272,6 +275,7 @@ export function ProductGallery({
                   <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
                 </button>
                 <button
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleNext();

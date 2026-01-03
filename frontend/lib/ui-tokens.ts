@@ -50,7 +50,29 @@ export const ui = {
     splitHeading: "ml-3", // 0.75rem - provides natural word separation
   } as const,
 
+  // Hero layout - consistent dimensions and spacing
+  hero: {
+    // Fixed responsive height using clamp for stable layout
+    // 520px min (mobile), 72svh ideal (desktop), 760px max
+    height: "h-[clamp(520px,72svh,760px)]",
+    // New single hero height token for 2026 design
+    h: "clamp(520px, 72svh, 760px)",
+  } as const,
+
   // Color tokens - comprehensive color system from globals.css
+  //
+  // 🚨 RESTRICTED PALETTE FOR STOREFRONT 🚨
+  //
+  // Storefront components MUST use ONLY these color families:
+  // - Design System tokens: bg, fg, surface, surface-muted, muted-fg, border, border-hover, ring
+  // - Primary/Secondary: primary-*, secondary-*
+  // - Semantic: success, error, warning, info
+  //
+  // DO NOT use: gray-*, slate-*, zinc-*, neutral-*, warm-gray-*, cream-*, white, black
+  // These should be replaced with ds tokens above.
+  //
+  // Admin-only components may use unrestricted colors if needed.
+  //
   colors: {
     // Primary red theme
     primary: {
@@ -129,84 +151,109 @@ export const ui = {
     foreground: "var(--foreground)",
   } as const,
 
-  // Hero slide theme configurations
+  // Motion tokens - standardized animation system
+  // Motion Guidelines:
+  // - fast (200ms): button hovers, small interactions, micro-feedback
+  // - base (300ms): standard transitions, form feedback, component state changes
+  // - slow (500ms): hero animations, large layout changes, image zooms
+  // - hero (500ms + premium ease): main hero slider, premium interactions
+  // - hover (200ms): all hover effects
+  // - enter/exit: modal/panel enter (250ms)/exit (200ms) animations
+  motion: {
+    fast: "duration-200 ease-out",
+    base: "duration-300 ease-out",
+    slow: "duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]", // premium ease
+    hero: "duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
+    hover: "duration-200 ease-out",
+    enter: "duration-250 ease-out",
+    exit: "duration-200 ease-in",
+    transform: "transition-transform",
+    opacity: "transition-opacity",
+    colors: "transition-colors",
+    all: "transition-all",
+  } as const,
+
+  // Hero slide theme configurations - Deep Red & Black/Gray Combinations
   themes: {
-    primary: {
+    crimson: {
       accent: "text-primary-600",
       accentLight: "text-primary-500",
       accentDark: "text-primary-700",
-      bgGradient: "from-primary-50 to-primary-100/50",
+      bgGradient: "from-primary-50 via-primary-100 to-primary-200/50",
       bgSolid: "bg-primary-50",
       border: "border-primary-200/50",
       borderLight: "border-primary-100/30",
-      badgeBg: "bg-primary-100",
+      badgeBg: "bg-linear-to-r from-primary-100 via-primary-200 to-primary-100",
       badgeBorder: "border-primary-200/50",
       glow: "bg-primary-500/20",
     } as const,
 
-    secondary: {
+    charcoal: {
       accent: "text-secondary-600",
       accentLight: "text-secondary-500",
       accentDark: "text-secondary-700",
-      bgGradient: "from-secondary-50 to-secondary-100/50",
+      bgGradient: "from-secondary-50 via-secondary-100 to-secondary-200/50",
       bgSolid: "bg-secondary-50",
       border: "border-secondary-200/50",
       borderLight: "border-secondary-100/30",
-      badgeBg: "bg-secondary-100",
+      badgeBg:
+        "bg-linear-to-r from-secondary-100 via-primary-100 to-secondary-100",
       badgeBorder: "border-secondary-200/50",
       glow: "bg-secondary-500/20",
     } as const,
 
-    blue: {
-      accent: "text-blue-600",
-      accentLight: "text-blue-500",
-      accentDark: "text-blue-700",
-      bgGradient: "from-blue-50 to-blue-100/50",
-      bgSolid: "bg-blue-50",
-      border: "border-blue-200/50",
-      borderLight: "border-blue-100/30",
-      badgeBg: "bg-blue-100",
-      badgeBorder: "border-blue-200/50",
-      glow: "bg-blue-500/20",
+    burgundy: {
+      accent: "text-primary-700",
+      accentLight: "text-primary-600",
+      accentDark: "text-primary-800",
+      bgGradient: "from-primary-100 via-primary-200 to-primary-300/50",
+      bgSolid: "bg-primary-100",
+      border: "border-primary-300/50",
+      borderLight: "border-primary-200/30",
+      badgeBg: "bg-linear-to-r from-primary-200 via-primary-300 to-primary-200",
+      badgeBorder: "border-primary-300/50",
+      glow: "bg-primary-600/20",
     } as const,
 
-    success: {
-      accent: "text-success",
-      accentLight: "text-success-light",
-      accentDark: "text-green-700",
-      bgGradient: "from-green-50 to-green-100/50",
-      bgSolid: "bg-green-50",
-      border: "border-green-200/50",
-      borderLight: "border-green-100/30",
-      badgeBg: "bg-green-100",
-      badgeBorder: "border-green-200/50",
-      glow: "bg-green-500/20",
+    oil: {
+      accent: "text-secondary-800",
+      accentLight: "text-secondary-700",
+      accentDark: "text-secondary-900",
+      bgGradient: "from-secondary-200 via-secondary-300 to-secondary-400/50",
+      bgSolid: "bg-secondary-200",
+      border: "border-secondary-400/50",
+      borderLight: "border-secondary-300/30",
+      badgeBg:
+        "bg-linear-to-r from-secondary-300 via-primary-200 to-secondary-300",
+      badgeBorder: "border-secondary-400/50",
+      glow: "bg-secondary-600/20",
     } as const,
 
-    warning: {
-      accent: "text-warning",
-      accentLight: "text-yellow-500",
-      accentDark: "text-yellow-700",
-      bgGradient: "from-yellow-50 to-yellow-100/50",
-      bgSolid: "bg-yellow-50",
-      border: "border-yellow-200/50",
-      borderLight: "border-yellow-100/30",
-      badgeBg: "bg-yellow-100",
-      badgeBorder: "border-yellow-200/50",
-      glow: "bg-yellow-500/20",
-    } as const,
-
-    cream: {
-      accent: "text-warm-gray-700",
-      accentLight: "text-warm-gray-600",
-      accentDark: "text-warm-gray-800",
-      bgGradient: "from-cream-50 to-cream-100/50",
+    silver: {
+      accent: "text-warm-gray-600",
+      accentLight: "text-warm-gray-500",
+      accentDark: "text-warm-gray-700",
+      bgGradient: "from-cream-50 via-cream-100 to-cream-200/50",
       bgSolid: "bg-cream-50",
       border: "border-warm-gray-200/50",
       borderLight: "border-warm-gray-100/30",
-      badgeBg: "bg-cream-100",
+      badgeBg: "bg-linear-to-r from-cream-100 via-primary-100 to-cream-100",
       badgeBorder: "border-warm-gray-200/50",
-      glow: "bg-warm-gray-500/10",
+      glow: "bg-warm-gray-400/15",
+    } as const,
+
+    midnight: {
+      accent: "text-secondary-900",
+      accentLight: "text-secondary-800",
+      accentDark: "text-black",
+      bgGradient: "from-secondary-300 via-secondary-400 to-secondary-500/50",
+      bgSolid: "bg-secondary-300",
+      border: "border-secondary-500/50",
+      borderLight: "border-secondary-400/30",
+      badgeBg:
+        "bg-linear-to-r from-secondary-400 via-primary-300 to-secondary-400",
+      badgeBorder: "border-secondary-500/50",
+      glow: "bg-secondary-700/20",
     } as const,
   } as const,
 } as const;
@@ -218,7 +265,9 @@ export type GapSpacing = keyof typeof ui.gap;
 export type IconSize = keyof typeof ui.icon;
 export type TypographySpacing = keyof typeof ui.typography;
 export type ColorToken = keyof typeof ui.colors;
-export type HeroTheme = keyof typeof ui.themes;
+export type HeroTheme = keyof typeof ui.themes; // crimson | charcoal | burgundy | oil | silver | midnight
+export type MotionToken = keyof typeof ui.motion;
+export type HeroLayoutToken = keyof typeof ui.hero;
 
 // Helper functions for applying tokens
 export const getIconClass = (size: IconSize = "md") => ui.icon[size];
@@ -231,19 +280,10 @@ export const getTypographySpacing = (
 export const getColorValue = (token: ColorToken) => ui.colors[token];
 export const getHeroTheme = (theme: HeroTheme) => ui.themes[theme];
 
-// Hero slide theme utilities
-export const getHeroAccentClasses = (theme: HeroTheme = "primary") => {
-  const themeConfig = ui.themes[theme];
-  return {
-    accent: themeConfig.accent,
-    accentLight: themeConfig.accentLight,
-    accentDark: themeConfig.accentDark,
-    bgGradient: themeConfig.bgGradient,
-    bgSolid: themeConfig.bgSolid,
-    border: themeConfig.border,
-    borderLight: themeConfig.borderLight,
-    badgeBg: themeConfig.badgeBg,
-    badgeBorder: themeConfig.badgeBorder,
-    glow: themeConfig.glow,
-  };
-};
+// Motion token helpers
+export const getMotion = (token: MotionToken) => ui.motion[token];
+export const motion = (...tokens: MotionToken[]) =>
+  tokens.map(getMotion).join(" ");
+
+// Hero theme validation utility (moved to separate file)
+// getHeroAccentClasses removed - themes now use CSS variables

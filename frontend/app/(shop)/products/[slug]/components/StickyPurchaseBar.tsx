@@ -39,11 +39,11 @@ export function StickyPurchaseBar({
   if (!show) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-3 sm:p-4 z-50 shadow-lg">
+    <div className="fixed bottom-0 left-0 right-0 bg-surface border-t border-border p-3 sm:p-4 z-50 shadow-lg">
       <div className="max-w-7xl mx-auto">
         {/* Product Title (mobile only) */}
         <div className="block sm:hidden mb-3">
-          <h3 className="text-sm font-medium text-gray-900 truncate">
+          <h3 className="text-sm font-medium text-fg truncate">
             {product.name}
           </h3>
         </div>
@@ -51,11 +51,11 @@ export function StickyPurchaseBar({
         <div className="flex items-center justify-between gap-3 sm:gap-4">
           <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
             <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-              <div className="font-bold text-gray-900 text-lg sm:text-base">
+              <div className="font-bold text-fg text-lg sm:text-base">
                 {formatPrice(effectivePrice)}
               </div>
               {hasDiscount && originalPrice && (
-                <span className="relative text-sm text-slate-400 font-medium px-1.5 py-0.5 rounded-sm bg-linear-to-r from-slate-100/50 to-transparent">
+                <span className="relative text-sm text-muted-fg font-medium px-1.5 py-0.5 rounded-sm bg-linear-to-r from-surface-muted/50 to-transparent">
                   {formatPrice(originalPrice)}
                   {/* Modern diagonal strike-through */}
                   <span className="absolute inset-0 flex items-center justify-center">
@@ -76,7 +76,7 @@ export function StickyPurchaseBar({
               <button
                 onClick={() => onQuantityChange(quantity - 1)}
                 disabled={quantity <= 1}
-                className="w-10 h-10 sm:w-8 sm:h-8 rounded-full border border-slate-200 flex items-center justify-center hover:bg-slate-50 disabled:opacity-50 active:scale-95 transition-all"
+                className="w-10 h-10 sm:w-8 sm:h-8 rounded-full border border-border flex items-center justify-center hover:bg-surface-muted disabled:opacity-50 active:scale-95 transition-all"
                 aria-label="Decrease quantity"
               >
                 <span className="text-lg font-medium">-</span>
@@ -87,7 +87,7 @@ export function StickyPurchaseBar({
               <button
                 onClick={() => onQuantityChange(quantity + 1)}
                 disabled={effectiveStock > 0 && quantity >= effectiveStock}
-                className="w-10 h-10 sm:w-8 sm:h-8 rounded-full border border-slate-200 flex items-center justify-center hover:bg-slate-50 disabled:opacity-50 active:scale-95 transition-all"
+                className="w-10 h-10 sm:w-8 sm:h-8 rounded-full border border-border flex items-center justify-center hover:bg-surface-muted disabled:opacity-50 active:scale-95 transition-all"
                 aria-label="Increase quantity"
               >
                 <span className="text-lg font-medium">+</span>

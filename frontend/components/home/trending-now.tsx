@@ -30,7 +30,7 @@ import { getGradientClass } from "@/lib/utils/gradients";
  */
 export function TrendingNowSkeleton() {
   return (
-    <Section className="bg-gradient-to-br from-gray-50 to-white">
+    <Section className="bg-linear-to-br from-gray-50 to-white">
       <Container size="full" className="px-4 md:px-6 lg:px-8">
         {/* Header skeleton */}
         <div className="text-center mb-12">
@@ -201,6 +201,13 @@ const TrendingProductCard = memo(
           <h3 className="text-sm md:text-base font-trendy font-semibold text-warm-gray-900 line-clamp-2">
             {product.name}
           </h3>
+
+          {/* Product Description */}
+          {product.description && (
+            <p className="text-xs md:text-sm text-warm-gray-600 line-clamp-2">
+              {product.description}
+            </p>
+          )}
 
           {/* Price Section */}
           <div className="flex items-baseline gap-2 flex-wrap">

@@ -1376,36 +1376,6 @@ export const mockProducts: MockProduct[] = [
     reviewCount: 892,
   },
   {
-    id: "samsung-galaxy-s24-ultra",
-    name: "Samsung Galaxy S24 Ultra",
-    slug: "samsung-galaxy-s24-ultra",
-    price: 1299.99,
-    originalPrice: 1399.99,
-    stock: 20,
-    images: [
-      "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=400&h=400&fit=crop",
-    ],
-    categorySlug: "samsung",
-    description:
-      "Premium Android flagship with S Pen and professional camera system.",
-    isActive: true,
-    isOnSale: true,
-    discountType: "PERCENTAGE",
-    discountValue: 7,
-    specs: [
-      { label: "Display", value: '6.8" Dynamic AMOLED 2X' },
-      { label: "Chip", value: "Snapdragon 8 Gen 3" },
-      {
-        label: "Camera",
-        value: "200MP Main + 50MP Periscope + 12MP Ultra Wide + 10MP Telephoto",
-      },
-      { label: "Storage", value: "256GB" },
-      { label: "S Pen", value: "Included" },
-    ],
-    rating: 4.7,
-    reviewCount: 1456,
-  },
-  {
     id: "oneplus-12",
     name: "OnePlus 12",
     slug: "oneplus-12",
@@ -1432,55 +1402,6 @@ export const mockProducts: MockProduct[] = [
   },
 
   // Additional Tablets
-  {
-    id: "ipad-pro-12-9-m4",
-    name: 'iPad Pro 12.9" M4',
-    slug: "ipad-pro-12-9-m4",
-    price: 1099.99,
-    stock: 15,
-    images: [
-      "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=400&fit=crop",
-    ],
-    categorySlug: "apple-tablets",
-    description:
-      "Ultra-thin laptop replacement with M4 chip and Apple Pencil support.",
-    isActive: true,
-    specs: [
-      { label: "Display", value: '12.9" Liquid Retina XDR' },
-      { label: "Chip", value: "Apple M4" },
-      { label: "Storage", value: "256GB" },
-      { label: "Battery", value: "Up to 10 hours" },
-      {
-        label: "Accessories",
-        value: "Apple Pencil & Magic Keyboard compatible",
-      },
-    ],
-    rating: 4.9,
-    reviewCount: 2341,
-  },
-  {
-    id: "samsung-galaxy-tab-s9-ultra",
-    name: "Samsung Galaxy Tab S9 Ultra",
-    slug: "samsung-galaxy-tab-s9-ultra",
-    price: 1199.99,
-    stock: 18,
-    images: [
-      "https://images.unsplash.com/photo-1584006682522-dc17d6c0d9ac?w=400&h=400&fit=crop",
-    ],
-    categorySlug: "samsung-tablets",
-    description:
-      "Large format Android tablet with S Pen and productivity features.",
-    isActive: true,
-    specs: [
-      { label: "Display", value: '14.6" Dynamic AMOLED 2X' },
-      { label: "Chip", value: "Snapdragon 8 Gen 2" },
-      { label: "Storage", value: "256GB" },
-      { label: "S Pen", value: "Included" },
-      { label: "Battery", value: "11200mAh" },
-    ],
-    rating: 4.5,
-    reviewCount: 678,
-  },
 
   // Additional Laptops
   {
@@ -1558,28 +1479,6 @@ export const mockProducts: MockProduct[] = [
 
   // Additional Wearables
   {
-    id: "apple-watch-ultra-2",
-    name: "Apple Watch Ultra 2",
-    slug: "apple-watch-ultra-2",
-    price: 799.99,
-    stock: 22,
-    images: [
-      "https://images.unsplash.com/photo-1551816230-ef5deaed4a26?w=400&h=400&fit=crop",
-    ],
-    categorySlug: "smart-watches",
-    description: "Rugged smartwatch for extreme sports and professional use.",
-    isActive: true,
-    specs: [
-      { label: "Display", value: "49mm Always-On Retina" },
-      { label: "Chip", value: "S9 SiP" },
-      { label: "Battery", value: "Up to 36 hours" },
-      { label: "Water Resistance", value: "100m" },
-      { label: "GPS", value: "Dual-frequency GPS" },
-    ],
-    rating: 4.8,
-    reviewCount: 1234,
-  },
-  {
     id: "samsung-galaxy-watch-6",
     name: "Samsung Galaxy Watch 6",
     slug: "samsung-galaxy-watch-6",
@@ -1606,97 +1505,8 @@ export const mockProducts: MockProduct[] = [
     rating: 4.3,
     reviewCount: 789,
   },
-  {
-    id: "sony-wh-1000xm5",
-    name: "Sony WH-1000XM5",
-    slug: "sony-wh-1000xm5",
-    price: 349.99,
-    stock: 28,
-    images: [
-      "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&h=400&fit=crop",
-    ],
-    categorySlug: "headsets",
-    description: "Industry-leading noise canceling wireless headphones.",
-    isActive: true,
-    specs: [
-      { label: "Driver", value: "30mm dynamic drivers" },
-      { label: "Battery", value: "Up to 30 hours" },
-      { label: "ANC", value: "Industry-leading noise canceling" },
-      { label: "Codec", value: "LDAC, AAC, SBC" },
-      { label: "Weight", value: "250g" },
-    ],
-    rating: 4.7,
-    reviewCount: 2156,
-  },
 
   // Additional Gaming Products
-  {
-    id: "playstation-5-slim",
-    name: "PlayStation 5 Slim",
-    slug: "playstation-5-slim",
-    price: 499.99,
-    stock: 5,
-    images: [
-      "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?w=400&h=400&fit=crop",
-    ],
-    categorySlug: "consoles",
-    description: "Next-gen gaming console with Ultra HD Blu-ray and 3D audio.",
-    isActive: true,
-    specs: [
-      { label: "CPU", value: "AMD Zen 2-based CPU" },
-      { label: "GPU", value: "10.28 TFLOPs, 36 CUs at 2.23GHz" },
-      { label: "RAM", value: "16GB GDDR6" },
-      { label: "Storage", value: "1TB SSD" },
-      { label: "Optical", value: "Ultra HD Blu-ray" },
-    ],
-    rating: 4.9,
-    reviewCount: 3456,
-  },
-  {
-    id: "xbox-series-x",
-    name: "Xbox Series X",
-    slug: "xbox-series-x",
-    price: 499.99,
-    stock: 3,
-    images: [
-      "https://images.unsplash.com/photo-1621259182978-fbf93132d53d?w=400&h=400&fit=crop",
-    ],
-    categorySlug: "consoles",
-    description:
-      "Most powerful Xbox ever with 4K gaming and Quick Resume technology.",
-    isActive: true,
-    specs: [
-      { label: "CPU", value: "8x Zen 2 Cores at 3.8GHz" },
-      { label: "GPU", value: "12 TFLOPs, 52 CUs at 1.825GHz" },
-      { label: "RAM", value: "16GB GDDR6" },
-      { label: "Storage", value: "1TB NVMe SSD" },
-      { label: "Resolution", value: "Up to 8K" },
-    ],
-    rating: 4.8,
-    reviewCount: 2876,
-  },
-  {
-    id: "nintendo-switch-oled",
-    name: "Nintendo Switch OLED",
-    slug: "nintendo-switch-oled",
-    price: 349.99,
-    stock: 15,
-    images: [
-      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop",
-    ],
-    categorySlug: "consoles",
-    description: "Enhanced Nintendo Switch with vibrant 7-inch OLED screen.",
-    isActive: true,
-    specs: [
-      { label: "Display", value: '7" OLED screen' },
-      { label: "CPU", value: "NVIDIA Custom Tegra processor" },
-      { label: "RAM", value: "4GB LPDDR4" },
-      { label: "Storage", value: "64GB internal" },
-      { label: "Battery", value: "Up to 9 hours" },
-    ],
-    rating: 4.5,
-    reviewCount: 1234,
-  },
 
   // Additional Accessories
   {
@@ -1843,29 +1653,6 @@ export const mockProducts: MockProduct[] = [
     rating: 4.6,
     reviewCount: 892,
   },
-  {
-    id: "airpods-pro-2",
-    name: "AirPods Pro (2nd generation)",
-    slug: "airpods-pro-2",
-    price: 249.99,
-    stock: 45,
-    images: [
-      "https://images.unsplash.com/photo-1606220945770-b5b6c2c9eaef?w=400&h=400&fit=crop",
-    ],
-    categorySlug: "earphones",
-    description:
-      "Wireless earbuds with Active Noise Cancellation and transparency mode.",
-    isActive: true,
-    specs: [
-      { label: "Driver", value: "Custom high-excursion Apple driver" },
-      { label: "ANC", value: "Up to 2x better" },
-      { label: "Battery", value: "Up to 6 hours with ANC" },
-      { label: "Charging", value: "MagSafe, Lightning, wireless" },
-      { label: "Water Resistance", value: "IPX4" },
-    ],
-    rating: 4.7,
-    reviewCount: 3456,
-  },
 
   // More Phones
   {
@@ -1966,150 +1753,6 @@ export const mockProducts: MockProduct[] = [
     ],
     rating: 4.4,
     reviewCount: 567,
-  },
-];
-
-// Mock deals data
-export interface MockDeal {
-  id: string;
-  title: string;
-  subtitle: string;
-  discount: number;
-  image: string;
-  link: string;
-  badge?: string;
-  expiresAt?: string;
-}
-
-export const mockDeals: MockDeal[] = [
-  {
-    id: "deal-1",
-    title: "Winter Sale",
-    subtitle: "Up to 50% off electronics",
-    discount: 50,
-    image:
-      "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop",
-    link: "/deals/winter-electronics",
-    badge: "Hot Deal",
-    expiresAt: "2026-02-28",
-  },
-  {
-    id: "deal-2",
-    title: "New Year Fashion",
-    subtitle: "New arrivals - 30% off",
-    discount: 30,
-    image:
-      "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop",
-    link: "/deals/new-year-fashion",
-    badge: "New",
-    expiresAt: "2026-01-31",
-  },
-  {
-    id: "deal-3",
-    title: "Home & Garden",
-    subtitle: "Winter refresh - 25% off",
-    discount: 25,
-    image:
-      "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop",
-    link: "/deals/home-garden",
-    badge: "Limited",
-    expiresAt: "2026-03-31",
-  },
-  {
-    id: "deal-4",
-    title: "Book Lovers",
-    subtitle: "Buy 2, get 1 free",
-    discount: 33,
-    image:
-      "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop",
-    link: "/deals/book-lovers",
-    badge: "BOGO",
-    expiresAt: "2026-04-30",
-  },
-];
-
-// Mock collections data
-export interface MockCollection {
-  id: string;
-  title: string;
-  description: string;
-  image: string;
-  productCount: number;
-  priceRange: {
-    min: number;
-    max: number;
-  };
-}
-
-export const mockCollections: MockCollection[] = [
-  {
-    id: "phones-collection",
-    title: "Latest Phones",
-    description: "Discover the newest smartphones and mobile technology",
-    image:
-      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&h=400&fit=crop",
-    productCount: 25,
-    priceRange: { min: 299, max: 1299 },
-  },
-  {
-    id: "tablets-collection",
-    title: "Tablets & Computing",
-    description: "Powerful tablets for work and entertainment",
-    image:
-      "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=600&h=400&fit=crop",
-    productCount: 18,
-    priceRange: { min: 299, max: 1199 },
-  },
-  {
-    id: "laptops-collection",
-    title: "Laptops & Portables",
-    description: "High-performance laptops for every need",
-    image:
-      "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&h=400&fit=crop",
-    productCount: 22,
-    priceRange: { min: 799, max: 3499 },
-  },
-  {
-    id: "wearables-collection",
-    title: "Wearables & Audio",
-    description: "Stay connected with the latest wearables",
-    image:
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=400&fit=crop",
-    productCount: 28,
-    priceRange: { min: 149, max: 799 },
-  },
-];
-
-export const staffPicks = [
-  {
-    id: "staff-1",
-    title: "Editor's Choice",
-    productName: "iPhone 15 Pro Max",
-    description: "Our top pick for professional photography and performance",
-    image:
-      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=300&h=300&fit=crop",
-    curator: "Sarah Johnson",
-    curatorRole: "Tech Specialist",
-  },
-  {
-    id: "staff-2",
-    title: "Best Value",
-    productName: 'MacBook Pro 16" M3 Max',
-    description: "Unmatched performance for creative professionals",
-    image:
-      "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=300&h=300&fit=crop",
-    curator: "Mike Chen",
-    curatorRole: "Product Expert",
-  },
-  {
-    id: "staff-3",
-    title: "Innovation Award",
-    productName: "Apple Watch Ultra 2",
-    description: "Revolutionary health and fitness tracking",
-    image:
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=300&fit=crop",
-    curator: "Dr. Alex Rivera",
-    curatorRole: "Wearables Reviewer",
   },
 ];
 

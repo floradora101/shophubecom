@@ -9,15 +9,16 @@ import { SkeletonBlock } from "@/components/ui/skeleton";
 import { NavigationButton } from "@/components/ui/navigation-button";
 import { ProductCard } from "@/features/products/components/ProductCard";
 import { SectionHeader } from "./shared/section-header";
-import { mockProducts, mockProductToProduct } from "@/lib/mock-data/mock-data";
+import type { Product } from "@/features/products/types";
 
-export function LatestProductsCarousel() {
+interface LatestProductsCarouselProps {
+  products: Product[];
+}
+
+export function LatestProductsCarousel({
+  products,
+}: LatestProductsCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  // Query latest products from mock data (take first 8 products to simulate latest)
-  const latestProducts = useMemo(() => {
-    return mockProducts.slice(0, 8).map(mockProductToProduct);
-  }, []);
 
   const scroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
@@ -28,8 +29,8 @@ export function LatestProductsCarousel() {
     });
   };
 
-  // Early return if no latest products
-  if (latestProducts.length === 0) {
+  // Early return if no products
+  if (!products || products.length === 0) {
     return null;
   }
 
@@ -76,7 +77,7 @@ export function LatestProductsCarousel() {
             ref={scrollRef}
             className="flex gap-6 overflow-x-auto pb-6 scrollbar-hide scroll-smooth"
           >
-            {latestProducts.map((product) => (
+            {products.map((product) => (
               <div key={product.id} className="shrink-0 w-[280px]">
                 <ProductCard product={product} layout="vertical" />
               </div>

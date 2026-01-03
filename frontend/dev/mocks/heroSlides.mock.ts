@@ -3,16 +3,16 @@ import type { HeroSlide } from "@/lib/types/heroSlides.types";
 export const HERO_SLIDES: HeroSlide[] = [
   {
     id: "landscape-hero-1",
-    type: "LANDSCAPE_HERO",
-    priority: 5, // Lowest priority
+    type: "LANDSCAPE_IMAGE",
+    priority: 40, // Higher priority = earlier in carousel (above PRODUCT_SPOTLIGHT at 30)
     isActive: true,
     // startsAt: undefined (always active)
     // No endsAt - no expiry
 
-    badgeText: "Discover Excellence",
-    subtitle: "Elevate your lifestyle with premium technology",
+    badgeText: "🌄 Landscape Hero",
+    subtitle: "Full-frame landscape image experience",
     headline: "Welcome to the",
-    highlight: "Future of Tech",
+    highlight: "Landscape Era",
     description:
       "Experience cutting-edge innovation with our curated selection of premium electronics. From the latest smartphones to professional-grade accessories, discover products that blend performance, style, and reliability.",
 
@@ -28,18 +28,18 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://images.unsplash.com/photo-1484788984921-03950022c9ef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+        "https://images.unsplash.com/photo-1484788984921-03950022c9ef?w=1200&h=800&fit=crop&crop=center",
       alt: "Minimalist technology workspace with essential devices",
       position: "center", // Optional: center|top|bottom|left|right for deliberate cropping
     },
 
     theme: {
-      accentToken: "primary",
+      accentToken: "crimson",
     },
 
     // Landscape hero specific properties
     textPosition: "center",
-    overlayOpacity: 0.1,
+    overlayOpacity: 0.4,
   },
   {
     id: "product-spotlight-1",
@@ -71,7 +71,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     },
 
     theme: {
-      accentToken: "primary",
+      accentToken: "charcoal",
     },
   },
   {
@@ -112,7 +112,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     },
 
     theme: {
-      accentToken: "primary",
+      accentToken: "burgundy",
     },
   },
   {
@@ -150,7 +150,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     },
 
     theme: {
-      accentToken: "success",
+      accentToken: "oil",
     },
   },
   {
@@ -194,7 +194,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     },
 
     theme: {
-      accentToken: "cream",
+      accentToken: "silver",
     },
   },
   {
@@ -231,7 +231,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     },
 
     theme: {
-      accentToken: "warning",
+      accentToken: "midnight",
     },
   },
 ];

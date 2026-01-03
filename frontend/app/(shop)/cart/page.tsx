@@ -34,7 +34,7 @@ export default function CartPage() {
     <main className="flex-1 py-8">
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
         {/* Step indicator */}
-        <div className="mb-6 hidden flex-wrap items-center justify-center gap-3 text-sm font-semibold text-gray-700 text-center sm:flex">
+        <div className="mb-6 hidden flex-wrap items-center justify-center gap-3 text-sm font-semibold text-fg text-center sm:flex">
           {steps.map((step, idx) => {
             const stepUrls = ["/cart", "/checkout", ""];
             const stepUrl = stepUrls[idx];
@@ -46,20 +46,20 @@ export default function CartPage() {
                   className={`flex h-8 w-8 items-center justify-center rounded-full border transition-colors ${
                     step.active
                       ? "border-primary-500 bg-primary-50 text-primary-600"
-                      : "border-gray-300 bg-white text-gray-600"
+                      : "border-border bg-surface text-muted-fg"
                   }`}
                 >
                   {idx + 1}
                 </span>
                 <span
                   className={`transition-colors ${
-                    step.active ? "text-primary-600" : "text-gray-600"
+                    step.active ? "text-primary-600" : "text-muted-fg"
                   }`}
                 >
                   {step.label}
                 </span>
                 {idx < steps.length - 1 && (
-                  <span className="mx-2 text-gray-300">—</span>
+                  <span className="mx-2 text-muted-fg">—</span>
                 )}
               </div>
             );
@@ -87,11 +87,11 @@ export default function CartPage() {
         )}
 
         {items.length === 0 ? (
-          <div className="rounded-xl border border-gray-200 bg-white p-10 text-center shadow-sm">
-            <p className="text-lg font-semibold text-gray-800">
+          <div className="rounded-xl border border-border bg-surface p-10 text-center shadow-sm">
+            <p className="text-lg font-semibold text-fg">
               Your cart is currently empty.
             </p>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-fg">
               Return to the shop to add products.
             </p>
             <Link href="/products" className="mt-5 inline-block">
@@ -100,22 +100,22 @@ export default function CartPage() {
           </div>
         ) : (
           <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
-            <div className="rounded-lg border border-gray-200 bg-white">
-              <div className="hidden border-b px-6 py-3 text-xs font-semibold uppercase text-gray-600 md:grid md:grid-cols-[2fr_repeat(3,1fr)]">
+            <div className="rounded-lg border border-border bg-surface">
+              <div className="hidden border-b px-6 py-3 text-xs font-semibold uppercase text-muted-fg md:grid md:grid-cols-[2fr_repeat(3,1fr)]">
                 <span>Product</span>
                 <span className="text-center">Price</span>
                 <span className="text-center">Quantity</span>
                 <span className="text-center">Subtotal</span>
               </div>
 
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-border">
                 {items.map((item) => (
                   <div
                     key={item.key}
                     className="grid grid-cols-1 gap-4 px-4 py-4 md:grid-cols-[2fr_repeat(3,1fr)] md:items-center"
                   >
                     <div className="flex gap-4">
-                      <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg border border-gray-100 bg-gray-50">
+                      <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-lg border border-border bg-surface-muted">
                         <Image
                           src={item.image ?? ""}
                           alt={item.name}
@@ -128,11 +128,11 @@ export default function CartPage() {
                         <div>
                           <Link
                             href={`/products/${item.slug}`}
-                            className="text-base font-semibold text-gray-900 hover:text-primary-600"
+                            className="text-base font-semibold text-fg hover:text-primary-600"
                           >
                             {item.name}
                           </Link>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-muted-fg">
                             {(() => {
                               const optionSummary =
                                 item.selectedOptions &&
@@ -160,7 +160,7 @@ export default function CartPage() {
                         <button
                           type="button"
                           onClick={() => removeItem(item.key)}
-                          className="w-max rounded-full px-3 py-1 text-xs font-semibold text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+                          className="w-max rounded-full px-3 py-1 text-xs font-semibold text-muted-fg hover:bg-surface-muted hover:text-fg"
                         >
                           <span className="inline-flex items-center gap-1">
                             <Trash2 className="h-4 w-4" />
@@ -170,24 +170,24 @@ export default function CartPage() {
                       </div>
                     </div>
 
-                    <div className="hidden text-center text-sm font-semibold text-gray-900 md:block">
+                    <div className="hidden text-center text-sm font-semibold text-fg md:block">
                       {formatPrice(item.price, { alwaysShowDecimals: true })}
                     </div>
 
                     <div className="flex items-center justify-start md:justify-center">
-                      <div className="inline-flex items-center rounded-full border border-gray-200 bg-white">
+                      <div className="inline-flex items-center rounded-full border border-border bg-surface">
                         <button
                           type="button"
                           onClick={() =>
                             updateQuantity(item.key, item.quantity - 1)
                           }
-                          className="px-3 py-2 text-gray-600 hover:text-primary-600 disabled:opacity-40"
+                          className="px-3 py-2 text-muted-fg hover:text-primary-600 disabled:opacity-40"
                           disabled={item.quantity <= 1}
                           aria-label="Decrease quantity"
                         >
                           <Minus className="h-4 w-4" />
                         </button>
-                        <span className="w-12 text-center text-sm font-semibold text-gray-900">
+                        <span className="w-12 text-center text-sm font-semibold text-fg">
                           {item.quantity}
                         </span>
                         <button
@@ -195,7 +195,7 @@ export default function CartPage() {
                           onClick={() =>
                             updateQuantity(item.key, item.quantity + 1)
                           }
-                          className="px-3 py-2 text-gray-600 hover:text-primary-600"
+                          className="px-3 py-2 text-muted-fg hover:text-primary-600"
                           aria-label="Increase quantity"
                         >
                           <Plus className="h-4 w-4" />
@@ -203,7 +203,7 @@ export default function CartPage() {
                       </div>
                     </div>
 
-                    <div className="text-left text-base font-semibold text-gray-900 md:text-center">
+                    <div className="text-left text-base font-semibold text-fg md:text-center">
                       {formatPrice(item.price * item.quantity, {
                         alwaysShowDecimals: true,
                       })}
@@ -213,11 +213,11 @@ export default function CartPage() {
               </div>
             </div>
 
-            <div className="rounded-lg border border-gray-200 bg-white p-6">
-              <h2 className="text-base font-semibold uppercase text-gray-800">
+            <div className="rounded-lg border border-border bg-surface p-6">
+              <h2 className="text-base font-semibold uppercase text-fg">
                 Cart totals
               </h2>
-              <div className="mt-4 space-y-3 text-sm text-gray-700">
+              <div className="mt-4 space-y-3 text-sm text-muted-fg">
                 <div className="flex items-center justify-between">
                   <span>Subtotal</span>
                   <span className="text-base font-semibold">
@@ -225,10 +225,8 @@ export default function CartPage() {
                   </span>
                 </div>
                 <div className="space-y-2">
-                  <p className="text-sm font-semibold text-gray-900">
-                    Shipping
-                  </p>
-                  <div className="space-y-2 rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700">
+                  <p className="text-sm font-semibold text-fg">Shipping</p>
+                  <div className="space-y-2 rounded-lg border border-border bg-surface-muted p-3 text-sm text-muted-fg">
                     <label className="flex items-center gap-2">
                       <input
                         type="radio"
@@ -266,7 +264,7 @@ export default function CartPage() {
                       <span className="font-semibold">$5</span>
                     </label>
                   </div>
-                  <p className="text-xs text-gray-600">
+                  <p className="text-xs text-muted-fg">
                     Shipping options will be confirmed during checkout.
                   </p>
                   <button
@@ -276,10 +274,10 @@ export default function CartPage() {
                     Calculate shipping
                   </button>
                 </div>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted-fg">
                   Taxes and shipping are calculated at checkout.
                 </p>
-                <div className="flex items-center justify-between pt-2 text-base font-semibold text-gray-900">
+                <div className="flex items-center justify-between pt-2 text-base font-semibold text-fg">
                   <span>Total</span>
                   <span>
                     {formatPrice(total, { alwaysShowDecimals: true })}

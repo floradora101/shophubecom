@@ -114,9 +114,9 @@ export function SwipeRevealCard({
           style={{ clipPath: coverClipPath }}
         >
           {/* Animated gradient background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-warm-gray-600 via-warm-gray-700 to-warm-gray-800 animate-pulse opacity-90">
+          <div className="absolute inset-0 bg-linear-to-br from-warm-gray-600 via-warm-gray-700 to-warm-gray-800 animate-pulse opacity-90">
             <div
-              className="absolute inset-0 bg-gradient-to-tl from-primary-600/30 via-transparent to-primary-400/20 animate-pulse"
+              className="absolute inset-0 bg-linear-to-tl from-primary-600/30 via-transparent to-primary-400/20 animate-pulse"
               style={{ animationDelay: "1s" }}
             ></div>
           </div>
@@ -151,7 +151,7 @@ export function SwipeRevealCard({
               sizes="(max-width: 768px) 100vw, 50vw"
             />
             {/* Mystery overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-warm-gray-700/80 via-warm-gray-800/70 to-warm-gray-900/90"></div>
+            <div className="absolute inset-0 bg-linear-to-br from-warm-gray-700/80 via-warm-gray-800/70 to-warm-gray-900/90"></div>
           </div>
 
           {/* Main Product Display with mystery elements */}

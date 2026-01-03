@@ -3,13 +3,13 @@ import { cn } from "@/lib/utils/cn";
 import { forwardRef } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 
-const cardVariants = cva("rounded-lg overflow-hidden bg-white", {
+const cardVariants = cva("rounded-lg overflow-hidden bg-surface", {
   variants: {
     variant: {
-      default: "border border-warm-gray-200",
+      default: "border border-border",
       elevated:
-        "border border-warm-gray-200 shadow-md hover:shadow-lg transition-shadow duration-normal",
-      bordered: "border-2 border-warm-gray-300",
+        "border border-border shadow-md hover:shadow-lg transition-shadow duration-normal",
+      bordered: "border-2 border-border",
     },
     padding: {
       none: "",

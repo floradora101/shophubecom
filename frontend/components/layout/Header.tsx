@@ -18,16 +18,17 @@ import {
   mockCategoryToCategory,
 } from "@/lib/mock-data/mock-data";
 import type { Category } from "@/features/products/types";
+import { motion } from "@/lib/ui-tokens";
 import { AnnouncementBar } from "./AnnouncementBar";
 
 // Shared menu design tokens
-const MENU_PANEL_CLASS = "bg-white border border-gray-200 rounded-xl shadow-xl";
+const MENU_PANEL_CLASS = "bg-surface border border-border rounded-xl shadow-xl";
 const MENU_PAD_CLASS = "p-4";
 const MENU_SECTION_GAP = "space-y-2";
 const MENU_HEADING_LINK_CLASS =
-  "inline-flex rounded-md px-2 py-1 text-xs font-semibold tracking-wide text-gray-900 uppercase transition-colors hover:text-red-600 focus:text-red-600 focus:outline-none";
+  "inline-flex rounded-md px-2 py-1 text-xs font-semibold tracking-wide text-fg uppercase transition-colors hover:text-red-600 focus:text-red-600 focus:outline-none";
 const MENU_ITEM_LINK_CLASS =
-  "block rounded-md px-2 py-1.5 text-sm text-gray-700 transition-colors hover:text-red-600 focus:text-red-600 focus:outline-none";
+  "block rounded-md px-2 py-1.5 text-sm text-muted-fg transition-colors hover:text-red-600 focus:text-red-600 focus:outline-none";
 
 // Category tree building and mega-menu logic
 type CategoryNode = Category & { children: CategoryNode[] };
@@ -123,7 +124,10 @@ function SearchIconButton() {
       id="search"
       type="button"
       onClick={handleClick}
-      className="p-3 text-warm-gray-600 hover:text-red-600 transition-all duration-200 ease-out focus:outline-none rounded-lg"
+      className={`p-3 text-warm-gray-600 hover:text-red-600 ${motion(
+        "hover",
+        "colors"
+      )} focus:outline-none rounded-lg`}
       aria-label="Search"
     >
       <Search className="h-5 w-5" />
@@ -185,7 +189,7 @@ export function Header() {
         {/* Professional Consolidated Header */}
         <header
           id="navigation"
-          className="w-full border-b border-gray-200 shadow-sm"
+          className="w-full bg-surface-muted border-b border-border shadow-sm"
           role="banner"
         >
           <div className="container mx-auto px-4 md:px-6 lg:px-8 relative">
@@ -230,7 +234,7 @@ export function Header() {
                     >
                       {category.children?.length > 0 ? (
                         <>
-                          <NavigationMenu.Trigger className="flex h-full items-center gap-1.5 px-4 text-sm font-medium text-gray-700 hover:text-red-600 transition-colors rounded-lg data-[state=open]:text-red-600">
+                          <NavigationMenu.Trigger className="flex h-full items-center gap-1.5 px-4 text-sm font-medium text-muted-fg hover:text-red-600 transition-colors rounded-lg data-[state=open]:text-red-600">
                             {category.name.toUpperCase()}
                             <ChevronDown className="h-3 w-3 transition-transform data-[state=open]:rotate-180" />
                           </NavigationMenu.Trigger>
@@ -266,7 +270,7 @@ export function Header() {
                         <NavigationMenu.Link asChild>
                           <Link
                             href={`/products/category/${category.slug}`}
-                            className="flex h-full items-center px-4 text-sm font-medium text-gray-700 hover:text-red-600 transition-colors rounded-lg"
+                            className="flex h-full items-center px-4 text-sm font-medium text-muted-fg hover:text-red-600 transition-colors rounded-lg"
                           >
                             {category.name.toUpperCase()}
                           </Link>
@@ -281,7 +285,7 @@ export function Header() {
                       <NavigationMenu.Link asChild>
                         <Link
                           href="/products"
-                          className="flex h-full items-center px-4 text-sm font-medium text-gray-700 hover:text-red-600 transition-colors rounded-lg"
+                          className="flex h-full items-center px-4 text-sm font-medium text-muted-fg hover:text-red-600 transition-colors rounded-lg"
                         >
                           More
                         </Link>
@@ -300,7 +304,10 @@ export function Header() {
                 <button
                   type="button"
                   onClick={() => toggleCart(true)}
-                  className="relative p-3 text-warm-gray-600 hover:text-red-600 transition-all duration-200 ease-out focus:outline-none rounded-lg"
+                  className={`relative p-3 text-warm-gray-600 hover:text-red-600 ${motion(
+                    "hover",
+                    "colors"
+                  )} focus:outline-none rounded-lg`}
                   aria-label="Open cart"
                   suppressHydrationWarning
                 >
@@ -385,7 +392,7 @@ export function Header() {
 
             {/* Mobile Menu */}
             {isMobileMenuOpen && (
-              <div className="lg:hidden border-t border-gray-200 bg-white">
+              <div className="lg:hidden border-t border-border bg-surface">
                 <nav className="px-4 py-6 space-y-4">
                   {/* Shop All */}
                   <Link
@@ -401,11 +408,11 @@ export function Header() {
                     {categoryTree.map((category) => (
                       <div
                         key={category.id}
-                        className="border-b border-gray-100 pb-4 last:border-b-0"
+                        className="border-b border-border pb-4 last:border-b-0"
                       >
                         <Link
                           href={`/products/category/${category.slug}`}
-                          className="block px-4 py-2 text-sm font-medium text-gray-900 hover:text-red-600 transition-colors uppercase"
+                          className="block px-4 py-2 text-sm font-medium text-fg hover:text-red-600 transition-colors uppercase"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           {category.name.toUpperCase()}
@@ -417,7 +424,7 @@ export function Header() {
                               <Link
                                 key={child.id}
                                 href={`/products/category/${child.slug}`}
-                                className="block px-4 py-1.5 text-sm text-gray-600 hover:text-red-600 transition-colors"
+                                className="block px-4 py-1.5 text-sm text-muted-fg hover:text-red-600 transition-colors"
                                 onClick={() => setIsMobileMenuOpen(false)}
                               >
                                 {child.name}

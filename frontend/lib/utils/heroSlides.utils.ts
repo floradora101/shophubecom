@@ -21,9 +21,14 @@ export function calculateProductDiscountInfo(product?: Product): DiscountInfo {
     };
   }
 
-  const { hasDiscount, discountPercent, originalPrice } = getDiscountInfo(product);
+  const { hasDiscount, discountPercent, originalPrice } =
+    getDiscountInfo(product);
 
-  return { discountPercent, originalPrice: originalPrice || undefined, hasDiscount };
+  return {
+    discountPercent,
+    originalPrice: originalPrice || undefined,
+    hasDiscount,
+  };
 }
 
 /**
@@ -46,6 +51,12 @@ export function resolveSlideProduct(
 
 /**
  * Filter slides to only include active ones based on current date and isActive flag
+ *
+ * Date handling:
+ * - Uses Date.parse() for ISO string parsing (consistent UTC handling)
+ * - Missing startsAt is treated as -Infinity (no start restriction)
+ * - Missing endsAt is treated as +Infinity (no end restriction)
+ * - All comparisons use millisecond timestamps for precision
  */
 export function filterActiveSlides(
   slides: HeroSlide[],
@@ -55,16 +66,17 @@ export function filterActiveSlides(
     return [];
   }
 
+  const nowTime = now.getTime();
+
   return slides.filter((slide) => {
     if (!slide.isActive) return false;
 
-    const startsAt = slide.startsAt ? new Date(slide.startsAt) : null;
-    const endsAt = slide.endsAt ? new Date(slide.endsAt) : null;
+    // Parse ISO strings to timestamps, treating missing dates as infinity
+    const startsAt = slide.startsAt ? Date.parse(slide.startsAt) : -Infinity;
+    const endsAt = slide.endsAt ? Date.parse(slide.endsAt) : Infinity;
 
-    if (startsAt && startsAt > now) return false;
-    if (endsAt && endsAt < now) return false;
-
-    return true;
+    // Slide is active if current time is within the range [startsAt, endsAt]
+    return nowTime >= startsAt && nowTime <= endsAt;
   });
 }
 
@@ -120,7 +132,7 @@ export function buildSlidesFromFeaturedProducts(
     },
 
     theme: {
-      accentToken: "primary" as const,
+      accentToken: "crimson" as const,
     },
   }));
 }

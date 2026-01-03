@@ -1,7 +1,7 @@
 // Modern Product Detail Page - 2026 Editorial Style
 "use client";
 
-import { useEffect, useMemo, useState, useCallback, useRef } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronRight, AlertTriangle } from "lucide-react";
@@ -24,9 +24,8 @@ import {
 import { getAllProductImages } from "@/features/products/utils/product-images";
 import { ProductGallery } from "./components/ProductGallery";
 import { ProductPurchasePanel } from "./components/ProductPurchasePanel";
-import { TrustBadges } from "./components/TrustBadges";
-import { SecureCheckoutBadge } from "./components/SecureCheckoutBadge";
-import { ProductDetailsAccordion } from "./components/ProductDetailsAccordion";
+import { TrustModule } from "@/components/TrustModule";
+import { ProductDetailsTabs } from "./components/ProductDetailsTabs";
 import { YouMayAlsoLike } from "./components/YouMayAlsoLike";
 import { StickyPurchaseBar } from "./components/StickyPurchaseBar";
 
@@ -41,7 +40,7 @@ function ProductGallerySkeleton() {
   return (
     <div className="w-full">
       {/* Main image area */}
-      <div className="relative aspect-square w-full rounded-2xl overflow-hidden border border-gray-200 shadow-lg bg-white">
+      <div className="relative aspect-square w-full rounded-2xl overflow-hidden border border-border shadow-lg bg-surface">
         <SkeletonBlock className="absolute inset-0 rounded-none" />
       </div>
 
@@ -50,7 +49,7 @@ function ProductGallerySkeleton() {
         {Array.from({ length: 4 }, (_, i) => (
           <div
             key={i}
-            className="shrink-0 w-16 h-16 rounded-lg overflow-hidden border border-gray-200"
+            className="shrink-0 w-16 h-16 rounded-lg overflow-hidden border border-border"
           >
             <SkeletonBlock className="w-full h-full rounded-none" />
           </div>
@@ -112,9 +111,9 @@ function ProductDetailsAccordionSkeleton() {
       {Array.from({ length: 3 }, (_, i) => (
         <div
           key={i}
-          className="border border-gray-200 rounded-lg overflow-hidden"
+          className="border border-border rounded-lg overflow-hidden"
         >
-          <div className="flex items-center justify-between p-4 bg-gray-50">
+          <div className="flex items-center justify-between p-4 bg-surface-muted">
             <SkeletonBlock className="h-5 w-48" />
             <SkeletonBlock className="w-5 h-5 rounded" />
           </div>
@@ -175,7 +174,7 @@ export function ProductDetailSkeleton() {
   return (
     <div className="min-h-screen relative">
       {/* Breadcrumb */}
-      <div className="border-b border-gray-200/60">
+      <div className="border-b border-border/60">
         <Container className="py-3 sm:py-4">
           <nav className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
             <SkeletonBlock className="h-4 w-12" />
@@ -279,10 +278,6 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
   const [showStickyBar, setShowStickyBar] = useState(false);
   const [showSelectionError, setShowSelectionError] = useState(false);
 
-  // Refs for scroll hijacking
-  const pdpSectionRef = useRef<HTMLDivElement>(null);
-  const sidebarScrollerRef = useRef<HTMLDivElement>(null);
-
   // Update URL when selections change
   const updateUrlWithSelections = useCallback(
     (newSelections: Record<string, string>) => {
@@ -313,78 +308,6 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
     if (productGallery) observer.observe(productGallery);
 
     return () => observer.disconnect();
-  }, []);
-
-  // Global scroll hijacking for PDP section (desktop only)
-  useEffect(() => {
-    let rafId: number | null = null;
-    let lastTime = 0;
-
-    const isDesktop = () => window.matchMedia("(min-width: 1024px)").matches;
-    const isTouchDevice = () =>
-      "ontouchstart" in window || navigator.maxTouchPoints > 0;
-
-    const onWheel = (e: WheelEvent) => {
-      // Only handle on desktop, not on touch devices
-      if (!isDesktop() || isTouchDevice()) return;
-
-      const pdpSection = pdpSectionRef.current;
-      const sidebarScroller = sidebarScrollerRef.current;
-
-      // Only hijack if PDP section is in view and sidebar exists
-      if (!pdpSection || !sidebarScroller) return;
-
-      const rect = pdpSection.getBoundingClientRect();
-      const isInView = rect.top < window.innerHeight && rect.bottom > 0;
-
-      if (!isInView) return;
-
-      // Ignore horizontal scroll (don't break horizontal gestures)
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-
-      const deltaY = e.deltaY;
-      const { scrollTop, scrollHeight, clientHeight } = sidebarScroller;
-
-      // Check if sidebar can scroll in the intended direction
-      const canScrollUp = scrollTop > 0;
-      const canScrollDown = scrollTop < scrollHeight - clientHeight - 1;
-
-      let shouldHijack = false;
-
-      if (deltaY > 0 && canScrollDown) {
-        // Scrolling down and sidebar can scroll down
-        shouldHijack = true;
-      } else if (deltaY < 0 && canScrollUp) {
-        // Scrolling up and sidebar can scroll up
-        shouldHijack = true;
-      }
-
-      if (shouldHijack) {
-        e.preventDefault();
-
-        // Throttle with requestAnimationFrame
-        const now = Date.now();
-        if (now - lastTime >= 16) {
-          // ~60fps
-          lastTime = now;
-          sidebarScroller.scrollTop += deltaY;
-        } else {
-          if (rafId) cancelAnimationFrame(rafId);
-          rafId = requestAnimationFrame(() => {
-            sidebarScroller.scrollTop += deltaY;
-            rafId = null;
-          });
-        }
-      }
-      // If can't hijack (at scroll limits), let normal page scroll happen
-    };
-
-    window.addEventListener("wheel", onWheel, { passive: false });
-
-    return () => {
-      window.removeEventListener("wheel", onWheel);
-      if (rafId) cancelAnimationFrame(rafId);
-    };
   }, []);
 
   // Get category for breadcrumbs
@@ -614,11 +537,11 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
       <div className="min-h-screen relative flex items-center">
         <Container className="py-16 relative z-0">
           <div className="text-center max-w-md mx-auto">
-            <AlertTriangle className="h-16 w-16 text-gray-400 mx-auto mb-6" />
-            <h1 className="text-2xl font-semibold text-gray-900 mb-3">
+            <AlertTriangle className="h-16 w-16 text-muted-fg mx-auto mb-6" />
+            <h1 className="text-2xl font-semibold text-fg mb-3">
               Product Not Found
             </h1>
-            <p className="text-gray-600 mb-8">
+            <p className="text-muted-fg mb-8">
               The product you&apos;re looking for doesn&apos;t exist or may have
               been removed.
             </p>
@@ -637,7 +560,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
   return (
     <div className="min-h-screen relative">
       {/* Breadcrumb */}
-      <div className="border-b border-gray-200/60">
+      <div className="border-b border-border/60">
         <Container className="py-3 sm:py-4">
           <nav
             className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm overflow-x-auto scrollbar-hide"
@@ -645,30 +568,30 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
           >
             <Link
               href="/"
-              className="text-gray-600 hover:text-gray-900 transition-colors whitespace-nowrap shrink-0"
+              className="text-muted-fg hover:text-fg transition-colors whitespace-nowrap shrink-0"
             >
               Home
             </Link>
-            <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400 shrink-0" />
+            <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-fg shrink-0" />
             <Link
               href="/products"
-              className="text-gray-600 hover:text-gray-900 transition-colors whitespace-nowrap shrink-0"
+              className="text-muted-fg hover:text-fg transition-colors whitespace-nowrap shrink-0"
             >
               Products
             </Link>
             {category && (
               <>
-                <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400 shrink-0" />
+                <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-fg shrink-0" />
                 <Link
                   href={`/products/category/${category.slug}`}
-                  className="text-gray-600 hover:text-gray-900 transition-colors whitespace-nowrap shrink-0"
+                  className="text-muted-fg hover:text-fg transition-colors whitespace-nowrap shrink-0"
                 >
                   {category.name}
                 </Link>
               </>
             )}
-            <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-400 shrink-0" />
-            <span className="text-gray-900 font-medium truncate max-w-32 sm:max-w-xs">
+            <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-fg shrink-0" />
+            <span className="text-fg font-medium truncate max-w-32 sm:max-w-xs">
               {product.name}
             </span>
           </nav>
@@ -679,45 +602,37 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
       <Container className="py-6 sm:py-8 lg:py-12 pb-24 lg:pb-0">
         {/* Product Title - Show first on small screens */}
         <div className="w-full mb-6 sm:mb-8 lg:hidden text-left">
-          <div className="text-xs sm:text-sm text-gray-500 uppercase tracking-wide font-medium mb-2">
+          <div className="text-xs sm:text-sm text-muted-fg uppercase tracking-wide font-medium mb-2">
             ShopHub
           </div>
-          <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 leading-tight">
+          <h1 className="text-xl sm:text-2xl font-semibold text-fg leading-tight">
             {product.name}
           </h1>
         </div>
 
         {/* PDP Grid Section */}
-        <div
-          ref={pdpSectionRef}
-          className="grid gap-8 sm:gap-12 lg:grid-cols-[minmax(0,600px)_minmax(0,1fr)] lg:gap-12 xl:gap-16 2xl:gap-20 min-w-0"
-        >
+        <div className="grid gap-8 sm:gap-12 lg:grid-cols-[minmax(0,600px)_minmax(0,1fr)] lg:gap-12 xl:gap-16 2xl:gap-20 min-w-0">
           {/* Left Column - Gallery Only */}
-          <div
-            id="product-gallery"
-            className="order-2 lg:order-1 min-w-0 lg:min-h-[calc(100vh-var(--sticky-top)-16px)]"
-          >
-            <ProductGallery
-              images={galleryImages}
-              productName={product.name}
-              isOutOfStock={!!isOutOfStock}
-              isUnavailable={!!isUnavailable}
-            />
+          <div id="product-gallery" className="order-2 lg:order-1 min-w-0">
+            <div className="lg:sticky lg:top-(--sticky-top,96px) lg:self-start">
+              <ProductGallery
+                images={galleryImages}
+                productName={product.name}
+                isOutOfStock={!!isOutOfStock}
+                isUnavailable={!!isUnavailable}
+              />
+            </div>
           </div>
 
-          {/* Right Column - Sticky Sidebar */}
-          <div className="order-3 lg:order-2 min-w-0 lg:sticky lg:top-(--sticky-top) self-start">
-            {/* Internal Scroll Container */}
-            <div
-              ref={sidebarScrollerRef}
-              className="space-y-6 sm:space-y-8 scrollbar-hide lg:h-[calc(100vh-var(--sticky-top)-16px)] lg:overflow-y-auto"
-            >
+          {/* Right Column - Details */}
+          <div className="order-3 lg:order-2 min-w-0">
+            <div className="space-y-6 sm:space-y-8">
               {/* ShopHub Brand & Title - Inside scrollable container (hidden on lg+) */}
               <div className="w-full mb-6 sm:mb-8 lg:mb-10 text-left hidden lg:block">
-                <div className="text-xs sm:text-sm text-gray-500 uppercase tracking-wide font-medium mb-2">
+                <div className="text-xs sm:text-sm text-muted-fg uppercase tracking-wide font-medium mb-2">
                   ShopHub
                 </div>
-                <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-semibold text-gray-900 leading-tight">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-semibold text-fg leading-tight">
                   {product.name}
                 </h1>
               </div>
@@ -748,21 +663,16 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                 />
               </div>
 
-              {/* Trust Badges */}
-              <TrustBadges />
-
-              {/* Secure Checkout Badge */}
-              <div className="flex justify-center mt-4">
-                <SecureCheckoutBadge />
-              </div>
+              {/* Trust Module */}
+              <TrustModule />
             </div>
           </div>
         </div>
 
         {/* Full-width sections below the grid */}
         <div className="mt-12 sm:mt-16 lg:mt-20 space-y-12 sm:space-y-16 lg:space-y-20">
-          {/* Product Details Accordion */}
-          <ProductDetailsAccordion product={product} />
+          {/* Product Details Tabs */}
+          <ProductDetailsTabs product={product} />
 
           {/* You May Also Like Section */}
           <YouMayAlsoLike currentProduct={product} />

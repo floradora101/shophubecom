@@ -79,7 +79,7 @@ export function BrandStory() {
                       key={value.title}
                       className="flex items-start gap-4 group"
                     >
-                      <div className="shrink-0 w-12 h-12 bg-gradient-to-br from-primary-50 to-primary-100/50 rounded-xl flex items-center justify-center border border-primary-200/30 group-hover:shadow-lg transition-all duration-300">
+                      <div className="shrink-0 w-12 h-12 bg-linear-to-br from-primary-50 to-primary-100/50 rounded-xl flex items-center justify-center border border-primary-200/30 group-hover:shadow-lg transition-all duration-300">
                         <Icon className="h-6 w-6 text-primary-600" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -103,7 +103,7 @@ export function BrandStory() {
             <div className="flex justify-center lg:justify-start">
               <div className="relative group">
                 {/* Background glow */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary-500/10 via-primary-400/5 to-primary-600/10 rounded-full blur-2xl scale-125 group-hover:scale-150 transition-transform duration-700"></div>
+                <div className="absolute inset-0 bg-linear-to-br from-primary-500/10 via-primary-400/5 to-primary-600/10 rounded-full blur-2xl scale-125 group-hover:scale-150 transition-transform duration-700"></div>
 
                 {/* Logo container */}
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-2xl p-6 sm:p-8 shadow-xl border border-white/30">

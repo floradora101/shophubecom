@@ -1,9 +1,11 @@
+import type { HeroTheme } from "@/lib/ui-tokens";
+
 export type HeroSlideType =
   | "PRODUCT_SPOTLIGHT"
   | "CATEGORY_SPOTLIGHT"
   | "OFFER"
   | "TESTIMONIAL"
-  | "LANDSCAPE_HERO";
+  | "LANDSCAPE_IMAGE";
 
 export interface BaseHeroSlide {
   id: string;
@@ -41,13 +43,7 @@ export interface BaseHeroSlide {
 
   // Theme
   theme?: {
-    accentToken?:
-      | "primary"
-      | "secondary"
-      | "blue"
-      | "success"
-      | "warning"
-      | "cream";
+    accentToken?: HeroTheme;
   };
 }
 
@@ -79,12 +75,19 @@ export interface TestimonialSlide extends BaseHeroSlide {
   }>;
 }
 
-export interface LandscapeHeroSlide extends BaseHeroSlide {
-  type: "LANDSCAPE_HERO";
+export interface LandscapeImageSlide extends Omit<BaseHeroSlide, 'media'> {
+  type: "LANDSCAPE_IMAGE";
   // Landscape hero specific fields
   subtitle?: string; // Optional subtitle text
   textPosition?: "left" | "center" | "right"; // Text positioning on the image
   overlayOpacity?: number; // Dark overlay opacity (0-1)
+  // Restrict media to only images for landscape slides
+  media: {
+    kind: "image";
+    imageUrl: string;
+    alt?: string;
+    position?: "center" | "top" | "bottom" | "left" | "right";
+  };
 }
 
 export type HeroSlide =
@@ -92,4 +95,4 @@ export type HeroSlide =
   | CategorySpotlightSlide
   | OfferSlide
   | TestimonialSlide
-  | LandscapeHeroSlide;
+  | LandscapeImageSlide;

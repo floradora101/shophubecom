@@ -1,8 +1,8 @@
 /**
  * Site Configuration
  *
- * This file contains site-wide configuration settings that can be managed by admins.
- * In the future, this can be moved to a database/API endpoint for dynamic admin control.
+ * This file contains site-wide configuration settings.
+ * In the future, this can be moved to a database/API endpoint for dynamic configuration.
  */
 
 export interface SiteConfig {

@@ -116,7 +116,7 @@ export interface Product {
   // Price range fields for products with multiple variant prices
   minPrice?: number;
   maxPrice?: number;
-  // Effective stock (sum of all variant stocks) for admin display
+  // Effective stock (sum of all variant stocks)
   effectiveStock?: number;
   createdAt: string;
   updatedAt: string;
@@ -132,6 +132,7 @@ export interface Product {
   // Legacy storefront fields for backward compatibility
   colors?: string[];
   storageOptions?: string[];
+  images?: string[]; // For mock data compatibility
   // Rating fields (frontend-only for now, to be added to backend later)
   rating?: number; // Average rating out of 5
   reviewCount?: number; // Number of reviews

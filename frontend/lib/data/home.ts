@@ -4,9 +4,10 @@ import {
   mockProductToProduct,
   mockCategories,
   mockCategoryToCategory,
-  mockDeals,
 } from "@/lib/mock-data/mock-data";
+import { HERO_SLIDES } from "@/dev/mocks/heroSlides.mock";
 import type { Category, Product } from "@/features/products/types";
+import type { HeroSlide } from "@/lib/types/heroSlides.types";
 
 // Types for homepage data (updated to match new category structure)
 export interface HomePageData {
@@ -21,6 +22,11 @@ export interface HomePageData {
   categories: Category[];
   trendingProducts: Product[];
   deals: Product[];
+  heroSlides: HeroSlide[];
+  latestProducts: Product[]; // For carousel
+  // Precomputed mappings for performance
+  productsByCategory: Record<string, Product[]>;
+  productsBySlug: Record<string, Product>;
   stats: {
     totalProducts: number;
     happyCustomers: number;
@@ -32,9 +38,11 @@ export interface HomePageData {
 const USE_MOCKS = process.env.NEXT_PUBLIC_USE_MOCKS !== "false";
 
 export async function getHomePageData(): Promise<HomePageData> {
+  let result: Omit<HomePageData, "productsByCategory" | "productsBySlug">;
+
   if (USE_MOCKS) {
     // Return mock data with new category structure
-    return {
+    result = {
       phonesProducts: mockProducts
         .filter(
           (p) =>
@@ -109,12 +117,46 @@ export async function getHomePageData(): Promise<HomePageData> {
         .filter((cat) => !cat.parentId || cat.parentId === null)
         .map(mockCategoryToCategory),
       trendingProducts: mockProducts.slice(4, 12).map(mockProductToProduct),
+      heroSlides: HERO_SLIDES,
+      latestProducts: mockProducts.slice(0, 8).map(mockProductToProduct),
       deals: [], // mockDeals.map(mockDealToProduct),
       stats: {
         totalProducts: 12500,
         happyCustomers: 50000,
         yearsExperience: 8,
       },
+    };
+
+    // Precompute mappings for client performance
+    const productsByCategory: Record<string, Product[]> = {
+      phones: result.phonesProducts,
+      tablets: result.tabletsProducts,
+      laptops: result.laptopsProducts,
+      wearables: result.wearablesProducts,
+      "smart-gadgets": result.smartGadgetsProducts,
+      "gaming-console": result.gamingConsoleProducts,
+      accessories: result.accessoriesProducts,
+    };
+
+    const productsBySlug: Record<string, Product> = [
+      ...result.phonesProducts,
+      ...result.tabletsProducts,
+      ...result.laptopsProducts,
+      ...result.wearablesProducts,
+      ...result.smartGadgetsProducts,
+      ...result.gamingConsoleProducts,
+      ...result.accessoriesProducts,
+      ...result.featuredProducts,
+      ...result.trendingProducts,
+    ].reduce((acc, product) => {
+      acc[product.slug] = product;
+      return acc;
+    }, {} as Record<string, Product>);
+
+    return {
+      ...result,
+      productsByCategory,
+      productsBySlug,
     };
   }
 
@@ -147,7 +189,7 @@ export async function getHomePageData(): Promise<HomePageData> {
   */
 
   // Return mock data with new category structure
-  return {
+  result = {
     phonesProducts: mockProducts
       .filter(
         (p) =>
@@ -222,11 +264,46 @@ export async function getHomePageData(): Promise<HomePageData> {
       .filter((cat) => !cat.parentId || cat.parentId === null)
       .map(mockCategoryToCategory),
     trendingProducts: mockProducts.slice(4, 12).map(mockProductToProduct),
+    heroSlides: HERO_SLIDES,
+    latestProducts: mockProducts.slice(0, 8).map(mockProductToProduct),
     deals: [], // mockDeals.map(mockDealToProduct),
     stats: {
       totalProducts: 12500,
       happyCustomers: 50000,
       yearsExperience: 8,
     },
+  };
+
+  // Precompute mappings for client performance
+  const data = result;
+  const productsByCategory: Record<string, Product[]> = {
+    phones: data.phonesProducts,
+    tablets: data.tabletsProducts,
+    laptops: data.laptopsProducts,
+    wearables: data.wearablesProducts,
+    "smart-gadgets": data.smartGadgetsProducts,
+    "gaming-console": data.gamingConsoleProducts,
+    accessories: data.accessoriesProducts,
+  };
+
+  const productsBySlug: Record<string, Product> = [
+    ...data.phonesProducts,
+    ...data.tabletsProducts,
+    ...data.laptopsProducts,
+    ...data.wearablesProducts,
+    ...data.smartGadgetsProducts,
+    ...data.gamingConsoleProducts,
+    ...data.accessoriesProducts,
+    ...data.featuredProducts,
+    ...data.trendingProducts,
+  ].reduce((acc, product) => {
+    acc[product.slug] = product;
+    return acc;
+  }, {} as Record<string, Product>);
+
+  return {
+    ...result,
+    productsByCategory,
+    productsBySlug,
   };
 }

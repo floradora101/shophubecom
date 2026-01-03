@@ -13,12 +13,12 @@ export function RelatedProducts({ products }: RelatedProductsProps) {
   if (!products.length) return null;
 
   return (
-    <Section spacing="lg" className="bg-gray-50/50">
+    <Section spacing="lg" className="bg-surface-muted/50">
       <div className="text-center mb-12">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-3">
+        <h2 className="text-2xl font-semibold text-fg mb-3">
           You May Also Like
         </h2>
-        <p className="text-gray-600">
+        <p className="text-muted-fg">
           Discover more products from our collection
         </p>
       </div>

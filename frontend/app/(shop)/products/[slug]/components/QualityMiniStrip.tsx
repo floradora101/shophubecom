@@ -10,14 +10,14 @@ interface QualityItemProps {
 function QualityItem({ icon, label, subtext }: QualityItemProps) {
   return (
     <div className="flex items-center gap-2 sm:gap-3 group">
-      <div className="shrink-0 w-4 h-4 sm:w-5 sm:h-5 text-slate-400 group-hover:text-slate-600 transition-colors duration-200">
+      <div className="shrink-0 w-4 h-4 sm:w-5 sm:h-5 text-muted-fg group-hover:text-fg transition-colors duration-200">
         {icon}
       </div>
       <div className="flex flex-col">
-        <span className="text-xs sm:text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors duration-200">
+        <span className="text-xs sm:text-sm font-medium text-muted-fg group-hover:text-fg transition-colors duration-200">
           {label}
         </span>
-        <span className="text-xs text-slate-500">{subtext}</span>
+        <span className="text-xs text-muted-fg">{subtext}</span>
       </div>
     </div>
   );

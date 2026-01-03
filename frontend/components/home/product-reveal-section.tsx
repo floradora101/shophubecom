@@ -1,8 +1,8 @@
-// ProductRevealSection: Swipe-to-reveal carousel with price drops
+// ProductRevealSection: Swipe-to-reveal grid with price drops
 "use client";
 
-import { useRef, useMemo } from "react";
-import { Zap, Tag } from "lucide-react";
+import { useRef, useMemo, useState, useEffect } from "react";
+import { Zap, Tag, ChevronDown, Sparkles } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { SkeletonBlock } from "@/components/ui/skeleton";
@@ -25,9 +25,24 @@ interface RevealProduct {
 }
 
 export function ProductRevealSection({ products }: ProductRevealSectionProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [visibleCards, setVisibleCards] = useState(4);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // Prepare reveal products: 8 price drop reveals for carousel
+  // Trigger animations on mount
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoaded(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleToggleCards = () => {
+    if (visibleCards === 4) {
+      setVisibleCards(revealProducts.length);
+    } else {
+      setVisibleCards(4);
+    }
+  };
+
+  // Prepare reveal products: 8 price drop reveals for grid
   const revealProducts = useMemo<RevealProduct[]>(() => {
     const safeProducts = ensureArray(products);
     if (safeProducts.length === 0) return [];
@@ -81,15 +96,6 @@ export function ProductRevealSection({ products }: ProductRevealSectionProps) {
     return reveals.slice(0, 8);
   }, [products]);
 
-  const scroll = (direction: "left" | "right") => {
-    if (!scrollRef.current) return;
-    const scrollAmount = 320;
-    scrollRef.current.scrollBy({
-      left: direction === "left" ? -scrollAmount : scrollAmount,
-      behavior: "smooth",
-    });
-  };
-
   if (revealProducts.length === 0) {
     return null;
   }
@@ -112,42 +118,65 @@ export function ProductRevealSection({ products }: ProductRevealSectionProps) {
               gradient: "from-primary-100 via-primary-200 to-primary-100",
             }}
             title={{ italic: "Swipe", bold: "to Reveal" }}
-            description="Discover exclusive price drops by dragging the handle"
-            actions={
-              <div className="hidden md:flex gap-2">
-                <NavigationButton
-                  variant="primary"
-                  direction="left"
-                  onClick={() => scroll("left")}
-                  aria-label="Scroll left"
-                />
-                <NavigationButton
-                  variant="primary"
-                  direction="right"
-                  onClick={() => scroll("right")}
-                  aria-label="Scroll right"
-                />
-              </div>
-            }
+            description="Discover exclusive price drops with our interactive reveal cards"
           />
 
-          {/* Reveal Cards Carousel */}
-          <div
-            ref={scrollRef}
-            className="flex gap-6 overflow-x-auto pb-6 scrollbar-hide scroll-smooth"
-          >
-            {revealProducts.map((reveal) => (
+          {/* Reveal Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+            {revealProducts.slice(0, visibleCards).map((reveal, index) => (
               <div
                 key={`${reveal.product.id}-${reveal.revealType}`}
-                className="shrink-0 w-[280px]"
+                className="group relative transform transition-all duration-500 ease-out hover:scale-[1.02] hover:-translate-y-1 animate-fadeInUp"
+                style={{
+                  animationDelay: `${index * 100}ms`,
+                }}
               >
-                <SwipeRevealCard
-                  product={reveal.product}
-                  revealType={reveal.revealType}
-                />
+                {/* Subtle shadow and border effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                {/* Card content */}
+                <div className="relative bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+                  <SwipeRevealCard
+                    product={reveal.product}
+                    revealType={reveal.revealType}
+                  />
+                </div>
               </div>
             ))}
           </div>
+
+          {/* Toggle Cards Button */}
+          {revealProducts.length > 4 && (
+            <div className="flex justify-center pt-8">
+              <button
+                onClick={handleToggleCards}
+                className="group relative inline-flex items-center gap-3 px-8 py-4 bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-600 font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-4 focus:ring-primary-500/25 overflow-hidden"
+                aria-label={
+                  visibleCards === 4
+                    ? `Show ${revealProducts.length - 4} more deals`
+                    : "Show fewer deals"
+                }
+              >
+                {/* Shimmer effect */}
+                <div
+                  className="absolute inset-0 rounded-xl bg-linear-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-shimmer"
+                  style={{ animation: "shimmer 2s infinite" }}
+                />
+                {visibleCards === 4 ? (
+                  <>
+                    <Sparkles className="h-5 w-5 transition-transform duration-300 group-hover:rotate-12" />
+                    <span className="relative z-10">Discover More Deals</span>
+                    <ChevronDown className="h-5 w-5 transition-transform duration-300 group-hover:translate-y-1" />
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="h-5 w-5 transition-transform duration-300 group-hover:-rotate-12" />
+                    <span className="relative z-10">Show Fewer Deals</span>
+                  </>
+                )}
+              </button>
+            </div>
+          )}
 
           {/* Helper Text */}
           <div className="flex items-center justify-center gap-2 pt-4 text-sm text-gray-500">
@@ -179,7 +208,7 @@ export function ProductRevealSectionSkeleton() {
         <div className="space-y-8">
           {/* Header - matches SectionHeader structure */}
           <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary-100 via-primary-200 to-primary-100">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r from-primary-100 via-primary-200 to-primary-100">
               <SkeletonBlock className="w-4 h-4 rounded" />
               <SkeletonBlock className="h-4 w-40 rounded" />
             </div>
@@ -187,11 +216,11 @@ export function ProductRevealSectionSkeleton() {
             <SkeletonBlock className="h-5 w-96 rounded" />
           </div>
 
-          {/* Reveal Cards Carousel - matches production: horizontal scroll with w-[280px] cards */}
-          <div className="flex gap-6 overflow-x-auto pb-6">
-            {Array.from({ length: 6 }, (_, i) => (
-              <div key={i} className="shrink-0 w-[280px]">
-                <div className="relative bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden min-h-[300px] md:min-h-[350px]">
+          {/* Reveal Cards Grid - matches production: responsive grid layout */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+            {Array.from({ length: 4 }, (_, i) => (
+              <div key={i} className="relative">
+                <div className="relative bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden min-h-[300px] md:min-h-[350px]">
                   {/* Card content skeleton - matches SwipeRevealCard structure */}
                   <div className="p-4 h-full">
                     {/* ProductCard inside SwipeRevealCard */}

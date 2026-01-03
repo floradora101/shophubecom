@@ -146,11 +146,11 @@ function scoreProduct(product: MockProduct, query: string): number {
 function EmptyState({ query }: { query: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-12 px-4">
-      <Search className="h-12 w-12 text-gray-300 mb-4" />
-      <h3 className="text-lg font-medium text-gray-900 mb-2">
+      <Search className="h-12 w-12 text-muted-fg mb-4" />
+      <h3 className="text-lg font-medium text-fg mb-2">
         {query ? "No results found" : "Start searching"}
       </h3>
-      <p className="text-sm text-gray-500 text-center max-w-md">
+      <p className="text-sm text-muted-fg text-center max-w-md">
         {query
           ? `We couldn't find any products matching "${query}". Try adjusting your search terms.`
           : "Search for products by name, category, or description."}
@@ -351,9 +351,9 @@ function SearchPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-surface">
       {/* Search Header */}
-      <div className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+      <div className="sticky top-0 z-50 bg-surface border-b border-border shadow-sm">
         <Container className="py-4">
           <div className="flex items-center gap-4">
             {/* Search Input */}
@@ -368,7 +368,7 @@ function SearchPage() {
                   className="h-12 text-lg pl-12 pr-4"
                   aria-label="Search products"
                 />
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-fg" />
               </div>
             </div>
 
@@ -385,12 +385,12 @@ function SearchPage() {
           </div>
 
           {/* Keyboard shortcut hint */}
-          <div className="flex items-center justify-center gap-1 mt-3 text-xs text-gray-500">
-            <kbd className="px-2 py-1 bg-gray-100 border border-gray-300 rounded text-xs font-mono">
+          <div className="flex items-center justify-center gap-1 mt-3 text-xs text-muted-fg">
+            <kbd className="px-2 py-1 bg-surface-muted border border-border rounded text-xs font-mono">
               {isMac ? <Command className="h-3 w-3 inline" /> : "Ctrl"}
             </kbd>
             <span>+</span>
-            <kbd className="px-2 py-1 bg-gray-100 border border-gray-300 rounded text-xs font-mono">
+            <kbd className="px-2 py-1 bg-surface-muted border border-border rounded text-xs font-mono">
               K
             </kbd>
             <span>to open search</span>
@@ -406,7 +406,7 @@ function SearchPage() {
             {!isLoadingResults && !isLoadingCount && (
               <div className="mb-6">
                 <div className="flex items-center justify-between gap-4">
-                  <h2 className="text-lg font-semibold text-gray-900">
+                  <h2 className="text-lg font-semibold text-fg">
                     {totalResultsCount} result
                     {totalResultsCount === 1 ? "" : "s"} for &ldquo;
                     {inputValue}

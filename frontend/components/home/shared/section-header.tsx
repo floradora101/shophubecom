@@ -37,9 +37,9 @@ export function SectionTitle({
   if (variant === "hero") {
     return (
       <h1
-        className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-5xl ${baseClasses} ${className}`}
+        className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-5xl ${baseClasses} line-clamp-2 ${className}`}
       >
-        <span className="block bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 bg-clip-text text-transparent font-black tracking-tight">
+        <span className="block bg-linear-to-r from-gray-900 via-gray-800 to-gray-700 bg-clip-text text-transparent font-black tracking-tight">
           {italic}
         </span>
         <span className="block bg-primary-600 bg-clip-text text-transparent font-black tracking-tight">
@@ -54,7 +54,7 @@ export function SectionTitle({
       <h2
         className={`text-3xl sm:text-4xl lg:text-5xl xl:text-6xl ${baseClasses} ${className}`}
       >
-        <span className="block bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 bg-clip-text text-transparent font-black tracking-tight">
+        <span className="block bg-linear-to-r from-gray-900 via-gray-800 to-gray-700 bg-clip-text text-transparent font-black tracking-tight">
           {italic}
         </span>
         <span className="block bg-primary-600 bg-clip-text text-transparent font-black tracking-tight">
@@ -95,7 +95,7 @@ export function SectionHeader({
       <div className="text-center md:text-left space-y-4 flex-1">
         {badge && (
           <div
-            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r ${badgeGradient} mb-2`}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r ${badgeGradient} mb-2`}
           >
             <badge.icon className="h-4 w-4 text-primary-600" />
             <span className="text-sm font-semibold text-primary-600 font-[var(--font-inter)]">

@@ -26,7 +26,7 @@
  * - Reusable: used by both middleware and client components
  */
 
-export const PROTECTED_PREFIXES = ["/profile", "/orders", "/admin"];
+export const PROTECTED_PREFIXES = ["/profile", "/orders"];
 
 export const AUTH_PAGES = ["/login", "/register"];
 

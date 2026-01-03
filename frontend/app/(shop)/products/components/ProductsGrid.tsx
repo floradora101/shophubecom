@@ -31,9 +31,7 @@ export function ProductsEmptyState({
   return (
     <div className="text-center py-16">
       <Search className="h-12 w-12 text-warm-gray-300 mx-auto mb-4" />
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">
-        No products found
-      </h3>
+      <h3 className="text-lg font-semibold text-fg mb-2">No products found</h3>
       <p className="text-warm-gray-600 mb-6">
         Try adjusting your filters or search terms
       </p>

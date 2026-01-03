@@ -119,7 +119,7 @@ export default function OrderCompletePage() {
             <Stack spacing="md" align="center">
               <Heading level="h3">{errorMessage}</Heading>
               {process.env.NODE_ENV === "development" && error && (
-                <Text variant="meta" className="text-gray-500">
+                <Text variant="meta" className="text-muted-fg">
                   Order ID: {orderId}
                 </Text>
               )}
@@ -166,7 +166,7 @@ export default function OrderCompletePage() {
           {/* Header */}
           <div className="text-center space-y-2">
             <Heading level="h2">Order Confirmation</Heading>
-            <Text className="text-gray-600 max-w-md mx-auto">
+            <Text className="text-muted-fg max-w-md mx-auto">
               Your order has been successfully placed
             </Text>
           </div>

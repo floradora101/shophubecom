@@ -2,6 +2,7 @@ import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { motion } from "@/lib/ui-tokens";
 
 const Sheet = DialogPrimitive.Root;
 
@@ -40,7 +41,11 @@ const SheetContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed z-50 gap-4 bg-white p-6 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500 data-[state=open]:animate-in data-[state=closed]:animate-out",
+        `fixed z-50 gap-4 bg-white p-6 shadow-lg ${motion(
+          "transform"
+        )} data-[state=closed]:${motion("exit")} data-[state=open]:${motion(
+          "enter"
+        )} data-[state=open]:animate-in data-[state=closed]:animate-out`,
         side === "top" &&
           "inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
         side === "bottom" &&

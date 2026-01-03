@@ -1,4 +1,5 @@
 // Service Showcase: Premium professional tech services with elevated design
+"use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import {
@@ -102,7 +103,7 @@ const services = [
     ],
     icon: Smartphone,
     gradient: "from-primary-500 via-primary-600 to-primary-600",
-    iconBg: "bg-gradient-to-br from-primary-50 via-primary-100 to-primary-200",
+    iconBg: "bg-linear-to-br from-primary-50 via-primary-100 to-primary-200",
     accentColor: "text-primary-600",
   },
   {
@@ -118,7 +119,7 @@ const services = [
     ],
     icon: CreditCard,
     gradient: "from-primary-600 via-primary-600 to-primary-600",
-    iconBg: "bg-gradient-to-br from-primary-100 via-primary-200 to-primary-300",
+    iconBg: "bg-linear-to-br from-primary-100 via-primary-200 to-primary-300",
     accentColor: "text-primary-600",
   },
   {
@@ -134,7 +135,7 @@ const services = [
     icon: Headphones,
     gradient: "from-warm-gray-600 via-warm-gray-700 to-warm-gray-800",
     iconBg:
-      "bg-gradient-to-br from-warm-gray-50 via-warm-gray-100 to-warm-gray-200",
+      "bg-linear-to-br from-warm-gray-50 via-warm-gray-100 to-warm-gray-200",
     accentColor: "text-warm-gray-700",
   },
   {
@@ -149,7 +150,7 @@ const services = [
     ],
     icon: PenTool,
     gradient: "from-primary-400 via-primary-500 to-primary-600",
-    iconBg: "bg-gradient-to-br from-primary-25 via-primary-50 to-primary-100",
+    iconBg: "bg-linear-to-br from-primary-25 via-primary-50 to-primary-100",
     accentColor: "text-primary-500",
   },
 ];

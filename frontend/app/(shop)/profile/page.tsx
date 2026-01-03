@@ -46,40 +46,40 @@ function ProfileContent() {
 
   return (
     <main className="flex-1">
-        <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8">
-          <h1 className="text-section-title text-gray-900 mb-6">My Profile</h1>
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8">
+        <h1 className="text-section-title text-fg mb-6">My Profile</h1>
 
-          {/* Tabs */}
-          <div className="border-b border-gray-200 mb-6">
-            <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => handleTabChange(tab.id)}
-                  className={`
+        {/* Tabs */}
+        <div className="border-b border-border mb-6">
+          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => handleTabChange(tab.id)}
+                className={`
                     whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium transition-colors
                     ${
                       activeTab === tab.id
                         ? "border-primary-500 text-primary-600"
-                        : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                        : "border-transparent text-muted-fg hover:border-border-hover hover:text-fg"
                     }
                   `}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </nav>
-          </div>
-
-          {/* Tab Content */}
-          <div className="mt-6">
-            {activeTab === "dashboard" && <ProfileDashboard />}
-            {activeTab === "orders" && <ProfileOrders />}
-            {activeTab === "addresses" && <ProfileAddresses />}
-            {activeTab === "account" && <ProfileAccountDetails />}
-          </div>
+              >
+                {tab.label}
+              </button>
+            ))}
+          </nav>
         </div>
-      </main>
+
+        {/* Tab Content */}
+        <div className="mt-6">
+          {activeTab === "dashboard" && <ProfileDashboard />}
+          {activeTab === "orders" && <ProfileOrders />}
+          {activeTab === "addresses" && <ProfileAddresses />}
+          {activeTab === "account" && <ProfileAccountDetails />}
+        </div>
+      </div>
+    </main>
   );
 }
 

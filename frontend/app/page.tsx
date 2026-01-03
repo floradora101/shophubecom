@@ -1,6 +1,7 @@
 // Storefront home page.
 import type { Metadata } from "next";
 import { HomePageContent } from "./home-page-content";
+import { getHomePageData } from "@/lib/data/home";
 
 export const metadata: Metadata = {
   title: "ShopHub - Your Trusted Online Shopping Destination",
@@ -8,6 +9,9 @@ export const metadata: Metadata = {
     "Discover amazing products at unbeatable prices. Quality you can trust, delivered to your door.",
 };
 
-export default function HomePage() {
-  return <HomePageContent />;
+export default async function HomePage() {
+  // Fetch homepage data server-side
+  const homeData = await getHomePageData();
+
+  return <HomePageContent data={homeData} />;
 }

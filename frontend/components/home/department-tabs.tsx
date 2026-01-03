@@ -1,7 +1,7 @@
 // DepartmentTabs: Consistent grid layout across all departments
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import {
   Smartphone,
@@ -106,7 +106,7 @@ export function DepartmentTabsSkeleton() {
           {/* Header - Typography set once at container level */}
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="text-center md:text-left space-y-4 flex-1">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary-100 via-primary-100 to-primary-200 mb-2">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r from-primary-100 via-primary-100 to-primary-200 mb-2">
                 <SkeletonBlock className="h-4 w-4 rounded" />
                 <SkeletonBlock className="h-4 w-32 rounded" />
               </div>
@@ -129,7 +129,7 @@ export function DepartmentTabsSkeleton() {
           </div>
 
           {/* Department Info Banner Skeleton */}
-          <div className="relative overflow-hidden rounded-lg p-5 bg-gradient-to-r from-gray-50 to-gray-100 border border-white/20">
+          <div className="relative overflow-hidden rounded-lg p-5 bg-linear-to-r from-gray-50 to-gray-100 border border-white/20">
             <div className="flex flex-col md:flex-row items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <SkeletonBlock className="p-2.5 rounded-xl w-10 h-10" />
@@ -175,8 +175,14 @@ export function DepartmentTabs({
 
   const [activeTab, setActiveTab] = useState(mainCategories[0]?.slug || "");
 
-  const activeConfig =
-    departmentConfig[activeTab] || departmentConfig.electronics;
+  // Ensure activeTab is set when categories become available
+  useEffect(() => {
+    if (!activeTab && mainCategories.length > 0) {
+      setActiveTab(mainCategories[0].slug);
+    }
+  }, [activeTab, mainCategories]);
+
+  const activeConfig = departmentConfig[activeTab] || departmentConfig.phones;
 
   // Build fallback pool from all products across categories (excluding current category)
   const fallbackPool = useMemo(() => {
@@ -275,7 +281,7 @@ export function DepartmentTabs({
           {/* Header - Typography set once at container level */}
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="text-center md:text-left space-y-4 flex-1">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary-100 via-primary-100 to-primary-200 mb-2">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r from-primary-100 via-primary-100 to-primary-200 mb-2">
                 <Grid3X3 className="h-4 w-4 text-primary-600" />
                 <span className="text-sm font-semibold text-primary-600 font-[var(--font-inter)]">
                   Explore Collections
@@ -292,7 +298,7 @@ export function DepartmentTabs({
           <div className="flex flex-wrap justify-center gap-2.5 pb-4">
             {mainCategories.map((category) => {
               const config =
-                departmentConfig[category.slug] || departmentConfig.electronics;
+                departmentConfig[category.slug] || departmentConfig.phones;
               const Icon = config.icon;
               const isActive = activeTab === category.slug;
 
@@ -302,7 +308,7 @@ export function DepartmentTabs({
                   onClick={() => setActiveTab(category.slug)}
                   className={`group relative px-5 py-2.5 rounded-xl font-medium transition-all duration-300 ease-in-out transform hover:scale-[1.02] ${
                     isActive
-                      ? `bg-gradient-to-r ${config.gradient} text-white shadow-md scale-[1.02]`
+                      ? `bg-linear-to-r ${config.gradient} text-white shadow-md scale-[1.02]`
                       : "bg-white text-gray-700 hover:text-gray-900 border border-gray-200 hover:border-gray-300 shadow-sm hover:shadow-sm"
                   }`}
                   aria-selected={isActive}
@@ -327,7 +333,7 @@ export function DepartmentTabs({
 
           {/* Department Info Banner */}
           <div
-            className={`relative overflow-hidden rounded-lg p-5 bg-gradient-to-r ${activeConfig.bgGradient} border border-white/20 transition-all duration-500 ease-in-out`}
+            className={`relative overflow-hidden rounded-lg p-5 bg-linear-to-r ${activeConfig.bgGradient} border border-white/20 transition-all duration-500 ease-in-out`}
           >
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-3">
               <div className="flex items-center gap-3">

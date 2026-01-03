@@ -19,6 +19,7 @@ import {
   Phone,
   RefreshCw,
   Package,
+  Archive,
 } from "lucide-react";
 import { Stack } from "@/components/ui/stack";
 import { theme } from "../../../../lib/config/theme";
@@ -134,22 +135,25 @@ export function FiltersSidebar({
   return (
     <Stack spacing="xl" className="sticky top-24 self-start">
       {/* Category Filter Dropdown */}
-      <div className="border border-slate-200 rounded-lg overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden">
         <button
           onClick={() => setIsCategoryOpen(!isCategoryOpen)}
           className={cn(
             "flex items-center justify-between w-full px-4 py-3 text-left",
-            "bg-slate-50 hover:bg-slate-100 transition-colors",
+            "bg-surface-muted hover:bg-surface transition-colors",
             "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
           )}
           aria-expanded={isCategoryOpen}
         >
-          <span className="text-sm font-semibold text-warm-gray-900 uppercase tracking-wide">
-            Categories
-          </span>
+          <div className="flex items-center gap-2">
+            <Archive className="w-4 h-4 text-primary-600" />
+            <span className="text-sm font-semibold text-warm-gray-900 uppercase tracking-wide">
+              Categories
+            </span>
+          </div>
           <ChevronDown
             className={cn(
-              "h-4 w-4 text-slate-600 transition-transform duration-200",
+              "h-4 w-4 text-muted-fg transition-transform duration-200",
               isCategoryOpen && "rotate-180"
             )}
           />
@@ -181,12 +185,12 @@ export function FiltersSidebar({
       </div>
 
       {/* Price Range Filter Dropdown */}
-      <div className="border border-slate-200 rounded-lg overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden">
         <button
           onClick={() => setIsPriceOpen(!isPriceOpen)}
           className={cn(
             "flex items-center justify-between w-full px-4 py-3 text-left",
-            "bg-slate-50 hover:bg-slate-100 transition-colors",
+            "bg-surface-muted hover:bg-surface transition-colors",
             "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
           )}
           aria-expanded={isPriceOpen}
@@ -199,7 +203,7 @@ export function FiltersSidebar({
           </div>
           <ChevronDown
             className={cn(
-              "h-4 w-4 text-slate-600 transition-transform duration-200",
+              "h-4 w-4 text-muted-fg transition-transform duration-200",
               isPriceOpen && "rotate-180"
             )}
           />
@@ -309,12 +313,12 @@ export function FiltersSidebar({
       </div>
 
       {/* Availability Filter Dropdown */}
-      <div className="border border-slate-200 rounded-lg overflow-hidden">
+      <div className="border border-border rounded-lg overflow-hidden">
         <button
           onClick={() => setIsAvailabilityOpen(!isAvailabilityOpen)}
           className={cn(
             "flex items-center justify-between w-full px-4 py-3 text-left",
-            "bg-slate-50 hover:bg-slate-100 transition-colors",
+            "bg-surface-muted hover:bg-surface transition-colors",
             "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
           )}
           aria-expanded={isAvailabilityOpen}
@@ -327,7 +331,7 @@ export function FiltersSidebar({
           </div>
           <ChevronDown
             className={cn(
-              "h-4 w-4 text-slate-600 transition-transform duration-200",
+              "h-4 w-4 text-muted-fg transition-transform duration-200",
               isAvailabilityOpen && "rotate-180"
             )}
           />
@@ -358,7 +362,7 @@ export function FiltersSidebar({
                 </span>
               </label>
 
-              <div className="text-xs text-slate-600">
+              <div className="text-xs text-muted-fg">
                 <p>Products with immediate availability</p>
               </div>
             </div>
@@ -372,7 +376,7 @@ export function FiltersSidebar({
           onClick={() => setIsSellerInfoOpen(!isSellerInfoOpen)}
           className={cn(
             "flex items-center justify-between w-full px-4 py-3 text-left",
-            "bg-slate-50 hover:bg-slate-100 transition-colors",
+            "bg-surface-muted hover:bg-surface transition-colors",
             "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
           )}
           aria-expanded={isSellerInfoOpen}
@@ -385,7 +389,7 @@ export function FiltersSidebar({
           </div>
           <ChevronDown
             className={cn(
-              "h-4 w-4 text-slate-600 transition-transform duration-200",
+              "h-4 w-4 text-muted-fg transition-transform duration-200",
               isSellerInfoOpen && "rotate-180"
             )}
           />
@@ -437,7 +441,7 @@ export function FiltersSidebar({
           onClick={() => setIsContactOpen(!isContactOpen)}
           className={cn(
             "flex items-center justify-between w-full px-4 py-3 text-left",
-            "bg-slate-50 hover:bg-slate-100 transition-colors",
+            "bg-surface-muted hover:bg-surface transition-colors",
             "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
           )}
           aria-expanded={isContactOpen}
@@ -450,7 +454,7 @@ export function FiltersSidebar({
           </div>
           <ChevronDown
             className={cn(
-              "h-4 w-4 text-slate-600 transition-transform duration-200",
+              "h-4 w-4 text-muted-fg transition-transform duration-200",
               isContactOpen && "rotate-180"
             )}
           />

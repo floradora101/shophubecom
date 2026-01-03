@@ -380,7 +380,7 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
     <div className="min-h-screen relative">
       <Stack spacing="xl" className="relative z-0">
         {/* Breadcrumb */}
-        <div className="border-b border-slate-200/60">
+        <div className="border-b border-border/60">
           <Container className="py-4">
             <nav
               className="flex items-center gap-2 text-sm"
@@ -388,21 +388,21 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
             >
               <Link
                 href="/"
-                className="text-slate-600 hover:text-gray-900 transition-colors"
+                className="text-muted-fg hover:text-fg transition-colors"
               >
                 Home
               </Link>
-              <ChevronRight className="h-4 w-4 text-slate-400" />
+              <ChevronRight className="h-4 w-4 text-muted-fg" />
               {isSearchResultsPage ? (
                 <>
                   <Link
                     href="/search"
-                    className="text-slate-600 hover:text-gray-900 transition-colors"
+                    className="text-muted-fg hover:text-fg transition-colors"
                   >
                     Search
                   </Link>
-                  <ChevronRight className="h-4 w-4 text-slate-400" />
-                  <span className="text-gray-900 font-medium truncate max-w-xs">
+                  <ChevronRight className="h-4 w-4 text-muted-fg" />
+                  <span className="text-fg font-medium truncate max-w-xs">
                     Results
                   </span>
                 </>
@@ -410,17 +410,17 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
                 <>
                   <Link
                     href="/products"
-                    className="text-slate-600 hover:text-gray-900 transition-colors"
+                    className="text-muted-fg hover:text-fg transition-colors"
                   >
                     Products
                   </Link>
-                  <ChevronRight className="h-4 w-4 text-slate-400" />
-                  <span className="text-gray-900 font-medium truncate max-w-xs">
+                  <ChevronRight className="h-4 w-4 text-muted-fg" />
+                  <span className="text-fg font-medium truncate max-w-xs">
                     {currentCategory.name}
                   </span>
                 </>
               ) : (
-                <span className="text-gray-900 font-medium truncate max-w-xs">
+                <span className="text-fg font-medium truncate max-w-xs">
                   Products
                 </span>
               )}
@@ -433,12 +433,10 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
           {/* Results Count and Controls - Above Grid */}
           <div className="flex items-center justify-between gap-4 mb-8">
             {/* Results Count */}
-            <div className="text-sm text-slate-600">
-              <span className="font-semibold text-gray-900">
-                {products.length}
-              </span>
+            <div className="text-sm text-muted-fg">
+              <span className="font-semibold text-fg">{products.length}</span>
               <span className="mx-1">of</span>
-              <span className="text-gray-700">{totalResults}</span>
+              <span className="text-muted-fg">{totalResults}</span>
               <span className="ml-1">products</span>
             </div>
 
@@ -463,7 +461,7 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
               </Button>
 
               {isSortOpen && (
-                <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-slate-200 rounded-lg shadow-lg z-50">
+                <div className="absolute right-0 top-full mt-2 w-56 bg-surface border border-border rounded-lg shadow-lg z-50">
                   {SORT_OPTIONS.map((option) => (
                     <button
                       key={option.value}
@@ -478,7 +476,7 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
                         "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2",
                         filters.sortBy === option.value
                           ? "text-primary-600 font-medium bg-primary-50"
-                          : "text-gray-700 hover:bg-slate-50"
+                          : "text-muted-fg hover:bg-surface-muted"
                       )}
                     >
                       {option.label}

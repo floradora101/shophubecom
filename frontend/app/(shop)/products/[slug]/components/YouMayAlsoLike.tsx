@@ -38,14 +38,8 @@ export function YouMayAlsoLike({ currentProduct }: YouMayAlsoLikeProps) {
   return (
     <div className="pb-8 sm:pb-12 lg:pb-16">
       <Stack spacing="lg" className="sm:space-y-8 mt-12 sm:mt-16">
-        {/* Header with Hearts */}
+        {/* Header */}
         <div className="w-full text-center mb-6 sm:mb-8">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r from-primary-100 via-primary-50 to-primary-100 shadow-sm border border-primary-200/50 mb-4">
-            <Heart className="h-4 w-4 text-primary-600" />
-            <span className="text-sm font-semibold text-primary-600 font-inter tracking-wide">
-              you may also like
-            </span>
-          </div>
           <h2 className="text-xl sm:text-2xl font-semibold text-warm-gray-900 mb-2">
             Discover More
           </h2>
