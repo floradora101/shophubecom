@@ -11,7 +11,7 @@ import { motion } from "@/lib/ui-tokens";
 import { validateHeroTheme } from "@/lib/utils/hero-theme-resolver";
 import { useHeroSlideProcessor } from "@/lib/utils/hero-slide-hydrator";
 import type { HeroSlide } from "@/lib/types/heroSlides.types";
-import type { Product, Category } from "@/features/products/types";
+import type { Product } from "@/features/products/types";
 
 // Predefined floating element positions (avoid Math.random in render)
 const floatingPositions = [
@@ -112,7 +112,6 @@ export function HeroShellSkeleton() {
 interface HeroShellProps {
   slides: HeroSlide[];
   productsBySlug?: Record<string, Product> | Map<string, Product>;
-  categoriesBySlug?: Record<string, Category> | Map<string, Category>;
   autoplay?: boolean;
   intervalMs?: number;
   onSlideChange?: (index: number) => void;
@@ -121,50 +120,30 @@ interface HeroShellProps {
 export function HeroShell({
   slides: rawSlides,
   productsBySlug,
-  categoriesBySlug,
   autoplay = true,
   intervalMs = 5000,
   onSlideChange,
 }: HeroShellProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPlaying, setIsPlaying] = useState(autoplay);
-  const [isHovered, setIsHovered] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
+  const [isHovering, setIsHovering] = useState(false);
 
-  // Refs for autoplay management
+  // Refs for autoplay management and slide tracking
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const slideCountRef = useRef<number>(0);
   const currentSlideIdRef = useRef<string | null>(null);
 
   // Process slides using the centralized processor
   const { slides: processedSlides, getResolvedData } = useHeroSlideProcessor({
     slides: rawSlides,
     productsBySlug,
-    categoriesBySlug,
   });
 
+  // Generate motion classes for smooth transitions
+  const motionClasses = motion("hero", "transform");
+
   const prefersReducedMotion = usePrefersReducedMotion();
-
-  // Autoplay scheduler helpers
-  const startInterval = useCallback(() => {
-    if (intervalRef.current) return; // Already running
-
-    intervalRef.current = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % processedSlides.length);
-    }, intervalMs);
-  }, [processedSlides.length, intervalMs]);
-
-  const stopInterval = useCallback(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-  }, []);
-
-  const restartInterval = useCallback(() => {
-    stopInterval();
-    startInterval();
-  }, [startInterval, stopInterval]);
 
   // Page visibility handling
   useEffect(() => {
@@ -177,73 +156,86 @@ export function HeroShell({
       document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, []);
 
-  // Main autoplay effect
+  // Production-grade autoplay effect - React 18 Strict Mode compliant
   useEffect(() => {
+    // Update slide count ref to avoid stale closures in interval callback
+    slideCountRef.current = processedSlides.length;
+
+    // Compute autoplay conditions - centralized logic prevents race conditions
     const shouldPlay =
       isPlaying &&
       processedSlides.length > 1 &&
       !prefersReducedMotion &&
       isVisible &&
-      !isHovered &&
-      !isFocused;
+      !isHovering;
 
-    if (shouldPlay) {
-      startInterval();
-    } else {
-      stopInterval();
+    // Always clear existing interval first (defensive programming)
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
 
-    return () => stopInterval();
+    // Only set up interval if conditions are met
+    if (shouldPlay) {
+      intervalRef.current = setInterval(() => {
+        // Read from ref to avoid stale closure - critical for React 18 Strict Mode
+        const currentCount = slideCountRef.current;
+
+        // Safety check: don't advance if slides changed to 0 or 1
+        if (currentCount <= 1) return;
+
+        setCurrentSlide((prev) => (prev + 1) % currentCount);
+      }, intervalMs);
+    }
+
+    // Cleanup function - always runs on effect re-run or unmount
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
   }, [
     isPlaying,
     processedSlides.length,
     prefersReducedMotion,
     isVisible,
-    isHovered,
-    isFocused,
-    startInterval,
-    stopInterval,
+    isHovering,
+    intervalMs,
   ]);
 
-  // Handle slides changes - make currentSlide resilient
+  // Handle slides changes - make currentSlide resilient and clamp to valid range
   useEffect(() => {
     if (processedSlides.length === 0) return;
 
-    let newIndex = currentSlide;
+    setCurrentSlide((currentSlide) => {
+      let newIndex = currentSlide;
 
-    // If we have a tracked slide ID, try to find it in the new slides
-    if (currentSlideIdRef.current) {
-      const trackedIndex = processedSlides.findIndex(
-        (slide) => slide.id === currentSlideIdRef.current
-      );
-      if (trackedIndex !== -1) {
-        newIndex = trackedIndex;
-      } else {
-        // Slide no longer exists, fallback to 0
-        newIndex = 0;
-        currentSlideIdRef.current = null;
+      // If we have a tracked slide ID, try to find it in the new slides
+      if (currentSlideIdRef.current) {
+        const trackedIndex = processedSlides.findIndex(
+          (slide) => slide.id === currentSlideIdRef.current
+        );
+        if (trackedIndex !== -1) {
+          newIndex = trackedIndex;
+        } else {
+          // Slide no longer exists, fallback to 0
+          newIndex = 0;
+          currentSlideIdRef.current = null;
+        }
       }
-    }
 
-    // Clamp index to valid range
-    newIndex = Math.max(0, Math.min(newIndex, processedSlides.length - 1));
+      // Clamp index to valid range
+      newIndex = Math.max(0, Math.min(newIndex, processedSlides.length - 1));
 
-    if (newIndex !== currentSlide) {
-      setCurrentSlide(newIndex);
-    }
+      // Update tracked slide ID
+      if (processedSlides[newIndex]) {
+        currentSlideIdRef.current = processedSlides[newIndex].id;
+      }
 
-    // Update tracked slide ID
-    if (processedSlides[newIndex]) {
-      currentSlideIdRef.current = processedSlides[newIndex].id;
-    }
-  }, [processedSlides, currentSlide]);
-
-  // Stop autoplay when reduced motion becomes true
-  useEffect(() => {
-    if (prefersReducedMotion && intervalRef.current) {
-      stopInterval();
-    }
-  }, [prefersReducedMotion, stopInterval]);
+      return newIndex;
+    });
+  }, [processedSlides]);
 
   // Notify parent of slide changes
   useEffect(() => {
@@ -258,25 +250,32 @@ export function HeroShell({
 
   const goToSlide = useCallback(
     (index: number) => {
-      setCurrentSlide(index);
+      if (processedSlides.length === 0) return;
+
+      // Clamp index to valid range
+      const clampedIndex = Math.max(
+        0,
+        Math.min(index, processedSlides.length - 1)
+      );
+
+      setCurrentSlide(clampedIndex);
       // Update tracked slide ID
-      if (processedSlides[index]) {
-        currentSlideIdRef.current = processedSlides[index].id;
-      }
-      // Restart autoplay countdown without changing play state
-      if (isPlaying && processedSlides.length > 1 && !prefersReducedMotion) {
-        restartInterval();
+      if (processedSlides[clampedIndex]) {
+        currentSlideIdRef.current = processedSlides[clampedIndex].id;
       }
     },
-    [processedSlides, isPlaying, prefersReducedMotion, restartInterval]
+    [processedSlides]
   );
 
   const nextSlide = useCallback(
-    () => goToSlide((currentSlide + 1) % processedSlides.length),
+    () =>
+      processedSlides.length > 0 &&
+      goToSlide((currentSlide + 1) % processedSlides.length),
     [goToSlide, currentSlide, processedSlides.length]
   );
   const prevSlide = useCallback(
     () =>
+      processedSlides.length > 0 &&
       goToSlide(
         (currentSlide - 1 + processedSlides.length) % processedSlides.length
       ),
@@ -307,6 +306,10 @@ export function HeroShell({
 
   const slidesToRender = getSlidesToRender();
 
+  // Hover handlers for autoplay pause
+  const handleMouseEnter = useCallback(() => setIsHovering(true), []);
+  const handleMouseLeave = useCallback(() => setIsHovering(false), []);
+
   // Keyboard navigation handler
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
@@ -331,10 +334,12 @@ export function HeroShell({
     [prevSlide, nextSlide, isPlaying, prefersReducedMotion]
   );
 
-  const currentSlideData = processedSlides[currentSlide];
-
   // Early return for empty slides - must be after all hooks
   if (!rawSlides || rawSlides.length === 0) return null;
+
+  // Define currentSlideData early for use in effects
+  const currentSlideData =
+    processedSlides.length > 0 ? processedSlides[currentSlide] : null;
 
   return (
     <div className="relative overflow-hidden overflow-x-hidden ">
@@ -351,10 +356,6 @@ export function HeroShell({
             aria-roledescription="carousel"
             aria-label={`Hero slideshow with ${processedSlides.length} slides`}
             tabIndex={0}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
             onKeyDown={handleKeyDown}
           >
             {/* Floating Background */}
@@ -376,16 +377,17 @@ export function HeroShell({
             <div
               ref={setElementRef}
               className="relative overflow-hidden rounded-2xl w-full h-full"
-              data-theme={validateHeroTheme(
-                currentSlideData.theme?.accentToken,
-                currentSlideData.id
-              )}
+              data-theme={
+                currentSlideData
+                  ? validateHeroTheme(
+                      currentSlideData.theme?.accentToken,
+                      currentSlideData.id
+                    )
+                  : undefined
+              }
             >
               <div
-                className={`flex ${motion(
-                  "hero",
-                  "transform"
-                )} will-change-transform`}
+                className={`flex ${motionClasses} will-change-transform`}
                 style={{ transform: `translateX(-${currentSlide * 100}%)` }}
               >
                 {processedSlides.map((slide, index) => {
@@ -401,6 +403,8 @@ export function HeroShell({
                             {...getResolvedData(slide)}
                             isActive={isCurrentSlide}
                             index={index}
+                            onMouseEnter={handleMouseEnter}
+                            onMouseLeave={handleMouseLeave}
                           />
                         </div>
                       ) : (
@@ -425,6 +429,8 @@ export function HeroShell({
                   variant="primary"
                   direction="left"
                   onClick={prevSlide}
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
                   className="absolute left-4 top-1/2 -translate-y-1/2 z-30"
                   aria-label="Previous slide"
                 />
@@ -432,12 +438,18 @@ export function HeroShell({
                   variant="primary"
                   direction="right"
                   onClick={nextSlide}
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
                   className="absolute right-4 top-1/2 -translate-y-1/2 z-30"
                   aria-label="Next slide"
                 />
 
                 {/* Indicators */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30">
+                <div
+                  className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30"
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                >
                   <SlideIndicators
                     count={processedSlides.length}
                     activeIndex={currentSlide}
@@ -450,6 +462,8 @@ export function HeroShell({
                   <NavigationButton
                     direction={isPlaying ? "pause" : "play"}
                     onClick={() => setIsPlaying(!isPlaying)}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
                     className="absolute top-2 right-2 sm:top-4 sm:right-4 lg:top-6 lg:right-6 z-30"
                     size="sm"
                     aria-label={

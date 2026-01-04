@@ -53,9 +53,9 @@ export function formatOfferCountdown(endDate: string): string {
     const minutes = Math.floor(timeLeft / (1000 * 60));
 
     // Use Intl.RelativeTimeFormat for nicer output
-    const rtf = new Intl.RelativeTimeFormat('en', {
-      numeric: 'always',
-      style: 'long'
+    const rtf = new Intl.RelativeTimeFormat("en", {
+      numeric: "always",
+      style: "long",
     });
 
     // Show hours when less than 48 hours remain (2 days)
@@ -65,9 +65,9 @@ export function formatOfferCountdown(endDate: string): string {
         if (minutes <= 5) {
           return "Ending soon";
         }
-        return rtf.format(minutes, 'minute');
+        return rtf.format(minutes, "minute");
       }
-      return rtf.format(hours, 'hour');
+      return rtf.format(hours, "hour");
     }
 
     // Show days for longer periods
@@ -75,9 +75,40 @@ export function formatOfferCountdown(endDate: string): string {
       return "Ending soon";
     }
 
-    return rtf.format(days, 'day');
+    return rtf.format(days, "day");
   } catch (error) {
-    console.warn('Error calculating countdown:', error);
+    console.warn("Error calculating countdown:", error);
     return "Ending soon";
+  }
+}
+
+/**
+ * Calculates detailed countdown with days, hours, and minutes
+ * @param endDate - ISO date string when the offer ends
+ * @returns Object with days, hours, minutes breakdown
+ */
+export function getDetailedCountdown(endDate: string): {
+  days: number;
+  hours: number;
+  minutes: number;
+  isEndingSoon: boolean;
+} {
+  try {
+    const now = new Date().getTime();
+    const end = new Date(endDate).getTime();
+    const timeLeft = Math.max(0, end - now);
+
+    const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+    const hours = Math.floor(
+      (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    );
+    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+
+    const isEndingSoon = days === 0 && hours === 0 && minutes <= 5;
+
+    return { days, hours, minutes, isEndingSoon };
+  } catch (error) {
+    console.warn("Error calculating detailed countdown:", error);
+    return { days: 0, hours: 0, minutes: 0, isEndingSoon: true };
   }
 }

@@ -333,9 +333,11 @@ const config: Config = {
           "@apply hero-glass rounded-3xl p-6 lg:p-8": {},
         },
         ".hero-pill": {
-          border: "1px solid var(--hero-border)",
-          color: "var(--hero-accent)",
-          "@apply rounded-full px-3 py-2": {},
+          "@apply rounded-full px-3 py-2 bg-surface border border-border text-muted-fg":
+            {},
+        },
+        ".hero-pill--accent": {
+          "@apply border-primary text-primary": {},
         },
       });
     },

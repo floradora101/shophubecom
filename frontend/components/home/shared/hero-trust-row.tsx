@@ -23,21 +23,21 @@ export const HeroTrustRow = memo(function HeroTrustRow({
     if (variant === "overlay") {
       return "flex items-center gap-3 px-3 py-2 bg-white/10 rounded-lg border border-white/20";
     }
-    return "flex items-center gap-3 px-3 py-2 bg-[var(--hero-bg-from)] rounded-lg border border-[var(--hero-border)]";
+    return "flex items-center gap-3 px-3 py-2 bg-surface-muted rounded-lg border border-border";
   };
 
   const getIconClasses = () => {
     if (variant === "overlay") {
       return "h-4 w-4 text-white";
     }
-    return "h-4 w-4 text-[var(--hero-accent)]";
+    return "h-4 w-4 text-muted-fg";
   };
 
   const getTextClasses = () => {
     if (variant === "overlay") {
       return "text-sm text-white font-(--font-inter)";
     }
-    return "text-sm text-[var(--hero-text)] font-(--font-inter)";
+    return "text-sm text-muted-fg font-(--font-inter)";
   };
 
   return (

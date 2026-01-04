@@ -1,8 +1,13 @@
 import { ReactNode, useEffect, useRef } from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils/cn";
 import { getProductImageWithPlaceholder } from "@/lib/utils";
 import type { HeroSlide } from "@/lib/types/heroSlides.types";
 import type { Product } from "@/features/products/types";
+
+interface VideoElement extends HTMLVideoElement {
+  play(): Promise<void>;
+}
 
 interface HeroMediaFrameProps {
   slide: HeroSlide;
@@ -22,6 +27,7 @@ export function HeroMediaFrame({
   badge,
 }: HeroMediaFrameProps) {
   const prefetchRef = useRef<HTMLImageElement | null>(null);
+  const videoRef = useRef<VideoElement | null>(null);
 
   // Priority: only active slide gets priority
   const shouldPrioritize = isActive;
@@ -47,6 +53,29 @@ export function HeroMediaFrame({
       return () => clearTimeout(timeoutId);
     }
   }, [isActive, slide.media, product]);
+
+  // Video autoplay effect
+  useEffect(() => {
+    if (
+      slide.media.kind === "video" &&
+      "videoUrl" in slide.media &&
+      slide.media.videoUrl &&
+      videoRef.current
+    ) {
+      if (isActive) {
+        // Attempt to play video with proper error handling
+        videoRef.current.play().catch((error) => {
+          // Silently handle autoplay failures (common in browsers)
+          if (process.env.NODE_ENV === "development") {
+            console.warn("Video autoplay failed:", error.message);
+          }
+        });
+      } else {
+        // Pause when not active
+        videoRef.current.pause();
+      }
+    }
+  }, [isActive, slide.media]);
 
   // Map media position to CSS object-position classes
   const getObjectPositionClass = (position?: string) => {
@@ -76,13 +105,22 @@ export function HeroMediaFrame({
               "0 20px 25px -5px rgb(0 0 0 / 0.08), 0 10px 10px -5px rgb(0 0 0 / 0.04)",
           }}
         >
-          {/* background gradient UNDER image */}
+          {/* background gradient UNDER image - neutral radial highlight */}
           <div
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(135deg, var(--hero-bg-from), rgba(255,255,255,0) 45%, var(--hero-bg-to))",
-              opacity: 0.35,
+                "radial-gradient(circle at 70% 30%, rgba(0,0,0,0.08) 0%, transparent 50%)",
+            }}
+          />
+
+          {/* tiny accent glow as corner blob */}
+          <div
+            className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-60"
+            style={{
+              background:
+                "radial-gradient(circle, var(--hero-accent) 0%, transparent 70%)",
+              transform: "translate(50%, -50%)",
             }}
           />
 
@@ -95,25 +133,45 @@ export function HeroMediaFrame({
           {/* image */}
           {slide.media.kind === "product" && product ? (
             <div className="absolute inset-10">
-              <img
+              <Image
                 src={getProductImageWithPlaceholder(product)}
                 alt={slide.media.alt || product.name}
+                fill
                 className={cn(
-                  "relative z-10 w-full h-full object-contain scale-[1.06] group-hover:scale-[1.1] transition-transform duration-700 ease-out",
+                  "relative z-10 object-contain scale-[1.06] group-hover:scale-[1.1] transition-transform duration-700 ease-out",
                   getObjectPositionClass(slide.media.position)
                 )}
-                loading={shouldPrioritize ? "eager" : "lazy"}
+                priority={shouldPrioritize}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
             </div>
           ) : slide.media.kind === "image" && slide.media.imageUrl ? (
-            <img
+            <Image
               src={slide.media.imageUrl}
               alt={slide.media.alt || ""}
+              fill
+              className={cn(
+                "relative z-10 object-cover transition-transform duration-700 ease-out hover:scale-[1.03]",
+                getObjectPositionClass(slide.media.position)
+              )}
+              priority={shouldPrioritize}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          ) : slide.media.kind === "video" &&
+            "videoUrl" in slide.media &&
+            slide.media.videoUrl ? (
+            <video
+              ref={videoRef}
+              src={slide.media.videoUrl}
               className={cn(
                 "relative z-10 w-full h-full object-cover transition-transform duration-700 ease-out hover:scale-[1.03]",
                 getObjectPositionClass(slide.media.position)
               )}
-              loading={shouldPrioritize ? "eager" : "lazy"}
+              muted
+              playsInline
+              loop
+              preload={shouldPrioritize ? "metadata" : "none"}
+              poster={slide.media.imageUrl} // Optional poster image
             />
           ) : null}
         </div>

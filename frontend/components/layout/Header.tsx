@@ -189,7 +189,7 @@ export function Header() {
         {/* Professional Consolidated Header */}
         <header
           id="navigation"
-          className="w-full bg-surface-muted border-b border-border shadow-sm"
+          className="w-full bg-linear-to-br from-gray-50 via-gray-100 to-gray-200/40 border-b border-border shadow-sm"
           role="banner"
         >
           <div className="container mx-auto px-4 md:px-6 lg:px-8 relative">
@@ -392,7 +392,7 @@ export function Header() {
 
             {/* Mobile Menu */}
             {isMobileMenuOpen && (
-              <div className="lg:hidden border-t border-border bg-surface">
+              <div className="lg:hidden border-t border-border bg-linear-to-br from-gray-50 via-gray-100 to-gray-200/40">
                 <nav className="px-4 py-6 space-y-4">
                   {/* Shop All */}
                   <Link

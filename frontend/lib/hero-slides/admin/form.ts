@@ -59,8 +59,16 @@ const baseHeroSlideSchema = z.object({
 
   // Theme - Required for proper theming
   themeAccentToken: z
-    .enum(["crimson", "charcoal", "burgundy", "oil", "silver", "midnight"])
-    .default("crimson"),
+    .enum([
+      "red-black",
+      "red-blue",
+      "red-pink",
+      "red-gray",
+      "red-burgundy",
+      "blue-green",
+      "red-orange",
+    ])
+    .default("red-black"),
 
   // Type-specific fields
   // CATEGORY_SPOTLIGHT
@@ -222,7 +230,7 @@ export function getDefaultHeroSlideFormValues(
     mediaAlt: "",
     mediaPosition: "center",
     mediaAspect: "default",
-    themeAccentToken: "crimson",
+    themeAccentToken: "red-black",
     categoryBullets: type === "CATEGORY_SPOTLIGHT" ? [""] : undefined,
     offerLabel: "",
     offerEndsAt: "",
@@ -265,7 +273,7 @@ export function toFormValues(slide: HeroSlide): HeroSlideFormValues {
     mediaPosition: slide.media.position || "center",
     mediaAspect:
       "aspect" in slide.media ? slide.media.aspect || "default" : "default",
-    themeAccentToken: slide.theme?.accentToken || "crimson",
+    themeAccentToken: slide.theme?.accentToken || "red-black",
   };
 
   // Add type-specific fields

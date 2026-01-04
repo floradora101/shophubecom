@@ -1,22 +1,59 @@
 import { memo } from "react";
+import dynamic from "next/dynamic";
 import type {
   HeroSlide,
   LandscapeImageSlide,
 } from "@/lib/types/heroSlides.types";
 import type { Product } from "@/features/products/types";
 
-// Import individual slide body components
-import { ProductSpotlightSlideBody } from "./slide-bodies/ProductSpotlightSlideBody";
-import { CategorySpotlightSlideBody } from "./slide-bodies/CategorySpotlightSlideBody";
-import { OfferSlideBody } from "./slide-bodies/OfferSlideBody";
-import { TestimonialSlideBody } from "./slide-bodies/TestimonialSlideBody";
-import { LandscapeHeroSlideBody } from "./slide-bodies/LandscapeHeroSlideBody";
+// Code-split slide body components with next/dynamic
+const ProductSpotlightSlideBody = dynamic(
+  () =>
+    import("./slide-bodies/ProductSpotlightSlideBody").then((mod) => ({
+      default: mod.ProductSpotlightSlideBody,
+    })),
+  { ssr: false }
+);
+
+const CategorySpotlightSlideBody = dynamic(
+  () =>
+    import("./slide-bodies/CategorySpotlightSlideBody").then((mod) => ({
+      default: mod.CategorySpotlightSlideBody,
+    })),
+  { ssr: false }
+);
+
+const OfferSlideBody = dynamic(
+  () =>
+    import("./slide-bodies/OfferSlideBody").then((mod) => ({
+      default: mod.OfferSlideBody,
+    })),
+  { ssr: false }
+);
+
+const TestimonialSlideBody = dynamic(
+  () =>
+    import("./slide-bodies/TestimonialSlideBody").then((mod) => ({
+      default: mod.TestimonialSlideBody,
+    })),
+  { ssr: false }
+);
+
+const LandscapeHeroSlideBody = dynamic(
+  () =>
+    import("./slide-bodies/LandscapeHeroSlideBody").then((mod) => ({
+      default: mod.LandscapeHeroSlideBody,
+    })),
+  { ssr: false }
+);
 
 interface SlideBodyRendererProps {
   slide: HeroSlide;
   product?: Product;
   isActive?: boolean;
   index?: number;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }
 
 export const SlideBodyRenderer = memo(function SlideBodyRenderer({
@@ -24,6 +61,8 @@ export const SlideBodyRenderer = memo(function SlideBodyRenderer({
   product,
   isActive = false,
   index = 0,
+  onMouseEnter,
+  onMouseLeave,
 }: SlideBodyRendererProps) {
   return (
     <>
@@ -36,6 +75,8 @@ export const SlideBodyRenderer = memo(function SlideBodyRenderer({
                 product={product}
                 isActive={isActive}
                 index={index}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
               />
             );
 
@@ -45,12 +86,20 @@ export const SlideBodyRenderer = memo(function SlideBodyRenderer({
                 slide={slide}
                 isActive={isActive}
                 index={index}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
               />
             );
 
           case "OFFER":
             return (
-              <OfferSlideBody slide={slide} isActive={isActive} index={index} />
+              <OfferSlideBody
+                slide={slide}
+                isActive={isActive}
+                index={index}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
+              />
             );
 
           case "TESTIMONIAL":
@@ -59,6 +108,8 @@ export const SlideBodyRenderer = memo(function SlideBodyRenderer({
                 slide={slide}
                 isActive={isActive}
                 index={index}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
               />
             );
 
@@ -67,6 +118,8 @@ export const SlideBodyRenderer = memo(function SlideBodyRenderer({
               <LandscapeHeroSlideBody
                 slide={slide as LandscapeImageSlide}
                 isActive={isActive}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
               />
             );
 

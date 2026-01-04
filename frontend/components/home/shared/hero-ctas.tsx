@@ -13,12 +13,16 @@ interface HeroCTAsProps {
     href: string;
   };
   className?: string;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }
 
 export const HeroCTAs = memo(function HeroCTAs({
   primary,
   secondary,
   className,
+  onMouseEnter,
+  onMouseLeave,
 }: HeroCTAsProps) {
   return (
     <div
@@ -26,7 +30,7 @@ export const HeroCTAs = memo(function HeroCTAs({
         className || ""
       }`}
     >
-      <Link href={primary.href}>
+      <Link href={primary.href} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
         <Button className="group w-auto">
           <span className="flex items-center gap-2">
             {primary.label}
@@ -35,8 +39,15 @@ export const HeroCTAs = memo(function HeroCTAs({
         </Button>
       </Link>
       {secondary && (
-        <Link href={secondary.href}>
-          <button className="inline-flex items-center justify-center gap-2 px-6 py-2 bg-[var(--hero-bg-from)] border border-[var(--hero-border)] text-[var(--hero-accent)] font-semibold rounded-lg shadow-sm hover:shadow-md transition-all duration-200 w-auto min-h-10">
+        <Link href={secondary.href} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+          <button
+            className="inline-flex items-center justify-center gap-2 px-6 py-2 border font-semibold rounded-lg shadow-sm hover:shadow-md transition-all duration-200 w-auto min-h-10"
+            style={{
+              borderColor: "var(--hero-accent)",
+              color: "var(--hero-accent)",
+              backgroundColor: "var(--hero-accent-weak)",
+            }}
+          >
             <span className="flex items-center gap-2">{secondary.label}</span>
           </button>
         </Link>

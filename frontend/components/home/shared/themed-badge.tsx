@@ -1,0 +1,29 @@
+import { memo } from "react";
+import { LucideIcon } from "lucide-react";
+
+interface ThemedBadgeProps {
+  children: React.ReactNode;
+  icon?: LucideIcon;
+  className?: string;
+}
+
+export const ThemedBadge = memo(function ThemedBadge({
+  children,
+  icon: Icon,
+  className,
+}: ThemedBadgeProps) {
+  return (
+    <div
+      className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 mt-6 w-fit text-sm font-semibold text-white border border-white/22 ${
+        className || ""
+      }`}
+      style={{
+        background:
+          "linear-gradient(90deg, var(--hero-theme-from), var(--hero-theme-to))",
+      }}
+    >
+      {Icon && <Icon className="h-3.5 w-3.5" />}
+      <span>{children}</span>
+    </div>
+  );
+});

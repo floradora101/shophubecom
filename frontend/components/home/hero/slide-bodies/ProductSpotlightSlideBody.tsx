@@ -1,11 +1,14 @@
 import { memo } from "react";
 import { Sparkles, Zap, Shield, Star } from "lucide-react";
-import { Price } from "@/components/ui/price";
-import { HeroCTAs } from "../../shared/hero-ctas";
-import { HeroTrustRow } from "../../shared/hero-trust-row";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { HeroMediaFrame } from "../shared/hero-media-frame";
+import { HeroPriceBlock } from "../../shared/hero-price-block";
+import { ThemedBadge } from "../../shared/themed-badge";
+import { ThemedSecondaryButton } from "../../shared/themed-secondary-button";
+import { ThemedTrustRow } from "../../shared/themed-trust-row";
 import { SlideLayout, contentClamp } from "../shared/slide-layout";
-import { useHeroPricing } from "@/lib/hooks/use-hero-pricing";
 import type { HeroSlide } from "@/lib/types/heroSlides.types";
 import type { Product } from "@/features/products/types";
 
@@ -14,6 +17,8 @@ interface ProductSpotlightSlideBodyProps {
   product?: Product;
   isActive: boolean;
   index: number;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }
 
 export const ProductSpotlightSlideBody = memo(
@@ -21,83 +26,93 @@ export const ProductSpotlightSlideBody = memo(
     slide,
     product,
     isActive,
-    index,
+    onMouseEnter,
+    onMouseLeave,
   }: ProductSpotlightSlideBodyProps) {
-    const pricing = useHeroPricing(product);
-    const { currentPrice, originalPrice, discountPercent, hasDiscount } =
-      pricing;
-
     return (
       <SlideLayout
         textContent={
           <>
-            {/* Editorial Badge */}
-            <div className="hero-badge inline-flex items-center gap-2">
-              <Sparkles className="h-4 w-4" />
-              <span>{slide.badgeText || "Premium Product"}</span>
-            </div>
+            {/* Row 1: Themed Badge */}
+            <ThemedBadge icon={Sparkles}>
+              {slide.badgeText || "Premium Product"}
+            </ThemedBadge>
 
-            {/* Headline with accent underline */}
+            {/* Row 2: Headline */}
             <div className="space-y-3">
               <h1
-                className={`text-4xl lg:text-5xl font-black leading-tight ${contentClamp.headline}`}
+                className={`text-4xl lg:text-5xl font-black leading-tight underline decoration-2 underline-offset-4 ${contentClamp.headline}`}
                 style={{ color: "var(--hero-text)" }}
               >
                 {slide.headline}
               </h1>
               {slide.highlight && (
                 <h2
-                  className="text-2xl lg:text-3xl font-bold relative"
-                  style={{ color: "var(--hero-text)" }}
+                  className="text-2xl lg:text-3xl font-bold overline decoration-1"
+                  style={{ color: "var(--hero-accent)" }}
                 >
                   {slide.highlight}
-                  <div
-                    className="absolute -bottom-1 left-0 h-1 rounded-full"
-                    style={{
-                      backgroundColor: "var(--hero-accent)",
-                      width: "60%",
-                    }}
-                  />
                 </h2>
               )}
-              <p
-                className={`text-lg leading-relaxed ${contentClamp.description}`}
-                style={{ color: "var(--hero-muted)" }}
-              >
-                {slide.description}
-              </p>
             </div>
 
-            {/* Product Name */}
-            {product && (
-              <h3
-                className="text-2xl font-bold"
-                style={{ color: "var(--hero-text)" }}
-              >
-                {product.name}
-              </h3>
-            )}
+            {/* Row 3: Description */}
+            <p
+              className={`text-lg leading-relaxed ${contentClamp.description}`}
+              style={{ color: "var(--hero-muted)" }}
+            >
+              {slide.description}
+            </p>
 
-            {/* Spec Pills - Max 2, using theme vars */}
-            <div className="flex gap-3">
-              <div className="hero-pill flex items-center gap-2 text-sm font-medium">
-                <Zap className="w-4 h-4" />
-                <span>30hr Battery</span>
-              </div>
-              <div className="hero-pill flex items-center gap-2 text-sm font-medium">
-                <Shield className="w-4 h-4" />
-                <span>5 Colors</span>
+            {/* Row 4: Flexible middle space (Product Name, Price, Specs) */}
+            <div className="space-y-8">
+              {product && (
+                <h3
+                  className="text-2xl font-bold"
+                  style={{ color: "var(--hero-text)" }}
+                >
+                  {product.name}
+                </h3>
+              )}
+              {product && <HeroPriceBlock product={product} />}
+              <div className="flex gap-3">
+                <div className="hero-pill flex items-center gap-2 text-sm font-medium">
+                  <Zap className="w-4 h-4" />
+                  <span>30hr Battery</span>
+                </div>
+                <div className="hero-pill flex items-center gap-2 text-sm font-medium">
+                  <Shield className="w-4 h-4" />
+                  <span>5 Colors</span>
+                </div>
               </div>
             </div>
 
-            {/* CTAs */}
-            <HeroCTAs
-              primary={slide.ctaPrimary}
-              secondary={slide.ctaSecondary}
-            />
+            {/* Row 5: CTAs */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <Link
+                href={slide.ctaPrimary.href}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
+              >
+                <Button className="group w-auto">
+                  <span className="flex items-center gap-2">
+                    {slide.ctaPrimary.label}
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </span>
+                </Button>
+              </Link>
+              {slide.ctaSecondary && (
+                <ThemedSecondaryButton
+                  label={slide.ctaSecondary.label}
+                  href={slide.ctaSecondary.href}
+                  onMouseEnter={onMouseEnter}
+                  onMouseLeave={onMouseLeave}
+                />
+              )}
+            </div>
 
-            {/* Trust Row */}
-            <HeroTrustRow
+            {/* Row 6: Trust Row */}
+            <ThemedTrustRow
               items={[
                 { icon: Shield, text: "2-Year Warranty" },
                 { icon: Star, text: "Expert Approved" },
@@ -110,36 +125,6 @@ export const ProductSpotlightSlideBody = memo(
             slide={slide}
             product={product}
             isActive={isActive}
-            floatingBadge={
-              hasDiscount && discountPercent ? (
-                <div className="px-3 py-1.5 rounded-xl text-xs font-bold shadow-lg transform rotate-2 bg-[var(--hero-accent)] text-white">
-                  -{discountPercent}% OFF
-                </div>
-              ) : undefined
-            }
-            priceOverlay={
-              product ? (
-                <div className="hero-card absolute bottom-6 right-6 p-6">
-                  <div
-                    className="text-3xl font-black mb-1"
-                    style={{ color: "var(--hero-text)" }}
-                  >
-                    <Price amount={currentPrice} />
-                  </div>
-                  {hasDiscount && originalPrice && (
-                    <div
-                      className="text-sm line-through"
-                      style={{
-                        color: "var(--hero-muted)",
-                        textDecorationColor: "var(--hero-accent)",
-                      }}
-                    >
-                      <Price amount={originalPrice} />
-                    </div>
-                  )}
-                </div>
-              ) : undefined
-            }
             badge={
               <div className="hero-badge px-3 py-1.5 text-xs font-bold flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5" />

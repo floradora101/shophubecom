@@ -1,13 +1,14 @@
 import type { HeroTheme } from "@/lib/ui-tokens";
 
-// Valid hero themes - must match the keys in ui.themes
+// Valid hero themes - must match the data-theme attributes in globals.css
 const VALID_THEMES: HeroTheme[] = [
-  "crimson",
-  "charcoal",
-  "burgundy",
-  "oil",
-  "silver",
-  "midnight",
+  "red-black",
+  "red-blue",
+  "red-pink",
+  "red-gray",
+  "red-burgundy",
+  "blue-green",
+  "red-orange",
 ];
 
 export function isValidHeroTheme(theme: string): theme is HeroTheme {
@@ -20,7 +21,7 @@ export function validateHeroTheme(
 ): HeroTheme {
   // If theme is undefined or invalid, use default
   if (!theme || !isValidHeroTheme(theme)) {
-    const defaultTheme: HeroTheme = "crimson";
+    const defaultTheme: HeroTheme = "red-black";
 
     // Dev-only warning for invalid themes
     if (process.env.NODE_ENV === "development") {

@@ -10,6 +10,8 @@ interface NavigationButtonProps {
   direction: "left" | "right" | "play" | "pause";
   onClick: () => void;
   onMouseDown?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
   className?: string;
   size?: "sm" | "default" | "lg";
   "aria-label"?: string;
@@ -20,6 +22,8 @@ export function NavigationButton({
   direction,
   onClick,
   onMouseDown,
+  onMouseEnter,
+  onMouseLeave,
   className,
   size = "default",
   "aria-label": ariaLabel,
@@ -56,6 +60,8 @@ export function NavigationButton({
       size={size === "sm" ? "sm" : size === "lg" ? "lg" : "icon"}
       onClick={onClick}
       onMouseDown={onMouseDown}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       className={cn(
         "rounded-full shadow-md hover:shadow-lg transition-all duration-200",
         className

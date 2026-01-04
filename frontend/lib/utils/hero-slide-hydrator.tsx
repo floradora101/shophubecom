@@ -1,18 +1,10 @@
 import { useMemo, useCallback } from "react";
-import { validateHeroTheme } from "./hero-theme-resolver";
 import type { HeroSlide } from "@/lib/types/heroSlides.types";
 import type { Product, Category } from "@/features/products/types";
-
-interface HydratedHeroSlide {
-  id: string;
-  theme: HeroTheme;
-  content: React.ReactNode;
-}
 
 interface HeroSlideHydrationOptions {
   slides: HeroSlide[];
   productsBySlug?: Record<string, Product> | Map<string, Product>;
-  categoriesBySlug?: Record<string, Category> | Map<string, Category>;
 }
 
 /**
@@ -22,7 +14,6 @@ interface HeroSlideHydrationOptions {
 export function useHeroSlideProcessor({
   slides,
   productsBySlug,
-  categoriesBySlug,
 }: HeroSlideHydrationOptions): {
   slides: HeroSlide[];
   getResolvedData: (slide: HeroSlide) => {
@@ -33,8 +24,22 @@ export function useHeroSlideProcessor({
   const processedSlides = useMemo(() => {
     // Filter active slides and sort by priority
     const activeSlides = slides
-      .filter((slide) => slide.isActive)
-      .sort((a, b) => b.priority - a.priority);
+      .filter((slide) => {
+        if (!slide.isActive) {
+          console.log(
+            `Slide filtered out (isActive=false): ${slide.id} - ${
+              slide.headline || "no headline"
+            }`
+          );
+          return false;
+        }
+        return true;
+      })
+      .sort((a, b) => {
+        const pa = a.priority ?? 0;
+        const pb = b.priority ?? 0;
+        return pb - pa;
+      });
 
     return activeSlides;
   }, [slides]);
@@ -57,7 +62,7 @@ export function useHeroSlideProcessor({
 
       return { product, category };
     },
-    [productsBySlug, categoriesBySlug]
+    [productsBySlug]
   );
 
   return { slides: processedSlides, getResolvedData };
@@ -84,10 +89,7 @@ export function resolveSlideProduct(
 /**
  * Helper to resolve category from slide
  */
-export function resolveSlideCategory(
-  slide: HeroSlide,
-  categoriesBySlug?: Record<string, Category> | Map<string, Category>
-): Category | undefined {
+export function resolveSlideCategory(): Category | undefined {
   // TODO: Implement when category slides are added
   return undefined;
 }

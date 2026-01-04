@@ -175,85 +175,101 @@ export const ui = {
 
   // Hero slide theme configurations - Deep Red & Black/Gray Combinations
   themes: {
-    crimson: {
+    "red-black": {
       accent: "text-primary-600",
       accentLight: "text-primary-500",
       accentDark: "text-primary-700",
-      bgGradient: "from-primary-50 via-primary-100 to-primary-200/50",
-      bgSolid: "bg-primary-50",
-      border: "border-primary-200/50",
-      borderLight: "border-primary-100/30",
-      badgeBg: "bg-linear-to-r from-primary-100 via-primary-200 to-primary-100",
-      badgeBorder: "border-primary-200/50",
-      glow: "bg-primary-500/20",
-    } as const,
-
-    charcoal: {
-      accent: "text-secondary-600",
-      accentLight: "text-secondary-500",
-      accentDark: "text-secondary-700",
-      bgGradient: "from-secondary-50 via-secondary-100 to-secondary-200/50",
-      bgSolid: "bg-secondary-50",
-      border: "border-secondary-200/50",
-      borderLight: "border-secondary-100/30",
-      badgeBg:
-        "bg-linear-to-r from-secondary-100 via-primary-100 to-secondary-100",
-      badgeBorder: "border-secondary-200/50",
-      glow: "bg-secondary-500/20",
-    } as const,
-
-    burgundy: {
-      accent: "text-primary-700",
-      accentLight: "text-primary-600",
-      accentDark: "text-primary-800",
-      bgGradient: "from-primary-100 via-primary-200 to-primary-300/50",
-      bgSolid: "bg-primary-100",
-      border: "border-primary-300/50",
-      borderLight: "border-primary-200/30",
-      badgeBg: "bg-linear-to-r from-primary-200 via-primary-300 to-primary-200",
-      badgeBorder: "border-primary-300/50",
+      bgGradient:
+        "bg-linear-to-r from-primary-500 via-primary-600 to-primary-700",
+      bgSolid: "bg-primary-500",
+      border: "border-primary-600/20",
+      borderLight: "border-primary-500/30",
+      badgeBg: "bg-linear-to-r from-primary-500 via-primary-600 to-primary-700",
+      badgeBorder: "border-white/22",
       glow: "bg-primary-600/20",
     } as const,
 
-    oil: {
-      accent: "text-secondary-800",
-      accentLight: "text-secondary-700",
-      accentDark: "text-secondary-900",
-      bgGradient: "from-secondary-200 via-secondary-300 to-secondary-400/50",
-      bgSolid: "bg-secondary-200",
-      border: "border-secondary-400/50",
-      borderLight: "border-secondary-300/30",
-      badgeBg:
-        "bg-linear-to-r from-secondary-300 via-primary-200 to-secondary-300",
-      badgeBorder: "border-secondary-400/50",
-      glow: "bg-secondary-600/20",
+    "red-blue": {
+      accent: "text-indigo-600",
+      accentLight: "text-indigo-500",
+      accentDark: "text-indigo-700",
+      bgGradient:
+        "bg-linear-to-r from-primary-500 via-indigo-400 to-indigo-500",
+      bgSolid: "bg-indigo-400",
+      border: "border-indigo-600/20",
+      borderLight: "border-indigo-500/30",
+      badgeBg: "bg-linear-to-r from-primary-500 via-indigo-400 to-indigo-500",
+      badgeBorder: "border-white/22",
+      glow: "bg-indigo-600/20",
     } as const,
 
-    silver: {
-      accent: "text-warm-gray-600",
-      accentLight: "text-warm-gray-500",
-      accentDark: "text-warm-gray-700",
-      bgGradient: "from-cream-50 via-cream-100 to-cream-200/50",
-      bgSolid: "bg-cream-50",
-      border: "border-warm-gray-200/50",
-      borderLight: "border-warm-gray-100/30",
-      badgeBg: "bg-linear-to-r from-cream-100 via-primary-100 to-cream-100",
-      badgeBorder: "border-warm-gray-200/50",
-      glow: "bg-warm-gray-400/15",
+    "red-pink": {
+      accent: "text-pink-600",
+      accentLight: "text-pink-500",
+      accentDark: "text-pink-700",
+      bgGradient: "bg-linear-to-r from-primary-500 via-pink-400 to-pink-500",
+      bgSolid: "bg-pink-400",
+      border: "border-pink-600/20",
+      borderLight: "border-pink-500/30",
+      badgeBg: "bg-linear-to-r from-primary-500 via-pink-400 to-pink-500",
+      badgeBorder: "border-white/22",
+      glow: "bg-pink-600/20",
     } as const,
 
-    midnight: {
-      accent: "text-secondary-900",
-      accentLight: "text-secondary-800",
-      accentDark: "text-black",
-      bgGradient: "from-secondary-300 via-secondary-400 to-secondary-500/50",
-      bgSolid: "bg-secondary-300",
-      border: "border-secondary-500/50",
-      borderLight: "border-secondary-400/30",
+    "red-gray": {
+      accent: "text-warm-gray-700",
+      accentLight: "text-warm-gray-600",
+      accentDark: "text-warm-gray-800",
+      bgGradient:
+        "bg-linear-to-r from-primary-500 via-warm-gray-400 to-warm-gray-500",
+      bgSolid: "bg-warm-gray-400",
+      border: "border-warm-gray-700/20",
+      borderLight: "border-warm-gray-600/30",
       badgeBg:
-        "bg-linear-to-r from-secondary-400 via-primary-300 to-secondary-400",
-      badgeBorder: "border-secondary-500/50",
-      glow: "bg-secondary-700/20",
+        "bg-linear-to-r from-primary-500 via-warm-gray-400 to-warm-gray-500",
+      badgeBorder: "border-white/22",
+      glow: "bg-warm-gray-700/20",
+    } as const,
+
+    "red-burgundy": {
+      accent: "text-primary-700",
+      accentLight: "text-primary-600",
+      accentDark: "text-primary-800",
+      bgGradient:
+        "bg-linear-to-r from-primary-500 via-primary-600 to-primary-800",
+      bgSolid: "bg-primary-600",
+      border: "border-primary-700/20",
+      borderLight: "border-primary-600/30",
+      badgeBg: "bg-linear-to-r from-primary-500 via-primary-600 to-primary-800",
+      badgeBorder: "border-white/22",
+      glow: "bg-primary-700/20",
+    } as const,
+
+    "blue-green": {
+      accent: "text-teal-600",
+      accentLight: "text-teal-500",
+      accentDark: "text-teal-700",
+      bgGradient: "bg-linear-to-r from-primary-500 via-teal-400 to-teal-500",
+      bgSolid: "bg-teal-400",
+      border: "border-teal-600/20",
+      borderLight: "border-teal-500/30",
+      badgeBg: "bg-linear-to-r from-primary-500 via-teal-400 to-teal-500",
+      badgeBorder: "border-white/22",
+      glow: "bg-teal-600/20",
+    } as const,
+
+    "red-orange": {
+      accent: "text-orange-600",
+      accentLight: "text-orange-500",
+      accentDark: "text-orange-700",
+      bgGradient:
+        "bg-linear-to-r from-primary-500 via-orange-400 to-orange-500",
+      bgSolid: "bg-orange-400",
+      border: "border-orange-600/20",
+      borderLight: "border-orange-500/30",
+      badgeBg: "bg-linear-to-r from-primary-500 via-orange-400 to-orange-500",
+      badgeBorder: "border-white/22",
+      glow: "bg-orange-600/20",
     } as const,
   } as const,
 } as const;
@@ -265,7 +281,7 @@ export type GapSpacing = keyof typeof ui.gap;
 export type IconSize = keyof typeof ui.icon;
 export type TypographySpacing = keyof typeof ui.typography;
 export type ColorToken = keyof typeof ui.colors;
-export type HeroTheme = keyof typeof ui.themes; // crimson | charcoal | burgundy | oil | silver | midnight
+export type HeroTheme = keyof typeof ui.themes; // red-black | red-blue | red-pink | red-gray | red-burgundy
 export type MotionToken = keyof typeof ui.motion;
 export type HeroLayoutToken = keyof typeof ui.hero;
 

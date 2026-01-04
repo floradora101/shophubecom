@@ -34,7 +34,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     },
 
     theme: {
-      accentToken: "crimson",
+      accentToken: "red-black",
     },
 
     // Landscape hero specific properties
@@ -71,7 +71,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     },
 
     theme: {
-      accentToken: "charcoal",
+      accentToken: "red-blue",
     },
   },
   {
@@ -112,7 +112,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     },
 
     theme: {
-      accentToken: "burgundy",
+      accentToken: "red-burgundy",
     },
   },
   {
@@ -150,7 +150,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     },
 
     theme: {
-      accentToken: "oil",
+      accentToken: "red-gray",
     },
   },
   {
@@ -194,7 +194,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     },
 
     theme: {
-      accentToken: "silver",
+      accentToken: "red-orange",
     },
   },
   {
@@ -231,7 +231,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     },
 
     theme: {
-      accentToken: "midnight",
+      accentToken: "blue-green",
     },
   },
 ];

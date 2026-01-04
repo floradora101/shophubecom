@@ -1,23 +1,25 @@
 import { memo } from "react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { contentClamp } from "../shared/slide-layout";
 import type { LandscapeImageSlide } from "@/lib/types/heroSlides.types";
 
 /**
  * Landscape Hero Slide Body
  *
- * Renders a full-frame landscape image with overlay text and buttons.
- * This slide type is optimized for landscape images and only supports image media with buttons.
+ * Renders a full-frame landscape image with overlay buttons only.
+ * This slide type is optimized for landscape images and displays only CTA buttons.
  */
 interface LandscapeHeroSlideBodyProps {
   slide: LandscapeImageSlide;
   isActive: boolean;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }
 
 export const LandscapeHeroSlideBody = memo(function LandscapeHeroSlideBody({
   slide,
   isActive,
+  onMouseEnter,
+  onMouseLeave,
 }: LandscapeHeroSlideBodyProps) {
   try {
     const textPosition = slide.textPosition || "center";
@@ -47,72 +49,34 @@ export const LandscapeHeroSlideBody = memo(function LandscapeHeroSlideBody({
         {/* Dark overlay scrim for text readability */}
         <div className="absolute inset-0 bg-black/40" style={{ zIndex: 2 }} />
 
-        {/* Content overlay */}
+        {/* Buttons overlay - bottom center */}
         <div
-          className="absolute inset-0 flex items-center justify-center px-8 py-16"
+          className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-4"
           style={{ zIndex: 10 }}
         >
-          <div className="max-w-2xl space-y-6 text-center">
-            {/* Content background for better readability */}
-            <div className="bg-black/60 backdrop-blur-sm rounded-2xl p-8 space-y-6">
-              {/* Badge */}
-              {slide.badgeText && (
-                <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm border border-white/30 text-white px-4 py-2 rounded-full">
-                  <span>{slide.badgeText}</span>
-                </div>
-              )}
-
-              {/* Subtitle */}
-              {slide.subtitle && (
-                <p className="text-lg font-medium leading-relaxed text-white/90">
-                  {slide.subtitle}
-                </p>
-              )}
-
-              {/* Headline */}
-              <div className="space-y-3">
-                <h1
-                  className={`text-4xl lg:text-6xl font-black leading-tight ${contentClamp.headline} text-white`}
-                >
-                  {slide.headline}
-                </h1>
-                {slide.highlight && (
-                  <h2 className="text-3xl lg:text-4xl font-bold text-white">
-                    {slide.highlight}
-                  </h2>
-                )}
-                <p
-                  className={`text-lg lg:text-xl leading-relaxed ${contentClamp.description} text-white/90`}
-                >
-                  {slide.description}
-                </p>
-              </div>
-              {/* CTAs */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                {slide.ctaPrimary && (
-                  <Button
-                    asChild
-                    size="lg"
-                    className="px-8 py-4 text-lg font-semibold"
-                  >
-                    <a href={slide.ctaPrimary.href}>{slide.ctaPrimary.label}</a>
-                  </Button>
-                )}
-                {slide.ctaSecondary && (
-                  <Button
-                    asChild
-                    variant="outline"
-                    size="lg"
-                    className="px-8 py-4 text-lg font-semibold border-white text-white hover:bg-white hover:text-black"
-                  >
-                    <a href={slide.ctaSecondary.href}>
-                      {slide.ctaSecondary.label}
-                    </a>
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
+          {slide.ctaPrimary && (
+            <Button
+              asChild
+              size="lg"
+              className="px-8 py-4 text-lg font-semibold"
+              onMouseEnter={onMouseEnter}
+              onMouseLeave={onMouseLeave}
+            >
+              <a href={slide.ctaPrimary.href}>{slide.ctaPrimary.label}</a>
+            </Button>
+          )}
+          {slide.ctaSecondary && (
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="px-8 py-4 text-lg font-semibold border-white text-white hover:bg-white hover:text-black"
+              onMouseEnter={onMouseEnter}
+              onMouseLeave={onMouseLeave}
+            >
+              <a href={slide.ctaSecondary.href}>{slide.ctaSecondary.label}</a>
+            </Button>
+          )}
         </div>
       </div>
     );

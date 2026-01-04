@@ -33,9 +33,10 @@ export interface BaseHeroSlide {
 
   // Media
   media: {
-    kind: "product" | "image" | "none";
+    kind: "product" | "image" | "video" | "none";
     productSlug?: string;
     imageUrl?: string;
+    videoUrl?: string;
     alt?: string;
     position?: "center" | "top" | "bottom" | "left" | "right"; // For LANDSCAPE_HERO cropping
     aspect?: "landscape" | "default"; // For non-fullscreen slides
@@ -75,7 +76,7 @@ export interface TestimonialSlide extends BaseHeroSlide {
   }>;
 }
 
-export interface LandscapeImageSlide extends Omit<BaseHeroSlide, 'media'> {
+export interface LandscapeImageSlide extends Omit<BaseHeroSlide, "media"> {
   type: "LANDSCAPE_IMAGE";
   // Landscape hero specific fields
   subtitle?: string; // Optional subtitle text
