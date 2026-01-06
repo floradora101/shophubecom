@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useLayoutEffect,
+} from "react";
 import { NavigationButton } from "@/components/ui/navigation-button";
 import { SkeletonBlock } from "@/components/ui/skeleton";
 import { SlideIndicators } from "../shared/slide-indicators";
@@ -133,6 +139,7 @@ export function HeroShell({
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const slideCountRef = useRef<number>(0);
   const currentSlideIdRef = useRef<string | null>(null);
+  const slideTrackRef = useRef<HTMLDivElement>(null);
 
   // Process slides using the centralized processor
   const { slides: processedSlides, getResolvedData } = useHeroSlideProcessor({
@@ -140,8 +147,9 @@ export function HeroShell({
     productsBySlug,
   });
 
-  // Generate motion classes for smooth transitions
-  const motionClasses = motion("hero", "transform");
+  // Explicit transition classes for production-grade hero carousel animations
+  const transitionClasses =
+    "transform-gpu transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform";
 
   const prefersReducedMotion = usePrefersReducedMotion();
 
@@ -242,6 +250,20 @@ export function HeroShell({
     onSlideChange?.(currentSlide);
   }, [currentSlide, onSlideChange]);
 
+  // Calculate transform using pixels for more reliable animation
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  useLayoutEffect(() => {
+    if (slideTrackRef.current) {
+      const rect = slideTrackRef.current.getBoundingClientRect();
+      setContainerWidth(rect.width);
+    }
+  }, []);
+
+  const transformValue = `translate3d(-${
+    currentSlide * containerWidth
+  }px, 0, 0)`;
+
   // Screen reader announcement for slide changes
   const currentSlideTitle = processedSlides[currentSlide]?.headline || "";
   const liveRegionText = `Slide ${currentSlide + 1} of ${
@@ -291,20 +313,9 @@ export function HeroShell({
     onSwipeRight: prevSlide,
   });
 
-  // Lazy rendering: only render current, prev, and next slides
-  const getSlidesToRender = () => {
-    if (processedSlides.length <= 3) return processedSlides.map((_, i) => i);
-
-    const indices = new Set<number>();
-    indices.add(currentSlide);
-    indices.add(
-      (currentSlide - 1 + processedSlides.length) % processedSlides.length
-    );
-    indices.add((currentSlide + 1) % processedSlides.length);
-    return Array.from(indices);
-  };
-
-  const slidesToRender = getSlidesToRender();
+  // Render all slides to enable animations when slides become active
+  // Note: Hero slides are typically lightweight (images + text) so rendering all is acceptable
+  const slidesToRender = processedSlides.map((_, i) => i);
 
   // Hover handlers for autoplay pause
   const handleMouseEnter = useCallback(() => setIsHovering(true), []);
@@ -378,7 +389,7 @@ export function HeroShell({
               ref={setElementRef}
               className="relative overflow-hidden rounded-2xl w-full h-full"
               data-theme={
-                currentSlideData
+                currentSlideData && currentSlideData.type !== "LANDSCAPE_IMAGE"
                   ? validateHeroTheme(
                       currentSlideData.theme?.accentToken,
                       currentSlideData.id
@@ -387,8 +398,15 @@ export function HeroShell({
               }
             >
               <div
-                className={`flex ${motionClasses} will-change-transform`}
-                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                ref={slideTrackRef}
+                className={`flex ${transitionClasses}`}
+                style={{
+                  transform: transformValue,
+                  transition: prefersReducedMotion
+                    ? "none"
+                    : "transform 700ms cubic-bezier(0.22, 1, 0.36, 1)",
+                  willChange: "transform",
+                }}
               >
                 {processedSlides.map((slide, index) => {
                   const isRendered = slidesToRender.includes(index);

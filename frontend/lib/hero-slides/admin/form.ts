@@ -44,7 +44,7 @@ const baseHeroSlideSchema = z.object({
     .or(z.literal("")),
 
   // Media
-  mediaKind: z.enum(["product", "image", "none"]),
+  mediaKind: z.enum(["product", "image", "video", "none"]),
   mediaProductSlug: z.string().optional().or(z.literal("")),
   mediaImageUrl: z
     .string()
@@ -258,9 +258,13 @@ export function toFormValues(slide: HeroSlide): HeroSlideFormValues {
     startsAt: slide.startsAt || "",
     endsAt: slide.endsAt || "",
     badgeText: slide.badgeText || "",
-    headline: slide.headline,
+    headline:
+      slide.headline ||
+      ("content" in slide ? slide.content?.headline || "" : ""),
     highlight: slide.highlight || "",
-    description: slide.description,
+    description:
+      slide.description ||
+      ("content" in slide ? slide.content?.description || "" : ""),
     ctaPrimaryLabel: slide.ctaPrimary.label,
     ctaPrimaryHref: slide.ctaPrimary.href,
     ctaSecondaryLabel: slide.ctaSecondary?.label || "",

@@ -5,13 +5,14 @@ import React, { MouseEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ShoppingCart, Sparkles, Clock } from "lucide-react";
+import { ShoppingCart, Sparkles, Clock, Heart } from "lucide-react";
 import type { Product } from "../types";
 import {
   getEffectiveStock,
   LOW_STOCK_THRESHOLD,
 } from "@/features/products/utils/inventory";
 import { useCart } from "@/features/cart/hooks";
+import { useFavorites } from "@/features/favorites";
 import { formatPrice, formatPriceRange } from "@/lib/utils/price";
 import {
   getProductImageWithPlaceholder,
@@ -27,14 +28,17 @@ interface ProductCardProps {
   };
   compact?: boolean;
   layout?: "horizontal" | "vertical";
+  hideDescription?: boolean;
 }
 
 export function ProductCard({
   product,
   compact = false,
   layout = "horizontal",
+  hideDescription = false,
 }: ProductCardProps) {
   const { addItem, toggleCart } = useCart();
+  const { toggleFavorite, isFavorite } = useFavorites();
   const router = useRouter();
   const [imageError, setImageError] = React.useState(false);
 
@@ -132,7 +136,7 @@ export function ProductCard({
           </Link>
 
           {/* Product Description */}
-          {product.description && (
+          {product.description && !hideDescription && (
             <p
               className={`${
                 compact ? "text-xs" : "text-xs md:text-sm"
@@ -316,6 +320,28 @@ export function ProductCard({
               e.stopPropagation();
             }}
           >
+            {/* Favorites Heart Icon - Bottom Right */}
+            <button
+              className="absolute bottom-4 right-4 z-10 p-3 rounded-full bg-white/95 backdrop-blur-md border border-white/60 shadow-lg transition-all duration-300 hover:bg-white hover:scale-110 hover:shadow-xl group/heart animate-in fade-in-0 slide-in-from-bottom-2 delay-100"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleFavorite(product.id);
+              }}
+              aria-label={
+                isFavorite(product.id)
+                  ? "Remove from favorites"
+                  : "Add to favorites"
+              }
+            >
+              <Heart
+                className={`h-5 w-5 transition-all duration-300 ${
+                  isFavorite(product.id)
+                    ? "fill-red-500 text-red-500 animate-pulse"
+                    : "text-warm-gray-700 group-hover/heart:text-red-500"
+                }`}
+              />
+            </button>
             <button
               className={`inline-flex items-center gap-2 bg-linear-to-r from-red-500 to-red-600 text-white rounded-xl font-semibold hover:from-red-600 hover:to-red-700 active:from-red-700 active:to-red-800 transition-all duration-300 shadow-2xl shadow-red-500/30 hover:shadow-red-500/50 transform translate-y-6 group-hover/card:translate-y-0 group-hover/card:scale-105 hover:scale-110 active:scale-95 ${
                 compact
@@ -361,7 +387,7 @@ export function ProductCard({
           </Link>
 
           {/* Product Description */}
-          {product.description && (
+          {product.description && !hideDescription && (
             <p
               className={`${
                 compact ? "text-xs" : "text-xs md:text-sm"

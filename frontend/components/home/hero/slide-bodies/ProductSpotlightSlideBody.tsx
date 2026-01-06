@@ -9,6 +9,8 @@ import { ThemedBadge } from "../../shared/themed-badge";
 import { ThemedSecondaryButton } from "../../shared/themed-secondary-button";
 import { ThemedTrustRow } from "../../shared/themed-trust-row";
 import { SlideLayout, contentClamp } from "../shared/slide-layout";
+import { HeroItem } from "../shared/hero-item";
+import { useHeroRunCounter } from "@/lib/hooks/use-hero-run-counter";
 import type { HeroSlide } from "@/lib/types/heroSlides.types";
 import type { Product } from "@/features/products/types";
 
@@ -29,95 +31,114 @@ export const ProductSpotlightSlideBody = memo(
     onMouseEnter,
     onMouseLeave,
   }: ProductSpotlightSlideBodyProps) {
+    // Animation run counter - increments when slide becomes active
+    const { run, animationKey } = useHeroRunCounter(isActive);
+
     return (
       <SlideLayout
         textContent={
           <>
             {/* Row 1: Themed Badge */}
-            <ThemedBadge icon={Sparkles}>
-              {slide.badgeText || "Premium Product"}
-            </ThemedBadge>
+            <HeroItem run={run} animationKey={animationKey}>
+              <div className="hero-item-enter hero-badge">
+                <ThemedBadge icon={Sparkles}>
+                  {slide.badgeText || "Premium Product"}
+                </ThemedBadge>
+              </div>
+            </HeroItem>
 
             {/* Row 2: Headline */}
-            <div className="space-y-3">
-              <h1
-                className={`text-4xl lg:text-5xl font-black leading-tight underline decoration-2 underline-offset-4 ${contentClamp.headline}`}
-                style={{ color: "var(--hero-text)" }}
-              >
-                {slide.headline}
-              </h1>
-              {slide.highlight && (
-                <h2
-                  className="text-2xl lg:text-3xl font-bold overline decoration-1"
-                  style={{ color: "var(--hero-accent)" }}
-                >
-                  {slide.highlight}
-                </h2>
-              )}
-            </div>
-
-            {/* Row 3: Description */}
-            <p
-              className={`text-lg leading-relaxed ${contentClamp.description}`}
-              style={{ color: "var(--hero-muted)" }}
-            >
-              {slide.description}
-            </p>
-
-            {/* Row 4: Flexible middle space (Product Name, Price, Specs) */}
-            <div className="space-y-8">
-              {product && (
-                <h3
-                  className="text-2xl font-bold"
+            <HeroItem run={run} animationKey={animationKey}>
+              <div className={`space-y-3 hero-item-enter hero-headline`}>
+                <h1
+                  className={`text-3xl md:text-4xl lg:text-5xl font-(--font-dm-sans) font-bold italic leading-tight underline decoration-2 underline-offset-4`}
                   style={{ color: "var(--hero-text)" }}
                 >
-                  {product.name}
-                </h3>
-              )}
-              {product && <HeroPriceBlock product={product} />}
-              <div className="flex gap-3">
-                <div className="hero-pill flex items-center gap-2 text-sm font-medium">
-                  <Zap className="w-4 h-4" />
-                  <span>30hr Battery</span>
-                </div>
-                <div className="hero-pill flex items-center gap-2 text-sm font-medium">
-                  <Shield className="w-4 h-4" />
-                  <span>5 Colors</span>
+                  {slide.headline}
+                </h1>
+                {slide.highlight && (
+                  <h2
+                    className="text-xl md:text-2xl lg:text-3xl font-(--font-inter) font-bold overline decoration-1"
+                    style={{ color: "var(--hero-accent)" }}
+                  >
+                    {slide.highlight}
+                  </h2>
+                )}
+              </div>
+            </HeroItem>
+
+            {/* Row 3: Description */}
+            <HeroItem run={run} animationKey={animationKey}>
+              <p
+                className={`text-lg leading-relaxed hero-item-enter hero-description ${contentClamp.description}`}
+                style={{ color: "var(--hero-muted)" }}
+              >
+                {slide.description}
+              </p>
+            </HeroItem>
+
+            {/* Row 4: Flexible middle space (Product Name, Price, Specs) */}
+            <HeroItem run={run} animationKey={animationKey}>
+              <div className="space-y-8 hero-item-enter hero-description">
+                {product && (
+                  <h3
+                    className="text-2xl font-bold"
+                    style={{ color: "var(--hero-text)" }}
+                  >
+                    {product.name}
+                  </h3>
+                )}
+                {product && <HeroPriceBlock product={product} />}
+                <div className="flex gap-3">
+                  <div className="hero-pill flex items-center gap-2 text-sm font-medium">
+                    <Zap className="w-4 h-4" />
+                    <span>30hr Battery</span>
+                  </div>
+                  <div className="hero-pill flex items-center gap-2 text-sm font-medium">
+                    <Shield className="w-4 h-4" />
+                    <span>5 Colors</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            </HeroItem>
 
             {/* Row 5: CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Link
-                href={slide.ctaPrimary.href}
-                onMouseEnter={onMouseEnter}
-                onMouseLeave={onMouseLeave}
-              >
-                <Button className="group w-auto">
-                  <span className="flex items-center gap-2">
-                    {slide.ctaPrimary.label}
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </span>
-                </Button>
-              </Link>
-              {slide.ctaSecondary && (
-                <ThemedSecondaryButton
-                  label={slide.ctaSecondary.label}
-                  href={slide.ctaSecondary.href}
+            <HeroItem run={run} animationKey={animationKey}>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start hero-item-enter hero-buttons">
+                <Link
+                  href={slide.ctaPrimary.href}
                   onMouseEnter={onMouseEnter}
                   onMouseLeave={onMouseLeave}
-                />
-              )}
-            </div>
+                >
+                  <Button className="group w-auto">
+                    <span className="flex items-center gap-2">
+                      {slide.ctaPrimary.label}
+                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </span>
+                  </Button>
+                </Link>
+                {slide.ctaSecondary && (
+                  <ThemedSecondaryButton
+                    label={slide.ctaSecondary.label}
+                    href={slide.ctaSecondary.href}
+                    onMouseEnter={onMouseEnter}
+                    onMouseLeave={onMouseLeave}
+                  />
+                )}
+              </div>
+            </HeroItem>
 
             {/* Row 6: Trust Row */}
-            <ThemedTrustRow
-              items={[
-                { icon: Shield, text: "2-Year Warranty" },
-                { icon: Star, text: "Expert Approved" },
-              ]}
-            />
+            <HeroItem run={run} animationKey={animationKey}>
+              <div className="hero-item-enter hero-description">
+                <ThemedTrustRow
+                  items={[
+                    { icon: Shield, text: "2-Year Warranty" },
+                    { icon: Star, text: "Expert Approved" },
+                  ]}
+                />
+              </div>
+            </HeroItem>
           </>
         }
         mediaContent={

@@ -15,7 +15,7 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
       default: "bg-primary-500",
       success: "bg-green-500",
       warning: "bg-yellow-500",
-      error: "bg-red-500",
+      error: "bg-red-600",
     };
 
     return (

@@ -315,6 +315,15 @@ const config: Config = {
       },
     },
   },
+  safelist: [
+    // Hero carousel animation classes - ensure they're always included
+    "transition-transform",
+    "duration-700",
+    "ease-[cubic-bezier(0.22,1,0.36,1)]",
+    "transform-gpu",
+    "will-change-transform",
+    "animate-bounce",
+  ],
   plugins: [
     function ({ addUtilities }: any) {
       addUtilities({

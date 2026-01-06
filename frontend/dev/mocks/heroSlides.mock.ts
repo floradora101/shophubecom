@@ -1,6 +1,572 @@
 import type { HeroSlide } from "@/lib/types/heroSlides.types";
 
 export const HERO_SLIDES: HeroSlide[] = [
+  // Text Decoration Showcase Slides - All 9 Decoration Types
+  {
+    id: "decoration-none",
+    type: "LANDSCAPE_IMAGE",
+    priority: 60, // Highest priority
+    isActive: true,
+
+    content: {
+      badgeText: "Plain Text",
+      headline: "No Decoration",
+      highlight: "Default Style",
+      description:
+        "Clean, plain white text without any special effects or decorations.",
+    },
+
+    textStyle: {
+      variant: "minimal",
+      placement: "center",
+      maxWidth: "lg",
+      headlineDecoration: "none",
+      badgeVariant: "solid",
+    },
+
+    ctaPrimary: {
+      label: "View Plain",
+      href: "/categories",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=800&fit=crop&crop=center",
+      alt: "Clean minimal landscape",
+      position: "center",
+    },
+
+    overlay: {
+      opacity: 0.4,
+      type: "solid",
+    },
+  },
+  {
+    id: "decoration-underline",
+    type: "LANDSCAPE_IMAGE",
+    priority: 59,
+    isActive: true,
+
+    content: {
+      badgeText: "Underline",
+      headline: "Red Underline",
+      highlight: "Decoration",
+      description:
+        "Text features a prominent red underline beneath the headline.",
+    },
+
+    textStyle: {
+      variant: "editorial",
+      placement: "center",
+      maxWidth: "lg",
+      headlineDecoration: "underline",
+      badgeVariant: "pill",
+    },
+
+    ctaPrimary: {
+      label: "See Underline",
+      href: "/categories",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&h=800&fit=crop&crop=center",
+      alt: "Forest with underline text",
+      position: "center",
+    },
+
+    overlay: {
+      opacity: 0.3,
+      type: "solid",
+    },
+  },
+  {
+    id: "decoration-gradient",
+    type: "LANDSCAPE_IMAGE",
+    priority: 58,
+    isActive: true,
+
+    content: {
+      badgeText: "Gradient",
+      headline: "Gradient Text",
+      highlight: "Effect",
+      description:
+        "Beautiful gradient text flowing from white through red to white again.",
+    },
+
+    textStyle: {
+      variant: "glass",
+      placement: "center",
+      maxWidth: "lg",
+      headlineDecoration: "gradient",
+      badgeVariant: "outline",
+    },
+
+    ctaPrimary: {
+      label: "View Gradient",
+      href: "/categories",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop&crop=center",
+      alt: "Urban landscape with gradient text",
+      position: "center",
+    },
+
+    overlay: {
+      opacity: 0.4,
+      type: "gradient",
+    },
+  },
+  {
+    id: "decoration-accent-bar",
+    type: "LANDSCAPE_IMAGE",
+    priority: 57,
+    isActive: true,
+
+    content: {
+      badgeText: "Accent Bar",
+      headline: "Red Accent Bar",
+      highlight: "Beneath Text",
+      description:
+        "A solid red bar appears beneath the headline text for emphasis.",
+    },
+
+    textStyle: {
+      variant: "editorial",
+      placement: "center",
+      maxWidth: "lg",
+      headlineDecoration: "accentBar",
+      badgeVariant: "solid",
+    },
+
+    ctaPrimary: {
+      label: "See Accent Bar",
+      href: "/categories",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=800&fit=crop&crop=center",
+      alt: "Mountain with accent bar",
+      position: "center",
+    },
+
+    overlay: {
+      opacity: 0.3,
+      type: "solid",
+    },
+  },
+  {
+    id: "decoration-outline",
+    type: "LANDSCAPE_IMAGE",
+    priority: 56,
+    isActive: true,
+
+    content: {
+      badgeText: "Outline",
+      headline: "Red Outline",
+      highlight: "Stroke Effect",
+      description:
+        "White text with a striking red outline stroke for high contrast.",
+    },
+
+    textStyle: {
+      variant: "minimal",
+      placement: "center",
+      maxWidth: "lg",
+      headlineDecoration: "outline",
+      badgeVariant: "solid",
+    },
+
+    ctaPrimary: {
+      label: "View Outline",
+      href: "/categories",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&h=800&fit=crop&crop=center",
+      alt: "Forest with outline text",
+      position: "center",
+    },
+
+    overlay: {
+      opacity: 0.5,
+      type: "solid",
+    },
+  },
+  {
+    id: "decoration-outline-fill",
+    type: "LANDSCAPE_IMAGE",
+    priority: 55,
+    isActive: true,
+
+    content: {
+      badgeText: "Outline Fill",
+      headline: "Red Outline",
+      highlight: "Fill Effect",
+      description:
+        "Red outline with transparent fill creating a unique layered effect.",
+    },
+
+    textStyle: {
+      variant: "glass",
+      placement: "center",
+      maxWidth: "lg",
+      headlineDecoration: "outlineFill",
+      badgeVariant: "outline",
+    },
+
+    ctaPrimary: {
+      label: "See Outline Fill",
+      href: "/categories",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop&crop=center",
+      alt: "Urban landscape with outline fill",
+      position: "center",
+    },
+
+    overlay: {
+      opacity: 0.4,
+      type: "solid",
+    },
+  },
+  {
+    id: "decoration-glow",
+    type: "LANDSCAPE_IMAGE",
+    priority: 54,
+    isActive: true,
+
+    content: {
+      badgeText: "Glow Effect",
+      headline: "Red Glow",
+      highlight: "Text Effect",
+      description: "White text with a soft red glow effect around the letters.",
+    },
+
+    textStyle: {
+      variant: "editorial",
+      placement: "center",
+      maxWidth: "lg",
+      headlineDecoration: "glow",
+      badgeVariant: "pill",
+    },
+
+    ctaPrimary: {
+      label: "View Glow",
+      href: "/categories",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=800&fit=crop&crop=center",
+      alt: "Mountain with glow text",
+      position: "center",
+    },
+
+    overlay: {
+      opacity: 0.6,
+      type: "solid",
+    },
+  },
+  {
+    id: "decoration-red-accent",
+    type: "LANDSCAPE_IMAGE",
+    priority: 53,
+    isActive: true,
+
+    content: {
+      badgeText: "Red Accent",
+      headline: "Red Accent",
+      highlight: "Overlay Effect",
+      description:
+        "White text with a red accent overlay creating depth and contrast.",
+    },
+
+    textStyle: {
+      variant: "minimal",
+      placement: "center",
+      maxWidth: "lg",
+      headlineDecoration: "redAccent",
+      badgeVariant: "solid",
+    },
+
+    ctaPrimary: {
+      label: "See Red Accent",
+      href: "/categories",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&h=800&fit=crop&crop=center",
+      alt: "Forest with red accent text",
+      position: "center",
+    },
+
+    overlay: {
+      opacity: 0.4,
+      type: "solid",
+    },
+  },
+  {
+    id: "decoration-neon",
+    type: "LANDSCAPE_IMAGE",
+    priority: 52,
+    isActive: true,
+
+    content: {
+      badgeText: "Neon Glow",
+      headline: "Neon Effect",
+      highlight: "Red Glow",
+      description:
+        "Dramatic neon-style red glow effects around the white text.",
+    },
+
+    textStyle: {
+      variant: "neon",
+      placement: "center",
+      maxWidth: "lg",
+      headlineDecoration: "neon",
+      badgeVariant: "solid",
+    },
+
+    ctaPrimary: {
+      label: "View Neon",
+      href: "/categories",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=800&fit=crop&crop=center",
+      alt: "Night city with neon text",
+      position: "center",
+    },
+
+    overlay: {
+      opacity: 0.7,
+      type: "solid",
+    },
+  },
+  {
+    id: "landscape-hero-left-aligned",
+    type: "LANDSCAPE_IMAGE",
+    priority: 49, // High priority for demo
+    isActive: true,
+
+    content: {
+      badgeText: "Left Aligned",
+      headline: "Far Left",
+      highlight: "Positioning",
+      description:
+        "This text is positioned at the far left of the container with outline decoration.",
+    },
+
+    textStyle: {
+      variant: "editorial",
+      placement: "left",
+      maxWidth: "lg",
+      headlineDecoration: "outlineFill",
+      badgeVariant: "solid",
+    },
+
+    ctaPrimary: {
+      label: "Explore",
+      href: "/categories",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=800&fit=crop&crop=center",
+      alt: "Mountain landscape",
+      position: "center",
+    },
+
+    overlay: {
+      opacity: 0.3,
+      type: "solid",
+    },
+  },
+  {
+    id: "landscape-hero-right-aligned",
+    type: "LANDSCAPE_IMAGE",
+    priority: 48, // High priority for demo
+    isActive: true,
+
+    content: {
+      badgeText: "Right Aligned",
+      headline: "Far Right",
+      highlight: "Positioning",
+      description:
+        "This text is positioned at the far right of the container with red accent effect.",
+    },
+
+    textStyle: {
+      variant: "editorial",
+      placement: "right",
+      maxWidth: "lg",
+      headlineDecoration: "redAccent",
+      badgeVariant: "solid",
+    },
+
+    ctaPrimary: {
+      label: "Discover",
+      href: "/categories",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&h=800&fit=crop&crop=center",
+      alt: "Forest landscape",
+      position: "center",
+    },
+
+    overlay: {
+      opacity: 0.3,
+      type: "solid",
+    },
+  },
+  {
+    id: "landscape-hero-minimal",
+    type: "LANDSCAPE_IMAGE",
+    priority: 50, // Highest priority for demo
+    isActive: true,
+
+    content: {
+      badgeText: "New Collection",
+      headline: "Minimal",
+      highlight: "Design",
+      description:
+        "Clean, focused, and essential. Experience the power of simplicity.",
+    },
+
+    textStyle: {
+      variant: "minimal",
+      placement: "center",
+      maxWidth: "md",
+      badgeVariant: "solid",
+      headlineDecoration: "outline",
+    },
+
+    ctaPrimary: {
+      label: "View Collection",
+      href: "/categories",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop&crop=center",
+      alt: "Minimalist workspace with clean design",
+      position: "center",
+    },
+
+    overlay: {
+      opacity: 0.3,
+      type: "solid",
+    },
+  },
+  {
+    id: "landscape-hero-glass",
+    type: "LANDSCAPE_IMAGE",
+    priority: 45, // Second highest for demo
+    isActive: true,
+
+    content: {
+      badgeText: "Premium Experience",
+      subtitle: "Glass Effect",
+      headline: "Crystal Clear",
+      highlight: "Innovation",
+      description:
+        "Immerse yourself in our premium glass aesthetic with blurred backgrounds and elegant typography.",
+    },
+
+    textStyle: {
+      variant: "glass",
+      placement: "center",
+      maxWidth: "lg",
+      headlineDecoration: "glow",
+      badgeVariant: "outline",
+    },
+
+    ctaPrimary: {
+      label: "Discover Premium",
+      href: "/categories",
+    },
+    ctaSecondary: {
+      label: "Learn More",
+      href: "/about",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200&h=800&fit=crop&crop=center",
+      alt: "Modern glass architecture with reflections",
+      position: "center",
+    },
+
+    overlay: {
+      opacity: 0.4,
+      type: "gradient",
+    },
+  },
+  {
+    id: "landscape-hero-neon",
+    type: "LANDSCAPE_IMAGE",
+    priority: 42, // Third highest for demo
+    isActive: true,
+
+    content: {
+      badgeText: "⚡ Electric",
+      subtitle: "Neon Style",
+      headline: "Future",
+      highlight: "Forward",
+      description:
+        "Bold, vibrant, and electrifying. Step into the neon-lit future of technology.",
+    },
+
+    textStyle: {
+      variant: "neon",
+      placement: "center",
+      maxWidth: "md",
+      badgeVariant: "solid",
+      headlineDecoration: "neon",
+    },
+
+    ctaPrimary: {
+      label: "Go Electric",
+      href: "/categories",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=800&fit=crop&crop=center",
+      alt: "Futuristic neon cityscape at night",
+      position: "center",
+    },
+
+    overlay: {
+      opacity: 0.5,
+      type: "solid",
+    },
+  },
   {
     id: "landscape-hero-1",
     type: "LANDSCAPE_IMAGE",
@@ -9,12 +575,24 @@ export const HERO_SLIDES: HeroSlide[] = [
     // startsAt: undefined (always active)
     // No endsAt - no expiry
 
-    badgeText: "🌄 Landscape Hero",
-    subtitle: "Full-frame landscape image experience",
-    headline: "Welcome to the",
-    highlight: "Landscape Era",
-    description:
-      "Experience cutting-edge innovation with our curated selection of premium electronics. From the latest smartphones to professional-grade accessories, discover products that blend performance, style, and reliability.",
+    // New structured content (takes precedence over legacy fields)
+    content: {
+      badgeText: "🌄 Landscape Hero",
+      subtitle: "Full-frame landscape image experience",
+      headline: "Welcome to the",
+      highlight: "Landscape Era",
+      description:
+        "Experience cutting-edge innovation with our curated selection of premium electronics. From the latest smartphones to professional-grade accessories, discover products that blend performance, style, and reliability.",
+    },
+
+    // New text styling configuration
+    textStyle: {
+      variant: "editorial",
+      placement: "center",
+      maxWidth: "lg",
+      headlineDecoration: "gradient",
+      badgeVariant: "pill",
+    },
 
     ctaPrimary: {
       label: "Explore Collection",
@@ -33,13 +611,14 @@ export const HERO_SLIDES: HeroSlide[] = [
       position: "center", // Optional: center|top|bottom|left|right for deliberate cropping
     },
 
-    theme: {
-      accentToken: "red-black",
+    // Overlay configuration (new structured approach)
+    overlay: {
+      opacity: 0.4,
+      type: "solid",
     },
 
-    // Landscape hero specific properties
-    textPosition: "center",
-    overlayOpacity: 0.4,
+    // Theme is optional for landscape slides and not used in rendering
+    // theme: { accentToken: "red-black" },
   },
   {
     id: "product-spotlight-1",
@@ -232,6 +811,105 @@ export const HERO_SLIDES: HeroSlide[] = [
 
     theme: {
       accentToken: "blue-green",
+    },
+  },
+
+  // New refactored landscape slide with placement left + underlineGlow + maskReveal
+  {
+    id: "landscape-hero-new-features-demo",
+    type: "LANDSCAPE_IMAGE",
+    priority: 65, // Higher priority to show new features
+    isActive: true,
+
+    content: {
+      badgeText: "✨ New Features",
+      subtitle: "Refactored Layout System",
+      headline: "Modern Hero",
+      highlight: "Experience",
+      description:
+        "Left placement with centered text, highlight underline glow, and mask reveal animation.",
+    },
+
+    textStyle: {
+      variant: "glass",
+      placement: "left", // Block sits on left, text centered within block
+      textAlign: "center", // Explicit center alignment (default for left/right)
+      maxWidth: "md",
+      headlineDecoration: "none",
+      highlightEffect: "underlineGlow", // New highlight underline effect
+      animation: {
+        maskReveal: true, // Text mask reveal animation
+        stagger: true, // Staggered element animations
+      },
+      badgeVariant: "solid",
+    },
+
+    overlay: {
+      opacity: 0.3,
+      type: "solid",
+    },
+
+    ctaPrimary: {
+      label: "Discover More",
+      href: "/products",
+    },
+    ctaSecondary: {
+      label: "Learn About Us",
+      href: "/about",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop&crop=center",
+      alt: "Modern workspace with laptop and coffee showing new hero features",
+      position: "center",
+    },
+
+    theme: {
+      accentToken: "red-black",
+    },
+  },
+  // Red Neon Glow Effect Demo
+  {
+    id: "red-neon-glow-demo",
+    type: "LANDSCAPE_IMAGE",
+    priority: 64, // High priority for demo
+    isActive: true,
+
+    content: {
+      badgeText: "🔴 NEON GLOW",
+      subtitle: "Dramatic Red Effect",
+      headline: "Red Neon",
+      highlight: "Glow",
+      description:
+        "Dramatic red neon-style glow effects around white text for maximum impact.",
+    },
+
+    textStyle: {
+      variant: "minimal",
+      placement: "center",
+      maxWidth: "lg",
+      headlineDecoration: "redNeonGlow",
+      badgeVariant: "outline",
+    },
+
+    ctaPrimary: {
+      label: "Experience Neon",
+      href: "/categories",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200&h=800&fit=crop&crop=center",
+      alt: "Dark urban landscape perfect for neon glow effects",
+      position: "center",
+    },
+
+    overlay: {
+      opacity: 0.5,
+      type: "solid",
     },
   },
 ];

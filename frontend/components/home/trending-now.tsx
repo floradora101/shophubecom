@@ -235,7 +235,7 @@ const TrendingProductCard = memo(
         {!isOutOfStock && (
           <div className="mt-4 flex justify-center">
             <button
-              className="inline-flex items-center gap-2 bg-red-500 text-white px-5 py-2.5 md:px-6 md:py-3 rounded-xl text-xs md:text-sm font-semibold hover:bg-red-600 active:bg-red-700 transition-all duration-300 shadow-xl"
+              className="inline-flex items-center gap-2 bg-red-600 text-white px-5 py-2.5 md:px-6 md:py-3 rounded-xl text-xs md:text-sm font-semibold hover:bg-red-700 active:bg-red-700 transition-all duration-300 shadow-xl"
               aria-label={
                 requiresSelection
                   ? `Select options for ${product.name}`
