@@ -5,7 +5,6 @@ import React, { useState, useMemo, useRef, useEffect } from "react";
 import {
   FileText,
   Star,
-  Settings,
   CheckCircle,
   Calendar,
   ChevronDown,
@@ -59,7 +58,7 @@ function ReviewCard({ review }: { review: Review }) {
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10 ring-2 ring-primary-100">
               <AvatarImage src={review.userAvatar} alt={review.userName} />
-              <AvatarFallback className="bg-primary-100 text-primary-700">
+              <AvatarFallback className="bg-primary-100 text-primary-600">
                 {review.userName
                   .split(" ")
                   .map((n) => n[0])
@@ -109,7 +108,7 @@ function ReviewCard({ review }: { review: Review }) {
               variant="ghost"
               size="sm"
               onClick={() => setIsExpanded(!isExpanded)}
-              className="h-auto p-0 text-primary-600 hover:text-primary-700 hover:bg-primary-50"
+              className="h-auto p-0 text-primary-600 hover:text-primary-600 hover:bg-primary-50"
             >
               {isExpanded ? (
                 <>
@@ -336,7 +335,7 @@ function ReviewsTab({ product }: { product: Product }) {
                         "block w-full text-left px-3 py-2 text-sm transition-colors",
                         "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2",
                         sortBy === option.value
-                          ? "bg-primary-50 text-primary-700"
+                          ? "bg-primary-50 text-primary-600"
                           : "hover:bg-surface-muted"
                       )}
                     >
@@ -380,54 +379,6 @@ function ReviewsTab({ product }: { product: Product }) {
         onSubmit={handleReviewSubmit}
       />
     </>
-  );
-}
-
-// Specifications Tab Content
-function SpecificationsTab({ product }: { product: Product }) {
-  const specs = useMemo(() => {
-    return product.specs || [];
-  }, [product]);
-
-  if (specs.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <Settings className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-foreground mb-2">
-          No Specifications Available
-        </h3>
-        <p className="text-muted-foreground">
-          Specifications for this product are not currently available.
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      <Card padding="lg" className="bg-transparent">
-        <h3 className="text-lg font-semibold text-foreground mb-6 flex items-center gap-2">
-          <Settings className="h-5 w-5 text-primary" />
-          Technical Specifications
-        </h3>
-
-        <div className="grid gap-4">
-          {specs.map((spec, index) => (
-            <div
-              key={index}
-              className="flex items-start gap-4 p-4 rounded-lg bg-muted hover:bg-muted/80 transition-colors duration-200"
-            >
-              <div className="flex-1">
-                <div className="font-medium text-foreground mb-1">
-                  {spec.label}
-                </div>
-                <div className="text-foreground">{spec.value}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Card>
-    </div>
   );
 }
 
@@ -480,16 +431,6 @@ export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
       badge: mockReviewStats.totalReviews,
       content: <ReviewsTab product={product} />,
     });
-
-    // Specifications Tab
-    if (product.specs && product.specs.length > 0) {
-      tabItems.push({
-        id: "specifications",
-        label: "Specifications",
-        icon: <Settings className="h-4 w-4" />,
-        content: <SpecificationsTab product={product} />,
-      });
-    }
 
     return tabItems;
   }, [product]);

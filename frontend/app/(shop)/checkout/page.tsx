@@ -28,6 +28,7 @@ import { extractErrorMessage } from "@/lib/utils/error-handler";
 import { DEMO_CHECKOUT } from "@/lib/flags";
 import { createDemoOrder } from "@/features/orders/demo/demoOrders";
 import type { Address } from "@/features/addresses/api";
+import { SkeletonBlock, SkeletonText } from "@/components/ui/skeleton";
 
 const steps = [
   { label: "Shopping Cart", href: "/cart", state: "done" as const },
@@ -80,8 +81,13 @@ function CheckoutCardSection({
 export default function CheckoutPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { items, clearCart } = useCart();
-  const isEmpty = items.length === 0;
+  const {
+    items,
+    clearCart,
+    shippingOption: cartShippingOption,
+    isLoading,
+  } = useCart();
+  const isEmpty = !isLoading && items.length === 0;
 
   // Dev-only debug log for demo mode
   if (process.env.NODE_ENV === "development") {
@@ -89,6 +95,12 @@ export default function CheckoutPage() {
   }
   const { data: addresses = [] } = useAddressesQuery();
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+
+  // Coupon state management
+  const [couponCode, setCouponCode] = useState<string>("");
+  const [couponDiscount, setCouponDiscount] = useState<number>(0);
+  const [couponError, setCouponError] = useState<string>("");
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState<boolean>(false);
 
   // Auto-select default address if available
   useEffect(() => {
@@ -112,7 +124,7 @@ export default function CheckoutPage() {
       street1: "",
       postalCode: "",
       notes: "",
-      shippingOption: "pickup",
+      shippingOption: cartShippingOption,
     },
   });
 
@@ -155,7 +167,7 @@ export default function CheckoutPage() {
         street1: "",
         postalCode: "",
         notes: "",
-        shippingOption: "pickup",
+        shippingOption: cartShippingOption,
       });
     } else {
       // Pre-fill form immediately when address is selected
@@ -171,6 +183,7 @@ export default function CheckoutPage() {
       setValue("state", address.state || "");
       setValue("street1", address.street);
       setValue("postalCode", address.zipCode || "");
+      setValue("shippingOption", cartShippingOption);
     }
   };
 
@@ -187,7 +200,7 @@ export default function CheckoutPage() {
       street1: "",
       postalCode: "",
       notes: "",
-      shippingOption: "pickup",
+      shippingOption: cartShippingOption,
     });
   };
 
@@ -197,6 +210,50 @@ export default function CheckoutPage() {
     storage: "session",
     enabled: !isEmpty,
   });
+
+  // Coupon handlers
+  const handleApplyCoupon = async (code: string) => {
+    setIsValidatingCoupon(true);
+    setCouponError("");
+
+    try {
+      // Mock coupon validation - in production this would be an API call
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API delay
+
+      // Simple mock logic - accept "SAVE10", "DISCOUNT20", or "WELCOME15"
+      const validCoupons: Record<string, number> = {
+        SAVE10: 10,
+        DISCOUNT20: 20,
+        WELCOME15: 15,
+      };
+
+      if (validCoupons[code]) {
+        setCouponCode(code);
+        setCouponDiscount(validCoupons[code]);
+        toast.success(
+          `Coupon "${code}" applied! You saved $${validCoupons[code].toFixed(
+            2
+          )}`
+        );
+      } else {
+        throw new Error("Invalid coupon code");
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to apply coupon";
+      setCouponError(message);
+      toast.error(message);
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setCouponCode("");
+    setCouponDiscount(0);
+    setCouponError("");
+    toast.success("Coupon removed");
+  };
 
   const onSubmit = async (data: CheckoutFormData) => {
     try {
@@ -224,13 +281,13 @@ export default function CheckoutPage() {
           data.shippingOption === "pickup"
             ? 0
             : data.shippingOption === "beirut"
-            ? 3
+            ? 0
             : 5;
         const subtotal = items.reduce(
           (sum, item) => sum + item.price * item.quantity,
           0
         );
-        const total = subtotal + shippingCost;
+        const total = subtotal + shippingCost - couponDiscount;
 
         const demoOrderItems = items.map((item) => ({
           id: item.id,
@@ -317,6 +374,123 @@ export default function CheckoutPage() {
       );
     }
   };
+
+  // Loading skeleton for checkout form
+  const CheckoutFormSkeleton = () => (
+    <Stack spacing="xl">
+      {/* Contact Information Skeleton */}
+      <CheckoutCardSection title="Contact Information">
+        <div className="grid gap-6 md:grid-cols-2">
+          <SkeletonBlock className="h-10" />
+          <SkeletonBlock className="h-10" />
+          <div className="md:col-span-2">
+            <SkeletonBlock className="h-10" />
+          </div>
+          <div className="md:col-span-2">
+            <SkeletonBlock className="h-10" />
+          </div>
+        </div>
+      </CheckoutCardSection>
+
+      {/* Shipping Address Skeleton */}
+      <CheckoutCardSection title="Shipping Address">
+        <div className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-2">
+            <SkeletonBlock className="h-10" />
+            <SkeletonBlock className="h-10" />
+          </div>
+          <SkeletonBlock className="h-10" />
+          <SkeletonBlock className="h-10" />
+          <SkeletonBlock className="h-6 w-24" />
+        </div>
+      </CheckoutCardSection>
+
+      {/* Order Notes Skeleton */}
+      <CheckoutCardSection title="Order Notes" tone="subtle">
+        <SkeletonBlock className="h-24" />
+      </CheckoutCardSection>
+
+      {/* Shipping Method Skeleton */}
+      <CheckoutCardSection title="Shipping Method">
+        <div className="space-y-3">
+          <SkeletonBlock className="h-16" />
+          <SkeletonBlock className="h-16" />
+          <SkeletonBlock className="h-16" />
+        </div>
+      </CheckoutCardSection>
+    </Stack>
+  );
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <Section spacing="lg">
+        <Container size="lg">
+          <Stack spacing="xl" align="stretch">
+            {/* Header */}
+            <div className="text-center space-y-2">
+              <SkeletonBlock className="h-8 w-48 mx-auto" />
+              <SkeletonBlock className="h-4 w-64 mx-auto" />
+            </div>
+
+            {/* Stepper */}
+            <div className="hidden sm:block py-4">
+              <SkeletonBlock className="h-12 w-full max-w-md mx-auto" />
+            </div>
+
+            <form className="grid gap-12 lg:grid-cols-[2fr_1fr]">
+              {/* Main form content */}
+              <CheckoutFormSkeleton />
+
+              {/* Order summary skeleton */}
+              <aside className="lg:sticky lg:top-6 h-fit">
+                <Card className="shadow-sm">
+                  <div className="p-6 space-y-8">
+                    <SkeletonBlock className="h-6 w-32" />
+                    <div className="space-y-4">
+                      {Array.from({ length: 3 }, (_, i) => (
+                        <div
+                          key={i}
+                          className="flex gap-4 p-4 rounded-lg bg-warm-gray-50/50"
+                        >
+                          <SkeletonBlock className="h-16 w-16" />
+                          <div className="flex-1 space-y-2">
+                            <SkeletonText lines={2} />
+                            <SkeletonBlock className="h-6 w-16" />
+                          </div>
+                          <SkeletonBlock className="h-5 w-12" />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="space-y-4">
+                      <SkeletonBlock className="h-6 w-24" />
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <SkeletonBlock className="h-4 w-16" />
+                          <SkeletonBlock className="h-4 w-12" />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <SkeletonBlock className="h-4 w-20" />
+                          <SkeletonBlock className="h-4 w-8" />
+                        </div>
+                      </div>
+                      <div className="pt-4 border-t border-warm-gray-200">
+                        <div className="flex items-center justify-between">
+                          <SkeletonBlock className="h-5 w-12" />
+                          <SkeletonBlock className="h-6 w-16" />
+                        </div>
+                      </div>
+                    </div>
+                    <SkeletonBlock className="h-12 w-full" />
+                  </div>
+                </Card>
+              </aside>
+            </form>
+          </Stack>
+        </Container>
+      </Section>
+    );
+  }
 
   return (
     <Section spacing="lg">
@@ -524,7 +698,7 @@ export default function CheckoutPage() {
                         description: "Delivery within Beirut area",
                         rightAlignedMeta: (
                           <span className="font-semibold text-warm-gray-900">
-                            $3.00
+                            Free
                           </span>
                         ),
                       },
@@ -549,6 +723,12 @@ export default function CheckoutPage() {
                 <OrderSummaryCard
                   shippingOption={shippingOption}
                   isSubmitting={isSubmitting}
+                  couponCode={couponCode}
+                  couponDiscount={couponDiscount}
+                  couponError={couponError}
+                  isValidatingCoupon={isValidatingCoupon}
+                  onApplyCoupon={handleApplyCoupon}
+                  onRemoveCoupon={handleRemoveCoupon}
                 />
               </aside>
             </form>

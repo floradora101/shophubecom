@@ -1,3 +1,5 @@
+"use client";
+
 import { memo, useState } from "react";
 import { Percent, Clock, Gift, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";

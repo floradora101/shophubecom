@@ -18,6 +18,7 @@ export interface HomePageData {
   smartGadgetsProducts: Product[];
   gamingConsoleProducts: Product[];
   accessoriesProducts: Product[];
+  gamingLaptopsProducts: Product[];
   featuredProducts: Product[];
   categories: Category[];
   trendingProducts: Product[];
@@ -112,6 +113,10 @@ export async function getHomePageData(): Promise<HomePageData> {
         )
         .slice(0, 8)
         .map(mockProductToProduct),
+      gamingLaptopsProducts: mockProducts
+        .filter((p) => p.categorySlug?.startsWith("gaming-laptops"))
+        .slice(0, 8)
+        .map(mockProductToProduct),
       featuredProducts: mockProducts.slice(0, 4).map(mockProductToProduct),
       categories: mockCategories
         .filter((cat) => !cat.parentId || cat.parentId === null)
@@ -136,6 +141,7 @@ export async function getHomePageData(): Promise<HomePageData> {
       "smart-gadgets": result.smartGadgetsProducts,
       "gaming-console": result.gamingConsoleProducts,
       accessories: result.accessoriesProducts,
+      "gaming-laptops": result.gamingLaptopsProducts,
     };
 
     const productsBySlug: Record<string, Product> = [
@@ -146,6 +152,7 @@ export async function getHomePageData(): Promise<HomePageData> {
       ...result.smartGadgetsProducts,
       ...result.gamingConsoleProducts,
       ...result.accessoriesProducts,
+      ...result.gamingLaptopsProducts,
       ...result.featuredProducts,
       ...result.trendingProducts,
     ].reduce((acc, product) => {
@@ -229,6 +236,10 @@ export async function getHomePageData(): Promise<HomePageData> {
       )
       .slice(0, 12)
       .map(mockProductToProduct),
+    gamingLaptopsProducts: mockProducts
+      .filter((p) => p.categorySlug?.startsWith("gaming-laptops"))
+      .slice(0, 8)
+      .map(mockProductToProduct),
     smartGadgetsProducts: mockProducts
       .filter(
         (p) =>
@@ -259,6 +270,10 @@ export async function getHomePageData(): Promise<HomePageData> {
       )
       .slice(0, 8)
       .map(mockProductToProduct),
+    gamingLaptopsProducts: mockProducts
+      .filter((p) => p.categorySlug?.startsWith("gaming-laptops"))
+      .slice(0, 8)
+      .map(mockProductToProduct),
     featuredProducts: mockProducts.slice(0, 4).map(mockProductToProduct),
     categories: mockCategories
       .filter((cat) => !cat.parentId || cat.parentId === null)
@@ -284,6 +299,7 @@ export async function getHomePageData(): Promise<HomePageData> {
     "smart-gadgets": data.smartGadgetsProducts,
     "gaming-console": data.gamingConsoleProducts,
     accessories: data.accessoriesProducts,
+    "gaming-laptops": data.gamingLaptopsProducts,
   };
 
   const productsBySlug: Record<string, Product> = [
@@ -294,6 +310,7 @@ export async function getHomePageData(): Promise<HomePageData> {
     ...data.smartGadgetsProducts,
     ...data.gamingConsoleProducts,
     ...data.accessoriesProducts,
+    ...data.gamingLaptopsProducts,
     ...data.featuredProducts,
     ...data.trendingProducts,
   ].reduce((acc, product) => {

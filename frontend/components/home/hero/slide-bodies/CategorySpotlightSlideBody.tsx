@@ -1,3 +1,5 @@
+"use client";
+
 import { memo } from "react";
 import { Grid3X3, Trophy, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";

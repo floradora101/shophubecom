@@ -6,10 +6,24 @@
  */
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
-import { ChevronRight, ChevronDown, Filter, Star } from "lucide-react";
+import {
+  ChevronRight,
+  ChevronDown,
+  ChevronLeft,
+  Filter,
+  Smartphone,
+  Tablet,
+  Laptop,
+  Watch,
+  Gamepad2,
+  Camera,
+  Headphones,
+  Monitor,
+  Package,
+} from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { SectionTitle } from "@/components/ui/SectionTitle";
@@ -37,6 +51,321 @@ import { ProductsGrid } from "./components/ProductsGrid";
 import { cn } from "@/lib/utils/cn";
 import { FiltersSidebarSkeleton } from "@/components/ui/loading-spinner";
 
+// Cyberpunk category icons carousel - popular subcategories with advanced styling
+const COMPACT_CATEGORY_ICONS = [
+  {
+    slug: "iphone",
+    name: "iPhone",
+    icon: Smartphone,
+    gradient: "from-blue-500 via-blue-600 to-blue-700",
+    iconBg: "bg-gradient-to-br from-blue-500/20 to-blue-600/10",
+    accentColor: "text-blue-400",
+    glowColor: "shadow-blue-500/25",
+    parent: "Phones",
+    stats: { items: "50+", trending: true },
+    techElements: ["Face ID", "A-Series", "Super Retina"],
+  },
+  {
+    slug: "samsung-phones",
+    name: "Samsung",
+    icon: Smartphone,
+    gradient: "from-blue-500 via-blue-600 to-blue-700",
+    iconBg: "bg-gradient-to-br from-blue-500/20 to-blue-600/10",
+    accentColor: "text-blue-400",
+    glowColor: "shadow-blue-500/25",
+    parent: "Phones",
+    stats: { items: "35+", trending: false },
+    techElements: ["AMOLED", "Snapdragon", "S Pen"],
+  },
+  {
+    slug: "apple-tablets",
+    name: "iPad",
+    icon: Tablet,
+    gradient: "from-emerald-500 via-emerald-600 to-emerald-700",
+    iconBg: "bg-gradient-to-br from-emerald-500/20 to-emerald-600/10",
+    accentColor: "text-emerald-400",
+    glowColor: "shadow-emerald-500/25",
+    parent: "Tablets",
+    stats: { items: "25+", trending: true },
+    techElements: ["M1/M2", "Liquid Retina", "Apple Pencil"],
+  },
+  {
+    slug: "macbook",
+    name: "MacBook",
+    icon: Laptop,
+    gradient: "from-orange-500 via-orange-600 to-orange-700",
+    iconBg: "bg-gradient-to-br from-orange-500/20 to-orange-600/10",
+    accentColor: "text-orange-400",
+    glowColor: "shadow-orange-500/25",
+    parent: "Laptops",
+    stats: { items: "40+", trending: true },
+    techElements: ["M3 Chip", "Liquid Retina", "MagSafe"],
+  },
+  {
+    slug: "gaming-laptops",
+    name: "Gaming",
+    icon: Monitor,
+    gradient: "from-orange-500 via-orange-600 to-orange-700",
+    iconBg: "bg-gradient-to-br from-orange-500/20 to-orange-600/10",
+    accentColor: "text-orange-400",
+    glowColor: "shadow-orange-500/25",
+    parent: "Laptops",
+    stats: { items: "30+", trending: false },
+    techElements: ["RTX 40", "AMD Ryzen", "RGB"],
+  },
+  {
+    slug: "smart-watches",
+    name: "Watches",
+    icon: Watch,
+    gradient: "from-violet-500 via-violet-600 to-violet-700",
+    iconBg: "bg-gradient-to-br from-violet-500/20 to-violet-600/10",
+    accentColor: "text-violet-400",
+    glowColor: "shadow-violet-500/25",
+    parent: "Wearables",
+    stats: { items: "20+", trending: true },
+    techElements: ["Health", "GPS", "Always-On"],
+  },
+  {
+    slug: "earphones",
+    name: "Earphones",
+    icon: Headphones,
+    gradient: "from-violet-500 via-violet-600 to-violet-700",
+    iconBg: "bg-gradient-to-br from-violet-500/20 to-violet-600/10",
+    accentColor: "text-violet-400",
+    glowColor: "shadow-violet-500/25",
+    parent: "Wearables",
+    stats: { items: "45+", trending: false },
+    techElements: ["ANC", "Spatial Audio", "Fast Charge"],
+  },
+  {
+    slug: "gaming-consoles",
+    name: "Consoles",
+    icon: Gamepad2,
+    gradient: "from-cyan-500 via-cyan-600 to-cyan-700",
+    iconBg: "bg-gradient-to-br from-cyan-500/20 to-cyan-600/10",
+    accentColor: "text-cyan-400",
+    glowColor: "shadow-cyan-500/25",
+    parent: "Gaming",
+    stats: { items: "15+", trending: true },
+    techElements: ["4K Gaming", "Ray Tracing", "SSD"],
+  },
+  {
+    slug: "smart-cameras",
+    name: "Cameras",
+    icon: Camera,
+    gradient: "from-red-500 via-red-600 to-red-700",
+    iconBg: "bg-gradient-to-br from-red-500/20 to-red-600/10",
+    accentColor: "text-red-400",
+    glowColor: "shadow-red-500/25",
+    parent: "Smart Gadgets",
+    stats: { items: "12+", trending: false },
+    techElements: ["4K Video", "AI Tracking", "Wireless"],
+  },
+  {
+    slug: "phone-cases",
+    name: "Phone Cases",
+    icon: Package,
+    gradient: "from-green-500 via-green-600 to-green-700",
+    iconBg: "bg-gradient-to-br from-green-500/20 to-green-600/10",
+    accentColor: "text-green-400",
+    glowColor: "shadow-green-500/25",
+    parent: "Accessories",
+    stats: { items: "80+", trending: true },
+    techElements: ["Military Grade", "Wireless Charge", "Slim Design"],
+  },
+];
+
+// Cyberpunk Category Icon Carousel Component
+function CategoryCarousel({
+  categories,
+  carouselStartIndex,
+  itemsPerView,
+  canScrollLeft,
+  canScrollRight,
+  scrollCarousel,
+  filters,
+  searchParams,
+  router,
+  basePath,
+  updateSearchParams,
+  updateFilters,
+}: {
+  categories: typeof COMPACT_CATEGORY_ICONS;
+  carouselStartIndex: number;
+  itemsPerView: number;
+  canScrollLeft: boolean;
+  canScrollRight: boolean;
+  scrollCarousel: (direction: "left" | "right") => void;
+  filters: any;
+  searchParams: any;
+  router: any;
+  basePath: string;
+  updateSearchParams: any;
+  updateFilters: any;
+}) {
+  const handleCategoryClick = (categorySlug: string) => {
+    updateFilters.setCategory(categorySlug);
+  };
+
+  const CategoryIcon = ({
+    category,
+  }: {
+    category: (typeof COMPACT_CATEGORY_ICONS)[0];
+  }) => {
+    const IconComponent = category.icon;
+    const isActive = filters.category === category.slug;
+
+    return (
+      <button
+        onClick={() => handleCategoryClick(category.slug)}
+        className="group flex flex-col items-center p-4 rounded-2xl bg-white/5 backdrop-blur-sm border border-gray-700/30 hover:border-gray-600/50 transition-all duration-300 hover:scale-110 hover:bg-white/10"
+      >
+        <div className="relative">
+          {/* Multi-layer Glow Effects */}
+          <div
+            className={`absolute inset-0 ${category.iconBg} rounded-2xl blur-2xl opacity-0 group-hover:opacity-80 transition-opacity duration-500 scale-125`}
+          />
+          <div
+            className={`absolute inset-0 ${category.iconBg} rounded-2xl blur-xl opacity-0 group-hover:opacity-60 transition-opacity duration-500 scale-110`}
+          />
+
+          {/* Main Icon Container */}
+          <div
+            className={`relative p-4 ${
+              category.iconBg
+            } rounded-2xl border border-gray-600/30 group-hover:border-gray-500/50 group-hover:scale-110 transition-all duration-500 ${
+              category.glowColor
+            } group-hover:shadow-2xl ${
+              isActive ? "ring-2 ring-primary-400/50 bg-primary-400/10" : ""
+            }`}
+          >
+            <IconComponent
+              className={`h-8 w-8 ${
+                category.accentColor
+              } drop-shadow-lg transition-colors duration-300 ${
+                isActive ? "text-primary-300" : ""
+              }`}
+            />
+
+            {/* Animated Dots */}
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-blue-400 rounded-full animate-ping opacity-0 group-hover:opacity-100 transition-opacity delay-100" />
+
+            {/* Scanning Line Effect */}
+            <div className="absolute inset-0 rounded-2xl overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-primary-400 to-transparent animate-pulse opacity-0 group-hover:opacity-80" />
+            </div>
+          </div>
+        </div>
+
+        <h3
+          className={`text-sm font-semibold text-center mt-3 transition-colors duration-300 ${
+            isActive
+              ? "text-primary-300"
+              : "text-gray-300 group-hover:text-white"
+          }`}
+        >
+          {category.name}
+        </h3>
+      </button>
+    );
+  };
+
+  return (
+    <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
+      {/* Advanced Tech Background */}
+      <div className="absolute inset-0 opacity-20">
+        {/* Grid Pattern */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(59,130,246,0.1),transparent_50%),radial-gradient(circle_at_75%_75%,rgba(139,92,246,0.1),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(59,130,246,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.05)_1px,transparent_1px)] bg-[size:40px_40px]" />
+
+        {/* Floating Tech Elements */}
+        <div className="absolute top-8 left-20 w-16 h-16 border border-primary-400/20 rounded-lg rotate-12 animate-pulse" />
+        <div className="absolute top-16 right-32 w-12 h-12 border border-emerald-400/20 rounded-full animate-pulse delay-1000" />
+        <div className="absolute bottom-8 left-1/3 w-10 h-10 border border-violet-400/20 rounded-lg rotate-45 animate-pulse delay-500" />
+        <div className="absolute top-1/2 right-20 w-8 h-8 border border-orange-400/20 rounded-full animate-pulse delay-1500" />
+
+        {/* Data Flow Lines */}
+        <div className="absolute top-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary-400/30 to-transparent animate-pulse" />
+        <div className="absolute bottom-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-emerald-400/30 to-transparent animate-pulse delay-2000" />
+      </div>
+
+      <Container className="relative z-10 py-6">
+        <div className="space-y-6">
+          {/* Carousel Navigation */}
+          <div className="relative max-w-7xl mx-auto">
+            {/* Navigation Buttons */}
+            <button
+              onClick={() => scrollCarousel("left")}
+              disabled={!canScrollLeft}
+              className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-gradient-to-r from-gray-900/95 to-gray-800/95 backdrop-blur-xl rounded-full shadow-xl border border-gray-700/50 flex items-center justify-center hover:bg-gray-700/80 hover:scale-110 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group"
+              aria-label="Previous categories"
+            >
+              <ChevronLeft className="w-6 h-6 text-white group-hover:text-primary-400 transition-colors" />
+              <div className="absolute inset-0 bg-primary-400/10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity blur-xl" />
+            </button>
+
+            <button
+              onClick={() => scrollCarousel("right")}
+              disabled={!canScrollRight}
+              className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-gradient-to-r from-gray-900/95 to-gray-800/95 backdrop-blur-xl rounded-full shadow-xl border border-gray-700/50 flex items-center justify-center hover:bg-gray-700/80 hover:scale-110 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group"
+              aria-label="Next categories"
+            >
+              <ChevronRight className="w-6 h-6 text-white group-hover:text-primary-400 transition-colors" />
+              <div className="absolute inset-0 bg-primary-400/10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity blur-xl" />
+            </button>
+
+            {/* Carousel Items */}
+            <div className="overflow-hidden px-6">
+              <div
+                className="flex gap-6 transition-transform duration-700 ease-out"
+                style={{
+                  transform: `translateX(-${
+                    carouselStartIndex * (100 / itemsPerView)
+                  }%)`,
+                }}
+              >
+                {categories.map((category, index) => (
+                  <div
+                    key={category.slug}
+                    className="flex-1 min-w-0 animate-fade-in"
+                    style={{
+                      animationDelay: `${index * 200}ms`,
+                    }}
+                  >
+                    <CategoryIcon category={category} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Tech Accent */}
+          <div className="flex justify-center">
+            <div className="flex items-center gap-4 px-6 py-3 bg-gradient-to-r from-gray-800/50 to-gray-700/50 backdrop-blur-md rounded-full border border-gray-600/30">
+              <div className="flex gap-2">
+                <div className="w-2 h-2 bg-primary-400 rounded-full animate-pulse" />
+                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse delay-200" />
+                <div className="w-2 h-2 bg-violet-400 rounded-full animate-pulse delay-400" />
+                <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse delay-600" />
+              </div>
+              <span className="text-gray-400 text-sm font-medium">
+                Curated Excellence
+              </span>
+              <div className="flex gap-2">
+                <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse delay-600" />
+                <div className="w-2 h-2 bg-violet-400 rounded-full animate-pulse delay-400" />
+                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse delay-200" />
+                <div className="w-2 h-2 bg-primary-400 rounded-full animate-pulse" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </Container>
+    </div>
+  );
+}
+
 // Sort options for the dropdown
 const SORT_OPTIONS = [
   { value: "latest", label: "Latest" },
@@ -54,6 +383,43 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+
+  // Carousel state
+  const [carouselStartIndex, setCarouselStartIndex] = useState(0);
+  const [itemsPerView, setItemsPerView] = useState(5);
+
+  // Responsive items per view for carousel
+  useEffect(() => {
+    const updateItemsPerView = () => {
+      const width = window.innerWidth;
+      if (width < 640) setItemsPerView(3); // Mobile
+      else if (width < 768) setItemsPerView(4); // Small tablet
+      else if (width < 1024) setItemsPerView(5); // Tablet
+      else setItemsPerView(6); // Desktop
+    };
+
+    updateItemsPerView();
+    window.addEventListener("resize", updateItemsPerView);
+    return () => window.removeEventListener("resize", updateItemsPerView);
+  }, []);
+
+  // Carousel navigation functions
+  const canScrollLeft = carouselStartIndex > 0;
+  const canScrollRight =
+    carouselStartIndex + itemsPerView < COMPACT_CATEGORY_ICONS.length;
+
+  const scrollCarousel = (direction: "left" | "right") => {
+    setCarouselStartIndex((prev) => {
+      if (direction === "left") {
+        return Math.max(0, prev - itemsPerView);
+      } else {
+        return Math.min(
+          Math.max(0, COMPACT_CATEGORY_ICONS.length - itemsPerView),
+          prev + itemsPerView
+        );
+      }
+    });
+  };
 
   // Performance guard: delay expensive computations until user interacts
   // Initialize this FIRST before any other state to avoid "before initialization" errors
@@ -266,6 +632,22 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
         router.push(`${basePath}?${newParams.toString()}`);
       },
 
+      setMinRating: (minRating: number | null) => {
+        const newParams = updateSearchParams(searchParams, {
+          minRating,
+          page: 1, // Reset to page 1 when rating filter changes
+        });
+        router.push(`${basePath}?${newParams.toString()}`);
+      },
+
+      setBrands: (brands: string[] | null) => {
+        const newParams = updateSearchParams(searchParams, {
+          brands,
+          page: 1, // Reset to page 1 when brands filter changes
+        });
+        router.push(`${basePath}?${newParams.toString()}`);
+      },
+
       setPage: (page: number) => {
         const newParams = updateSearchParams(searchParams, {
           page,
@@ -297,6 +679,32 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
 
   // Get current category name for breadcrumb
   const currentCategory = categories.find((c) => c.slug === filters.category);
+
+  // Get available brands from all products
+  const getAvailableBrands = useMemo(() => {
+    if (!hasInteracted) return [];
+    const brandSet = new Set<string>();
+    allMockProducts.forEach((product) => {
+      if (product.brand) {
+        brandSet.add(product.brand);
+      }
+    });
+    return Array.from(brandSet).sort();
+  }, [allMockProducts, hasInteracted]);
+
+  // Check if there are any active filters
+  const hasActiveFilters = useCallback(() => {
+    return !!(
+      filters.search ||
+      filters.category ||
+      filters.minPrice ||
+      filters.maxPrice ||
+      filters.inStockOnly ||
+      filters.minRating ||
+      (filters.brands && filters.brands.length > 0) ||
+      filters.sortBy !== "latest"
+    );
+  }, [filters]);
 
   // Calculate price range for filters from ALL filtered products (not just current page)
   const maxProductPrice = useMemo(
@@ -378,10 +786,26 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
 
   return (
     <div className="min-h-screen relative">
-      <Stack spacing="xl" className="relative z-0">
+      <Stack spacing="xs" className="relative z-0">
+        {/* Cyberpunk Category Carousel - Top of Page */}
+        <CategoryCarousel
+          categories={COMPACT_CATEGORY_ICONS}
+          carouselStartIndex={carouselStartIndex}
+          itemsPerView={itemsPerView}
+          canScrollLeft={canScrollLeft}
+          canScrollRight={canScrollRight}
+          scrollCarousel={scrollCarousel}
+          filters={filters}
+          searchParams={searchParams}
+          router={router}
+          basePath={basePath}
+          updateSearchParams={updateSearchParams}
+          updateFilters={updateFilters}
+        />
+
         {/* Breadcrumb */}
-        <div className="border-b border-border/60">
-          <Container className="py-4">
+        <div className="border-b border-border/60 bg-gray-50/30">
+          <Container className="py-3">
             <nav
               className="flex items-center gap-2 text-sm"
               aria-label="Breadcrumb"
@@ -429,15 +853,20 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
         </div>
 
         {/* Immersive Main Content - 2026 Style */}
-        <Container size="full" className="pt-6 pb-10 md:pt-8 md:pb-16">
-          {/* Results Count and Controls - Above Grid */}
-          <div className="flex items-center justify-between gap-4 mb-8">
+        <Container size="full" className="pt-3 pb-10 md:pt-4 md:pb-16">
+          {/* Results Count and Controls */}
+          <div className="flex items-center justify-between gap-4 mb-4">
             {/* Results Count */}
             <div className="text-sm text-muted-fg">
               <span className="font-semibold text-fg">{products.length}</span>
               <span className="mx-1">of</span>
               <span className="text-muted-fg">{totalResults}</span>
               <span className="ml-1">products</span>
+              {filters.search && (
+                <span className="ml-2 text-primary-600">
+                  for &quot;{filters.search}&quot;
+                </span>
+              )}
             </div>
 
             {/* Sort Dropdown */}
@@ -461,7 +890,7 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
               </Button>
 
               {isSortOpen && (
-                <div className="absolute right-0 top-full mt-2 w-56 bg-surface border border-border rounded-lg shadow-lg z-50">
+                <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-border rounded-lg shadow-lg z-50">
                   {SORT_OPTIONS.map((option) => (
                     <button
                       key={option.value}
@@ -472,11 +901,11 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
                         setIsSortOpen(false);
                       }}
                       className={cn(
-                        "block w-full text-left px-3 py-2 text-sm transition-colors",
+                        "block w-full text-left px-3 py-2 text-sm transition-all duration-200",
                         "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2",
                         filters.sortBy === option.value
                           ? "text-primary-600 font-medium bg-primary-50"
-                          : "text-muted-fg hover:bg-surface-muted"
+                          : "text-muted-fg hover:bg-red-50 hover:scale-105"
                       )}
                     >
                       {option.label}
@@ -510,30 +939,20 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
                   {isLoading ? (
                     <FiltersSidebarSkeleton />
                   ) : (
-                    <div className="relative bg-white/80 backdrop-blur-xl rounded-lg p-8 shadow-lg border border-warm-gray-200/50 hover:shadow-xl transition-all duration-500 group">
-                      <div className="mb-6">
-                        <SectionTitle
-                          badgeText="Refine Your Search"
-                          title=""
-                          subtitle="Find exactly what you're looking for"
-                          icon={Star}
-                          showHearts={false}
-                          className="text-left"
-                          badgeClassName="justify-start"
-                        />
-                      </div>
-                      <FiltersSidebar
-                        categories={categories}
-                        selectedCategory={filters.category}
-                        onCategoryChange={updateFilters.setCategory}
-                        priceRange={priceRange}
-                        onPriceRangeChange={updateFilters.setPriceRange}
-                        inStockOnly={filters.inStockOnly}
-                        onInStockChange={updateFilters.setInStockOnly}
-                      />
-                      {/* Subtle hover effect */}
-                      <div className="absolute inset-0 bg-linear-to-br from-primary-50/20 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10" />
-                    </div>
+                    <FiltersSidebar
+                      categories={categories}
+                      selectedCategory={filters.category}
+                      onCategoryChange={updateFilters.setCategory}
+                      priceRange={priceRange}
+                      onPriceRangeChange={updateFilters.setPriceRange}
+                      inStockOnly={filters.inStockOnly}
+                      onInStockChange={updateFilters.setInStockOnly}
+                      minRating={filters.minRating}
+                      onMinRatingChange={updateFilters.setMinRating}
+                      selectedBrands={filters.brands}
+                      onBrandsChange={updateFilters.setBrands}
+                      availableBrands={getAvailableBrands}
+                    />
                   )}
                 </Stack>
               </div>
@@ -597,6 +1016,8 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
                   products={products}
                   isLoading={isLoading}
                   onClearFilters={handleClearAll}
+                  searchTerm={filters.search}
+                  hasActiveFilters={hasActiveFilters()}
                 />
               </div>
 

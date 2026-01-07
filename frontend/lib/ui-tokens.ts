@@ -81,7 +81,7 @@ export const ui = {
       200: "var(--primary-200)",
       300: "var(--primary-300)",
       400: "var(--primary-400)",
-      500: "var(--primary-500)",
+      500: "var(--primary-600)",
       600: "var(--primary-600)",
     } as const,
 

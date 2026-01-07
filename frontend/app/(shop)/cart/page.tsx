@@ -6,8 +6,8 @@ import Link from "next/link";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/features/cart/hooks";
-import { useState } from "react";
 import { formatPrice } from "@/lib/utils";
+import { SkeletonBlock, SkeletonText } from "@/components/ui/skeleton";
 
 const steps = [
   { label: "Shopping Cart", active: true, completed: false },
@@ -16,19 +16,118 @@ const steps = [
 ];
 
 export default function CartPage() {
-  const { items, updateQuantity, removeItem, clearCart } = useCart();
-  const [shippingOption, setShippingOption] = useState<
-    "pickup" | "beirut" | "outside"
-  >("pickup");
+  const {
+    items,
+    updateQuantity,
+    removeItem,
+    clearCart,
+    shippingOption,
+    setShippingOption,
+    isLoading,
+  } = useCart();
   const subtotal = items.reduce(
     (total, item) => total + item.price * item.quantity,
     0
   );
   const shippingCost =
-    shippingOption === "pickup" ? 0 : shippingOption === "beirut" ? 3 : 5;
+    shippingOption === "pickup" ? 0 : shippingOption === "beirut" ? 0 : 5;
   const total = subtotal + shippingCost;
   const formatOptionLabel = (key: string) =>
     key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+
+  // Loading skeleton for cart items
+  const CartLoadingSkeleton = () => (
+    <div className="rounded-lg border border-border bg-surface">
+      <div className="hidden border-b px-6 py-3 text-xs font-semibold uppercase text-muted-fg md:grid md:grid-cols-[2fr_repeat(3,1fr)]">
+        <span>Product</span>
+        <span className="text-center">Price</span>
+        <span className="text-center">Quantity</span>
+        <span className="text-center">Subtotal</span>
+      </div>
+
+      <div className="divide-y divide-border">
+        {Array.from({ length: 3 }, (_, i) => (
+          <div
+            key={i}
+            className="grid grid-cols-1 gap-4 px-4 py-4 md:grid-cols-[2fr_repeat(3,1fr)] md:items-center"
+          >
+            <div className="flex gap-4">
+              <SkeletonBlock className="h-24 w-24 shrink-0" />
+              <div className="flex flex-1 flex-col justify-between gap-2">
+                <div>
+                  <SkeletonText lines={2} className="mb-2" />
+                  <SkeletonBlock className="h-4 w-32" />
+                </div>
+                <SkeletonBlock className="h-6 w-16" />
+              </div>
+            </div>
+
+            <div className="hidden text-center text-sm font-semibold text-fg md:block">
+              <SkeletonBlock className="h-4 w-16 mx-auto" />
+            </div>
+
+            <div className="flex items-center justify-start md:justify-center">
+              <SkeletonBlock className="h-8 w-24" />
+            </div>
+
+            <div className="text-left text-base font-semibold text-fg md:text-center">
+              <SkeletonBlock className="h-5 w-16 mx-auto" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  // Loading skeleton for cart summary
+  const CartSummarySkeleton = () => (
+    <div className="rounded-lg border border-border bg-surface p-6">
+      <SkeletonBlock className="h-5 w-32 mb-4" />
+      <div className="mt-4 space-y-3 text-sm text-muted-fg">
+        <div className="flex items-center justify-between">
+          <SkeletonBlock className="h-4 w-16" />
+          <SkeletonBlock className="h-4 w-12" />
+        </div>
+
+        <div className="space-y-2">
+          <SkeletonBlock className="h-4 w-20" />
+          <div className="space-y-2 rounded-lg border border-border bg-surface-muted p-3 text-sm text-muted-fg">
+            {Array.from({ length: 3 }, (_, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <SkeletonBlock className="h-4 w-4" />
+                <SkeletonBlock className="h-4 flex-1" />
+                <SkeletonBlock className="h-4 w-8" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-2 text-base font-semibold text-fg">
+          <SkeletonBlock className="h-5 w-12" />
+          <SkeletonBlock className="h-5 w-16" />
+        </div>
+      </div>
+
+      <div className="mt-6 grid gap-3">
+        <SkeletonBlock className="h-12 w-full" />
+        <SkeletonBlock className="h-12 w-full" />
+      </div>
+    </div>
+  );
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <main className="flex-1 py-8">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8">
+          <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+            <CartLoadingSkeleton />
+            <CartSummarySkeleton />
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="flex-1 py-8">
@@ -86,7 +185,7 @@ export default function CartPage() {
           </div>
         )}
 
-        {items.length === 0 ? (
+        {!isLoading && items.length === 0 ? (
           <div className="rounded-xl border border-border bg-surface p-10 text-center shadow-sm">
             <p className="text-lg font-semibold text-fg">
               Your cart is currently empty.
@@ -249,7 +348,7 @@ export default function CartPage() {
                         className="h-4 w-4 accent-primary-600"
                       />
                       <span className="flex-1">Beirut</span>
-                      <span className="font-semibold">$3</span>
+                      <span className="font-semibold">Free</span>
                     </label>
                     <label className="flex items-center gap-2">
                       <input

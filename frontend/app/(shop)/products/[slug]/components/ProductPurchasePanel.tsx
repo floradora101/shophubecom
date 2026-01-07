@@ -103,6 +103,7 @@ export function ProductPurchasePanel({
         selectedOptions={selectedOptions}
         isUserSelectionComplete={isUserSelectionComplete}
         isInvalidSelection={isInvalidSelection}
+        showSelectionError={showSelectionError}
         onOptionSelect={onOptionSelect}
       />
 
@@ -154,16 +155,36 @@ export function ProductPurchasePanel({
 
       {/* Add to Cart Button */}
       <Button
-        onClick={canAddToCart ? onAddToCart : undefined}
-        disabled={!canAddToCart}
-        variant="destructive"
-        className="w-auto h-10 sm:h-9 text-sm font-medium rounded-lg"
+        onClick={
+          canAddToCart
+            ? onAddToCart
+            : optionKeys.length > 0 && !isUserSelectionComplete
+            ? () => onAddToCart()
+            : undefined
+        }
+        disabled={
+          !canAddToCart && !(optionKeys.length > 0 && !isUserSelectionComplete)
+        }
+        variant={
+          canAddToCart
+            ? "destructive"
+            : optionKeys.length > 0 && !isUserSelectionComplete
+            ? "outline"
+            : "secondary"
+        }
+        className={`w-auto h-10 sm:h-9 text-sm font-medium rounded-lg transition-all duration-200 ${
+          optionKeys.length > 0 && !isUserSelectionComplete
+            ? "border-amber-300 text-amber-700 hover:bg-amber-50 hover:border-amber-400"
+            : ""
+        }`}
         size="default"
       >
         {isOutOfStock
           ? "Notify me"
           : isUnavailable
           ? "Not Available"
+          : optionKeys.length > 0 && !isUserSelectionComplete
+          ? "Select Options Above"
           : "Add to Cart"}
       </Button>
     </div>

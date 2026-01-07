@@ -69,6 +69,13 @@ const isMac =
   typeof navigator !== "undefined" &&
   navigator.platform.toUpperCase().indexOf("MAC") >= 0;
 
+// Mobile detection - hide keyboard shortcuts on touch devices
+const isMobile =
+  typeof navigator !== "undefined" &&
+  (navigator.maxTouchPoints > 0 ||
+   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+   window.innerWidth < 768);
+
 // Normalize text: lowercase, trim, remove punctuation
 function normalizeText(text: string): string {
   return text
@@ -384,17 +391,19 @@ function SearchPage() {
             </Button>
           </div>
 
-          {/* Keyboard shortcut hint */}
-          <div className="flex items-center justify-center gap-1 mt-3 text-xs text-muted-fg">
-            <kbd className="px-2 py-1 bg-surface-muted border border-border rounded text-xs font-mono">
-              {isMac ? <Command className="h-3 w-3 inline" /> : "Ctrl"}
-            </kbd>
-            <span>+</span>
-            <kbd className="px-2 py-1 bg-surface-muted border border-border rounded text-xs font-mono">
-              K
-            </kbd>
-            <span>to open search</span>
-          </div>
+          {/* Keyboard shortcut hint - hidden on mobile */}
+          {!isMobile && (
+            <div className="flex items-center justify-center gap-1 mt-3 text-xs text-muted-fg">
+              <kbd className="px-2 py-1 bg-surface-muted border border-border rounded text-xs font-mono">
+                {isMac ? <Command className="h-3 w-3 inline" /> : "Ctrl"}
+              </kbd>
+              <span>+</span>
+              <kbd className="px-2 py-1 bg-surface-muted border border-border rounded text-xs font-mono">
+                K
+              </kbd>
+              <span>to open search</span>
+            </div>
+          )}
         </Container>
       </div>
 

@@ -1,3 +1,5 @@
+"use client";
+
 import { memo } from "react";
 import { Button } from "@/components/ui/button";
 import type { LandscapeImageSlide } from "@/lib/types/heroSlides.types";
@@ -78,14 +80,16 @@ export const LandscapeHeroSlideBody = memo(function LandscapeHeroSlideBody({
       <img
         src={slide.media.imageUrl}
         alt={slide.media.alt || ""}
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full object-cover object-center md:object-top"
         style={{
           zIndex: 1,
           minHeight: "100%",
-          objectPosition,
+          objectPosition:
+            objectPosition !== "center" ? objectPosition : undefined,
         }}
         loading={isActive ? "eager" : "lazy"}
         fetchPriority={isActive ? "high" : "auto"}
+        decoding="async"
       />
 
       {/* Overlay scrim for text readability */}
@@ -100,7 +104,7 @@ export const LandscapeHeroSlideBody = memo(function LandscapeHeroSlideBody({
       {/* Optional text content overlay */}
       {hasTextContent && (
         <div
-          className="absolute inset-0 grid place-items-center px-6 py-12 md:px-12 md:py-16"
+          className="absolute inset-0 grid place-items-center px-4 py-8 sm:px-6 sm:py-12 md:px-12 md:py-16"
           style={{ zIndex: 5 }}
         >
           <div className={textClasses.wrapper}>
@@ -130,17 +134,19 @@ export const LandscapeHeroSlideBody = memo(function LandscapeHeroSlideBody({
               {/* Headline and Highlight */}
               {(content.headline || content.highlight) && (
                 <HeroItem run={run} animationKey={animationKey}>
-                  <h1
-                    className={`${textClasses.headline} hero-item-enter hero-headline`}
-                  >
+                  <h1 className="hero-item-enter hero-headline">
                     {content.headline && (
-                      <span data-text={content.headline}>
+                      <span
+                        className={textClasses.headline}
+                        data-text={content.headline}
+                      >
                         {content.headline}
                       </span>
                     )}
+                    {content.headline && content.highlight && " "}
                     {content.highlight && (
                       <span
-                        className={textClasses.highlight}
+                        className={`${textClasses.highlight} ml-2`}
                         data-text={content.highlight}
                       >
                         {content.highlight}
@@ -170,7 +176,7 @@ export const LandscapeHeroSlideBody = memo(function LandscapeHeroSlideBody({
                     <Button
                       asChild
                       size="lg"
-                      className="px-8 py-4 text-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
+                      className="w-full min-h-[48px] px-6 py-3 text-base font-semibold transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-95 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
                       onMouseEnter={onMouseEnter}
                       onMouseLeave={onMouseLeave}
                     >
@@ -184,7 +190,7 @@ export const LandscapeHeroSlideBody = memo(function LandscapeHeroSlideBody({
                       asChild
                       variant="outline"
                       size="lg"
-                      className="px-8 py-4 text-lg font-semibold border-white text-white hover:bg-white hover:text-black transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
+                      className="w-full min-h-[48px] px-6 py-3 text-base font-semibold border-white text-white hover:bg-white hover:text-black transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-95 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
                       onMouseEnter={onMouseEnter}
                       onMouseLeave={onMouseLeave}
                     >

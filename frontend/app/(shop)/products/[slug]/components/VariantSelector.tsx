@@ -1,7 +1,7 @@
 // Modern Variant Selector - Clean & Intuitive
 "use client";
 
-import { Check, X } from "lucide-react";
+import { Check, X, AlertCircle } from "lucide-react";
 
 interface VariantSelectorProps {
   optionKeys: string[];
@@ -9,6 +9,7 @@ interface VariantSelectorProps {
   selectedOptions: Record<string, string>;
   isUserSelectionComplete: boolean;
   isInvalidSelection: boolean;
+  showSelectionError?: boolean;
   onOptionSelect: (key: string, value: string) => void;
 }
 
@@ -40,18 +41,35 @@ export function VariantSelector({
   selectedOptions,
   isUserSelectionComplete,
   isInvalidSelection,
+  showSelectionError = false,
   onOptionSelect,
 }: VariantSelectorProps) {
   if (!optionKeys.length) return null;
 
   return (
     <div className="space-y-4 sm:space-y-5">
-      {/* Error Message - More prominent */}
+      {/* Selection Required Message */}
+      {showSelectionError && !isUserSelectionComplete && (
+        <div className="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-amber-50 border border-amber-200 rounded-lg">
+          <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600 shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="text-sm sm:text-base text-amber-800 font-medium mb-1">
+              Please select all required options
+            </p>
+            <p className="text-xs sm:text-sm text-amber-700">
+              Choose your preferences from the options below to add this item to
+              your cart.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Invalid Combination Error */}
       {isInvalidSelection && (
         <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg">
           <X className="h-4 w-4 sm:h-5 sm:w-5 text-red-500 shrink-0" />
           <span className="text-sm sm:text-base text-red-700 font-medium">
-            This combination is not available
+            This combination is not available. Please try different options.
           </span>
         </div>
       )}
@@ -61,17 +79,45 @@ export function VariantSelector({
         const values = allOptionValues[key] || [];
         const selectedValue = selectedOptions[key];
         const isColorOption = key === "color";
+        const isRequired = true; // All variant options are required for selection
+        const hasError = showSelectionError && !selectedValue;
 
         return (
-          <div key={key} className="space-y-2 sm:space-y-3">
+          <div
+            key={key}
+            className={`space-y-2 sm:space-y-3 p-3 sm:p-4 rounded-lg border transition-colors ${
+              hasError
+                ? "bg-red-50/50 border-red-200"
+                : "bg-surface-muted/30 border-border/50"
+            }`}
+          >
             {/* Option Header */}
             <div className="flex items-center justify-between">
-              <label className="text-sm sm:text-base font-semibold text-fg capitalize">
-                {key}
-              </label>
-              {selectedValue && (
-                <span className="text-xs text-muted-fg font-medium truncate max-w-24 sm:max-w-none">
-                  Selected: {selectedValue}
+              <div className="flex items-center gap-2">
+                <label
+                  className={`text-sm sm:text-base font-semibold capitalize ${
+                    hasError ? "text-red-700" : "text-fg"
+                  }`}
+                >
+                  {key}
+                  {isRequired && (
+                    <span className="text-red-500 ml-1" aria-label="required">
+                      *
+                    </span>
+                  )}
+                </label>
+                {hasError && (
+                  <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 text-red-500" />
+                )}
+              </div>
+              {selectedValue ? (
+                <span className="text-xs text-green-600 font-medium truncate max-w-24 sm:max-w-none flex items-center gap-1">
+                  <Check className="h-3 w-3" />
+                  {selectedValue}
+                </span>
+              ) : (
+                <span className="text-xs text-muted-fg font-medium">
+                  Not selected
                 </span>
               )}
             </div>
@@ -98,8 +144,8 @@ export function VariantSelector({
                         group relative w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 rounded-full border-2 transition-all duration-200 ease-in-out
                         ${
                           isSelected
-                            ? "border-fg ring-2 ring-fg/20 scale-110"
-                            : "border-border hover:border-border-hover hover:scale-105 active:scale-95"
+                            ? "border-primary-600 ring-2 ring-primary-600/30 scale-110 shadow-lg"
+                            : "border-border hover:border-primary-400 hover:ring-2 hover:ring-primary-400/20 hover:scale-105 active:scale-95 hover:shadow-md"
                         }
                         ${
                           isDisabled
@@ -116,7 +162,7 @@ export function VariantSelector({
 
                       {/* Selection indicator */}
                       {isSelected && (
-                        <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-4 h-4 sm:w-5 sm:h-5 bg-fg rounded-full flex items-center justify-center">
+                        <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-4 h-4 sm:w-5 sm:h-5 bg-primary-600 rounded-full flex items-center justify-center shadow-lg">
                           <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-white" />
                         </div>
                       )}
@@ -129,8 +175,8 @@ export function VariantSelector({
                       )}
 
                       {/* Tooltip on hover - hide on mobile */}
-                      <div className="hidden sm:block absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
-                        <div className="bg-fg text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                      <div className="hidden sm:block absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+                        <div className="bg-gray-800 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
                           {value}
                         </div>
                       </div>
@@ -147,8 +193,8 @@ export function VariantSelector({
                         group relative px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-lg border transition-all duration-200 ease-in-out
                         ${
                           isSelected
-                            ? "bg-fg text-white border-fg shadow-sm"
-                            : "border-border text-muted-fg hover:border-border-hover hover:bg-surface-muted active:bg-surface"
+                            ? "bg-primary-600 text-white border-primary-600 shadow-lg"
+                            : "border-border text-muted-fg hover:border-primary-400 hover:bg-primary-50 hover:text-primary-700 active:bg-primary-100"
                         }
                         ${
                           isDisabled

@@ -226,7 +226,7 @@ export class CheckoutService {
       case ShippingOption.PICKUP:
         return 0;
       case ShippingOption.BEIRUT:
-        return 3;
+        return 0;
       case ShippingOption.OUTSIDE:
         return 5;
       default:

@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { HeroItem } from "./shared/hero-item";
 import { useHeroRunCounter } from "@/lib/hooks/use-hero-run-counter";

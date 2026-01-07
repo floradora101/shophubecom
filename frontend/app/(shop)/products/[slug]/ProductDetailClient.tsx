@@ -4,7 +4,8 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ChevronRight, AlertTriangle } from "lucide-react";
+import { ChevronRight, AlertTriangle, Settings } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { SkeletonBlock } from "@/components/ui/skeleton";
@@ -402,6 +403,17 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
           selectedVariant =
             variants.find((v) => (v.stock ?? 0) > 0) ?? variants[0] ?? null;
       }
+    } else {
+      // No variants - create a default variant for products without explicit variants
+      selectedVariant = {
+        id: `${product?.id}-default`,
+        sku: `${product?.id}-default`,
+        price: product?.price ?? 0,
+        stock: product?.stock ?? 100,
+        image: product?.defaultVariant?.image ?? PLACEHOLDER_IMAGE,
+        images: product?.defaultVariant?.images ?? [PLACEHOLDER_IMAGE],
+        options: {},
+      };
     }
 
     return {
@@ -479,9 +491,12 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
       const next = { ...selectedOptionsState, [key]: value };
       setSelectedOptionsState(next);
       updateUrlWithSelections(next);
-      setShowSelectionError(false); // Clear error on selection
+      // Clear error on selection - provides immediate feedback
+      if (showSelectionError) {
+        setShowSelectionError(false);
+      }
     },
-    [selectedOptionsState, updateUrlWithSelections]
+    [selectedOptionsState, updateUrlWithSelections, showSelectionError]
   );
 
   const handleQuantityChange = useCallback(
@@ -493,30 +508,61 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
     [effectiveStock]
   );
 
-  const handleAddToCart = useCallback(() => {
+  const handleAddToCart = useCallback(async () => {
     // Check if selection is required but not complete
     if (optionKeys.length > 0 && !isUserSelectionComplete) {
       setShowSelectionError(true);
-      // Scroll to purchase section
+      // Scroll to purchase section with smooth animation
       const purchaseSection = document.getElementById("purchase-section");
       if (purchaseSection) {
         purchaseSection.scrollIntoView({ behavior: "smooth", block: "center" });
+        // Add a subtle highlight effect
+        purchaseSection.classList.add(
+          "ring-2",
+          "ring-amber-300",
+          "ring-opacity-50"
+        );
+        setTimeout(() => {
+          purchaseSection.classList.remove(
+            "ring-2",
+            "ring-amber-300",
+            "ring-opacity-50"
+          );
+        }, 2000);
       }
+      // Provide specific feedback about what's missing
+      const missingOptions = optionKeys.filter(
+        (key) => !selectedOptionsState[key]
+      );
+      toast.error(`Please select: ${missingOptions.join(", ")}`);
       return;
     }
 
-    if (!canAddToCart || !selectedVariant || !product) return;
+    if (!canAddToCart || !selectedVariant || !product) {
+      toast.error("Unable to add item to cart. Please check your selection.");
+      return;
+    }
 
-    addItem(product, {
-      quantity: Math.min(quantity, effectiveStock),
-      priceOverride: effectivePrice,
-      image: selectedVariant.image ?? getProductImageWithPlaceholder(product),
-      variantId: selectedVariant.id,
-      variantSku: selectedVariant.sku,
-      color: selectedOptionsState.color ?? null,
-      storage: selectedOptionsState.storage ?? null,
-    });
-    toggleCart(true);
+    try {
+      await addItem(product, {
+        quantity: Math.min(quantity, effectiveStock),
+        priceOverride: effectivePrice,
+        image: selectedVariant.image ?? getProductImageWithPlaceholder(product),
+        variantId: selectedVariant.id,
+        variantSku: selectedVariant.sku,
+        color: selectedOptionsState.color ?? null,
+        storage: selectedOptionsState.storage ?? null,
+      });
+      toast.success(`${product.name} added to cart!`, {
+        description: `Quantity: ${Math.min(quantity, effectiveStock)}`,
+      });
+      toggleCart(true);
+      // Clear any previous selection errors on successful add
+      setShowSelectionError(false);
+    } catch (error) {
+      console.error("Failed to add item to cart:", error);
+      toast.error("Failed to add item to cart. Please try again.");
+    }
   }, [
     canAddToCart,
     selectedVariant,
@@ -527,8 +573,9 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
     selectedOptionsState,
     addItem,
     toggleCart,
-    optionKeys.length,
+    optionKeys,
     isUserSelectionComplete,
+    setShowSelectionError,
   ]);
 
   // Product not found - clean error state
@@ -662,6 +709,50 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                   onAddToCart={handleAddToCart}
                 />
               </div>
+
+              {/* Technical Specifications - Compact & Original */}
+              {product.specs && product.specs.length > 0 && (
+                <div className="space-y-4">
+                  <div className="border-t border-border/60 pt-6">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="relative">
+                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <Settings className="h-4 w-4 text-primary" />
+                        </div>
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-fg">
+                          Specifications
+                        </h3>
+                      </div>
+                    </div>
+
+                    {/* Compact Specs Grid */}
+                    <div className="bg-surface rounded-xl border border-border/40 overflow-hidden">
+                      <div className="divide-y divide-border/30">
+                        {product.specs.map((spec, index) => (
+                          <div
+                            key={index}
+                            className="group px-4 py-3 hover:bg-surface-muted/50 transition-colors duration-200"
+                          >
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-sm font-medium text-muted-fg flex-1 min-w-0">
+                                {spec.label}
+                              </span>
+                              <span className="text-sm font-semibold text-fg flex-1 min-w-0 text-right">
+                                {spec.value}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Compact footer accent */}
+                      <div className="h-1 bg-linear-to-r from-primary/20 via-primary/40 to-primary/20" />
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Trust Module */}
               <TrustModule />

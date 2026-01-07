@@ -4,6 +4,7 @@ import { HeroShell } from "@/components/home/hero/HeroShell";
 import { ServiceShowcase } from "@/components/home/service-showcase";
 import { ProductRevealSection } from "@/components/home/product-reveal-section";
 import { DepartmentTabs } from "@/components/home/department-tabs";
+import { CategorySpotlight } from "@/components/home/category-spotlight";
 import { TrendingNow } from "@/components/home/trending-now";
 import { LatestProductsCarousel } from "@/components/home/deals-carousel";
 import { BrandStory } from "@/components/home/brand-story";
@@ -28,14 +29,14 @@ export function HomePageContent({ data }: HomePageContentProps) {
         {/* Hero */}
         <HeroShell slides={data.heroSlides} productsBySlug={productsBySlug} />
 
-        {/* Service Showcase */}
-        <ServiceShowcase />
-
         {/* Department Tabs */}
         <DepartmentTabs
           categories={data.categories}
           productsByCategory={productsByCategory}
         />
+
+        {/* Service Showcase */}
+        <ServiceShowcase />
 
         {/* Product Reveal */}
         <ProductRevealSection
@@ -47,6 +48,18 @@ export function HomePageContent({ data }: HomePageContentProps) {
         <TrendingNow
           trendingProducts={data.trendingProducts}
           categories={data.categories || []}
+        />
+
+        {/* Category Spotlight */}
+        <CategorySpotlight
+          spotlightCategory={{
+            slug: "gaming-laptops",
+            name: "Gaming Laptops",
+            description: "High-performance laptops built for gaming excellence",
+            products: productsByCategory["gaming-laptops"] || [],
+            accentColor: "#8b5cf6",
+          }}
+          categories={data.categories}
         />
 
         {/* Latest Products */}

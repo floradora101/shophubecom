@@ -17,7 +17,7 @@ const config: Config = {
           200: "var(--primary-200)",
           300: "var(--primary-300)",
           400: "var(--primary-400)",
-          500: "var(--primary-500)",
+          500: "var(--primary-600)",
           600: "var(--primary-600)",
         },
         // Warm colors mapped to CSS variables
@@ -314,18 +314,8 @@ const config: Config = {
           "radial-gradient(circle at 30% 20%, rgba(220, 38, 38, 0.1), transparent 50%), radial-gradient(circle at 70% 80%, rgba(220, 38, 38, 0.08), transparent 50%)",
       },
     },
-  },
-  safelist: [
-    // Hero carousel animation classes - ensure they're always included
-    "transition-transform",
-    "duration-700",
-    "ease-[cubic-bezier(0.22,1,0.36,1)]",
-    "transform-gpu",
-    "will-change-transform",
-    "animate-bounce",
-  ],
   plugins: [
-    function ({ addUtilities }: any) {
+    function ({ addUtilities }: { addUtilities: (utilities: Record<string, any>) => void }) {
       addUtilities({
         // Hero Glass UI Utility Classes
         ".hero-glass": {
@@ -342,8 +332,7 @@ const config: Config = {
           "@apply hero-glass rounded-3xl p-6 lg:p-8": {},
         },
         ".hero-pill": {
-          "@apply rounded-full px-3 py-2 bg-surface border border-border text-muted-fg":
-            {},
+          "@apply rounded-full px-3 py-2 bg-surface border border-border text-muted-fg": {},
         },
         ".hero-pill--accent": {
           "@apply border-primary text-primary": {},

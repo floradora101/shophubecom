@@ -148,8 +148,9 @@ export function HeroShell({
   });
 
   // Explicit transition classes for production-grade hero carousel animations
+  // Mobile-optimized: shorter duration and simpler easing for better touch response
   const transitionClasses =
-    "transform-gpu transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform";
+    "transform-gpu transition-transform duration-500 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] will-change-transform md:duration-700 md:ease-[cubic-bezier(0.22,1,0.36,1)]";
 
   const prefersReducedMotion = usePrefersReducedMotion();
 
@@ -304,11 +305,11 @@ export function HeroShell({
     [goToSlide, currentSlide, processedSlides.length]
   );
 
-  // Touch swipe functionality
+  // Touch swipe functionality - optimized for mobile UX
   const { setElementRef } = useSwipe({
-    threshold: 40,
-    velocityThreshold: 0.3,
-    maxVerticalMovement: 50,
+    threshold: 30, // More sensitive on mobile
+    velocityThreshold: 0.25, // Slightly more sensitive velocity
+    maxVerticalMovement: 60, // Allow slightly more vertical movement to prevent false triggers
     onSwipeLeft: nextSlide,
     onSwipeRight: prevSlide,
   });
@@ -402,9 +403,7 @@ export function HeroShell({
                 className={`flex ${transitionClasses}`}
                 style={{
                   transform: transformValue,
-                  transition: prefersReducedMotion
-                    ? "none"
-                    : "transform 700ms cubic-bezier(0.22, 1, 0.36, 1)",
+                  transition: prefersReducedMotion ? "none" : undefined,
                   willChange: "transform",
                 }}
               >

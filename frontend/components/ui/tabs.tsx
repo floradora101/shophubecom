@@ -57,11 +57,11 @@ export function Tabs({
     switch (variant) {
       case "pill":
         return cn(
-          "rounded-full border border-border/60 backdrop-blur-sm",
+          "rounded-full border border-border/50 backdrop-blur-sm",
           "hover:bg-surface/80 hover:shadow-sm hover:border-border-hover",
           "transition-all duration-300",
           isActive
-            ? "bg-surface/95 shadow-md border-primary-200 text-primary-700"
+            ? "bg-surface/95 shadow-md border-border/40 text-primary-600"
             : "bg-surface-muted/50 text-muted-fg hover:text-fg"
         );
 
@@ -71,7 +71,7 @@ export function Tabs({
           "hover:bg-surface-muted/50",
           "transition-all duration-300",
           isActive
-            ? "border-primary-500 text-primary-700 bg-primary-50/30"
+            ? "border-primary-500 text-primary-600 bg-primary-50/30"
             : "border-transparent text-muted-fg hover:text-fg hover:border-border"
         );
 
@@ -81,7 +81,7 @@ export function Tabs({
           "hover:bg-surface/80 hover:shadow-sm hover:border-border-hover hover:-translate-y-0.5",
           "transition-all duration-300",
           isActive
-            ? "bg-surface/95 shadow-md border-primary-200 text-primary-700 shadow-primary-500/10"
+            ? "bg-surface/95 shadow-md border-primary-200 text-primary-600 shadow-primary-500/10"
             : "bg-surface-muted/50 text-muted-fg hover:text-fg"
         );
     }
@@ -93,11 +93,8 @@ export function Tabs({
     <div className={cn("w-full", className)}>
       {/* Tab Navigation */}
       <div className="relative mb-6 sm:mb-8">
-        {/* Glassmorphism background */}
-        <div className="absolute inset-0 bg-surface/30 backdrop-blur-xl rounded-2xl border border-surface/20 shadow-xl" />
-
         {/* Tab buttons container */}
-        <div className="relative flex gap-1 sm:gap-2 p-1.5">
+        <div className="flex gap-1 sm:gap-2 p-1.5 bg-surface rounded-xl border border-border/40">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -129,7 +126,7 @@ export function Tabs({
                         "px-1.5 py-0.5 text-xs font-medium rounded-full",
                         "transition-all duration-300",
                         isActive
-                          ? "bg-primary-100 text-primary-700"
+                          ? "bg-primary-100 text-primary-600"
                           : "bg-surface-muted text-muted-fg"
                       )}
                     >

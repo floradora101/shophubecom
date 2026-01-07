@@ -93,7 +93,7 @@ export function LoadingSpinner({
             from 0deg,
             #dc2626 0deg,
             #b91c1c 90deg,
-            #991b1b 180deg,
+            #b91c1c 180deg,
             #b91c1c 270deg,
             #dc2626 360deg
           )`,

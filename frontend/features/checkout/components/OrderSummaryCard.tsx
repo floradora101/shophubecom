@@ -5,6 +5,7 @@ import { ProductImage } from "@/components/ui/product-image";
 import { Price } from "@/components/ui/price";
 import { Badge } from "@/components/ui/badge";
 import { Heading, Text } from "@/components/ui/typography";
+import { CouponCodeInput } from "@/features/checkout/components/CouponCodeInput";
 import { useCart } from "@/features/cart/hooks";
 import { formatPrice } from "@/lib/utils/price";
 import { cn } from "@/lib/utils/cn";
@@ -17,6 +18,13 @@ interface OrderSummaryCardProps {
   className?: string;
   variant?: "default" | "compact";
   showShippingIcon?: boolean;
+  // Coupon props
+  couponCode?: string;
+  couponDiscount?: number;
+  couponError?: string;
+  isValidatingCoupon?: boolean;
+  onApplyCoupon?: (code: string) => Promise<void>;
+  onRemoveCoupon?: () => void;
 }
 
 export function OrderSummaryCard({
@@ -26,12 +34,19 @@ export function OrderSummaryCard({
   className,
   variant = "default",
   showShippingIcon = true,
+  // Coupon props
+  couponCode,
+  couponDiscount = 0,
+  couponError,
+  isValidatingCoupon = false,
+  onApplyCoupon,
+  onRemoveCoupon,
 }: OrderSummaryCardProps) {
   const { items, subtotal } = useCart();
 
   const shippingCost =
-    shippingOption === "pickup" ? 0 : shippingOption === "beirut" ? 3 : 5;
-  const total = subtotal + shippingCost;
+    shippingOption === "pickup" ? 0 : shippingOption === "beirut" ? 0 : 5;
+  const total = subtotal + shippingCost - couponDiscount;
 
   const isEmpty = items.length === 0;
 
@@ -66,7 +81,7 @@ export function OrderSummaryCard({
       case "pickup":
         return "Free";
       case "beirut":
-        return "$3.00";
+        return "Free";
       case "outside":
         return "$5.00";
       default:
@@ -175,6 +190,31 @@ export function OrderSummaryCard({
           </div>
         </div>
 
+        {/* Coupon Section */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 pb-2 border-b border-warm-gray-100">
+            <Package className="h-4 w-4 text-warm-gray-500" />
+            <Text
+              variant="meta"
+              className="font-medium text-warm-gray-900 uppercase tracking-wide"
+            >
+              Coupon Code
+            </Text>
+          </div>
+
+          <CouponCodeInput
+            value=""
+            onApply={onApplyCoupon || (() => Promise.resolve())}
+            onRemove={onRemoveCoupon || (() => {})}
+            isApplied={!!couponCode}
+            appliedCode={couponCode}
+            discountAmount={couponDiscount}
+            error={couponError}
+            isValidating={isValidatingCoupon}
+            disabled={isSubmitting}
+          />
+        </div>
+
         {/* Pricing Breakdown */}
         <div className="space-y-4">
           <div className="flex items-center gap-2 pb-2 border-b border-warm-gray-100">
@@ -208,6 +248,18 @@ export function OrderSummaryCard({
                 {getShippingPrice()}
               </Text>
             </div>
+
+            {/* Discount */}
+            {couponDiscount > 0 && (
+              <div className="flex items-center justify-between">
+                <Text variant="meta" className="text-green-600">
+                  Discount ({couponCode})
+                </Text>
+                <Text variant="meta" className="font-medium text-green-600">
+                  -${couponDiscount.toFixed(2)}
+                </Text>
+              </div>
+            )}
           </div>
 
           {/* Total */}

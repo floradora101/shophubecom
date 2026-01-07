@@ -140,7 +140,7 @@ export const HERO_SLIDES: HeroSlide[] = [
       variant: "editorial",
       placement: "center",
       maxWidth: "lg",
-      headlineDecoration: "accentBar",
+      headlineDecoration: "underline",
       badgeVariant: "solid",
     },
 
@@ -336,10 +336,10 @@ export const HERO_SLIDES: HeroSlide[] = [
     },
 
     textStyle: {
-      variant: "neon",
+      variant: "editorial",
       placement: "center",
       maxWidth: "lg",
-      headlineDecoration: "neon",
+      headlineDecoration: "glow",
       badgeVariant: "solid",
     },
 
@@ -358,6 +358,373 @@ export const HERO_SLIDES: HeroSlide[] = [
 
     overlay: {
       opacity: 0.7,
+      type: "solid",
+    },
+  },
+  // New trendy decoration showcase slides
+  {
+    id: "decoration-double-underline",
+    type: "LANDSCAPE_IMAGE",
+    priority: 65,
+    isActive: true,
+
+    content: {
+      badgeText: "Double Underline",
+      headline: "Double",
+      highlight: "Underline",
+      description:
+        "Bold double underline effect with primary and secondary lines for maximum impact.",
+    },
+
+    textStyle: {
+      variant: "minimal",
+      placement: "center",
+      maxWidth: "lg",
+      headlineDecoration: "doubleUnderline",
+      highlightEffect: "bounce",
+      badgeVariant: "solid",
+    },
+
+    ctaPrimary: {
+      label: "See Double Underline",
+      href: "/categories",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=800&fit=crop&crop=center",
+      alt: "Mountain with double underline text",
+      position: "center",
+    },
+
+    overlay: {
+      opacity: 0.4,
+      type: "solid",
+    },
+  },
+  {
+    id: "decoration-wavy-underline",
+    type: "LANDSCAPE_IMAGE",
+    priority: 66,
+    isActive: true,
+
+    content: {
+      badgeText: "Wavy",
+      headline: "Wavy",
+      highlight: "Underline",
+      description:
+        "Animated wavy underline that flows and pulses beneath the text.",
+    },
+
+    textStyle: {
+      variant: "glass",
+      placement: "center",
+      maxWidth: "lg",
+      headlineDecoration: "wavyUnderline",
+      highlightEffect: "pulse",
+      badgeVariant: "pill",
+    },
+
+    ctaPrimary: {
+      label: "See Wavy Underline",
+      href: "/categories",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&h=800&fit=crop&crop=center",
+      alt: "Forest with wavy underline text",
+      position: "center",
+    },
+
+    overlay: {
+      opacity: 0.5,
+      type: "gradient",
+    },
+  },
+  {
+    id: "decoration-boxed",
+    type: "LANDSCAPE_IMAGE",
+    priority: 67,
+    isActive: true,
+
+    content: {
+      badgeText: "Boxed",
+      headline: "Boxed",
+      highlight: "Text",
+      description:
+        "Text contained within a stylish red border box with subtle background blur.",
+    },
+
+    textStyle: {
+      variant: "editorial",
+      placement: "center",
+      maxWidth: "lg",
+      headlineDecoration: "boxed",
+      highlightEffect: "shimmer",
+      badgeVariant: "outline",
+    },
+
+    ctaPrimary: {
+      label: "See Boxed Text",
+      href: "/categories",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop&crop=center",
+      alt: "Urban landscape with boxed text",
+      position: "center",
+    },
+
+    overlay: {
+      opacity: 0.3,
+      type: "solid",
+    },
+  },
+  {
+    id: "decoration-shadow",
+    type: "LANDSCAPE_IMAGE",
+    priority: 68,
+    isActive: true,
+
+    content: {
+      badgeText: "Shadow",
+      headline: "Dramatic",
+      highlight: "Shadow",
+      description: "Multi-layered shadow effects creating depth and dimension.",
+    },
+
+    textStyle: {
+      variant: "minimal",
+      placement: "center",
+      maxWidth: "lg",
+      headlineDecoration: "shadow",
+      highlightEffect: "pulse",
+      badgeVariant: "solid",
+    },
+
+    ctaPrimary: {
+      label: "See Shadow Effect",
+      href: "/categories",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=800&fit=crop&crop=center",
+      alt: "Night city with shadow text",
+      position: "center",
+    },
+
+    overlay: {
+      opacity: 0.8,
+      type: "solid",
+    },
+  },
+  {
+    id: "decoration-metallic",
+    type: "LANDSCAPE_IMAGE",
+    priority: 69,
+    isActive: true,
+
+    content: {
+      badgeText: "Metallic",
+      headline: "Metallic",
+      highlight: "Finish",
+      description: "Chrome-like metallic gradient with reflective red accents.",
+    },
+
+    textStyle: {
+      variant: "glass",
+      placement: "center",
+      maxWidth: "lg",
+      headlineDecoration: "metallic",
+      highlightEffect: "pulse",
+      badgeVariant: "pill",
+    },
+
+    ctaPrimary: {
+      label: "See Metallic Text",
+      href: "/categories",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=800&fit=crop&crop=center",
+      alt: "Mountain with metallic text",
+      position: "center",
+    },
+
+    overlay: {
+      opacity: 0.6,
+      type: "gradient",
+    },
+  },
+  {
+    id: "decoration-glitch",
+    type: "LANDSCAPE_IMAGE",
+    priority: 70,
+    isActive: true,
+
+    content: {
+      badgeText: "Glitch",
+      headline: "Glitch",
+      highlight: "Effect",
+      description:
+        "Cyberpunk glitch animation with red and pink color distortions.",
+    },
+
+    textStyle: {
+      variant: "editorial",
+      placement: "center",
+      maxWidth: "lg",
+      headlineDecoration: "glitch",
+      highlightEffect: "bounce",
+      badgeVariant: "outline",
+    },
+
+    ctaPrimary: {
+      label: "See Glitch Effect",
+      href: "/categories",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&h=800&fit=crop&crop=center",
+      alt: "Forest with glitch text",
+      position: "center",
+    },
+
+    overlay: {
+      opacity: 0.4,
+      type: "solid",
+    },
+  },
+  // Silver/metallic style showcase slides
+  {
+    id: "decoration-silver-glow",
+    type: "LANDSCAPE_IMAGE",
+    priority: 71,
+    isActive: true,
+
+    content: {
+      badgeText: "Silver Glow",
+      headline: "Silver",
+      highlight: "Glow",
+      description: "Elegant silver glow effect with soft metallic radiance.",
+    },
+
+    textStyle: {
+      variant: "glass",
+      placement: "center",
+      maxWidth: "lg",
+      headlineDecoration: "silverGlow",
+      highlightEffect: "shimmer",
+      badgeVariant: "pill",
+    },
+
+    ctaPrimary: {
+      label: "See Silver Glow",
+      href: "/categories",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=800&fit=crop&crop=center",
+      alt: "Night city with silver glow text",
+      position: "center",
+    },
+
+    overlay: {
+      opacity: 0.8,
+      type: "solid",
+    },
+  },
+  {
+    id: "decoration-chrome",
+    type: "LANDSCAPE_IMAGE",
+    priority: 72,
+    isActive: true,
+
+    content: {
+      badgeText: "Chrome",
+      headline: "Chrome",
+      highlight: "Finish",
+      description: "Polished chrome gradient with reflective metallic sheen.",
+    },
+
+    textStyle: {
+      variant: "minimal",
+      placement: "center",
+      maxWidth: "lg",
+      headlineDecoration: "chrome",
+      highlightEffect: "pulse",
+      badgeVariant: "outline",
+    },
+
+    ctaPrimary: {
+      label: "See Chrome Effect",
+      href: "/categories",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop&crop=center",
+      alt: "Urban landscape with chrome text",
+      position: "center",
+    },
+
+    overlay: {
+      opacity: 0.6,
+      type: "gradient",
+    },
+  },
+  {
+    id: "decoration-platinum",
+    type: "LANDSCAPE_IMAGE",
+    priority: 73,
+    isActive: true,
+
+    content: {
+      badgeText: "Platinum",
+      headline: "Platinum",
+      highlight: "Luxury",
+      description:
+        "Premium platinum gradient with sophisticated metallic depth.",
+    },
+
+    textStyle: {
+      variant: "editorial",
+      placement: "center",
+      maxWidth: "lg",
+      headlineDecoration: "platinum",
+      highlightEffect: "bounce",
+      badgeVariant: "solid",
+    },
+
+    ctaPrimary: {
+      label: "See Platinum Effect",
+      href: "/categories",
+    },
+
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=800&fit=crop&crop=center",
+      alt: "Mountain with platinum text",
+      position: "center",
+    },
+
+    overlay: {
+      opacity: 0.5,
       type: "solid",
     },
   },
@@ -542,11 +909,11 @@ export const HERO_SLIDES: HeroSlide[] = [
     },
 
     textStyle: {
-      variant: "neon",
+      variant: "editorial",
       placement: "center",
       maxWidth: "md",
       badgeVariant: "solid",
-      headlineDecoration: "neon",
+      headlineDecoration: "glow",
     },
 
     ctaPrimary: {
@@ -834,7 +1201,7 @@ export const HERO_SLIDES: HeroSlide[] = [
       variant: "glass",
       placement: "left", // Block sits on left, text centered within block
       textAlign: "center", // Explicit center alignment (default for left/right)
-      maxWidth: "md",
+      maxWidth: "lg",
       headlineDecoration: "none",
       highlightEffect: "underlineGlow", // New highlight underline effect
       animation: {

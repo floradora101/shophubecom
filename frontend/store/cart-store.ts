@@ -55,10 +55,16 @@ interface CartState {
   cart: ClientCart | null;
   isLoading: boolean;
 
+  // Shipping option
+  shippingOption: "pickup" | "beirut" | "outside";
+
   // UI actions
   open: () => void;
   close: () => void;
   toggle: (open?: boolean) => void;
+
+  // Shipping actions
+  setShippingOption: (option: "pickup" | "beirut" | "outside") => void;
 
   // Cart data actions
   initializeCart: () => void;
@@ -81,7 +87,10 @@ export const useCartStore = create<CartState>()(
 
       // Cart data
       cart: null,
-      isLoading: false,
+      isLoading: true, // Start with loading true, will be set to false on initialization
+
+      // Shipping option
+      shippingOption: "pickup",
 
       // UI actions
       open: () => set({ isOpen: true }),
@@ -90,6 +99,9 @@ export const useCartStore = create<CartState>()(
         const target = open ?? !get().isOpen;
         set({ isOpen: target });
       },
+
+      // Shipping actions
+      setShippingOption: (option) => set({ shippingOption: option }),
 
       // Cart data actions
       initializeCart: () => {
@@ -104,7 +116,10 @@ export const useCartStore = create<CartState>()(
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           };
-          set({ cart: newCart });
+          set({ cart: newCart, isLoading: false });
+        } else {
+          // Cart already exists, just ensure loading is false
+          set({ isLoading: false });
         }
       },
 
@@ -234,7 +249,16 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: "client-cart-storage",
-      partialize: (state) => ({ cart: state.cart }),
+      partialize: (state) => ({
+        cart: state.cart,
+        shippingOption: state.shippingOption,
+      }),
+      onRehydrateStorage: () => (state) => {
+        // Set loading to false after rehydration
+        if (state) {
+          state.isLoading = false;
+        }
+      },
     }
   )
 );

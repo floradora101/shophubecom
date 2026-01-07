@@ -114,8 +114,21 @@ export interface LandscapeImageSlide
       | "glow"
       | "redAccent"
       | "neon"
-      | "redNeonGlow";
-    highlightEffect?: "none" | "underlineGlow"; // Special effects for highlight text
+      | "redNeonGlow"
+      | "doubleUnderline"
+      | "wavyUnderline"
+      | "animatedUnderline"
+      | "boxed"
+      | "shadow"
+      | "metallic"
+      | "glitch"
+      | "stripe"
+      | "silverGlow"
+      | "chrome"
+      | "silverOutline"
+      | "iceGlow"
+      | "platinum";
+    highlightEffect?: "none" | "underlineGlow" | "pulse" | "shimmer" | "bounce"; // Special effects for highlight text
     animation?: {
       maskReveal?: boolean; // Text mask reveal animation
       stagger?: boolean; // Staggered element animations

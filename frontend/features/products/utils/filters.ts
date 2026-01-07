@@ -33,6 +33,8 @@ export interface CanonicalFilters {
   maxPrice: number | null;
   sortBy: "latest" | "price-low" | "price-high" | "name";
   inStockOnly: boolean;
+  minRating: number | null;
+  brands: string[] | null;
 }
 
 const DEFAULT_FILTERS: CanonicalFilters = {
@@ -43,6 +45,8 @@ const DEFAULT_FILTERS: CanonicalFilters = {
   maxPrice: null,
   sortBy: "latest",
   inStockOnly: false,
+  minRating: null,
+  brands: null,
 };
 
 /**
@@ -111,6 +115,22 @@ export function parseFiltersFromSearchParams(
       ? false
       : DEFAULT_FILTERS.inStockOnly;
 
+  const minRatingRaw = searchParams.get("minRating");
+  const minRating = minRatingRaw
+    ? (() => {
+        const num = parseFloat(minRatingRaw);
+        return isNaN(num) || num < 0 || num > 5 ? null : num;
+      })()
+    : null;
+
+  const brandsRaw = searchParams.get("brands");
+  const brands = brandsRaw
+    ? brandsRaw
+        .split(",")
+        .filter((brand) => brand.trim().length > 0)
+        .map((brand) => brand.trim())
+    : null;
+
   return {
     category,
     search,
@@ -119,6 +139,8 @@ export function parseFiltersFromSearchParams(
     maxPrice,
     sortBy,
     inStockOnly,
+    minRating,
+    brands,
   };
 }
 
@@ -434,6 +456,28 @@ export function updateSearchParams(
       params.set("inStock", "true");
     } else {
       params.delete("inStock");
+    }
+  }
+
+  // Update minRating - delete when null/undefined
+  if (updates.minRating !== undefined) {
+    if (
+      updates.minRating !== null &&
+      updates.minRating >= 0 &&
+      updates.minRating <= 5
+    ) {
+      params.set("minRating", updates.minRating.toString());
+    } else {
+      params.delete("minRating");
+    }
+  }
+
+  // Update brands - delete when null/undefined or empty array
+  if (updates.brands !== undefined) {
+    if (updates.brands && updates.brands.length > 0) {
+      params.set("brands", updates.brands.join(","));
+    } else {
+      params.delete("brands");
     }
   }
 

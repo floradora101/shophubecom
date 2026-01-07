@@ -164,8 +164,13 @@ export function Header() {
     [categories]
   );
 
-  // Keyboard shortcut: Cmd/Ctrl+K to open search
+  // Keyboard shortcut: Cmd/Ctrl+K to open search (desktop only)
   useEffect(() => {
+    // Only enable keyboard shortcut on desktop screens (width >= 1024px)
+    const isDesktop = window.innerWidth >= 1024;
+
+    if (!isDesktop) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
@@ -203,8 +208,8 @@ export function Header() {
                 <Image
                   src="/logo.png"
                   alt="ShopHub Logo"
-                  width={100}
-                  height={100}
+                  width={120}
+                  height={120}
                   className="object-contain"
                 />
               </Link>

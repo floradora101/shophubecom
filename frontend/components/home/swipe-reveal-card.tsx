@@ -3,7 +3,7 @@
 
 import { useState, useRef } from "react";
 import Image from "next/image";
-import { ArrowLeft, ArrowRight, Tag } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { getProductImageWithPlaceholder } from "@/lib/utils";
 import { ProductCard } from "@/features/products/components/ProductCard";
 import type { Product } from "@/features/products/types";
@@ -79,11 +79,11 @@ export function SwipeRevealCard({
 
   // Handle colors for price reveal
   const colors = {
-    border: "border-primary-300",
-    borderHover: "border-primary-500",
-    bg: "bg-primary-400",
-    text: "text-primary-600",
-    icon: "text-primary-600",
+    border: "border-gray-300",
+    borderHover: "border-gray-500",
+    bg: "bg-gray-400",
+    text: "text-gray-600",
+    icon: "text-gray-600",
   };
 
   return (
@@ -101,11 +101,15 @@ export function SwipeRevealCard({
       {/* Reveal Layer - Use standard ProductCard component */}
       <div className="absolute inset-0 z-0 bg-white">
         <div className="p-4 h-full">
-          <ProductCard product={product} layout="vertical" hideDescription={true} />
+          <ProductCard
+            product={product}
+            layout="vertical"
+            hideDescription={true}
+          />
         </div>
       </div>
 
-      {/* Cover Layer - Always rendered, clipped from right (z-10) */}
+      {/* Cover Layer - Premium Tech Design */}
       {revealType === "price" && (
         <div
           className={`absolute inset-0 z-10 ${
@@ -113,93 +117,182 @@ export function SwipeRevealCard({
           }`}
           style={{ clipPath: coverClipPath }}
         >
-          {/* Animated gradient background */}
-          <div className="absolute inset-0 bg-linear-to-br from-warm-gray-600 via-warm-gray-700 to-warm-gray-800 animate-pulse opacity-90">
+          {/* Premium metallic gradient background with gray tones */}
+          <div className="absolute inset-0 bg-linear-to-br from-gray-900 via-gray-800 to-gray-900">
+            {/* Primary metallic gradient overlay */}
+            <div className="absolute inset-0 bg-linear-to-tl from-gray-800/50 via-slate-700/40 to-zinc-800/50"></div>
+
+            {/* Secondary accent gradient */}
             <div
-              className="absolute inset-0 bg-linear-to-tl from-primary-600/30 via-transparent to-primary-400/20 animate-pulse"
-              style={{ animationDelay: "1s" }}
+              className="absolute inset-0 bg-linear-to-r from-gray-600/15 via-transparent to-slate-600/15 animate-pulse"
+              style={{ animationDelay: "2s" }}
             ></div>
+
+            {/* Tech circuit pattern overlay */}
+            <div className="absolute inset-0 opacity-20">
+              <svg
+                className="w-full h-full"
+                viewBox="0 0 400 400"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <defs>
+                  <pattern
+                    id="circuit-pattern"
+                    x="0"
+                    y="0"
+                    width="40"
+                    height="40"
+                    patternUnits="userSpaceOnUse"
+                  >
+                    <path
+                      d="M20 0v20m0 0h20m-20 0v20m0-20h-20"
+                      stroke="currentColor"
+                      strokeWidth="0.5"
+                      className="text-gray-400/60"
+                    />
+                    <circle
+                      cx="20"
+                      cy="20"
+                      r="1"
+                      fill="currentColor"
+                      className="text-slate-400/40"
+                    />
+                  </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#circuit-pattern)" />
+              </svg>
+            </div>
           </div>
 
-          {/* Floating geometric shapes */}
+          {/* Floating tech elements */}
           <div className="absolute inset-0 overflow-hidden">
+            {/* Hexagonal nodes */}
             <div
-              className="absolute top-10 left-10 w-16 h-16 bg-white/20 rounded-full animate-bounce"
+              className="absolute top-12 left-8 w-12 h-12 border border-gray-400/30 rotate-45 animate-pulse"
               style={{ animationDelay: "0.5s" }}
-            ></div>
+            >
+              <div className="absolute inset-1 border border-slate-300/20 rotate-12"></div>
+            </div>
             <div
-              className="absolute top-20 right-16 w-8 h-8 bg-white/30 rounded-lg rotate-45 animate-pulse"
+              className="absolute top-24 right-12 w-8 h-8 border border-zinc-400/40 rotate-12 animate-pulse"
+              style={{ animationDelay: "1.8s" }}
+            >
+              <div className="absolute inset-0.5 border border-zinc-300/30"></div>
+            </div>
+
+            {/* Circuit connections */}
+            <div
+              className="absolute bottom-16 left-12 w-20 h-px bg-linear-to-r from-transparent via-gray-400/60 to-transparent animate-pulse"
               style={{ animationDelay: "1.2s" }}
             ></div>
             <div
-              className="absolute bottom-20 left-20 w-12 h-12 bg-white/25 rounded-full animate-bounce"
-              style={{ animationDelay: "2s" }}
+              className="absolute bottom-20 right-8 w-16 h-px bg-linear-to-r from-transparent via-slate-400/50 to-transparent animate-pulse"
+              style={{ animationDelay: "2.5s" }}
+            ></div>
+
+            {/* Data flow particles */}
+            <div
+              className="absolute bottom-24 left-16 w-2 h-2 bg-gray-400/80 rounded-full animate-bounce"
+              style={{ animationDelay: "0.8s" }}
             ></div>
             <div
-              className="absolute bottom-32 right-12 w-6 h-6 bg-white/35 rounded-lg rotate-12 animate-pulse"
-              style={{ animationDelay: "0.8s" }}
+              className="absolute bottom-28 right-16 w-1.5 h-1.5 bg-slate-400/70 rounded-full animate-bounce"
+              style={{ animationDelay: "1.5s" }}
             ></div>
           </div>
 
-          {/* Product Image - Blurred/Overlay with mystery effect */}
-          <div className="absolute inset-0 opacity-95">
+          {/* Product Image - Enhanced tech overlay */}
+          <div className="absolute inset-0 opacity-80">
             <Image
               src={productImage}
               alt={product.name}
               fill
-              className="object-cover blur-md scale-110"
+              className="object-cover blur-sm scale-105"
               sizes="(max-width: 768px) 100vw, 50vw"
             />
-            {/* Mystery overlay */}
-            <div className="absolute inset-0 bg-linear-to-br from-warm-gray-700/80 via-warm-gray-800/70 to-warm-gray-900/90"></div>
+            {/* Tech scan lines effect */}
+            <div className="absolute inset-0 bg-linear-to-b from-transparent via-slate-900/20 to-slate-900/40">
+              <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(107,114,128,0.03)_2px,rgba(107,114,128,0.03)_4px)] animate-pulse"></div>
+            </div>
           </div>
 
-          {/* Main Product Display with mystery elements */}
+          {/* Premium Tech Content */}
           <div className="relative z-10 text-center space-y-6 p-8">
-            {/* Mystery badge with animated elements */}
-            <div className="relative inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white/95 backdrop-blur-sm border border-primary-200 shadow-xl mb-4">
-              <div className="relative">
-                <Tag className="h-5 w-5 text-primary-600 animate-pulse" />
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping"></div>
-              </div>
-              <span className="text-sm font-bold text-primary-600 font-[var(--font-inter)] uppercase tracking-wide">
-                Secret Deal
-              </span>
-              <div className="flex gap-1">
-                <div className="w-1.5 h-1.5 bg-primary-400 rounded-full animate-pulse"></div>
-                <div
-                  className="w-1.5 h-1.5 bg-primary-400 rounded-full animate-pulse"
-                  style={{ animationDelay: "0.2s" }}
-                ></div>
-                <div
-                  className="w-1.5 h-1.5 bg-primary-400 rounded-full animate-pulse"
-                  style={{ animationDelay: "0.4s" }}
-                ></div>
+            {/* Tech badge with premium styling */}
+            <div className="relative inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-gray-800/95 backdrop-blur-xl border border-gray-600/50 shadow-2xl mb-4">
+              {/* Glow effect */}
+              <div className="absolute inset-0 rounded-2xl bg-linear-to-r from-gray-500/20 via-gray-500/20 to-gray-500/20 blur-sm"></div>
+
+              <div className="relative flex items-center gap-3">
+                {/* Tech icon */}
+                <div className="relative">
+                  <div className="w-6 h-6 border border-gray-400/60 rounded rotate-45 flex items-center justify-center">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                  </div>
+                  <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-gray-400 rounded-full animate-ping opacity-75"></div>
+                </div>
+
+                <span className="text-sm font-bold text-white uppercase tracking-wider">
+                  Premium Deal
+                </span>
+
+                {/* Status indicators */}
+                <div className="flex gap-1.5">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                  <div
+                    className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"
+                    style={{ animationDelay: "0.3s" }}
+                  ></div>
+                  <div
+                    className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"
+                    style={{ animationDelay: "0.6s" }}
+                  ></div>
+                </div>
               </div>
             </div>
 
-            {/* Product image with locked effect */}
-            <div className="relative w-36 h-36 mx-auto">
-              <div className="relative w-full h-full rounded-2xl overflow-hidden border-2 border-white/50 shadow-2xl">
+            {/* Enhanced product image display */}
+            <div className="relative w-40 h-40 mx-auto">
+              <div className="relative w-full h-full rounded-3xl overflow-hidden border border-slate-600/50 shadow-2xl">
+                {/* Tech frame */}
+                <div className="absolute inset-0 border-2 border-gray-400/30 rounded-3xl"></div>
+                <div className="absolute inset-2 border border-slate-400/20 rounded-2xl"></div>
+
                 <Image
                   src={productImage}
                   alt={product.name}
                   fill
                   className="object-cover"
-                  sizes="144px"
+                  sizes="160px"
                 />
+
+                {/* Corner accents */}
+                <div className="absolute top-2 left-2 w-3 h-3 border-l-2 border-t-2 border-gray-400/60"></div>
+                <div className="absolute top-2 right-2 w-3 h-3 border-r-2 border-t-2 border-gray-400/60"></div>
+                <div className="absolute bottom-2 left-2 w-3 h-3 border-l-2 border-b-2 border-gray-400/60"></div>
+                <div className="absolute bottom-2 right-2 w-3 h-3 border-r-2 border-b-2 border-gray-400/60"></div>
               </div>
             </div>
 
-            <div className="space-y-3">
-              <p className="text-base text-white font-[var(--font-inter)] drop-shadow-lg line-clamp-2">
+            <div className="space-y-4">
+              <p className="text-base text-white drop-shadow-lg line-clamp-2 leading-tight">
                 {product.name}
               </p>
-              {/* Swipe hint */}
-              <div className="mt-4 flex items-center justify-center gap-2 text-white/70">
-                <ArrowLeft className="h-4 w-4 animate-pulse" />
-                <span className="text-xs font-medium">Swipe to reveal</span>
-                <ArrowRight className="h-4 w-4 animate-pulse" />
+
+              {/* Enhanced swipe hint with tech styling */}
+              <div className="mt-6 flex items-center justify-center gap-3 text-slate-300">
+                <div className="flex items-center gap-1">
+                  <ArrowLeft className="h-4 w-4 animate-pulse text-gray-400" />
+                  <div className="w-6 h-px bg-linear-to-r from-transparent to-gray-400/60"></div>
+                </div>
+                <span className="text-xs font-medium uppercase tracking-wide">
+                  Swipe to Unlock
+                </span>
+                <div className="flex items-center gap-1">
+                  <div className="w-6 h-px bg-linear-to-l from-transparent to-gray-400/60"></div>
+                  <ArrowRight className="h-4 w-4 animate-pulse text-gray-400" />
+                </div>
               </div>
             </div>
           </div>

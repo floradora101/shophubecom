@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ShoppingCart, Sparkles, Clock, Heart } from "lucide-react";
+import { toast } from "sonner";
 import type { Product } from "../types";
 import {
   getEffectiveStock,
@@ -92,7 +93,7 @@ export function ProductCard({
     originalPrice = null;
   }
 
-  const handlePrimaryAction = (event: MouseEvent<HTMLButtonElement>) => {
+  const handlePrimaryAction = async (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
 
@@ -102,14 +103,23 @@ export function ProductCard({
     } else {
       // Exactly 1 variant - quick add with that variant
       const variant = product.variants![0];
-      if (!variant?.id) return; // Guard: variant must have id
-      addItem(product, {
-        variantId: variant.id,
-        variantSku: variant.sku ?? null,
-        // @ts-expect-error - selectedOptions type mismatch due to conditional type in AddItemOptions
-        selectedOptions: variant.options,
-      });
-      toggleCart(true);
+      if (!variant?.id) {
+        toast.error("Unable to add item to cart. Please try again.");
+        return;
+      }
+
+      try {
+        await addItem(product, {
+          variantId: variant.id,
+          variantSku: variant.sku ?? null,
+          selectedOptions: variant.options as Record<string, string>,
+        });
+        toast.success(`${product.name} added to cart!`);
+        toggleCart(true);
+      } catch (error) {
+        console.error("Failed to add item to cart:", error);
+        toast.error("Failed to add item to cart. Please try again.");
+      }
     }
   };
 
@@ -128,7 +138,7 @@ export function ProductCard({
           >
             <h3
               className={`${
-                compact ? "text-xs" : "text-sm md:text-base"
+                compact ? "text-xs" : "text-base"
               } font-trendy font-semibold text-warm-gray-900 line-clamp-2 hover:text-primary-600 transition-all duration-300 group-hover/title:translate-x-0.5 group-hover/title:scale-[1.02] transform`}
             >
               {product.name}
@@ -139,7 +149,7 @@ export function ProductCard({
           {product.description && !hideDescription && (
             <p
               className={`${
-                compact ? "text-xs" : "text-xs md:text-sm"
+                compact ? "text-xs" : "text-sm"
               } text-warm-gray-600 line-clamp-2 animate-in fade-in-0 slide-in-from-left-1 duration-500 delay-250`}
             >
               {product.description}
@@ -155,7 +165,7 @@ export function ProductCard({
             {hasPriceRange ? (
               <span
                 className={`${
-                  compact ? "text-xs" : "text-sm md:text-base"
+                  compact ? "text-xs" : "text-base"
                 } font-semibold text-warm-gray-900`}
               >
                 {formatPriceRange(product.minPrice!, product.maxPrice!)}
@@ -164,7 +174,7 @@ export function ProductCard({
               <>
                 <span
                   className={`${
-                    compact ? "text-xs" : "text-sm md:text-base"
+                    compact ? "text-xs" : "text-base"
                   } font-semibold text-warm-gray-900`}
                 >
                   {formatPrice(product.price)}
@@ -172,9 +182,7 @@ export function ProductCard({
                 {hasDiscount && originalPrice && (
                   <span
                     className={`relative text-warm-gray-400 font-medium rounded-sm bg-linear-to-r from-warm-gray-100/50 to-transparent ${
-                      compact
-                        ? "text-xs px-1 py-0.5"
-                        : "text-xs md:text-sm px-1.5 py-0.5"
+                      compact ? "text-xs px-1 py-0.5" : "text-sm px-1.5 py-0.5"
                     }`}
                   >
                     {formatPrice(originalPrice)}
@@ -225,7 +233,7 @@ export function ProductCard({
             ? compact
               ? "aspect-square w-24 h-24 shrink-0"
               : "aspect-square w-full max-w-48 shrink-0"
-            : "aspect-square w-full"
+            : "aspect-square w-1/2 mx-auto sm:w-3/4 md:w-full"
         } rounded-lg overflow-hidden transition-all duration-500 ease-out border border-warm-gray-200 hover:border-primary-300 hover:shadow-2xl hover:shadow-primary-500/10 bg-white ${
           compact ? "hover:scale-[1.01]" : "hover:scale-[1.02]"
         } group/card`}
@@ -261,7 +269,7 @@ export function ProductCard({
 
         {/* Discount Badge */}
         {hasDiscount && discountPercent > 0 && !compact && !hasPriceRange && (
-          <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-sticky animate-in fade-in-0 slide-in-from-left-2 duration-500">
+          <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-20 animate-in fade-in-0 slide-in-from-left-2 duration-500">
             <div className="font-bold text-[9px] sm:text-[10px] md:text-sm px-1 sm:px-1.5 md:px-3 py-0.5 md:py-1.5 shadow-xl shadow-red-500/20 text-white rounded-lg transition-all duration-300 hover:scale-110 hover:shadow-2xl hover:shadow-red-500/30 group/badge bg-linear-to-br from-red-500 to-red-600">
               <Sparkles className="inline-block mr-1 transition-transform duration-300 group-hover/badge:rotate-12 group-hover/badge:scale-110 animate-pulse h-2 w-2 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3" />
               <span>-{discountPercent}% OFF</span>
@@ -271,7 +279,7 @@ export function ProductCard({
 
         {/* Limited time badge */}
         {hasDiscount && discountPercent > 0 && !compact && !hasPriceRange && (
-          <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-sticky animate-in fade-in-0 slide-in-from-right-2 duration-500 delay-100">
+          <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-20 animate-in fade-in-0 slide-in-from-right-2 duration-500 delay-100">
             <div className="bg-white/95 backdrop-blur-sm font-semibold border border-primary-300 text-primary-600 px-0.5 sm:px-1 md:px-2 py-0.5 md:py-1 rounded-lg transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-lg group/limited">
               <Clock className="transition-transform duration-300 group-hover/limited:rotate-12 h-2 w-2 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3" />
             </div>
@@ -286,7 +294,7 @@ export function ProductCard({
             <div
               className={`absolute ${
                 compact ? "top-1 right-1" : "top-3 right-3"
-              } z-sticky animate-in fade-in-0 slide-in-from-right-2 duration-500`}
+              } z-20 animate-in fade-in-0 slide-in-from-right-2 duration-500`}
             >
               <div
                 className={`rounded-lg bg-linear-to-r from-yellow-500 to-orange-500 text-xs font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-yellow-500/30 group/lowstock ${
@@ -314,7 +322,7 @@ export function ProductCard({
         {/* Hover Overlay with Add to Cart */}
         {!isOutOfStock && !compact && (
           <div
-            className="absolute inset-0 flex items-center justify-center transition-all duration-500 ease-out z-modal bg-linear-to-t from-black/60 via-black/40 to-transparent opacity-0 group-hover/card:opacity-100"
+            className="absolute inset-0 flex items-center justify-center transition-all duration-500 ease-out z-30 bg-linear-to-t from-black/60 via-black/40 to-transparent opacity-0 group-hover/card:opacity-100"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
@@ -346,7 +354,7 @@ export function ProductCard({
               className={`inline-flex items-center gap-2 bg-linear-to-r from-red-500 to-red-600 text-white rounded-xl font-semibold hover:from-red-600 hover:to-red-700 active:from-red-700 active:to-red-800 transition-all duration-300 shadow-2xl shadow-red-500/30 hover:shadow-red-500/50 transform translate-y-6 group-hover/card:translate-y-0 group-hover/card:scale-105 hover:scale-110 active:scale-95 ${
                 compact
                   ? "px-4 py-2 text-xs"
-                  : "px-6 py-3 md:px-7 md:py-3.5 text-xs md:text-sm"
+                  : "px-6 py-3 md:px-7 md:py-3.5 text-sm"
               }`}
               aria-label={
                 requiresSelection
@@ -379,7 +387,7 @@ export function ProductCard({
           >
             <h3
               className={`${
-                compact ? "text-xs" : "text-sm md:text-base"
+                compact ? "text-xs" : "text-base"
               } font-trendy font-semibold text-warm-gray-900 line-clamp-2 hover:text-primary-600 transition-all duration-300 group-hover/title:translate-x-0.5 group-hover/title:scale-[1.02] transform`}
             >
               {product.name}
@@ -390,7 +398,7 @@ export function ProductCard({
           {product.description && !hideDescription && (
             <p
               className={`${
-                compact ? "text-xs" : "text-xs md:text-sm"
+                compact ? "text-xs" : "text-sm"
               } text-warm-gray-600 line-clamp-2 animate-in fade-in-0 slide-in-from-bottom-1 duration-500 delay-250`}
             >
               {product.description}
@@ -406,7 +414,7 @@ export function ProductCard({
             {hasPriceRange ? (
               <span
                 className={`${
-                  compact ? "text-xs" : "text-sm md:text-base"
+                  compact ? "text-xs" : "text-base"
                 } font-semibold text-warm-gray-900`}
               >
                 {formatPriceRange(product.minPrice!, product.maxPrice!)}
@@ -415,7 +423,7 @@ export function ProductCard({
               <>
                 <span
                   className={`${
-                    compact ? "text-xs" : "text-sm md:text-base"
+                    compact ? "text-xs" : "text-base"
                   } font-semibold text-warm-gray-900`}
                 >
                   {formatPrice(product.price)}
@@ -423,9 +431,7 @@ export function ProductCard({
                 {hasDiscount && originalPrice && (
                   <span
                     className={`relative text-warm-gray-400 font-medium rounded-sm bg-linear-to-r from-warm-gray-100/50 to-transparent ${
-                      compact
-                        ? "text-xs px-1 py-0.5"
-                        : "text-xs md:text-sm px-1.5 py-0.5"
+                      compact ? "text-xs px-1 py-0.5" : "text-sm px-1.5 py-0.5"
                     }`}
                   >
                     {formatPrice(originalPrice)}
@@ -443,7 +449,7 @@ export function ProductCard({
               !hasPriceRange && (
                 <span
                   className={`text-primary-600 font-medium bg-primary-50 rounded-full ${
-                    compact ? "text-xs px-1 py-0.5" : "text-xs px-1.5 py-0.5"
+                    compact ? "text-xs px-1 py-0.5" : "text-sm px-1.5 py-0.5"
                   }`}
                 >
                   Save {formatPrice(originalPrice - product.price)}

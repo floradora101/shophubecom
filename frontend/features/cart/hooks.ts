@@ -38,11 +38,7 @@ interface AddItemOptions {
   color?: string | null;
   storage?: string | null;
   image?: string | null;
-  selectedOptions?: Product["variants"] extends Array<infer T>
-    ? T extends { options?: infer O }
-      ? O
-      : never
-    : never;
+  selectedOptions?: Record<string, string>;
   variantId?: string | null;
   variantSku?: string | null;
 }
@@ -135,6 +131,10 @@ export function useCart() {
   const openCart = useCartStore((state) => state.open);
   const closeCart = useCartStore((state) => state.close);
   const toggleCart = useCartStore((state) => state.toggle);
+
+  // Shipping state from Zustand
+  const shippingOption = useCartStore((state) => state.shippingOption);
+  const setShippingOption = useCartStore((state) => state.setShippingOption);
 
   // Cart data operations from Zustand
   const cart = useCartStore((state) => state.cart);
@@ -267,6 +267,7 @@ export function useCart() {
     subtotal,
     isLoading,
     isAuthenticated,
+    shippingOption,
 
     // Actions
     addItem,
@@ -276,5 +277,6 @@ export function useCart() {
     openCart,
     closeCart,
     toggleCart,
+    setShippingOption,
   };
 }

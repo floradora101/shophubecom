@@ -13,6 +13,7 @@ import { ui } from "@/lib/ui-tokens";
 import { cn } from "@/lib/utils/cn";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import type { Product, Category } from "@/features/products/types";
 import { useCart } from "@/features/cart/hooks";
 import { getEffectiveStock } from "@/features/products/utils/inventory";
@@ -54,7 +55,7 @@ export function TrendingNowSkeleton() {
             {Array.from({ length: 5 }, (_, i) => (
               <div
                 key={i}
-                className={`flex-shrink-0 transition-all duration-300 ${
+                className={`shrink-0 transition-all duration-300 ${
                   i === 2 ? "scale-110 opacity-100 z-10" : "scale-90 opacity-60"
                 }`}
               >
@@ -108,7 +109,15 @@ interface TrendingNowProps {
 }
 
 const TrendingProductCard = memo(
-  ({ product, onCardClick }: { product: Product; onCardClick: () => void }) => {
+  ({
+    product,
+    onCardClick,
+    isCenter,
+  }: {
+    product: Product;
+    onCardClick: () => void;
+    isCenter: boolean;
+  }) => {
     const { addItem, toggleCart } = useCart();
     const router = useRouter();
 
@@ -122,7 +131,9 @@ const TrendingProductCard = memo(
     const discountInfo = getDiscountInfo(product);
     const { hasDiscount, discountPercent, originalPrice } = discountInfo;
 
-    const handlePrimaryAction = (event: MouseEvent<HTMLButtonElement>) => {
+    const handlePrimaryAction = async (
+      event: MouseEvent<HTMLButtonElement>
+    ) => {
       event.preventDefault();
       event.stopPropagation();
 
@@ -130,23 +141,37 @@ const TrendingProductCard = memo(
         router.push(`/products/${product.slug}`);
       } else {
         const variant = product.variants![0];
-        if (!variant?.id) return;
-        addItem(product, {
-          variantId: variant.id,
-          variantSku: variant.sku ?? null,
-          // @ts-expect-error - selectedOptions type mismatch due to conditional type in AddItemOptions
-          selectedOptions: variant.options,
-        });
-        toggleCart(true);
+        if (!variant?.id) {
+          toast.error("Unable to add item to cart. Please try again.");
+          return;
+        }
+
+        try {
+          await addItem(product, {
+            variantId: variant.id,
+            variantSku: variant.sku ?? null,
+            selectedOptions: variant.options as Record<string, string>,
+          });
+          toast.success(`${product.name} added to cart!`);
+          toggleCart(true);
+        } catch (error) {
+          console.error("Failed to add item to cart:", error);
+          toast.error("Failed to add item to cart. Please try again.");
+        }
       }
     };
 
     const handleCardClick = (e: MouseEvent) => {
-      // Only slide the card when clicked, don't navigate to product
+      // If card is in center position, navigate to product page
+      // Otherwise, center the card
       if (!(e.target as HTMLElement).closest("button")) {
         e.preventDefault();
         e.stopPropagation();
-        onCardClick();
+        if (isCenter) {
+          router.push(`/products/${product.slug}`);
+        } else {
+          onCardClick();
+        }
       }
     };
 
@@ -334,7 +359,7 @@ export function TrendingNow({ trendingProducts }: TrendingNowProps) {
             <div className="text-center md:text-left space-y-4 flex-1">
               <div
                 className={cn(
-                  "inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-orange-100 via-primary-100 to-orange-100 mb-2",
+                  "inline-flex items-center px-4 py-2 rounded-full bg-linear-to-r from-orange-100 via-primary-100 to-orange-100 mb-2",
                   ui.gap.xs
                 )}
               >
@@ -361,10 +386,11 @@ export function TrendingNow({ trendingProducts }: TrendingNowProps) {
               activeIndex={activeIndex}
               onActiveIndexChange={handleIndexChange}
               isMobile={isMobile}
-              renderCard={(product, index) => (
+              renderCard={(product, index, isCenter) => (
                 <TrendingProductCard
                   product={product}
                   onCardClick={() => handleIndexChange(index)}
+                  isCenter={isCenter}
                 />
               )}
             />

@@ -39,7 +39,7 @@ export function StickyPurchaseBar({
   if (!show) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-surface border-t border-border p-3 sm:p-4 z-50 shadow-lg">
+    <div className="fixed bottom-0 left-0 right-0 border-t border-border p-3 sm:p-4 z-[100] shadow-lg" style={{ backgroundColor: '#ffffff', opacity: 1, backdropFilter: 'none' }}>
       <div className="max-w-7xl mx-auto">
         {/* Product Title (mobile only) */}
         <div className="block sm:hidden mb-3">

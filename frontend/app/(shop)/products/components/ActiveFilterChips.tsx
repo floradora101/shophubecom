@@ -89,6 +89,32 @@ export function ActiveFilterChips({
     });
   }
 
+  // Rating filter
+  if (filters.minRating !== null) {
+    activeFilters.push({
+      key: "minRating",
+      label: "Rating",
+      value: `${filters.minRating}+ Stars`,
+    });
+  }
+
+  // Brands filter
+  if (filters.brands && filters.brands.length > 0) {
+    if (filters.brands.length === 1) {
+      activeFilters.push({
+        key: "brands",
+        label: "Brand",
+        value: filters.brands[0],
+      });
+    } else {
+      activeFilters.push({
+        key: "brands",
+        label: "Brands",
+        value: `${filters.brands.length} selected`,
+      });
+    }
+  }
+
   if (activeFilters.length === 0) {
     return null;
   }

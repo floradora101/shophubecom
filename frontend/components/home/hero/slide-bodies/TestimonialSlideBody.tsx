@@ -1,3 +1,5 @@
+"use client";
+
 import { memo } from "react";
 import { Star, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";

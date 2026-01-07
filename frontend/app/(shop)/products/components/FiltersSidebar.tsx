@@ -1,11 +1,5 @@
 /**
- * Filters Sidebar Component
- *
- * Desktop sticky sidebar with collapsible filter groups:
- * - Category
- * - Price Range
- * - Availability
- * - Seller Information
+ * Professional Filters Sidebar Component - Tech Store Edition
  */
 "use client";
 
@@ -15,18 +9,16 @@ import { Badge } from "@/components/ui/badge";
 import {
   DollarSign,
   ChevronDown,
-  Truck,
-  Phone,
-  RefreshCw,
   Package,
   Archive,
+  Star,
+  Shield,
+  CheckCircle,
 } from "lucide-react";
 import { Stack } from "@/components/ui/stack";
-import { theme } from "../../../../lib/config/theme";
 import { cn } from "@/lib/utils/cn";
 import type { Category } from "@/features/products/types";
 
-// Smart filter insights based on common user behavior
 const PRICE_RANGES = [
   { label: "Under $25", min: 0, max: 25, popular: true },
   { label: "$25 - $50", min: 25, max: 50, popular: false },
@@ -43,6 +35,11 @@ interface FiltersSidebarProps {
   onPriceRangeChange: (range: { min: number; max: number }) => void;
   inStockOnly: boolean;
   onInStockChange: (value: boolean) => void;
+  minRating: number | null;
+  onMinRatingChange: (rating: number | null) => void;
+  selectedBrands: string[] | null;
+  onBrandsChange: (brands: string[] | null) => void;
+  availableBrands?: string[];
 }
 
 export function FiltersSidebar({
@@ -53,26 +50,49 @@ export function FiltersSidebar({
   onPriceRangeChange,
   inStockOnly,
   onInStockChange,
+  minRating,
+  onMinRatingChange,
+  selectedBrands,
+  onBrandsChange,
+  availableBrands = [],
 }: FiltersSidebarProps) {
-  // Initialize local state from props
-  const [localMin, setLocalMin] = useState(() => priceRange.min.toString());
-  const [localMax, setLocalMax] = useState(() => priceRange.max.toString());
+  const [localMin, setLocalMin] = useState(() => {
+    const currentMin = priceRange.min;
+    return currentMin !== null && currentMin !== undefined
+      ? currentMin.toString()
+      : "";
+  });
+  const [localMax, setLocalMax] = useState(() => {
+    const currentMax = priceRange.max;
+    return currentMax !== null && currentMax !== undefined
+      ? currentMax.toString()
+      : "";
+  });
 
-  // Dropdown states - all closed by default
+  // Update local state when priceRange prop changes
+  useEffect(() => {
+    setLocalMin(
+      priceRange.min !== null && priceRange.min !== undefined
+        ? priceRange.min.toString()
+        : ""
+    );
+    setLocalMax(
+      priceRange.max !== null && priceRange.max !== undefined
+        ? priceRange.max.toString()
+        : ""
+    );
+  }, [priceRange.min, priceRange.max]);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isPriceOpen, setIsPriceOpen] = useState(false);
   const [isAvailabilityOpen, setIsAvailabilityOpen] = useState(false);
-  const [isSellerInfoOpen, setIsSellerInfoOpen] = useState(false);
-  const [isContactOpen, setIsContactOpen] = useState(false);
-
-  // Reset local state when priceRange prop changes externally
+  const [isRatingOpen, setIsRatingOpen] = useState(false);
+  const [isBrandsOpen, setIsBrandsOpen] = useState(false);
 
   useEffect(() => {
     setLocalMin(priceRange.min.toString());
     setLocalMax(priceRange.max.toString());
   }, [priceRange.min, priceRange.max]);
 
-  // Build category tree
   const categoryTree = (() => {
     const nodeMap = new Map<string, Category & { children: Category[] }>();
     categories.forEach((cat) => nodeMap.set(cat.id, { ...cat, children: [] }));
@@ -88,12 +108,28 @@ export function FiltersSidebar({
   })();
 
   const handlePriceFilter = () => {
-    const min = parseFloat(localMin);
-    const max = parseFloat(localMax);
-    onPriceRangeChange({
-      min: isNaN(min) || min < 0 ? 0 : min,
-      max: isNaN(max) || max < priceRange.min ? priceRange.max : max,
-    });
+    const minValue = localMin.trim();
+    const maxValue = localMax.trim();
+
+    // If both fields are empty, clear the price filter
+    if (!minValue && !maxValue) {
+      onPriceRangeChange({ min: null, max: null });
+      return;
+    }
+
+    const min = minValue ? parseFloat(minValue) : null;
+    const max = maxValue ? parseFloat(maxValue) : null;
+
+    // Validate inputs
+    const validMin = min !== null && !isNaN(min) && min >= 0 ? min : null;
+    const validMax = max !== null && !isNaN(max) && max >= 0 ? max : null;
+
+    // If min and max are both set and min > max, swap them
+    if (validMin !== null && validMax !== null && validMin > validMax) {
+      onPriceRangeChange({ min: validMax, max: validMin });
+    } else {
+      onPriceRangeChange({ min: validMin, max: validMax });
+    }
   };
 
   const renderCategory = (
@@ -101,23 +137,45 @@ export function FiltersSidebar({
     depth = 0
   ) => {
     const isActive = selectedCategory === cat.slug;
+    const hasChildren = cat.children && cat.children.length > 0;
+
     return (
-      <li key={cat.id} className="space-y-1">
+      <li key={cat.id} className="space-y-2">
         <button
           onClick={() => onCategoryChange(cat.slug)}
           className={cn(
-            "block w-full text-left text-sm py-1.5 transition-colors",
-            "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded",
+            "w-full text-left p-3 rounded-lg transition-all duration-200",
+            "flex items-center gap-3 group",
+            "hover:bg-primary-50 hover:border-primary-200 border border-transparent",
+            "focus:outline-none",
             isActive
-              ? "text-primary-600 font-medium"
-              : cn(theme.text.body, "hover:text-primary-600")
+              ? "bg-primary-50 border-primary-200 text-primary-700 font-medium shadow-sm"
+              : "text-warm-gray-700 hover:text-primary-600"
           )}
-          style={{ paddingLeft: `${depth * 16}px` }}
+          style={{
+            paddingLeft: `${16 + depth * 20}px`,
+            marginLeft: `${depth * 8}px`,
+          }}
         >
-          {cat.name}
+          <div className="flex items-center gap-3 flex-1">
+            <CheckCircle
+              className={cn(
+                "w-4 h-4 transition-colors shrink-0",
+                isActive
+                  ? "text-primary-600"
+                  : "text-warm-gray-400 group-hover:text-primary-500"
+              )}
+            />
+            <span className="text-sm truncate">{cat.name}</span>
+            {hasChildren && (
+              <Badge variant="outline" className="text-xs px-2 py-0.5 ml-auto">
+                {cat.children.length}
+              </Badge>
+            )}
+          </div>
         </button>
-        {cat.children && cat.children.length > 0 && (
-          <ul className="space-y-1">
+        {hasChildren && (
+          <ul className="space-y-2">
             {cat.children
               .sort((a, b) => a.name.localeCompare(b.name))
               .map((child) =>
@@ -133,371 +191,311 @@ export function FiltersSidebar({
   };
 
   return (
-    <Stack spacing="xl" className="sticky top-24 self-start">
-      {/* Category Filter Dropdown */}
-      <div className="border border-border rounded-lg overflow-hidden">
-        <button
-          onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-          className={cn(
-            "flex items-center justify-between w-full px-4 py-3 text-left",
-            "bg-surface-muted hover:bg-surface transition-colors",
-            "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-          )}
-          aria-expanded={isCategoryOpen}
-        >
-          <div className="flex items-center gap-2">
-            <Archive className="w-4 h-4 text-primary-600" />
-            <span className="text-sm font-semibold text-warm-gray-900 uppercase tracking-wide">
-              Categories
-            </span>
-          </div>
-          <ChevronDown
-            className={cn(
-              "h-4 w-4 text-muted-fg transition-transform duration-200",
-              isCategoryOpen && "rotate-180"
-            )}
-          />
-        </button>
+    <div className="sticky top-24 w-full">
+      <div className="w-full space-y-6">
+        <div className="text-center pb-2 border-b border-warm-gray-100">
+          <h3 className="text-sm font-semibold text-warm-gray-900">
+            Smart Filters
+          </h3>
+          <p className="text-xs text-warm-gray-600 mt-1">
+            Find exactly what you need
+          </p>
+        </div>
 
-        {isCategoryOpen && (
-          <div className="px-4 pb-4 bg-white">
-            <ul className="space-y-1">
-              <li>
+        {/* Category Filter */}
+        <div className="bg-white rounded-xl border border-warm-gray-200 shadow-sm overflow-hidden min-h-[60px]">
+          <button
+            onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+            className="flex items-center justify-between w-full px-5 py-4 text-left bg-warm-gray-50 hover:bg-primary-50 transition-colors"
+            aria-expanded={isCategoryOpen}
+          >
+            <div className="flex items-center gap-3">
+              <Archive className="w-4 h-4 text-primary-600" />
+              <span className="text-sm font-semibold text-warm-gray-900">
+                Categories
+              </span>
+            </div>
+            <ChevronDown
+              className={cn(
+                "h-4 w-4 text-warm-gray-500 transition-transform",
+                isCategoryOpen && "rotate-180"
+              )}
+            />
+          </button>
+
+          {isCategoryOpen && (
+            <div className="px-5 pb-5 border-t border-warm-gray-100">
+              <div className="pt-4">
                 <button
                   onClick={() => onCategoryChange(null)}
                   className={cn(
-                    "block w-full text-left text-sm py-1.5 transition-colors",
-                    "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded",
+                    "w-full text-left mb-3 p-3 rounded-lg transition-colors",
                     !selectedCategory
-                      ? "text-primary-600 font-medium"
-                      : cn(theme.text.body, "hover:text-primary-600")
+                      ? "bg-primary-50 text-primary-700 font-medium"
+                      : "text-warm-gray-700 hover:bg-primary-50"
                   )}
                 >
                   All Products
                 </button>
-              </li>
-              {categoryTree
-                .sort((a, b) => a.name.localeCompare(b.name))
-                .map((category) => renderCategory(category, 0))}
-            </ul>
-          </div>
-        )}
-      </div>
-
-      {/* Price Range Filter Dropdown */}
-      <div className="border border-border rounded-lg overflow-hidden">
-        <button
-          onClick={() => setIsPriceOpen(!isPriceOpen)}
-          className={cn(
-            "flex items-center justify-between w-full px-4 py-3 text-left",
-            "bg-surface-muted hover:bg-surface transition-colors",
-            "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-          )}
-          aria-expanded={isPriceOpen}
-        >
-          <div className="flex items-center gap-2">
-            <DollarSign className="w-4 h-4 text-primary-600" />
-            <span className="text-sm font-semibold text-warm-gray-900 uppercase tracking-wide">
-              Price Range
-            </span>
-          </div>
-          <ChevronDown
-            className={cn(
-              "h-4 w-4 text-muted-fg transition-transform duration-200",
-              isPriceOpen && "rotate-180"
-            )}
-          />
-        </button>
-
-        {isPriceOpen && (
-          <div className="px-4 pb-4 bg-white space-y-4">
-            {/* Quick Price Presets */}
-            <div className="space-y-2">
-              <div className="text-xs font-medium text-warm-gray-600 uppercase tracking-wide">
-                Quick Select
+                <ul className="space-y-2">
+                  {categoryTree.map((category) => renderCategory(category, 0))}
+                </ul>
               </div>
-              <div className="grid grid-cols-1 gap-1">
-                {PRICE_RANGES.map((preset) => (
+            </div>
+          )}
+        </div>
+
+        {/* Price Filter */}
+        <div className="bg-white rounded-xl border border-warm-gray-200 shadow-sm overflow-hidden min-h-[60px]">
+          <button
+            onClick={() => setIsPriceOpen(!isPriceOpen)}
+            className="flex items-center justify-between w-full px-5 py-4 text-left bg-warm-gray-50 hover:bg-green-50 transition-colors"
+            aria-expanded={isPriceOpen}
+          >
+            <div className="flex items-center gap-3">
+              <DollarSign className="w-4 h-4 text-green-600" />
+              <span className="text-sm font-semibold text-warm-gray-900">
+                Price Range
+              </span>
+            </div>
+            <ChevronDown
+              className={cn(
+                "h-4 w-4 text-warm-gray-500 transition-transform",
+                isPriceOpen && "rotate-180"
+              )}
+            />
+          </button>
+
+          {isPriceOpen && (
+            <div className="px-5 pb-5 border-t border-warm-gray-100">
+              <div className="pt-4 space-y-4">
+                {/* Quick Price Presets */}
+                <div>
+                  <div className="text-xs font-semibold text-warm-gray-700 uppercase tracking-wide mb-2">
+                    Quick Select
+                  </div>
+                  <div className="grid grid-cols-1 gap-2">
+                    {PRICE_RANGES.map((preset) => (
+                      <button
+                        key={preset.label}
+                        onClick={() =>
+                          onPriceRangeChange({
+                            min: preset.min,
+                            max: preset.max,
+                          })
+                        }
+                        className="w-full text-left p-3 rounded-lg hover:bg-green-50 transition-colors border border-warm-gray-200 text-sm"
+                      >
+                        {preset.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Custom Price Range Inputs */}
+                <div className="border-t border-warm-gray-100 pt-4">
+                  <div className="text-xs font-semibold text-warm-gray-700 uppercase tracking-wide mb-3">
+                    Custom Range
+                  </div>
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label htmlFor="min-price" className="sr-only">
+                          Minimum price
+                        </label>
+                        <input
+                          id="min-price"
+                          type="number"
+                          placeholder="Min"
+                          value={localMin}
+                          onChange={(e) => setLocalMin(e.target.value)}
+                          className="w-full px-3 py-2 text-sm border border-warm-gray-200 rounded-lg bg-white focus:outline-none placeholder:text-warm-gray-400"
+                          min="0"
+                          step="0.01"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="max-price" className="sr-only">
+                          Maximum price
+                        </label>
+                        <input
+                          id="max-price"
+                          type="number"
+                          placeholder="Max"
+                          value={localMax}
+                          onChange={(e) => setLocalMax(e.target.value)}
+                          className="w-full px-3 py-2 text-sm border border-warm-gray-200 rounded-lg bg-white focus:outline-none placeholder:text-warm-gray-400"
+                          min="0"
+                          step="0.01"
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      onClick={handlePriceFilter}
+                      size="sm"
+                      className="w-full bg-green-600 hover:bg-green-700 text-white"
+                      disabled={!localMin && !localMax}
+                    >
+                      Apply Custom Range
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Availability Filter */}
+        <div className="bg-white rounded-xl border border-warm-gray-200 shadow-sm overflow-hidden min-h-[60px]">
+          <button
+            onClick={() => setIsAvailabilityOpen(!isAvailabilityOpen)}
+            className="flex items-center justify-between w-full px-5 py-4 text-left bg-warm-gray-50 hover:bg-orange-50 transition-colors"
+            aria-expanded={isAvailabilityOpen}
+          >
+            <div className="flex items-center gap-3">
+              <Package className="w-4 h-4 text-orange-600" />
+              <span className="text-sm font-semibold text-warm-gray-900">
+                Availability
+              </span>
+            </div>
+            <ChevronDown
+              className={cn(
+                "h-4 w-4 text-warm-gray-500 transition-transform",
+                isAvailabilityOpen && "rotate-180"
+              )}
+            />
+          </button>
+
+          {isAvailabilityOpen && (
+            <div className="px-5 pb-5 border-t border-warm-gray-100">
+              <div className="pt-4">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={inStockOnly}
+                    onChange={(e) => onInStockChange(e.target.checked)}
+                    className="rounded border-warm-gray-300 text-orange-600"
+                  />
+                  <span className="text-sm text-warm-gray-700">
+                    In Stock Only
+                  </span>
+                </label>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Rating Filter */}
+        <div className="bg-white rounded-xl border border-warm-gray-200 shadow-sm overflow-hidden min-h-[60px]">
+          <button
+            onClick={() => setIsRatingOpen(!isRatingOpen)}
+            className="flex items-center justify-between w-full px-5 py-4 text-left bg-warm-gray-50 hover:bg-yellow-50 transition-colors"
+            aria-expanded={isRatingOpen}
+          >
+            <div className="flex items-center gap-3">
+              <Star className="w-4 h-4 text-yellow-600" />
+              <span className="text-sm font-semibold text-warm-gray-900">
+                Rating
+              </span>
+            </div>
+            <ChevronDown
+              className={cn(
+                "h-4 w-4 text-warm-gray-500 transition-transform",
+                isRatingOpen && "rotate-180"
+              )}
+            />
+          </button>
+
+          {isRatingOpen && (
+            <div className="px-5 pb-5 border-t border-warm-gray-100">
+              <div className="pt-4 space-y-2">
+                {[4, 3, 2, 1].map((rating) => (
                   <button
-                    key={preset.label}
+                    key={rating}
                     onClick={() =>
-                      onPriceRangeChange({ min: preset.min, max: preset.max })
+                      onMinRatingChange(minRating === rating ? null : rating)
                     }
                     className={cn(
-                      "group flex items-center justify-between p-2 rounded-lg text-sm transition-all duration-200",
-                      "hover:bg-primary-50 hover:border-primary-200 border border-transparent",
-                      preset.popular && "relative"
+                      "w-full text-left p-3 rounded-lg transition-colors",
+                      minRating === rating
+                        ? "bg-yellow-50 text-yellow-700 font-medium"
+                        : "text-warm-gray-700 hover:bg-yellow-50"
                     )}
                   >
-                    <span className="text-warm-gray-700 group-hover:text-primary-600">
-                      {preset.label}
-                    </span>
-                    {preset.popular && (
-                      <Badge
-                        variant="secondary"
-                        className="text-xs px-1.5 py-0.5 bg-primary-100 text-primary-600"
-                      >
-                        Popular
-                      </Badge>
-                    )}
+                    {rating}+ Stars
                   </button>
                 ))}
               </div>
             </div>
-
-            {/* Custom Range */}
-            <div className="space-y-2">
-              <div className="text-xs font-medium text-warm-gray-600 uppercase tracking-wide">
-                Custom Range
-              </div>
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="flex-1">
-                    <label htmlFor="min-price" className="sr-only">
-                      Minimum price
-                    </label>
-                    <input
-                      id="min-price"
-                      type="number"
-                      placeholder="Min"
-                      value={localMin}
-                      onChange={(e) => setLocalMin(e.target.value)}
-                      className={cn(
-                        "w-full px-3 py-2 text-sm",
-                        theme.border.base,
-                        theme.radius.card,
-                        "bg-white",
-                        "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2",
-                        "placeholder:text-warm-gray-400"
-                      )}
-                      min="0"
-                      step="0.01"
-                    />
-                  </div>
-                  <span className={cn(theme.text.muted, "text-sm")}>—</span>
-                  <div className="flex-1">
-                    <label htmlFor="max-price" className="sr-only">
-                      Maximum price
-                    </label>
-                    <input
-                      id="max-price"
-                      type="number"
-                      placeholder="Max"
-                      value={localMax}
-                      onChange={(e) => setLocalMax(e.target.value)}
-                      className={cn(
-                        "w-full px-3 py-2 text-sm",
-                        theme.border.base,
-                        theme.radius.card,
-                        "bg-white",
-                        "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2",
-                        "placeholder:text-warm-gray-400"
-                      )}
-                      min="0"
-                      step="0.01"
-                    />
-                  </div>
-                </div>
-                <Button
-                  onClick={handlePriceFilter}
-                  size="sm"
-                  className="w-full"
-                  aria-label="Apply price filter"
-                >
-                  Apply
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Availability Filter Dropdown */}
-      <div className="border border-border rounded-lg overflow-hidden">
-        <button
-          onClick={() => setIsAvailabilityOpen(!isAvailabilityOpen)}
-          className={cn(
-            "flex items-center justify-between w-full px-4 py-3 text-left",
-            "bg-surface-muted hover:bg-surface transition-colors",
-            "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
           )}
-          aria-expanded={isAvailabilityOpen}
-        >
-          <div className="flex items-center gap-2">
-            <Package className="w-4 h-4 text-primary-600" />
-            <span className="text-sm font-semibold text-warm-gray-900 uppercase tracking-wide">
-              Availability
-            </span>
-          </div>
-          <ChevronDown
-            className={cn(
-              "h-4 w-4 text-muted-fg transition-transform duration-200",
-              isAvailabilityOpen && "rotate-180"
-            )}
-          />
-        </button>
+        </div>
 
-        {isAvailabilityOpen && (
-          <div className="px-4 pb-4 bg-white">
-            <div className="space-y-3">
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={inStockOnly}
-                  onChange={(e) => onInStockChange(e.target.checked)}
-                  className={cn(
-                    "w-4 h-4 rounded",
-                    theme.border.base,
-                    "text-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-                  )}
-                  aria-label="Show only in-stock products"
-                />
-                <span
-                  className={cn(
-                    theme.text.body,
-                    "text-sm group-hover:text-warm-gray-900"
-                  )}
-                >
-                  In Stock Only
+        {/* Brands Filter */}
+        {availableBrands && availableBrands.length > 0 && (
+          <div className="bg-white rounded-xl border border-warm-gray-200 shadow-sm overflow-hidden min-h-[60px]">
+            <button
+              onClick={() => setIsBrandsOpen(!isBrandsOpen)}
+              className="flex items-center justify-between w-full px-5 py-4 text-left bg-warm-gray-50 hover:bg-indigo-50 transition-colors"
+              aria-expanded={isBrandsOpen}
+            >
+              <div className="flex items-center gap-3">
+                <Shield className="w-4 h-4 text-indigo-600" />
+                <span className="text-sm font-semibold text-warm-gray-900">
+                  Brands
                 </span>
-              </label>
-
-              <div className="text-xs text-muted-fg">
-                <p>Products with immediate availability</p>
               </div>
-            </div>
-          </div>
-        )}
-      </div>
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 text-warm-gray-500 transition-transform",
+                  isBrandsOpen && "rotate-180"
+                )}
+              />
+            </button>
 
-      {/* Seller Information Dropdown */}
-      <div className="border border-slate-200 rounded-lg overflow-hidden -mt-1">
-        <button
-          onClick={() => setIsSellerInfoOpen(!isSellerInfoOpen)}
-          className={cn(
-            "flex items-center justify-between w-full px-4 py-3 text-left",
-            "bg-surface-muted hover:bg-surface transition-colors",
-            "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-          )}
-          aria-expanded={isSellerInfoOpen}
-        >
-          <div className="flex items-center gap-2">
-            <Package className="w-4 h-4 text-primary-600" />
-            <span className="text-sm font-semibold text-warm-gray-900 uppercase tracking-wide">
-              Store Policies
-            </span>
-          </div>
-          <ChevronDown
-            className={cn(
-              "h-4 w-4 text-muted-fg transition-transform duration-200",
-              isSellerInfoOpen && "rotate-180"
+            {isBrandsOpen && (
+              <div className="px-5 pb-5 border-t border-warm-gray-100">
+                <div className="pt-4 space-y-2">
+                  {availableBrands.map((brand) => {
+                    const isSelected = selectedBrands?.includes(brand) || false;
+                    return (
+                      <label
+                        key={brand}
+                        className="flex items-center gap-3 cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) => {
+                            const newBrands = e.target.checked
+                              ? [...(selectedBrands || []), brand]
+                              : (selectedBrands || []).filter(
+                                  (b) => b !== brand
+                                );
+                            onBrandsChange(
+                              newBrands.length > 0 ? newBrands : null
+                            );
+                          }}
+                          className="rounded border-warm-gray-300 text-indigo-600"
+                        />
+                        <span
+                          className={cn(
+                            "text-sm",
+                            isSelected
+                              ? "text-indigo-700 font-medium"
+                              : "text-warm-gray-700"
+                          )}
+                        >
+                          {brand}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
             )}
-          />
-        </button>
-
-        {isSellerInfoOpen && (
-          <div className="px-4 pt-4 pb-4 bg-white space-y-2">
-            {/* Free Shipping */}
-            <div className="flex items-center gap-3 p-4 bg-primary-50 rounded-lg border border-primary-200/50">
-              <Truck className="w-5 h-5 text-primary-600 shrink-0" />
-              <div>
-                <p className="text-sm font-medium text-primary-700">
-                  Free Delivery
-                </p>
-                <p className="text-xs text-primary-600">All over Lebanon</p>
-              </div>
-            </div>
-
-            {/* Same Day Delivery */}
-            <div className="flex items-center gap-3 p-4 bg-primary-100 rounded-lg border border-primary-300/50">
-              <Truck className="w-5 h-5 text-primary-600 shrink-0" />
-              <div>
-                <p className="text-sm font-medium text-primary-800">
-                  Same Day Delivery
-                </p>
-                <p className="text-xs text-primary-700">Inside Beirut area</p>
-              </div>
-            </div>
-
-            {/* Exchange Policy */}
-            <div className="flex items-center gap-3 p-4 bg-primary-200 rounded-lg border border-primary-400/50">
-              <RefreshCw className="w-5 h-5 text-primary-600 shrink-0" />
-              <div>
-                <p className="text-sm font-medium text-primary-900">
-                  Easy Exchange
-                </p>
-                <p className="text-xs text-primary-800">
-                  3 days exchange policy
-                </p>
-              </div>
-            </div>
           </div>
         )}
       </div>
-
-      {/* Contact Us Dropdown */}
-      <div className="border border-slate-200 rounded-lg overflow-hidden -mt-1">
-        <button
-          onClick={() => setIsContactOpen(!isContactOpen)}
-          className={cn(
-            "flex items-center justify-between w-full px-4 py-3 text-left",
-            "bg-surface-muted hover:bg-surface transition-colors",
-            "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-          )}
-          aria-expanded={isContactOpen}
-        >
-          <div className="flex items-center gap-2">
-            <Phone className="w-4 h-4 text-primary-600" />
-            <span className="text-sm font-semibold text-warm-gray-900 uppercase tracking-wide">
-              Contact Us
-            </span>
-          </div>
-          <ChevronDown
-            className={cn(
-              "h-4 w-4 text-muted-fg transition-transform duration-200",
-              isContactOpen && "rotate-180"
-            )}
-          />
-        </button>
-
-        {isContactOpen && (
-          <div className="px-4 pt-4 pb-4 bg-white space-y-2">
-            {/* Phone Contact */}
-            <div className="flex items-center gap-3 p-4 bg-primary-50 rounded-lg border border-primary-200/50">
-              <Phone className="w-5 h-5 text-primary-600 shrink-0" />
-              <div>
-                <p className="text-sm font-medium text-primary-700">
-                  Phone Support
-                </p>
-                <p className="text-xs text-primary-600">+961 3 123 456</p>
-              </div>
-            </div>
-
-            {/* Email Contact */}
-            <div className="flex items-center gap-3 p-4 bg-primary-100 rounded-lg border border-primary-300/50">
-              <svg
-                className="w-5 h-5 text-primary-600 shrink-0"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                />
-              </svg>
-              <div>
-                <p className="text-sm font-medium text-primary-800">
-                  Email Support
-                </p>
-                <p className="text-xs text-primary-700">support@shophub.com</p>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </Stack>
+    </div>
   );
 }

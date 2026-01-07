@@ -6,12 +6,12 @@ import type {
 // Landscape overlay styling configurations
 const OVERLAY_VARIANTS = {
   solid: {
-    defaultOpacity: 0.4,
+    defaultOpacity: 0.3, // Lighter on mobile for better readability
     className: "bg-black",
   },
   gradient: {
-    defaultOpacity: 0.5,
-    className: "bg-gradient-to-t from-black/60 via-black/20 to-transparent",
+    defaultOpacity: 0.4, // Lighter on mobile for better readability
+    className: "bg-gradient-to-t from-black/50 via-black/15 to-transparent",
   },
 } as const;
 
@@ -20,52 +20,56 @@ const TEXT_VARIANTS = {
   minimal: {
     container: "",
     badge:
-      "inline-flex items-center px-4 py-2 text-sm font-bold tracking-wide uppercase mb-4",
-    subtitle: "text-lg font-medium text-white mb-3",
+      "inline-flex items-center px-3 py-1.5 text-xs font-bold tracking-wide uppercase mb-3 sm:px-4 sm:py-2 sm:text-sm sm:mb-4",
+    subtitle: "text-base font-medium text-white mb-2 sm:text-lg sm:mb-3",
     headline:
-      "text-4xl md:text-5xl lg:text-6xl font-display font-bold italic text-white leading-tight mb-4",
+      "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold italic text-white leading-tight mb-3 sm:mb-4",
     highlight:
-      "text-4xl md:text-5xl lg:text-6xl font-sans font-bold text-white leading-tight",
-    description: "text-xl text-white mt-6 max-w-xl leading-relaxed",
-    buttons: "mt-8 flex flex-col sm:flex-row gap-4",
+      "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-sans font-bold text-white leading-tight",
+    description:
+      "text-base sm:text-lg md:text-xl text-white mt-4 sm:mt-6 max-w-xl leading-relaxed",
+    buttons: "mt-6 flex flex-col gap-3 sm:flex-row sm:gap-4 sm:mt-8",
   },
   glass: {
     container:
-      "backdrop-blur-sm bg-white/10 rounded-2xl p-8 border border-white/20",
+      "backdrop-blur-sm bg-white/10 rounded-2xl p-4 sm:p-6 md:p-8 border border-white/20",
     badge:
-      "inline-flex items-center px-4 py-2 text-sm font-bold tracking-wide uppercase mb-4",
-    subtitle: "text-lg font-medium text-white mb-3",
+      "inline-flex items-center px-3 py-1.5 text-xs font-bold tracking-wide uppercase mb-3 sm:px-4 sm:py-2 sm:text-sm sm:mb-4",
+    subtitle: "text-base font-medium text-white mb-2 sm:text-lg sm:mb-3",
     headline:
-      "text-4xl md:text-5xl lg:text-6xl font-display font-bold italic text-white leading-tight mb-4",
+      "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold italic text-white leading-tight mb-3 sm:mb-4",
     highlight:
-      "text-4xl md:text-5xl lg:text-6xl font-sans font-bold text-white leading-tight",
-    description: "text-xl text-white mt-6 max-w-xl leading-relaxed",
-    buttons: "mt-10 flex flex-col sm:flex-row gap-4",
+      "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-sans font-bold text-white leading-tight",
+    description:
+      "text-base sm:text-lg md:text-xl text-white mt-4 sm:mt-6 max-w-xl leading-relaxed",
+    buttons: "mt-6 flex flex-col gap-3 sm:flex-row sm:gap-4 sm:mt-10",
   },
   editorial: {
     container: "",
     badge:
-      "inline-flex items-center px-4 py-2 text-sm font-bold tracking-wide uppercase mb-4",
-    subtitle: "text-lg font-medium text-white/80 mb-3",
+      "inline-flex items-center px-3 py-1.5 text-xs font-bold tracking-wide uppercase mb-3 sm:px-4 sm:py-2 sm:text-sm sm:mb-4",
+    subtitle: "text-base font-medium text-white/80 mb-2 sm:text-lg sm:mb-3",
     headline:
-      "text-4xl md:text-5xl lg:text-6xl font-display font-bold italic text-white leading-tight mb-4",
+      "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold italic text-white leading-tight mb-3 sm:mb-4",
     highlight:
-      "text-4xl md:text-5xl lg:text-6xl font-sans font-bold text-white/90 leading-tight",
-    description: "text-xl text-white/70 mt-6 max-w-xl leading-relaxed",
-    buttons: "mt-10 flex flex-row gap-6",
+      "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-sans font-bold text-white/90 leading-tight",
+    description:
+      "text-base sm:text-lg md:text-xl text-white/70 mt-4 sm:mt-6 max-w-xl leading-relaxed",
+    buttons: "mt-6 flex flex-col gap-3 sm:flex-row sm:gap-6 sm:mt-10",
   },
   neon: {
     container: "",
     badge:
-      "inline-flex items-center px-4 py-2 text-sm font-bold tracking-wide border-2 uppercase mb-4",
-    subtitle: "text-lg font-semibold text-cyan-300 mb-3 drop-shadow-lg",
+      "inline-flex items-center px-3 py-1.5 text-xs font-bold tracking-wide border-2 uppercase mb-3 sm:px-4 sm:py-2 sm:text-sm sm:mb-4",
+    subtitle:
+      "text-base font-semibold text-cyan-300 mb-2 drop-shadow-lg sm:text-lg sm:mb-3",
     headline:
-      "text-4xl md:text-5xl lg:text-6xl font-display italic font-bold text-white leading-tight mb-4 drop-shadow-xl",
+      "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display italic font-bold text-white leading-tight mb-3 drop-shadow-xl sm:mb-4",
     highlight:
-      "text-4xl md:text-5xl lg:text-6xl font-sans font-bold text-cyan-300 leading-tight drop-shadow-xl",
+      "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-sans font-bold text-cyan-300 leading-tight drop-shadow-xl",
     description:
-      "text-xl text-white mt-6 max-w-xl leading-relaxed drop-shadow-md",
-    buttons: "mt-10 flex flex-col sm:flex-row gap-4",
+      "text-base sm:text-lg md:text-xl text-white mt-4 max-w-xl leading-relaxed drop-shadow-md sm:mt-6",
+    buttons: "mt-6 flex flex-col gap-3 sm:flex-row sm:gap-4 sm:mt-10",
   },
 } as const;
 
@@ -116,8 +120,7 @@ const HEADLINE_DECORATION_CLASSES = {
   none: "",
   underline:
     "underline decoration-2 underline-offset-4 decoration-[var(--hero-landscape-accent)]",
-  gradient:
-    "bg-gradient-to-r from-white via-[var(--hero-landscape-accent)] to-white bg-clip-text text-transparent",
+  gradient: "hero-gradient-text",
   accentBar:
     "relative before:absolute before:bottom-0 before:left-0 before:w-full before:h-1 before:bg-[var(--hero-landscape-accent)] before:rounded-sm",
   outline: "text-white outline-text",
@@ -127,12 +130,28 @@ const HEADLINE_DECORATION_CLASSES = {
   neon: "text-white drop-shadow-[0_0_5px_var(--hero-landscape-accent)] drop-shadow-[0_0_10px_var(--hero-landscape-accent)] drop-shadow-[0_0_15px_var(--hero-landscape-accent)]",
   redNeonGlow:
     "text-white drop-shadow-[0_0_8px_#ff0000] drop-shadow-[0_0_16px_#ff0000] drop-shadow-[0_0_24px_#ff0000] drop-shadow-[0_0_32px_#ff0000]",
+  doubleUnderline: "double-underline",
+  wavyUnderline: "wavy-underline",
+  animatedUnderline: "animated-underline",
+  boxed: "boxed",
+  shadow: "shadow",
+  metallic: "metallic",
+  glitch: "glitch",
+  stripe: "stripe",
+  silverGlow: "silver-glow",
+  chrome: "chrome",
+  silverOutline: "silver-outline",
+  iceGlow: "ice-glow",
+  platinum: "platinum",
 };
 
 // Highlight effect configurations
 const HIGHLIGHT_EFFECT_CLASSES = {
   none: "",
   underlineGlow: "landscape-highlight-underline",
+  pulse: "highlight-pulse",
+  shimmer: "highlight-shimmer",
+  bounce: "highlight-bounce",
 };
 
 export interface LandscapeOverlayClasses {

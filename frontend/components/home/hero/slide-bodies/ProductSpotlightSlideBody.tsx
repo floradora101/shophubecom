@@ -1,3 +1,5 @@
+"use client";
+
 import { memo } from "react";
 import { Sparkles, Zap, Shield, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";

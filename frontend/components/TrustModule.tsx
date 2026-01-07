@@ -51,7 +51,7 @@ function TrustItem({
 
         {/* Text Content */}
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-semibold text-foreground group-hover:text-primary-700 transition-colors duration-300">
+          <h3 className="text-sm font-semibold text-foreground group-hover:text-primary-600 transition-colors duration-300">
             {title}
           </h3>
           <p className="text-xs text-muted-foreground leading-tight">
@@ -60,7 +60,7 @@ function TrustItem({
           {learnMore && (
             <Link
               href={learnMore}
-              className="text-xs text-primary-600 hover:text-primary-700 hover:underline transition-colors duration-200 inline-block"
+              className="text-xs text-primary-600 hover:text-primary-600 hover:underline transition-colors duration-200 inline-block"
             >
               Learn more
             </Link>

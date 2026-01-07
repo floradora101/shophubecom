@@ -178,13 +178,6 @@ export function ProductRevealSection({ products }: ProductRevealSectionProps) {
             </div>
           )}
 
-          {/* Helper Text */}
-          <div className="flex items-center justify-center gap-2 pt-4 text-sm text-gray-500">
-            <Tag className="h-4 w-4 text-primary-500" />
-            <span className="font-[var(--font-inter)]">
-              Drag to reveal price drops
-            </span>
-          </div>
         </div>
       </Container>
     </Section>
@@ -262,13 +255,6 @@ export function ProductRevealSectionSkeleton() {
             ))}
           </div>
 
-          {/* Helper Text */}
-          <div className="flex items-center justify-center gap-2 pt-4 text-sm text-gray-500">
-            <Tag className="h-4 w-4 text-primary-500" />
-            <span className="font-[var(--font-inter)]">
-              Drag to reveal price drops
-            </span>
-          </div>
         </div>
       </Container>
     </Section>
