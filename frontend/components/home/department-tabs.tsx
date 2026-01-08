@@ -1,7 +1,7 @@
 // DepartmentTabs: Consistent grid layout across all departments
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import {
   Smartphone,
@@ -18,7 +18,7 @@ import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { SkeletonBlock } from "@/components/ui/skeleton";
 import { ProductCard } from "@/features/products/components/ProductCard";
-import { ProductCardSkeleton } from "./ProductCardSkeleton";
+import { ProductCardSkeleton } from "@/features/products/components/ProductCardSkeleton";
 import { ProgressiveSkeletonGrid } from "@/components/ui/loading-spinner";
 import { SectionTitle } from "./shared/section-header";
 import type { Product, Category } from "@/features/products/types";
@@ -173,16 +173,9 @@ export function DepartmentTabs({
     );
   }, [categories]);
 
-  const [activeTab, setActiveTab] = useState(mainCategories[0]?.slug || "");
-  const hasInitializedRef = useRef(false);
-
-  // Ensure activeTab is set when categories become available
-  useEffect(() => {
-    if (!hasInitializedRef.current && mainCategories.length > 0) {
-      hasInitializedRef.current = true;
-      setActiveTab(mainCategories[0].slug);
-    }
-  }, [mainCategories]);
+  const [activeTab, setActiveTab] = useState(() => {
+    return mainCategories.length > 0 ? mainCategories[0].slug : "";
+  });
 
   const activeConfig = departmentConfig[activeTab] || departmentConfig.phones;
 

@@ -29,9 +29,9 @@ describe("filterActiveSlides", () => {
   const now = new Date("2024-01-15T12:00:00.000Z"); // Fixed test date
 
   it("should return empty array for invalid input", () => {
-    expect(filterActiveSlides(null as any, now)).toEqual([]);
-    expect(filterActiveSlides(undefined as any, now)).toEqual([]);
-    expect(filterActiveSlides("invalid" as any, now)).toEqual([]);
+    expect(filterActiveSlides(null as unknown, now)).toEqual([]);
+    expect(filterActiveSlides(undefined as unknown, now)).toEqual([]);
+    expect(filterActiveSlides("invalid" as unknown, now)).toEqual([]);
     expect(filterActiveSlides({}, now)).toEqual([]);
   });
 

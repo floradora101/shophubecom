@@ -3,8 +3,3 @@ export class SalesDataResponseDto {
   sales!: number;
   orders!: number;
 }
-
-
-
-
-

@@ -8,7 +8,7 @@ import { Section } from "@/components/ui/section";
 import { SkeletonBlock } from "@/components/ui/skeleton";
 import { SectionTitle } from "./shared/section-header";
 import { ProductCard } from "@/features/products/components/ProductCard";
-import { ProductCardSkeleton } from "./ProductCardSkeleton";
+import { ProductCardSkeleton } from "@/features/products/components/ProductCardSkeleton";
 import type { Product, Category } from "@/features/products/types";
 import { getProductImageWithPlaceholder } from "@/lib/utils/products";
 import { formatPrice } from "@/lib/utils";

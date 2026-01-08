@@ -9,4 +9,3 @@ export class RecentOrdersQueryDto {
   @Max(100)
   limit?: number = 10;
 }
-

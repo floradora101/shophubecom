@@ -4,34 +4,38 @@
  * Shows products filtered by category using route parameter instead of query parameter.
  * URL format: /products/category/[category-slug]
  */
-"use client";
+import type { Metadata } from "next";
+import { CategoryProductsClient } from "./CategoryProductsClient";
 
-import { Suspense } from "react";
-import { useParams } from "next/navigation";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { ProductsContent } from "../../ProductsContent";
-
-function CategoryProductsContent() {
-  const params = useParams();
-  const categoryParam = params?.["category"];
-
-  const categorySlug = Array.isArray(categoryParam)
-    ? categoryParam[0]
-    : categoryParam || null;
-
-  return <ProductsContent categorySlug={categorySlug} />;
+interface PageProps {
+  params: Promise<{ category: string }>;
 }
 
-export default function CategoryProductsPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="flex-1 flex items-center justify-center">
-          <LoadingSpinner variant="full" />
-        </div>
-      }
-    >
-      <CategoryProductsContent />
-    </Suspense>
-  );
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const resolvedParams = await params;
+  const categorySlug = Array.isArray(resolvedParams.category)
+    ? resolvedParams.category[0]
+    : resolvedParams.category;
+
+  // Convert slug to readable title (e.g., "electronics" -> "Electronics")
+  const categoryTitle = categorySlug
+    .split("-")
+    .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+
+  return {
+    title: `${categoryTitle} Products`,
+    description: `Browse our collection of ${categoryTitle.toLowerCase()} products. Find quality items at competitive prices.`,
+  };
+}
+
+export default async function CategoryProductsPage({ params }: PageProps) {
+  const resolvedParams = await params;
+  const categorySlug = Array.isArray(resolvedParams.category)
+    ? resolvedParams.category[0]
+    : resolvedParams.category;
+
+  return <CategoryProductsClient categorySlug={categorySlug} />;
 }

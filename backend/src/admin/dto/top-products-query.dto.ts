@@ -13,4 +13,3 @@ export class TopProductsQueryDto {
   @IsIn(['revenue', 'sales'])
   sortBy?: 'revenue' | 'sales' = 'revenue';
 }
-

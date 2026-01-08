@@ -4,23 +4,18 @@ import { useState, useEffect } from "react";
 import { HeroItem } from "./shared/hero-item";
 import { useHeroRunCounter } from "@/lib/hooks/use-hero-run-counter";
 
-interface SlideData {
-  id: string;
-  title: string;
-  badge: string;
-  headline: string;
-  desc: string;
-}
-
-interface TestSlideProps {
-  slide: SlideData;
+interface SlideItemProps {
+  slide: {
+    id: string;
+    title: string;
+    badge: string;
+    headline: string;
+    desc: string;
+  };
   isActive: boolean;
 }
 
-/**
- * Individual slide component that properly uses the useHeroRunCounter hook
- */
-function TestSlide({ slide, isActive }: TestSlideProps) {
+function SlideItem({ slide, isActive }: SlideItemProps) {
   const { run, animationKey } = useHeroRunCounter(isActive);
 
   return (
@@ -77,7 +72,7 @@ function TestSlide({ slide, isActive }: TestSlideProps) {
  */
 export function TestHeroAnimation() {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const slides: SlideData[] = [
+  const slides = [
     {
       id: "slide-1",
       title: "First Slide",
@@ -120,7 +115,7 @@ export function TestHeroAnimation() {
 
       <div className="space-y-8">
         {slides.map((slide, index) => (
-          <TestSlide
+          <SlideItem
             key={slide.id}
             slide={slide}
             isActive={index === currentSlide}

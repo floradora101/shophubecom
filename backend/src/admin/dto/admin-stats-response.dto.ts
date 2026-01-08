@@ -8,4 +8,3 @@ export class AdminStatsResponseDto {
   shippedOrders!: number;
   deliveredOrders!: number;
 }
-

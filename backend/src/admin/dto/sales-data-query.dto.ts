@@ -9,8 +9,3 @@ export class SalesDataQueryDto {
   @Max(365)
   days?: number = 30;
 }
-
-
-
-
-

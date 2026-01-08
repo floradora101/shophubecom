@@ -5,4 +5,3 @@ export class ProductNotFoundException extends NotFoundException {
     super(message);
   }
 }
-

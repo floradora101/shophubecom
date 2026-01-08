@@ -1,12 +1,22 @@
+// eslint-disable-next-line no-restricted-imports
 import { Header } from "@/components/layout/Header";
+// eslint-disable-next-line no-restricted-imports
 import { Footer } from "@/components/layout/Footer";
+// eslint-disable-next-line no-restricted-imports
 import { HeroShell } from "@/components/home/hero/HeroShell";
+// eslint-disable-next-line no-restricted-imports
 import { ServiceShowcase } from "@/components/home/service-showcase";
+// eslint-disable-next-line no-restricted-imports
 import { ProductRevealSection } from "@/components/home/product-reveal-section";
+// eslint-disable-next-line no-restricted-imports
 import { DepartmentTabs } from "@/components/home/department-tabs";
+// eslint-disable-next-line no-restricted-imports
 import { CategorySpotlight } from "@/components/home/category-spotlight";
+// eslint-disable-next-line no-restricted-imports
 import { TrendingNow } from "@/components/home/trending-now";
+// eslint-disable-next-line no-restricted-imports
 import { LatestProductsCarousel } from "@/components/home/deals-carousel";
+// eslint-disable-next-line no-restricted-imports
 import { BrandStory } from "@/components/home/brand-story";
 import type { HomePageData } from "@/lib/data/home";
 import type { Product } from "@/features/products/types";

@@ -4,7 +4,7 @@ import { HomePageContent } from "./home-page-content";
 import { getHomePageData } from "@/lib/data/home";
 
 export const metadata: Metadata = {
-  title: "ShopHub - Your Trusted Online Shopping Destination",
+  title: "Your Trusted Online Shopping Destination",
   description:
     "Discover amazing products at unbeatable prices. Quality you can trust, delivered to your door.",
 };

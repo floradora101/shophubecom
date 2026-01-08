@@ -121,7 +121,7 @@ export function CartSidebar() {
                 Your cart is empty
               </h3>
               <p className="text-sm text-gray-600 max-w-xs">
-                Add some products to your cart and they'll appear here.
+                Add some products to your cart and they&apos;ll appear here.
               </p>
             </div>
           ) : (

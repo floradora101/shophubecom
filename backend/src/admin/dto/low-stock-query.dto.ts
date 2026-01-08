@@ -16,4 +16,3 @@ export class LowStockQueryDto {
   @Max(100000)
   threshold?: number = 5;
 }
-

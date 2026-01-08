@@ -18,7 +18,7 @@ export function useHeroRunCounter(active: boolean) {
       setAnimationKey((prev) => prev + 1); // Force animation restart
     }
     wasActiveRef.current = active;
-  }, [active]);
+  }, [active]); // eslint-disable-line react-hooks/set-state-in-effect
 
   return { run, animationKey };
 }

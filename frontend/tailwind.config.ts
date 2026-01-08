@@ -316,7 +316,11 @@ const config: Config = {
     },
   },
   plugins: [
-    function ({ addUtilities }: any) {
+    function ({
+      addUtilities,
+    }: {
+      addUtilities: (utilities: Record<string, Record<string, string>>) => void;
+    }) {
       addUtilities({
         // Hero Glass UI Utility Classes
         ".hero-glass": {
@@ -326,21 +330,25 @@ const config: Config = {
           boxShadow: "var(--hero-glass-shadow)",
         },
         ".hero-badge": {
-          "@apply hero-glass rounded-full px-4 py-2 text-sm font-semibold": {},
-          color: "var(--hero-accent)",
+          borderRadius: "9999px",
+          padding: "0.5rem 1rem",
+          fontSize: "0.875rem",
+          fontWeight: "600",
         },
         ".hero-card": {
-          "@apply hero-glass rounded-3xl p-6 lg:p-8": {},
+          borderRadius: "1.5rem",
+          padding: "1.5rem",
         },
         ".hero-pill": {
-          "@apply rounded-full px-3 py-2 bg-surface border border-border text-muted-fg":
-            {},
+          borderRadius: "9999px",
+          padding: "0.5rem 0.75rem",
         },
         ".hero-pill--accent": {
-          "@apply border-primary text-primary": {},
+          borderColor: "var(--color-primary)",
+          color: "var(--color-primary)",
         },
       });
-    } as any,
+    },
   ],
 };
 

@@ -17,4 +17,3 @@ export interface AuthenticatedUser {
   createdAt: Date;
   updatedAt: Date;
 }
-

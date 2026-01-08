@@ -49,4 +49,3 @@ export class FilterCategoriesDto {
   @IsIn(['asc', 'desc'])
   sortOrder: 'asc' | 'desc' = 'asc';
 }
-

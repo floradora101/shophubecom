@@ -64,31 +64,19 @@ async function fetchResults(
     .map((item) => item.product);
 }
 
-// Platform detection for keyboard shortcut hint - moved inside component
-function usePlatformDetection() {
-  const [isMac, setIsMac] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+// Platform detection for keyboard shortcut hint
+const isMac =
+  typeof navigator !== "undefined" &&
+  navigator.platform.toUpperCase().indexOf("MAC") >= 0;
 
-  useEffect(() => {
-    // Platform detection for keyboard shortcut hint
-    const macDetected =
-      typeof navigator !== "undefined" &&
-      navigator.platform.toUpperCase().indexOf("MAC") >= 0;
-    setIsMac(macDetected);
-
-    // Mobile detection - hide keyboard shortcuts on touch devices
-    const mobileDetected =
-      typeof navigator !== "undefined" &&
-      (navigator.maxTouchPoints > 0 ||
-        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-          navigator.userAgent
-        ) ||
-        window.innerWidth < 768);
-    setIsMobile(mobileDetected);
-  }, []);
-
-  return { isMac, isMobile };
-}
+// Mobile detection - hide keyboard shortcuts on touch devices
+const isMobile =
+  typeof navigator !== "undefined" &&
+  (navigator.maxTouchPoints > 0 ||
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    ) ||
+    window.innerWidth < 768);
 
 // Normalize text: lowercase, trim, remove punctuation
 function normalizeText(text: string): string {
@@ -183,7 +171,6 @@ function EmptyState({ query }: { query: string }) {
 function SearchPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { isMac, isMobile } = usePlatformDetection();
 
   // Input value for live search
   const initialQuery = searchParams.get("q") || "";

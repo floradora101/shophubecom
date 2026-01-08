@@ -63,14 +63,14 @@ export const OfferSlideBody = memo(function OfferSlideBody({
       <HeroItem run={run} animationKey={animationKey}>
         <div className={`space-y-3 hero-item-enter hero-headline`}>
           <h1
-            className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-(--font-dm-sans) italic leading-tight underline decoration-2 underline-offset-4`}
+            className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-display font-bold italic leading-tight underline decoration-2 underline-offset-4`}
             style={{ color: "var(--hero-text)" }}
           >
             {slide.headline}
           </h1>
           {slide.highlight && (
             <h2
-              className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-(--font-inter) overline decoration-1"
+              className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-sans font-bold overline decoration-1"
               style={{ color: "var(--hero-accent)" }}
             >
               {slide.highlight}
@@ -96,6 +96,7 @@ export const OfferSlideBody = memo(function OfferSlideBody({
           <div className="relative max-w-xl w-full">
             <div
               className="relative rounded-lg border overflow-hidden"
+              data-no-swipe
               style={{
                 backgroundColor: "var(--hero-surface, rgba(255,255,255,0.04))",
                 borderColor: "var(--hero-border)",
@@ -193,7 +194,8 @@ export const OfferSlideBody = memo(function OfferSlideBody({
                     {/* Coupon Badge - Full width on mobile */}
                     {slide.promoCode && (
                       <div
-                        className="px-3 py-2 sm:px-4 sm:py-2.5 md:px-5 rounded-lg cursor-pointer border transition-all duration-200 hover:scale-105 w-full sm:w-auto"
+                        className="px-3 py-2 sm:px-4 sm:py-2.5 md:px-5 rounded-lg cursor-pointer border transition-all duration-200 hover:scale-105 w-full sm:w-auto select-none touch-manipulation"
+                        data-no-swipe
                         style={{
                           backgroundColor:
                             "var(--hero-surface, rgba(255,255,255,0.1))",
@@ -206,7 +208,7 @@ export const OfferSlideBody = memo(function OfferSlideBody({
                       >
                         <div className="flex items-center justify-center sm:justify-start gap-2 sm:gap-2.5">
                           <code
-                            className="font-mono font-bold text-xs sm:text-sm md:text-base select-all"
+                            className="font-mono font-bold text-xs sm:text-sm md:text-base select-none sm:select-all"
                             style={{ color: "var(--hero-theme-from)" }}
                           >
                             {promoCode}
@@ -277,12 +279,5 @@ export const OfferSlideBody = memo(function OfferSlideBody({
 
   const mediaContent = <HeroMediaFrame slide={slide} isActive={isActive} />;
 
-  return (
-    <div className="relative overflow-hidden w-full h-full">
-      <div className="relative z-10">
-        <SlideLayout textContent={textContent} mediaContent={mediaContent} />
-      </div>
-      {/* <SparkleOverlay enabled={isActive} /> */}
-    </div>
-  );
+  return <SlideLayout textContent={textContent} mediaContent={mediaContent} />;
 });

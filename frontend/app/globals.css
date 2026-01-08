@@ -300,6 +300,7 @@
   --hero-theme-to: var(--secondary-900);
   --hero-accent: var(--primary-600);
   --hero-accent-weak: color-mix(in srgb, var(--hero-accent) 12%, white);
+  --hero-landscape-accent: var(--primary-600);
 
   /* Legacy variables - keep for backward compatibility and neutral text */
   --hero-text: var(--gray-900);
@@ -864,6 +865,7 @@ body {
   --hero-theme-to: var(--black);
   --hero-accent: var(--primary-600);
   --hero-accent-weak: color-mix(in srgb, var(--hero-accent) 12%, white);
+  --hero-landscape-accent: var(--primary-600);
   --hero-border: color-mix(
     in srgb,
     var(--hero-accent) 18%,
@@ -876,6 +878,7 @@ body {
   --hero-theme-to: var(--purple-500);
   --hero-accent: var(--purple-700);
   --hero-accent-weak: color-mix(in srgb, var(--hero-accent) 12%, white);
+  --hero-landscape-accent: var(--purple-700);
   --hero-border: color-mix(
     in srgb,
     var(--hero-accent) 18%,

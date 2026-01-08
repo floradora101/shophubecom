@@ -454,11 +454,34 @@ function DescriptionTab({ product }: { product: Product }) {
 }
 
 export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
+
+  useEffect(() => {
+    // Check screen size immediately and on resize
+    const checkScreenSize = () => {
+      const width = window.innerWidth;
+      setIsLargeScreen(width >= 1280); // xl breakpoint
+    };
+
+    // Use requestAnimationFrame for better performance
+    const handleResize = () => {
+      requestAnimationFrame(checkScreenSize);
+    };
+
+    // Check immediately
+    checkScreenSize();
+
+    // Listen for resize events
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const tabs: TabItem[] = useMemo(() => {
     const tabItems: TabItem[] = [];
 
-    // Specifications Tab - First on small screens
-    if (product.specs && product.specs.length > 0) {
+    // Specifications Tab - NEVER show on xl+ screens (specs are shown separately)
+    // Only show on screens smaller than xl breakpoint
+    if (product.specs && product.specs.length > 0 && !isLargeScreen) {
       tabItems.push({
         id: "specifications",
         label: "Specifications",
@@ -505,7 +528,21 @@ export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
 
   return (
     <div className="w-full">
-      <Tabs tabs={tabs} variant="pill" size="sm" />
+      {/* Responsive tab sizing: smaller on mobile, larger on big screens */}
+      {/* Additional CSS safeguard: hide specs tab on xl+ screens */}
+      <div className="sm:hidden">
+        <Tabs tabs={tabs} variant="pill" size="sm" />
+      </div>
+      <div className="hidden sm:block xl:hidden">
+        <Tabs tabs={tabs} variant="pill" size="md" />
+      </div>
+      <div className="hidden xl:block">
+        <Tabs
+          tabs={tabs.filter((tab) => tab.id !== "specifications")} // Never show specs on xl+
+          variant="pill"
+          size="lg"
+        />
+      </div>
     </div>
   );
 }

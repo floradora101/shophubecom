@@ -37,11 +37,12 @@ export function CouponCodeInput({
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Auto-expand when there's an error or applied coupon
+  // Note: Using useEffect here is intentional to respond to prop changes
   useEffect(() => {
     if (error || isApplied) {
       setIsExpanded(true);
     }
-  }, [error, isApplied]);
+  }, [error, isApplied]); // eslint-disable-line react-hooks/set-state-in-effect
 
   // Focus input when expanded
   useEffect(() => {

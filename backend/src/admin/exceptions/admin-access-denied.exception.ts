@@ -5,4 +5,3 @@ export class AdminAccessDeniedException extends ForbiddenException {
     super(message);
   }
 }
-

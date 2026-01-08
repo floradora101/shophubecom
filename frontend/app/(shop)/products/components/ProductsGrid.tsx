@@ -9,7 +9,7 @@
 import { Search, Filter, Sparkles, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/features/products/components/ProductCard";
-import { ProductCardSkeleton } from "@/components/home/ProductCardSkeleton";
+import { ProductCardSkeleton } from "@/features/products/components/ProductCardSkeleton";
 import { cn } from "@/lib/utils/cn";
 import { ProgressiveSkeletonGrid } from "@/components/ui/loading-spinner";
 import type { Product } from "@/features/products/types";
@@ -46,10 +46,10 @@ export function ProductsEmptyState({
           <Search className="h-10 w-10 text-blue-500" />
         </div>
         <h3 className="text-xl font-bold text-warm-gray-900 mb-3">
-          No results for "{searchTerm}"
+          No results for &ldquo;{searchTerm}&rdquo;
         </h3>
         <p className="text-warm-gray-600 mb-6 max-w-md mx-auto">
-          We couldn't find any products matching your search. Try different
+          We couldn&apos;t find any products matching your search. Try different
           keywords or check your spelling.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -138,7 +138,8 @@ export function ProductsEmptyState({
         No products available
       </h3>
       <p className="text-warm-gray-600 mb-6 max-w-md mx-auto">
-        We're currently updating our catalog. Check back soon for new arrivals!
+        We&apos;re currently updating our catalog. Check back soon for new
+        arrivals!
       </p>
       <div className="flex items-center justify-center gap-2 text-sm text-warm-gray-500">
         <TrendingUp className="h-4 w-4" />

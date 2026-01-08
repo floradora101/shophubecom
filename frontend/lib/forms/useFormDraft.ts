@@ -68,16 +68,16 @@ export function useFormDraft<T extends FieldValues>(
       for (const field of exclude) {
         // Handle nested fields like "payment.cardNumber"
         const parts = field.split(".");
-        let current: any = sanitized;
+        let current: unknown = sanitized;
         for (let i = 0; i < parts.length - 1; i++) {
-          if (current && typeof current === "object") {
-            current = current[parts[i]];
+          if (current && typeof current === "object" && current !== null) {
+            current = (current as Record<string, unknown>)[parts[i]];
           }
         }
-        if (current && typeof current === "object") {
+        if (current && typeof current === "object" && current !== null) {
           const lastPart = parts[parts.length - 1];
           if (lastPart in current) {
-            delete current[lastPart];
+            delete (current as Record<string, unknown>)[lastPart];
           }
         } else {
           // Simple field
@@ -120,7 +120,7 @@ export function useFormDraft<T extends FieldValues>(
       const parsed = JSON.parse(stored);
       if (parsed && typeof parsed === "object") {
         // Reset form with saved values, keeping default values for fields not in draft
-        form.reset(parsed as any, { keepDefaultValues: true });
+        form.reset(parsed as T, { keepDefaultValues: true });
         hasLoadedRef.current = true;
       }
     } catch (error) {

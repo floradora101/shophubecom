@@ -11,7 +11,7 @@ import {
   useSearchParams,
   useRouter,
   usePathname,
-  type ReadonlyURLSearchParams,
+  ReadonlyURLSearchParams,
 } from "next/navigation";
 import Link from "next/link";
 import {
@@ -45,6 +45,11 @@ import {
   updateSearchParams,
   type CanonicalFilters,
 } from "@/features/products/utils/filters";
+
+type UpdateSearchParamsFn = (
+  currentParams: ReadonlyURLSearchParams,
+  updates: Partial<CanonicalFilters>
+) => URLSearchParams;
 import {
   filterSortProducts,
   paginateProducts,
@@ -55,6 +60,16 @@ import { FiltersDrawer } from "./components/FiltersDrawer";
 import { ActiveFilterChips } from "./components/ActiveFilterChips";
 import { ProductsGrid } from "./components/ProductsGrid";
 import { cn } from "@/lib/utils/cn";
+
+interface UpdateFilters {
+  setCategory: (categorySlug: string | null) => void;
+  setPriceRange: (range: { min: number; max: number }) => void;
+  setSortBy: (sortBy: CanonicalFilters["sortBy"]) => void;
+  setInStockOnly: (inStockOnly: boolean) => void;
+  setMinRating: (minRating: number | null) => void;
+  setBrands: (brands: string[] | null) => void;
+  setPage: (page: number) => void;
+}
 import { FiltersSidebarSkeleton } from "@/components/ui/loading-spinner";
 
 // Cyberpunk category icons carousel - popular subcategories with advanced styling
@@ -217,22 +232,11 @@ function CategoryCarousel({
   handleKeyDown: (event: React.KeyboardEvent) => void;
   scrollCarousel: (direction: "left" | "right") => void;
   filters: CanonicalFilters;
-  searchParams: ReturnType<typeof useSearchParams>;
+  searchParams: ReadonlyURLSearchParams;
   router: ReturnType<typeof useRouter>;
   basePath: string;
-  updateSearchParams: (
-    currentParams: ReadonlyURLSearchParams,
-    updates: Partial<import("@/features/products/utils/filters").ProductFilters>
-  ) => URLSearchParams;
-  updateFilters: {
-    setCategory: (categorySlug: string | null) => void;
-    setPriceRange: (range: { min: number; max: number }) => void;
-    setSortBy: (sortBy: CanonicalFilters["sortBy"]) => void;
-    setInStockOnly: (inStockOnly: boolean) => void;
-    setMinRating: (minRating: number | null) => void;
-    setBrands: (brands: string[] | null) => void;
-    setPage: (page: number) => void;
-  };
+  updateSearchParams: UpdateSearchParamsFn;
+  updateFilters: UpdateFilters;
 }) {
   const handleCategoryClick = (categorySlug: string) => {
     updateFilters.setCategory(categorySlug);

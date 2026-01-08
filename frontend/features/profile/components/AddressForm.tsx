@@ -3,6 +3,7 @@
 
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import type { Resolver } from "react-hook-form";
 import { addressSchema } from "../schemas";
 import {
   addressesApi,
@@ -29,7 +30,7 @@ export function AddressForm({
   onCancel,
 }: AddressFormProps) {
   const form = useForm<CreateAddressData>({
-    resolver: yupResolver(addressSchema) as any,
+    resolver: yupResolver(addressSchema) as Resolver<CreateAddressData>,
     defaultValues: address
       ? {
           name: address.name,

@@ -3,7 +3,7 @@
  */
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -69,10 +69,18 @@ export function FiltersSidebar({
       : "";
   });
 
-  // Sync local state with priceRange prop changes (controlled component pattern)
+  // Update local state when priceRange prop changes
   useEffect(() => {
-    setLocalMin(priceRange.min?.toString() ?? "");
-    setLocalMax(priceRange.max?.toString() ?? "");
+    setLocalMin(
+      priceRange.min !== null && priceRange.min !== undefined
+        ? priceRange.min.toString()
+        : ""
+    );
+    setLocalMax(
+      priceRange.max !== null && priceRange.max !== undefined
+        ? priceRange.max.toString()
+        : ""
+    );
   }, [priceRange.min, priceRange.max]);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isPriceOpen, setIsPriceOpen] = useState(false);

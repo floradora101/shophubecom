@@ -508,7 +508,7 @@ export class OrdersService {
                   Array.isArray(defaultVariant.images) &&
                   defaultVariant.images.length > 0
                 ) {
-                  return defaultVariant.images as string[];
+                  return defaultVariant.images;
                 }
                 if (defaultVariant?.image) {
                   return [defaultVariant.image] as string[];

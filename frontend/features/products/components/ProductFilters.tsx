@@ -30,10 +30,11 @@ export function ProductFilters({
   const [localMax, setLocalMax] = useState(priceRange.max.toString());
 
   // Sync local state when priceRange prop changes
+  // Note: Using useEffect here is intentional to sync local state with props
   useEffect(() => {
     setLocalMin(priceRange.min.toString());
     setLocalMax(priceRange.max.toString());
-  }, [priceRange.min, priceRange.max]);
+  }, [priceRange.min, priceRange.max]); // eslint-disable-line react-hooks/set-state-in-effect
 
   const categoryTree = (() => {
     const nodeMap = new Map<string, Category & { children: Category[] }>();

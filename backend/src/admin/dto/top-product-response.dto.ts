@@ -5,4 +5,3 @@ export class TopProductResponseDto {
   revenue!: number;
   image?: string | null;
 }
-

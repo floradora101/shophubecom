@@ -19,7 +19,7 @@ export function usePrefersReducedMotion(): boolean {
 
     mediaQuery.addEventListener("change", handleChange);
     return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/set-state-in-effect
 
   return prefersReducedMotion;
 }

@@ -15,4 +15,3 @@ export class UpdateCategoryDto {
   @IsOptional()
   parentId?: string | null;
 }
-

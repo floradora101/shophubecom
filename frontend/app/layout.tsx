@@ -27,7 +27,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ShopHub - E-Commerce Platform",
+  title: {
+    default: "ShopHub - E-Commerce Platform",
+    template: "%s | ShopHub",
+  },
   description: "ShopHub - Your trusted online shopping destination",
 };
 

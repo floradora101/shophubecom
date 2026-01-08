@@ -1,12 +1,14 @@
 // Service Showcase: Cyberpunk tech services with advanced visual design
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Smartphone,
   CreditCard,
   Headphones,
   PenTool,
+  Sparkles,
+  CheckCircle,
   Zap,
   Shield,
   Clock,

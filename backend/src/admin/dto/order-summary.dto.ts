@@ -14,4 +14,3 @@ export class AdminOrderSummaryDto {
     email: string | null;
   };
 }
-

@@ -5,4 +5,3 @@ export class LowStockResponseDto {
   category!: string;
   image?: string | null;
 }
-

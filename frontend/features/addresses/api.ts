@@ -23,7 +23,7 @@ export interface CreateAddressData {
   street: string;
   street2?: string;
   city: string;
-  state: string;
+  state?: string;
   zipCode?: string;
   country?: string;
   phone?: string;
@@ -87,3 +87,4 @@ export const addressesApi = {
     await apiClient.delete(`/addresses/${id}`);
   },
 };
+

@@ -8,4 +8,3 @@ export class AdminStatsQueryDto {
   @Min(0)
   lowStockThreshold?: number = 5;
 }
-

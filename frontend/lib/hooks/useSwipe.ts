@@ -62,8 +62,8 @@ export function useSwipe({
 
   const handleTouchStart = useCallback(
     (e: TouchEvent) => {
-      // Allow vertical scrolling when touching scrollable areas
-      if ((e.target as HTMLElement)?.closest?.("[data-scroll]")) return;
+      // Allow vertical scrolling when touching scrollable areas or no-swipe elements
+      if ((e.target as HTMLElement)?.closest?.("[data-scroll], [data-no-swipe]")) return;
 
       const touch = e.touches[0];
       if (!touch) return;
@@ -83,8 +83,8 @@ export function useSwipe({
 
   const handleTouchMove = useCallback(
     (e: TouchEvent) => {
-      // Allow vertical scrolling when touching scrollable areas
-      if ((e.target as HTMLElement)?.closest?.("[data-scroll]")) return;
+      // Allow vertical scrolling when touching scrollable areas or no-swipe elements
+      if ((e.target as HTMLElement)?.closest?.("[data-scroll], [data-no-swipe]")) return;
 
       const touch = e.touches[0];
       if (!touch || !swipeStateRef.current.startPos) return;
