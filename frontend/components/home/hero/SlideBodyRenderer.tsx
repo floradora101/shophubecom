@@ -84,6 +84,7 @@ export const SlideBodyRenderer = memo(function SlideBodyRenderer({
             return (
               <CategorySpotlightSlideBody
                 slide={slide}
+                product={product}
                 isActive={isActive}
                 index={index}
                 onMouseEnter={onMouseEnter}
@@ -95,6 +96,7 @@ export const SlideBodyRenderer = memo(function SlideBodyRenderer({
             return (
               <OfferSlideBody
                 slide={slide}
+                product={product}
                 isActive={isActive}
                 index={index}
                 onMouseEnter={onMouseEnter}
@@ -106,6 +108,7 @@ export const SlideBodyRenderer = memo(function SlideBodyRenderer({
             return (
               <TestimonialSlideBody
                 slide={slide}
+                product={product}
                 isActive={isActive}
                 index={index}
                 onMouseEnter={onMouseEnter}

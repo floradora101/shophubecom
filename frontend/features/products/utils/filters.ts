@@ -23,6 +23,8 @@ export interface ProductFilters {
   maxPrice?: number | null;
   sortBy?: "latest" | "price-low" | "price-high" | "name" | null;
   inStockOnly?: boolean | null;
+  minRating?: number | null;
+  brands?: string[] | null;
 }
 
 export interface CanonicalFilters {

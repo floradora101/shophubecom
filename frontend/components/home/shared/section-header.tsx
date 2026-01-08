@@ -83,7 +83,7 @@ export function SectionTitle({
   // Standard variant (default) - Enhanced with proper typography scale and animated red underlines
   return (
     <h2
-      className={`text-3xl md:text-4xl lg:text-5xl text-slate-900 ${baseClasses} ${className} group`}
+      className={`text-2xl md:text-3xl lg:text-4xl text-slate-900 ${baseClasses} ${className} group`}
     >
       <span className="font-(--font-dm-sans) font-bold italic relative">
         {italic}
@@ -129,7 +129,7 @@ export function SectionHeader({
         )}
         <SectionTitle italic={title.italic} bold={title.bold} />
         {description && (
-          <p className="text-warm-gray-600 max-w-2xl text-lg font-(--font-inter) font-light leading-relaxed">
+          <p className="text-warm-gray-600 max-w-2xl text-sm md:text-lg font-(--font-inter) font-light leading-relaxed">
             {description}
           </p>
         )}

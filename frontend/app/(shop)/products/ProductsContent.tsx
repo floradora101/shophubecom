@@ -7,7 +7,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import {
+  useSearchParams,
+  useRouter,
+  usePathname,
+  type ReadonlyURLSearchParams,
+} from "next/navigation";
 import Link from "next/link";
 import {
   ChevronRight,
@@ -24,6 +29,7 @@ import {
   Monitor,
   Package,
 } from "lucide-react";
+import { useSwipe } from "@/lib/hooks/useSwipe";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { SectionTitle } from "@/components/ui/SectionTitle";
@@ -178,10 +184,17 @@ const COMPACT_CATEGORY_ICONS = [
 // Cyberpunk Category Icon Carousel Component
 function CategoryCarousel({
   categories,
-  carouselStartIndex,
-  itemsPerView,
+  scrollRef,
+  isDragging,
   canScrollLeft,
   canScrollRight,
+  handleMouseDown,
+  handleMouseMove,
+  handleMouseUp,
+  handleTouchStart,
+  handleTouchMove,
+  handleTouchEnd,
+  handleKeyDown,
   scrollCarousel,
   filters,
   searchParams,
@@ -191,17 +204,35 @@ function CategoryCarousel({
   updateFilters,
 }: {
   categories: typeof COMPACT_CATEGORY_ICONS;
-  carouselStartIndex: number;
-  itemsPerView: number;
+  scrollRef: React.RefObject<HTMLDivElement | null>;
+  isDragging: boolean;
   canScrollLeft: boolean;
   canScrollRight: boolean;
+  handleMouseDown: (e: React.MouseEvent) => void;
+  handleMouseMove: (e: React.MouseEvent) => void;
+  handleMouseUp: () => void;
+  handleTouchStart: (e: React.TouchEvent) => void;
+  handleTouchMove: (e: React.TouchEvent) => void;
+  handleTouchEnd: () => void;
+  handleKeyDown: (event: React.KeyboardEvent) => void;
   scrollCarousel: (direction: "left" | "right") => void;
-  filters: any;
-  searchParams: any;
-  router: any;
+  filters: CanonicalFilters;
+  searchParams: ReturnType<typeof useSearchParams>;
+  router: ReturnType<typeof useRouter>;
   basePath: string;
-  updateSearchParams: any;
-  updateFilters: any;
+  updateSearchParams: (
+    currentParams: ReadonlyURLSearchParams,
+    updates: Partial<import("@/features/products/utils/filters").ProductFilters>
+  ) => URLSearchParams;
+  updateFilters: {
+    setCategory: (categorySlug: string | null) => void;
+    setPriceRange: (range: { min: number; max: number }) => void;
+    setSortBy: (sortBy: CanonicalFilters["sortBy"]) => void;
+    setInStockOnly: (inStockOnly: boolean) => void;
+    setMinRating: (minRating: number | null) => void;
+    setBrands: (brands: string[] | null) => void;
+    setPage: (page: number) => void;
+  };
 }) {
   const handleCategoryClick = (categorySlug: string) => {
     updateFilters.setCategory(categorySlug);
@@ -218,7 +249,7 @@ function CategoryCarousel({
     return (
       <button
         onClick={() => handleCategoryClick(category.slug)}
-        className="group flex flex-col items-center p-4 rounded-2xl bg-white/5 backdrop-blur-sm border border-gray-700/30 hover:border-gray-600/50 transition-all duration-300 hover:scale-110 hover:bg-white/10"
+        className="group flex flex-col items-center p-3 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-sm border border-gray-700/30 hover:border-gray-600/50 transition-all duration-300 hover:scale-105 sm:hover:scale-110 hover:bg-white/10 min-h-[80px] sm:min-h-[100px]"
       >
         <div className="relative">
           {/* Multi-layer Glow Effects */}
@@ -231,16 +262,16 @@ function CategoryCarousel({
 
           {/* Main Icon Container */}
           <div
-            className={`relative p-4 ${
+            className={`relative p-3 sm:p-4 ${
               category.iconBg
-            } rounded-2xl border border-gray-600/30 group-hover:border-gray-500/50 group-hover:scale-110 transition-all duration-500 ${
+            } rounded-2xl border border-gray-600/30 group-hover:border-gray-500/50 group-hover:scale-105 sm:group-hover:scale-110 transition-all duration-500 ${
               category.glowColor
             } group-hover:shadow-2xl ${
               isActive ? "ring-2 ring-primary-400/50 bg-primary-400/10" : ""
             }`}
           >
             <IconComponent
-              className={`h-8 w-8 ${
+              className={`h-7 w-7 sm:h-8 sm:w-8 ${
                 category.accentColor
               } drop-shadow-lg transition-colors duration-300 ${
                 isActive ? "text-primary-300" : ""
@@ -298,39 +329,52 @@ function CategoryCarousel({
             <button
               onClick={() => scrollCarousel("left")}
               disabled={!canScrollLeft}
-              className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-gradient-to-r from-gray-900/95 to-gray-800/95 backdrop-blur-xl rounded-full shadow-xl border border-gray-700/50 flex items-center justify-center hover:bg-gray-700/80 hover:scale-110 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group"
+              className="absolute -left-3 sm:-left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-gray-900/95 to-gray-800/95 backdrop-blur-xl rounded-full shadow-xl border border-gray-700/50 flex items-center justify-center hover:bg-gray-700/80 hover:scale-110 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group"
               aria-label="Previous categories"
             >
-              <ChevronLeft className="w-6 h-6 text-white group-hover:text-primary-400 transition-colors" />
+              <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 text-white group-hover:text-primary-400 transition-colors" />
               <div className="absolute inset-0 bg-primary-400/10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity blur-xl" />
             </button>
 
             <button
               onClick={() => scrollCarousel("right")}
               disabled={!canScrollRight}
-              className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-gradient-to-r from-gray-900/95 to-gray-800/95 backdrop-blur-xl rounded-full shadow-xl border border-gray-700/50 flex items-center justify-center hover:bg-gray-700/80 hover:scale-110 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group"
+              className="absolute -right-3 sm:-right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-gray-900/95 to-gray-800/95 backdrop-blur-xl rounded-full shadow-xl border border-gray-700/50 flex items-center justify-center hover:bg-gray-700/80 hover:scale-110 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group"
               aria-label="Next categories"
             >
-              <ChevronRight className="w-6 h-6 text-white group-hover:text-primary-400 transition-colors" />
+              <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-white group-hover:text-primary-400 transition-colors" />
               <div className="absolute inset-0 bg-primary-400/10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity blur-xl" />
             </button>
 
-            {/* Carousel Items */}
-            <div className="overflow-hidden px-6">
+            {/* Drag-based Horizontal Scroll Carousel */}
+            <div className="overflow-hidden px-2 sm:px-6">
               <div
-                className="flex gap-6 transition-transform duration-700 ease-out"
+                ref={scrollRef}
+                className={`flex gap-3 sm:gap-4 md:gap-5 lg:gap-6 overflow-x-auto scrollbar-hide cursor-grab focus:outline-none ${
+                  isDragging ? "cursor-grabbing select-none" : ""
+                }`}
                 style={{
-                  transform: `translateX(-${
-                    carouselStartIndex * (100 / itemsPerView)
-                  }%)`,
+                  scrollBehavior: isDragging ? "auto" : "smooth",
+                  WebkitOverflowScrolling: "touch", // iOS momentum scrolling
                 }}
+                tabIndex={0}
+                role="region"
+                aria-label="Category carousel - drag to scroll"
+                onKeyDown={handleKeyDown}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
               >
                 {categories.map((category, index) => (
                   <div
                     key={category.slug}
-                    className="flex-1 min-w-0 animate-fade-in"
+                    className="flex-shrink-0 w-20 sm:w-24 md:w-28 lg:w-32"
                     style={{
-                      animationDelay: `${index * 200}ms`,
+                      animationDelay: `${index * 150}ms`,
                     }}
                   >
                     <CategoryIcon category={category} />
@@ -340,23 +384,25 @@ function CategoryCarousel({
             </div>
           </div>
 
+          {/* Removed drag hint from small screens as requested */}
+
           {/* Bottom Tech Accent */}
           <div className="flex justify-center">
-            <div className="flex items-center gap-4 px-6 py-3 bg-gradient-to-r from-gray-800/50 to-gray-700/50 backdrop-blur-md rounded-full border border-gray-600/30">
-              <div className="flex gap-2">
-                <div className="w-2 h-2 bg-primary-400 rounded-full animate-pulse" />
-                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse delay-200" />
-                <div className="w-2 h-2 bg-violet-400 rounded-full animate-pulse delay-400" />
-                <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse delay-600" />
+            <div className="flex items-center gap-2 md:gap-3 px-2 py-1.5 md:px-4 md:py-2 bg-gradient-to-r from-gray-800/50 to-gray-700/50 backdrop-blur-md rounded-full border border-gray-600/30">
+              <div className="flex gap-1 md:gap-1.5">
+                <div className="w-1 h-1 md:w-1.5 md:h-1.5 bg-primary-400 rounded-full animate-pulse" />
+                <div className="w-1 h-1 md:w-1.5 md:h-1.5 bg-emerald-400 rounded-full animate-pulse delay-200" />
+                <div className="w-1 h-1 md:w-1.5 md:h-1.5 bg-violet-400 rounded-full animate-pulse delay-400" />
+                <div className="w-1 h-1 md:w-1.5 md:h-1.5 bg-orange-400 rounded-full animate-pulse delay-600" />
               </div>
-              <span className="text-gray-400 text-sm font-medium">
+              <span className="text-gray-400 text-xs font-medium">
                 Curated Excellence
               </span>
-              <div className="flex gap-2">
-                <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse delay-600" />
-                <div className="w-2 h-2 bg-violet-400 rounded-full animate-pulse delay-400" />
-                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse delay-200" />
-                <div className="w-2 h-2 bg-primary-400 rounded-full animate-pulse" />
+              <div className="flex gap-1 md:gap-1.5">
+                <div className="w-1 h-1 md:w-1.5 md:h-1.5 bg-orange-400 rounded-full animate-pulse delay-600" />
+                <div className="w-1 h-1 md:w-1.5 md:h-1.5 bg-violet-400 rounded-full animate-pulse delay-400" />
+                <div className="w-1 h-1 md:w-1.5 md:h-1.5 bg-emerald-400 rounded-full animate-pulse delay-200" />
+                <div className="w-1 h-1 md:w-1.5 md:h-1.5 bg-primary-400 rounded-full animate-pulse" />
               </div>
             </div>
           </div>
@@ -384,42 +430,110 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Carousel state
-  const [carouselStartIndex, setCarouselStartIndex] = useState(0);
-  const [itemsPerView, setItemsPerView] = useState(5);
+  // Carousel state (removed for drag-based approach)
 
-  // Responsive items per view for carousel
-  useEffect(() => {
-    const updateItemsPerView = () => {
-      const width = window.innerWidth;
-      if (width < 640) setItemsPerView(3); // Mobile
-      else if (width < 768) setItemsPerView(4); // Small tablet
-      else if (width < 1024) setItemsPerView(5); // Tablet
-      else setItemsPerView(6); // Desktop
-    };
+  // Responsive logic removed - drag carousel adapts naturally
 
-    updateItemsPerView();
-    window.addEventListener("resize", updateItemsPerView);
-    return () => window.removeEventListener("resize", updateItemsPerView);
-  }, []);
+  // Drag-based carousel navigation
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startPos, setStartPos] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
 
-  // Carousel navigation functions
-  const canScrollLeft = carouselStartIndex > 0;
-  const canScrollRight =
-    carouselStartIndex + itemsPerView < COMPACT_CATEGORY_ICONS.length;
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setStartPos(e.pageX - (scrollRef.current?.offsetLeft || 0));
+    setScrollLeft(scrollRef.current?.scrollLeft || 0);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    const x = e.pageX - (scrollRef.current?.offsetLeft || 0);
+    const walk = (x - startPos) * 2; // Scroll speed multiplier
+    if (scrollRef.current) {
+      scrollRef.current.scrollLeft = scrollLeft - walk;
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setIsDragging(true);
+    setStartPos(e.touches[0].pageX - (scrollRef.current?.offsetLeft || 0));
+    setScrollLeft(scrollRef.current?.scrollLeft || 0);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    const x = e.touches[0].pageX - (scrollRef.current?.offsetLeft || 0);
+    const walk = (x - startPos) * 2;
+    if (scrollRef.current) {
+      scrollRef.current.scrollLeft = scrollLeft - walk;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
 
   const scrollCarousel = (direction: "left" | "right") => {
-    setCarouselStartIndex((prev) => {
-      if (direction === "left") {
-        return Math.max(0, prev - itemsPerView);
-      } else {
-        return Math.min(
-          Math.max(0, COMPACT_CATEGORY_ICONS.length - itemsPerView),
-          prev + itemsPerView
-        );
-      }
-    });
+    if (scrollRef.current) {
+      const scrollAmount = 200;
+      const newPosition =
+        scrollRef.current.scrollLeft +
+        (direction === "left" ? -scrollAmount : scrollAmount);
+      scrollRef.current.scrollTo({
+        left: Math.max(
+          0,
+          Math.min(
+            newPosition,
+            scrollRef.current.scrollWidth - scrollRef.current.clientWidth
+          )
+        ),
+        behavior: "smooth",
+      });
+    }
   };
+
+  // Scroll state for navigation buttons
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  // Update scroll state when scrolling occurs
+  const updateScrollState = useCallback(() => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1); // -1 for rounding errors
+    }
+  }, []);
+
+  // Listen for scroll events
+  useEffect(() => {
+    const element = scrollRef.current;
+    if (element) {
+      element.addEventListener("scroll", updateScrollState);
+      // Initial check
+      updateScrollState();
+      return () => element.removeEventListener("scroll", updateScrollState);
+    }
+  }, [updateScrollState]);
+
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent) => {
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        scrollCarousel("left");
+      } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        scrollCarousel("right");
+      }
+    },
+    [scrollCarousel]
+  );
 
   // Performance guard: delay expensive computations until user interacts
   // Initialize this FIRST before any other state to avoid "before initialization" errors
@@ -790,10 +904,17 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
         {/* Cyberpunk Category Carousel - Top of Page */}
         <CategoryCarousel
           categories={COMPACT_CATEGORY_ICONS}
-          carouselStartIndex={carouselStartIndex}
-          itemsPerView={itemsPerView}
+          scrollRef={scrollRef}
+          isDragging={isDragging}
           canScrollLeft={canScrollLeft}
           canScrollRight={canScrollRight}
+          handleMouseDown={handleMouseDown}
+          handleMouseMove={handleMouseMove}
+          handleMouseUp={handleMouseUp}
+          handleTouchStart={handleTouchStart}
+          handleTouchMove={handleTouchMove}
+          handleTouchEnd={handleTouchEnd}
+          handleKeyDown={handleKeyDown}
           scrollCarousel={scrollCarousel}
           filters={filters}
           searchParams={searchParams}
@@ -1110,6 +1231,11 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
         onPriceRangeChange={updateFilters.setPriceRange}
         inStockOnly={filters.inStockOnly}
         onInStockChange={updateFilters.setInStockOnly}
+        minRating={filters.minRating}
+        onMinRatingChange={updateFilters.setMinRating}
+        selectedBrands={filters.brands}
+        onBrandsChange={updateFilters.setBrands}
+        availableBrands={getAvailableBrands}
       />
     </div>
   );

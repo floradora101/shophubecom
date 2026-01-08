@@ -233,7 +233,7 @@ export function ProductCard({
             ? compact
               ? "aspect-square w-24 h-24 shrink-0"
               : "aspect-square w-full max-w-48 shrink-0"
-            : "aspect-square w-1/2 mx-auto sm:w-3/4 md:w-full"
+            : "aspect-square w-4/5 mx-auto sm:w-3/4 md:w-full"
         } rounded-lg overflow-hidden transition-all duration-500 ease-out border border-warm-gray-200 hover:border-primary-300 hover:shadow-2xl hover:shadow-primary-500/10 bg-white ${
           compact ? "hover:scale-[1.01]" : "hover:scale-[1.02]"
         } group/card`}

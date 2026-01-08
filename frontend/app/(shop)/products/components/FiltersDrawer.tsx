@@ -25,6 +25,11 @@ interface FiltersDrawerProps {
   onPriceRangeChange: (range: { min: number; max: number }) => void;
   inStockOnly: boolean;
   onInStockChange: (value: boolean) => void;
+  minRating: number | null;
+  onMinRatingChange: (rating: number | null) => void;
+  selectedBrands: string[] | null;
+  onBrandsChange: (brands: string[] | null) => void;
+  availableBrands?: string[];
 }
 
 export function FiltersDrawer({
@@ -37,6 +42,11 @@ export function FiltersDrawer({
   onPriceRangeChange,
   inStockOnly,
   onInStockChange,
+  minRating,
+  onMinRatingChange,
+  selectedBrands,
+  onBrandsChange,
+  availableBrands = [],
 }: FiltersDrawerProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -60,6 +70,11 @@ export function FiltersDrawer({
             onPriceRangeChange={onPriceRangeChange}
             inStockOnly={inStockOnly}
             onInStockChange={onInStockChange}
+            minRating={minRating}
+            onMinRatingChange={onMinRatingChange}
+            selectedBrands={selectedBrands}
+            onBrandsChange={onBrandsChange}
+            availableBrands={availableBrands}
           />
         </div>
       </SheetContent>

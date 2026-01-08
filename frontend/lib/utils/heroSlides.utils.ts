@@ -132,7 +132,7 @@ export function buildSlidesFromFeaturedProducts(
     },
 
     theme: {
-      accentToken: "crimson" as const,
+      accentToken: "red-black" as const,
     },
   }));
 }

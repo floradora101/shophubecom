@@ -368,7 +368,7 @@ export function TrendingNow({ trendingProducts }: TrendingNowProps) {
                 </Text>
               </div>
               <SectionTitle italic="Trending" bold="Now" />
-              <Text className="text-gray-600 max-w-2xl text-lg font-body font-light leading-relaxed">
+              <Text className="text-gray-600 max-w-2xl text-sm md:text-lg font-body font-light leading-relaxed">
                 Discover what everyone&apos;s buying right now. These products
                 are flying off the shelves!
               </Text>

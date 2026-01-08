@@ -3,7 +3,7 @@
  */
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -69,29 +69,16 @@ export function FiltersSidebar({
       : "";
   });
 
-  // Update local state when priceRange prop changes
+  // Sync local state with priceRange prop changes (controlled component pattern)
   useEffect(() => {
-    setLocalMin(
-      priceRange.min !== null && priceRange.min !== undefined
-        ? priceRange.min.toString()
-        : ""
-    );
-    setLocalMax(
-      priceRange.max !== null && priceRange.max !== undefined
-        ? priceRange.max.toString()
-        : ""
-    );
+    setLocalMin(priceRange.min?.toString() ?? "");
+    setLocalMax(priceRange.max?.toString() ?? "");
   }, [priceRange.min, priceRange.max]);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isPriceOpen, setIsPriceOpen] = useState(false);
   const [isAvailabilityOpen, setIsAvailabilityOpen] = useState(false);
   const [isRatingOpen, setIsRatingOpen] = useState(false);
   const [isBrandsOpen, setIsBrandsOpen] = useState(false);
-
-  useEffect(() => {
-    setLocalMin(priceRange.min.toString());
-    setLocalMax(priceRange.max.toString());
-  }, [priceRange.min, priceRange.max]);
 
   const categoryTree = (() => {
     const nodeMap = new Map<string, Category & { children: Category[] }>();
@@ -113,16 +100,17 @@ export function FiltersSidebar({
 
     // If both fields are empty, clear the price filter
     if (!minValue && !maxValue) {
-      onPriceRangeChange({ min: null, max: null });
+      onPriceRangeChange({ min: 0, max: Number.MAX_SAFE_INTEGER });
       return;
     }
 
-    const min = minValue ? parseFloat(minValue) : null;
-    const max = maxValue ? parseFloat(maxValue) : null;
+    const min = minValue ? parseFloat(minValue) : 0;
+    const max = maxValue ? parseFloat(maxValue) : Number.MAX_SAFE_INTEGER;
 
     // Validate inputs
-    const validMin = min !== null && !isNaN(min) && min >= 0 ? min : null;
-    const validMax = max !== null && !isNaN(max) && max >= 0 ? max : null;
+    const validMin = min !== null && !isNaN(min) && min >= 0 ? min : 0;
+    const validMax =
+      max !== null && !isNaN(max) && max >= 0 ? max : Number.MAX_SAFE_INTEGER;
 
     // If min and max are both set and min > max, swap them
     if (validMin !== null && validMax !== null && validMin > validMax) {
@@ -168,8 +156,11 @@ export function FiltersSidebar({
             />
             <span className="text-sm truncate">{cat.name}</span>
             {hasChildren && (
-              <Badge variant="outline" className="text-xs px-2 py-0.5 ml-auto">
-                {cat.children.length}
+              <Badge
+                variant="secondary"
+                className="text-xs px-2 py-0.5 ml-auto"
+              >
+                {cat.children?.length || 0}
               </Badge>
             )}
           </div>
@@ -177,7 +168,7 @@ export function FiltersSidebar({
         {hasChildren && (
           <ul className="space-y-2">
             {cat.children
-              .sort((a, b) => a.name.localeCompare(b.name))
+              ?.sort((a, b) => a.name.localeCompare(b.name))
               .map((child) =>
                 renderCategory(
                   child as Category & { children?: Category[] },

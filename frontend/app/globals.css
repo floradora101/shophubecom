@@ -287,8 +287,13 @@
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 
   /* Hero Theme Variables - New simplified theming system */
-  --hero-h: clamp(480px, min(78svh, 90svw * 0.75), 870px);
+  --hero-h: clamp(550px, min(78svh, 90svw * 0.75), 870px);
   --hero-pad: 40px;
+
+  /* Responsive hero height for better mobile experience */
+  @media (max-width: 640px) {
+    --hero-h: clamp(600px, min(82svh, 95svw * 0.8), 870px);
+  }
 
   /* New theme variables - only used for themed elements (badges, offer backgrounds) */
   --hero-theme-from: var(--primary-600);

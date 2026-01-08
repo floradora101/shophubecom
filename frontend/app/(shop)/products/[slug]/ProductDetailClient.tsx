@@ -710,9 +710,9 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                 />
               </div>
 
-              {/* Technical Specifications - Compact & Original */}
+              {/* Technical Specifications - Hidden on small screens (moved to tabs) */}
               {product.specs && product.specs.length > 0 && (
-                <div className="space-y-4">
+                <div className="space-y-4 hidden sm:block">
                   <div className="border-t border-border/60 pt-6">
                     <div className="flex items-center gap-3 mb-6">
                       <div className="relative">

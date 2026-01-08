@@ -10,6 +10,7 @@ import {
   ChevronDown,
   ChevronUp,
   PenTool,
+  Settings,
 } from "lucide-react";
 import { Tabs, TabItem } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
@@ -382,6 +383,49 @@ function ReviewsTab({ product }: { product: Product }) {
   );
 }
 
+// Specifications Tab Content
+function SpecificationsTab({ product }: { product: Product }) {
+  if (!product.specs || product.specs.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <Settings className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+        <h3 className="text-lg font-medium text-foreground mb-2">
+          No Specifications Available
+        </h3>
+        <p className="text-muted-foreground">
+          Specifications for this product are not currently available.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-surface rounded-xl border border-border/40 overflow-hidden">
+        <div className="divide-y divide-border/30">
+          {product.specs.map((spec, index) => (
+            <div
+              key={index}
+              className="group px-4 py-3 hover:bg-surface-muted/50 transition-colors duration-200"
+            >
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-sm font-medium text-muted-fg flex-1 min-w-0">
+                  {spec.label}
+                </span>
+                <span className="text-sm font-semibold text-fg flex-1 min-w-0 text-right">
+                  {spec.value}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* Compact footer accent */}
+        <div className="h-1 bg-linear-to-r from-primary/20 via-primary/40 to-primary/20" />
+      </div>
+    </div>
+  );
+}
+
 // Description Tab Content
 function DescriptionTab({ product }: { product: Product }) {
   const description = product.description;
@@ -412,6 +456,16 @@ function DescriptionTab({ product }: { product: Product }) {
 export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
   const tabs: TabItem[] = useMemo(() => {
     const tabItems: TabItem[] = [];
+
+    // Specifications Tab - First on small screens
+    if (product.specs && product.specs.length > 0) {
+      tabItems.push({
+        id: "specifications",
+        label: "Specifications",
+        icon: <Settings className="h-4 w-4" />,
+        content: <SpecificationsTab product={product} />,
+      });
+    }
 
     // Description Tab
     if (product.description) {
@@ -451,7 +505,7 @@ export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
 
   return (
     <div className="w-full">
-      <Tabs tabs={tabs} variant="pill" />
+      <Tabs tabs={tabs} variant="pill" size="sm" />
     </div>
   );
 }

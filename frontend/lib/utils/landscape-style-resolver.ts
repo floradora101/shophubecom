@@ -27,7 +27,7 @@ const TEXT_VARIANTS = {
     highlight:
       "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-sans font-bold text-white leading-tight",
     description:
-      "text-base sm:text-lg md:text-xl text-white mt-4 sm:mt-6 max-w-xl leading-relaxed",
+      "text-sm sm:text-base lg:text-lg xl:text-xl text-white mt-4 sm:mt-6 max-w-xl leading-relaxed",
     buttons: "mt-6 flex flex-col gap-3 sm:flex-row sm:gap-4 sm:mt-8",
   },
   glass: {
@@ -41,7 +41,7 @@ const TEXT_VARIANTS = {
     highlight:
       "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-sans font-bold text-white leading-tight",
     description:
-      "text-base sm:text-lg md:text-xl text-white mt-4 sm:mt-6 max-w-xl leading-relaxed",
+      "text-sm sm:text-base lg:text-lg xl:text-xl text-white mt-4 sm:mt-6 max-w-xl leading-relaxed",
     buttons: "mt-6 flex flex-col gap-3 sm:flex-row sm:gap-4 sm:mt-10",
   },
   editorial: {

@@ -1,7 +1,7 @@
 // DepartmentTabs: Consistent grid layout across all departments
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   Smartphone,
@@ -174,13 +174,15 @@ export function DepartmentTabs({
   }, [categories]);
 
   const [activeTab, setActiveTab] = useState(mainCategories[0]?.slug || "");
+  const hasInitializedRef = useRef(false);
 
   // Ensure activeTab is set when categories become available
   useEffect(() => {
-    if (!activeTab && mainCategories.length > 0) {
+    if (!hasInitializedRef.current && mainCategories.length > 0) {
+      hasInitializedRef.current = true;
       setActiveTab(mainCategories[0].slug);
     }
-  }, [activeTab, mainCategories]);
+  }, [mainCategories]);
 
   const activeConfig = departmentConfig[activeTab] || departmentConfig.phones;
 
@@ -288,14 +290,14 @@ export function DepartmentTabs({
                 </span>
               </div>
               <SectionTitle italic="Shop by" bold="Category" />
-              <p className="text-gray-600 max-w-2xl text-lg font-[var(--font-inter)] font-light leading-relaxed">
+              <p className="text-gray-600 max-w-2xl text-sm md:text-lg font-[var(--font-inter)] font-light leading-relaxed">
                 Discover curated collections tailored to your lifestyle
               </p>
             </div>
           </div>
 
           {/* Enhanced Tabs with Icons */}
-          <div className="flex flex-wrap justify-center gap-2.5 pb-4">
+          <div className="flex flex-wrap justify-center gap-2 pb-4">
             {mainCategories.map((category) => {
               const config =
                 departmentConfig[category.slug] || departmentConfig.phones;
@@ -306,7 +308,7 @@ export function DepartmentTabs({
                 <button
                   key={category.id}
                   onClick={() => setActiveTab(category.slug)}
-                  className={`group relative px-5 py-2.5 rounded-xl font-medium transition-all duration-300 ease-in-out transform hover:scale-[1.02] ${
+                  className={`group relative px-3 py-2 rounded-lg font-medium transition-all duration-300 ease-in-out transform hover:scale-[1.02] ${
                     isActive
                       ? `bg-linear-to-r ${config.gradient} text-white shadow-md scale-[1.02]`
                       : "bg-white text-gray-700 hover:text-gray-900 border border-gray-200 hover:border-gray-300 shadow-sm hover:shadow-sm"
@@ -314,17 +316,17 @@ export function DepartmentTabs({
                   aria-selected={isActive}
                   role="tab"
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
                     <Icon
-                      className={`h-4 w-4 transition-transform duration-300 ${
+                      className={`h-3.5 w-3.5 transition-transform duration-300 ${
                         isActive ? "scale-105" : "group-hover:scale-105"
                       }`}
                     />
-                    <span className="text-sm">{category.name}</span>
-                    {isActive && <Zap className="h-3.5 w-3.5 animate-pulse" />}
+                    <span className="text-xs">{category.name}</span>
+                    {isActive && <Zap className="h-3 w-3 animate-pulse" />}
                   </div>
                   {isActive && (
-                    <div className="absolute -bottom-0.5 left-1/2 transform -translate-x-1/2 w-8 h-0.5 bg-white rounded-full" />
+                    <div className="absolute -bottom-0.5 left-1/2 transform -translate-x-1/2 w-6 h-0.5 bg-white rounded-full" />
                   )}
                 </button>
               );

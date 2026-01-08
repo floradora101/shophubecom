@@ -15,29 +15,45 @@ export function SlideLayout({
   mediaFirst = false,
 }: SlideLayoutProps) {
   return (
-    <div className={cn("w-full h-full", className)}>
-      <div className="grid h-full min-h-0 grid-cols-1 lg:grid-cols-12 items-stretch gap-8 lg:gap-12 px-5 lg:px-14">
+    <div className={cn("w-full h-full min-h-0 overflow-hidden", className)}>
+      <div className="px-5 lg:px-14 h-full min-h-0">
         <div
-          data-text
+          data-scroll
           className={cn(
-            "grid grid-rows-[auto_auto_auto_1fr_auto_auto] gap-3 lg:gap-3 min-h-0",
-            mediaFirst ? "lg:order-2" : "lg:order-1",
-            "lg:col-span-5"
+            "w-full h-full min-h-0 overflow-y-auto scrollbar-hide",
+            "lg:overflow-visible lg:h-auto" // desktop keeps normal layout
           )}
+          style={{
+            WebkitOverflowScrolling: "touch",
+            touchAction: "pan-y",
+          }}
         >
-          {textContent}
-        </div>
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 min-h-full lg:min-h-0">
+            <div
+              data-text
+              className={cn(
+                "relative shrink-0",
+                mediaFirst ? "lg:order-2" : "lg:order-1",
+                "lg:w-5/12"
+              )}
+            >
+              <div className="grid grid-rows-[auto_auto_auto_1fr_auto_auto] gap-3 lg:gap-3">
+                {textContent}
+              </div>
+            </div>
 
-        <div
-          data-media
-          className={cn(
-            "flex min-h-0 h-full justify-center lg:justify-end items-start lg:items-stretch",
-            mediaFirst ? "lg:order-1" : "lg:order-2",
-            "lg:col-span-7"
-          )}
-        >
-          <div className="w-full max-w-[620px] lg:h-[calc(var(--hero-h)-var(--hero-pad))] min-h-0">
-            {mediaContent}
+            <div
+              data-media
+              className={cn(
+                "flex justify-center lg:justify-end items-start lg:items-stretch shrink-0",
+                mediaFirst ? "lg:order-1" : "lg:order-2",
+                "lg:w-7/12"
+              )}
+            >
+              <div className="w-full max-w-[620px] h-64 sm:h-80 md:h-96 lg:min-h-[calc(var(--hero-h)-var(--hero-pad))] min-h-0">
+                {mediaContent}
+              </div>
+            </div>
           </div>
         </div>
       </div>

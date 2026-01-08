@@ -62,6 +62,9 @@ export function useSwipe({
 
   const handleTouchStart = useCallback(
     (e: TouchEvent) => {
+      // Allow vertical scrolling when touching scrollable areas
+      if ((e.target as HTMLElement)?.closest?.("[data-scroll]")) return;
+
       const touch = e.touches[0];
       if (!touch) return;
 
@@ -80,6 +83,9 @@ export function useSwipe({
 
   const handleTouchMove = useCallback(
     (e: TouchEvent) => {
+      // Allow vertical scrolling when touching scrollable areas
+      if ((e.target as HTMLElement)?.closest?.("[data-scroll]")) return;
+
       const touch = e.touches[0];
       if (!touch || !swipeStateRef.current.startPos) return;
 
@@ -95,99 +101,85 @@ export function useSwipe({
 
       swipeStateRef.current.isHorizontalIntent = isHorizontalIntent;
 
-      // If horizontal intent is detected and vertical movement is within limits,
-      // prevent default (block vertical scroll)
-      if (isHorizontalIntent && deltaY <= maxVerticalMovement) {
+      // Only prevent default (block vertical scroll) for very strong horizontal intent
+      if (deltaX > 15 && deltaX > deltaY * 2.5) {
         e.preventDefault();
       }
     },
-    [getTouchPosition, maxVerticalMovement]
+    [getTouchPosition]
   );
 
-  const handleTouchEnd = useCallback(
-    (e: TouchEvent) => {
-      const state = swipeStateRef.current;
-      if (!state.startPos || !state.currentPos || !state.isSwiping) {
-        onSwipeEnd?.();
-        return;
-      }
+  const handleTouchEnd = useCallback(() => {
+    const state = swipeStateRef.current;
+    if (!state.startPos || !state.currentPos || !state.isSwiping) {
+      onSwipeEnd?.();
+      return;
+    }
 
-      const deltaX = state.currentPos.x - state.startPos.x;
-      const deltaY = state.currentPos.y - state.startPos.y;
-      const absDeltaX = Math.abs(deltaX);
-      const absDeltaY = Math.abs(deltaY);
+    const deltaX = state.currentPos.x - state.startPos.x;
+    const deltaY = state.currentPos.y - state.startPos.y;
+    const absDeltaX = Math.abs(deltaX);
+    const absDeltaY = Math.abs(deltaY);
 
-      // Only trigger swipe if:
-      // 1. Horizontal movement exceeds threshold
-      // 2. Horizontal movement is greater than vertical movement
-      // 3. Velocity meets threshold
-      // 4. Not too much vertical movement
-      if (
-        absDeltaX >= threshold &&
-        absDeltaX > absDeltaY &&
-        absDeltaY <= maxVerticalMovement &&
-        state.isHorizontalIntent
-      ) {
-        const velocity = calculateVelocity(state.startPos, state.currentPos);
+    // Only trigger swipe if:
+    // 1. Horizontal movement exceeds threshold
+    // 2. Horizontal movement is greater than vertical movement
+    // 3. Velocity meets threshold
+    // 4. Not too much vertical movement
+    if (
+      absDeltaX >= threshold &&
+      absDeltaX > absDeltaY &&
+      absDeltaY <= maxVerticalMovement &&
+      state.isHorizontalIntent
+    ) {
+      const velocity = calculateVelocity(state.startPos, state.currentPos);
 
-        if (velocity >= velocityThreshold) {
-          if (deltaX > 0) {
-            onSwipeRight?.();
-          } else {
-            onSwipeLeft?.();
-          }
+      if (velocity >= velocityThreshold) {
+        if (deltaX > 0) {
+          onSwipeRight?.();
+        } else {
+          onSwipeLeft?.();
         }
       }
+    }
 
-      // Reset state
-      swipeStateRef.current = {
-        startPos: null,
-        currentPos: null,
-        isSwiping: false,
-        isHorizontalIntent: false,
-      };
+    // Reset state
+    swipeStateRef.current = {
+      startPos: null,
+      currentPos: null,
+      isSwiping: false,
+      isHorizontalIntent: false,
+    };
 
-      onSwipeEnd?.();
-    },
-    [
-      threshold,
-      maxVerticalMovement,
-      velocityThreshold,
-      calculateVelocity,
-      onSwipeLeft,
-      onSwipeRight,
-      onSwipeEnd,
-    ]
-  );
+    onSwipeEnd?.();
+  }, [
+    threshold,
+    maxVerticalMovement,
+    velocityThreshold,
+    calculateVelocity,
+    onSwipeLeft,
+    onSwipeRight,
+    onSwipeEnd,
+  ]);
 
   const setElementRef = useCallback(
     (element: HTMLElement | null) => {
       // Remove previous event listeners
       if (elementRef.current) {
-        elementRef.current.removeEventListener("touchstart", handleTouchStart, {
-          passive: false,
-        });
-        elementRef.current.removeEventListener("touchmove", handleTouchMove, {
-          passive: false,
-        });
-        elementRef.current.removeEventListener("touchend", handleTouchEnd, {
-          passive: false,
-        });
+        elementRef.current.removeEventListener("touchstart", handleTouchStart);
+        elementRef.current.removeEventListener("touchmove", handleTouchMove);
+        elementRef.current.removeEventListener("touchend", handleTouchEnd);
       }
 
       elementRef.current = element;
 
       // Add new event listeners
       if (element) {
-        element.addEventListener("touchstart", handleTouchStart, {
-          passive: false,
-        });
+        element.addEventListener("touchstart", handleTouchStart);
         element.addEventListener("touchmove", handleTouchMove, {
           passive: false,
         });
-        element.addEventListener("touchend", handleTouchEnd, {
-          passive: false,
-        });
+        element.addEventListener("touchend", handleTouchEnd);
       }
     },
     [handleTouchStart, handleTouchMove, handleTouchEnd]

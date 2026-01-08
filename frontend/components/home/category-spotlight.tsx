@@ -208,7 +208,7 @@ export function CategorySpotlight({
 
             {/* Enhanced Description */}
             <div className="max-w-4xl mx-auto">
-              <p className="text-gray-300 text-lg leading-relaxed mb-6">
+              <p className="text-gray-300 text-sm md:text-lg leading-relaxed mb-6">
                 Discover our handpicked selection of premium{" "}
                 <span className="text-primary-400 font-semibold bg-primary-400/10 px-2 py-1 rounded-md border border-primary-400/20">
                   {category.name.toLowerCase()}
@@ -356,7 +356,7 @@ export function CategorySpotlight({
                         {featuredProduct.name}
                       </h4>
                       <div className="flex items-center justify-center gap-3">
-                        <span className="text-3xl font-bold bg-gradient-to-r from-primary-400 to-primary-300 bg-clip-text text-transparent">
+                        <span className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary-400 to-primary-300 bg-clip-text text-transparent">
                           {formatPrice(featuredProduct.price)}
                         </span>
                         <Badge
@@ -385,7 +385,7 @@ export function CategorySpotlight({
               </div>
 
               <div className="text-center relative z-10">
-                <h3 className="text-3xl font-bold text-white mb-3 bg-gradient-to-r from-white via-gray-200 to-white bg-clip-text text-transparent">
+                <h3 className="text-2xl md:text-3xl font-bold text-white mb-3 bg-gradient-to-r from-white via-gray-200 to-white bg-clip-text text-transparent">
                   More {category.name}
                 </h3>
                 <p className="text-slate-300 text-lg">

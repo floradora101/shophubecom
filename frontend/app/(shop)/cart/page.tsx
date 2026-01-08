@@ -15,6 +15,86 @@ const steps = [
   { label: "Order Complete", active: false, completed: false },
 ];
 
+// Loading skeleton for cart items
+const CartLoadingSkeleton = () => (
+  <div className="rounded-lg border border-border bg-surface">
+    <div className="hidden border-b px-6 py-3 text-xs font-semibold uppercase text-muted-fg md:grid md:grid-cols-[2fr_repeat(3,1fr)]">
+      <span>Product</span>
+      <span className="text-center">Price</span>
+      <span className="text-center">Quantity</span>
+      <span className="text-center">Subtotal</span>
+    </div>
+
+    <div className="divide-y divide-border">
+      {Array.from({ length: 3 }, (_, i) => (
+        <div
+          key={i}
+          className="grid grid-cols-1 gap-4 px-4 py-4 md:grid-cols-[2fr_repeat(3,1fr)] md:items-center"
+        >
+          <div className="flex gap-4">
+            <SkeletonBlock className="h-24 w-24 shrink-0" />
+            <div className="flex flex-1 flex-col justify-between gap-2">
+              <div>
+                <SkeletonText lines={2} className="mb-2" />
+                <SkeletonBlock className="h-4 w-32" />
+              </div>
+              <SkeletonBlock className="h-6 w-16" />
+            </div>
+          </div>
+
+          <div className="hidden text-center text-sm font-semibold text-fg md:block">
+            <SkeletonBlock className="h-4 w-16 mx-auto" />
+          </div>
+
+          <div className="flex items-center justify-start md:justify-center">
+            <SkeletonBlock className="h-8 w-24" />
+          </div>
+
+          <div className="text-left text-base font-semibold text-fg md:text-center">
+            <SkeletonBlock className="h-5 w-16 mx-auto" />
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+// Loading skeleton for cart summary
+const CartSummarySkeleton = () => (
+  <div className="rounded-lg border border-border bg-surface p-6">
+    <SkeletonBlock className="h-5 w-32 mb-4" />
+    <div className="mt-4 space-y-3 text-sm text-muted-fg">
+      <div className="flex items-center justify-between">
+        <SkeletonBlock className="h-4 w-16" />
+        <SkeletonBlock className="h-4 w-12" />
+      </div>
+
+      <div className="space-y-2">
+        <SkeletonBlock className="h-4 w-20" />
+        <div className="space-y-2 rounded-lg border border-border bg-surface-muted p-3 text-sm text-muted-fg">
+          {Array.from({ length: 3 }, (_, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <SkeletonBlock className="h-4 w-4" />
+              <SkeletonBlock className="h-4 flex-1" />
+              <SkeletonBlock className="h-4 w-8" />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between pt-2 text-base font-semibold text-fg">
+        <SkeletonBlock className="h-5 w-12" />
+        <SkeletonBlock className="h-5 w-16" />
+      </div>
+    </div>
+
+    <div className="mt-6 grid gap-3">
+      <SkeletonBlock className="h-12 w-full" />
+      <SkeletonBlock className="h-12 w-full" />
+    </div>
+  </div>
+);
+
 export default function CartPage() {
   const {
     items,
@@ -34,86 +114,6 @@ export default function CartPage() {
   const total = subtotal + shippingCost;
   const formatOptionLabel = (key: string) =>
     key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
-
-  // Loading skeleton for cart items
-  const CartLoadingSkeleton = () => (
-    <div className="rounded-lg border border-border bg-surface">
-      <div className="hidden border-b px-6 py-3 text-xs font-semibold uppercase text-muted-fg md:grid md:grid-cols-[2fr_repeat(3,1fr)]">
-        <span>Product</span>
-        <span className="text-center">Price</span>
-        <span className="text-center">Quantity</span>
-        <span className="text-center">Subtotal</span>
-      </div>
-
-      <div className="divide-y divide-border">
-        {Array.from({ length: 3 }, (_, i) => (
-          <div
-            key={i}
-            className="grid grid-cols-1 gap-4 px-4 py-4 md:grid-cols-[2fr_repeat(3,1fr)] md:items-center"
-          >
-            <div className="flex gap-4">
-              <SkeletonBlock className="h-24 w-24 shrink-0" />
-              <div className="flex flex-1 flex-col justify-between gap-2">
-                <div>
-                  <SkeletonText lines={2} className="mb-2" />
-                  <SkeletonBlock className="h-4 w-32" />
-                </div>
-                <SkeletonBlock className="h-6 w-16" />
-              </div>
-            </div>
-
-            <div className="hidden text-center text-sm font-semibold text-fg md:block">
-              <SkeletonBlock className="h-4 w-16 mx-auto" />
-            </div>
-
-            <div className="flex items-center justify-start md:justify-center">
-              <SkeletonBlock className="h-8 w-24" />
-            </div>
-
-            <div className="text-left text-base font-semibold text-fg md:text-center">
-              <SkeletonBlock className="h-5 w-16 mx-auto" />
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
-  // Loading skeleton for cart summary
-  const CartSummarySkeleton = () => (
-    <div className="rounded-lg border border-border bg-surface p-6">
-      <SkeletonBlock className="h-5 w-32 mb-4" />
-      <div className="mt-4 space-y-3 text-sm text-muted-fg">
-        <div className="flex items-center justify-between">
-          <SkeletonBlock className="h-4 w-16" />
-          <SkeletonBlock className="h-4 w-12" />
-        </div>
-
-        <div className="space-y-2">
-          <SkeletonBlock className="h-4 w-20" />
-          <div className="space-y-2 rounded-lg border border-border bg-surface-muted p-3 text-sm text-muted-fg">
-            {Array.from({ length: 3 }, (_, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <SkeletonBlock className="h-4 w-4" />
-                <SkeletonBlock className="h-4 flex-1" />
-                <SkeletonBlock className="h-4 w-8" />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between pt-2 text-base font-semibold text-fg">
-          <SkeletonBlock className="h-5 w-12" />
-          <SkeletonBlock className="h-5 w-16" />
-        </div>
-      </div>
-
-      <div className="mt-6 grid gap-3">
-        <SkeletonBlock className="h-12 w-full" />
-        <SkeletonBlock className="h-12 w-full" />
-      </div>
-    </div>
-  );
 
   // Show loading state
   if (isLoading) {

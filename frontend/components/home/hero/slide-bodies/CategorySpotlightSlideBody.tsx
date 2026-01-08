@@ -12,9 +12,11 @@ import { SlideLayout, contentClamp } from "../shared/slide-layout";
 import { HeroItem } from "../shared/hero-item";
 import { useHeroRunCounter } from "@/lib/hooks/use-hero-run-counter";
 import type { HeroSlide } from "@/lib/types/heroSlides.types";
+import type { Product } from "@/features/products/types";
 
 interface CategorySpotlightSlideBodyProps {
   slide: HeroSlide & { type: "CATEGORY_SPOTLIGHT" };
+  product?: Product;
   isActive: boolean;
   index: number;
   onMouseEnter?: () => void;
@@ -24,6 +26,7 @@ interface CategorySpotlightSlideBodyProps {
 export const CategorySpotlightSlideBody = memo(
   function CategorySpotlightSlideBody({
     slide,
+    product,
     isActive,
     onMouseEnter,
     onMouseLeave,
@@ -48,14 +51,14 @@ export const CategorySpotlightSlideBody = memo(
             <HeroItem run={run} animationKey={animationKey}>
               <div className={`space-y-3 hero-item-enter hero-headline`}>
                 <h1
-                  className={`text-3xl md:text-4xl lg:text-5xl font-(--font-dm-sans) font-bold italic leading-tight underline decoration-2 underline-offset-4`}
+                  className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-(--font-dm-sans) italic leading-tight underline decoration-2 underline-offset-4`}
                   style={{ color: "var(--hero-text)" }}
                 >
                   {slide.headline}
                 </h1>
                 {slide.highlight && (
                   <h2
-                    className="text-xl md:text-2xl lg:text-3xl font-(--font-inter) font-bold overline decoration-1"
+                    className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-(--font-inter) overline decoration-1"
                     style={{ color: "var(--hero-accent)" }}
                   >
                     {slide.highlight}
@@ -67,7 +70,7 @@ export const CategorySpotlightSlideBody = memo(
             {/* Row 3: Description */}
             <HeroItem run={run} animationKey={animationKey}>
               <p
-                className={`text-lg leading-relaxed hero-item-enter hero-description ${contentClamp.description}`}
+                className={`text-xs sm:text-sm md:text-base lg:text-lg leading-relaxed hero-item-enter hero-description ${contentClamp.description}`}
                 style={{ color: "var(--hero-muted)" }}
               >
                 {slide.description}
@@ -78,7 +81,7 @@ export const CategorySpotlightSlideBody = memo(
             <HeroItem run={run} animationKey={animationKey}>
               <div className="space-y-3 hero-item-enter hero-description">
                 <h3
-                  className="text-lg font-semibold"
+                  className="text-sm sm:text-base md:text-lg font-semibold"
                   style={{ color: "var(--hero-text)" }}
                 >
                   Top Picks
@@ -120,16 +123,16 @@ export const CategorySpotlightSlideBody = memo(
 
             {/* Row 5: CTAs */}
             <HeroItem run={run} animationKey={animationKey}>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start hero-item-enter hero-buttons">
+              <div className="flex flex-row gap-2 sm:gap-3 md:gap-4 justify-center lg:justify-start hero-item-enter hero-buttons">
                 <Link
                   href={slide.ctaPrimary.href}
                   onMouseEnter={onMouseEnter}
                   onMouseLeave={onMouseLeave}
                 >
-                  <Button className="group w-auto">
-                    <span className="flex items-center gap-2">
+                  <Button className="group w-auto px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 md:py-3 text-xs sm:text-sm md:text-base">
+                    <span className="flex items-center gap-1 sm:gap-1.5 md:gap-2">
                       {slide.ctaPrimary.label}
-                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                      <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 transition-transform group-hover:translate-x-1" />
                     </span>
                   </Button>
                 </Link>
@@ -137,6 +140,7 @@ export const CategorySpotlightSlideBody = memo(
                   <ThemedSecondaryButton
                     label={slide.ctaSecondary.label}
                     href={slide.ctaSecondary.href}
+                    className="px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 md:py-2 min-h-8 sm:min-h-9 md:min-h-10 text-xs sm:text-sm md:text-sm"
                     onMouseEnter={onMouseEnter}
                     onMouseLeave={onMouseLeave}
                   />
@@ -157,7 +161,9 @@ export const CategorySpotlightSlideBody = memo(
             </HeroItem>
           </>
         }
-        mediaContent={<HeroMediaFrame slide={slide} isActive={isActive} />}
+        mediaContent={
+          <HeroMediaFrame slide={slide} product={product} isActive={isActive} />
+        }
       />
     );
   }

@@ -53,14 +53,14 @@ export const ProductSpotlightSlideBody = memo(
             <HeroItem run={run} animationKey={animationKey}>
               <div className={`space-y-3 hero-item-enter hero-headline`}>
                 <h1
-                  className={`text-3xl md:text-4xl lg:text-5xl font-(--font-dm-sans) font-bold italic leading-tight underline decoration-2 underline-offset-4`}
+                  className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-(--font-dm-sans) italic leading-tight underline decoration-2 underline-offset-4`}
                   style={{ color: "var(--hero-text)" }}
                 >
                   {slide.headline}
                 </h1>
                 {slide.highlight && (
                   <h2
-                    className="text-xl md:text-2xl lg:text-3xl font-(--font-inter) font-bold overline decoration-1"
+                    className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-(--font-inter) overline decoration-1"
                     style={{ color: "var(--hero-accent)" }}
                   >
                     {slide.highlight}
@@ -72,7 +72,7 @@ export const ProductSpotlightSlideBody = memo(
             {/* Row 3: Description */}
             <HeroItem run={run} animationKey={animationKey}>
               <p
-                className={`text-lg leading-relaxed hero-item-enter hero-description ${contentClamp.description}`}
+                className={`text-xs sm:text-sm md:text-base lg:text-lg leading-relaxed hero-item-enter hero-description ${contentClamp.description}`}
                 style={{ color: "var(--hero-muted)" }}
               >
                 {slide.description}
@@ -84,7 +84,7 @@ export const ProductSpotlightSlideBody = memo(
               <div className="space-y-8 hero-item-enter hero-description">
                 {product && (
                   <h3
-                    className="text-2xl font-bold"
+                    className="text-lg sm:text-xl md:text-2xl font-bold"
                     style={{ color: "var(--hero-text)" }}
                   >
                     {product.name}
@@ -106,16 +106,16 @@ export const ProductSpotlightSlideBody = memo(
 
             {/* Row 5: CTAs */}
             <HeroItem run={run} animationKey={animationKey}>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start hero-item-enter hero-buttons">
+              <div className="flex flex-row gap-2 sm:gap-3 md:gap-4 justify-center lg:justify-start hero-item-enter hero-buttons">
                 <Link
                   href={slide.ctaPrimary.href}
                   onMouseEnter={onMouseEnter}
                   onMouseLeave={onMouseLeave}
                 >
-                  <Button className="group w-auto">
-                    <span className="flex items-center gap-2">
+                  <Button className="group w-auto px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 md:py-3 text-xs sm:text-sm md:text-base">
+                    <span className="flex items-center gap-1 sm:gap-1.5 md:gap-2">
                       {slide.ctaPrimary.label}
-                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                      <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 transition-transform group-hover:translate-x-1" />
                     </span>
                   </Button>
                 </Link>
@@ -123,6 +123,7 @@ export const ProductSpotlightSlideBody = memo(
                   <ThemedSecondaryButton
                     label={slide.ctaSecondary.label}
                     href={slide.ctaSecondary.href}
+                    className="px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 md:py-2 min-h-8 sm:min-h-9 md:min-h-10 text-xs sm:text-sm md:text-sm"
                     onMouseEnter={onMouseEnter}
                     onMouseLeave={onMouseLeave}
                   />
@@ -149,8 +150,8 @@ export const ProductSpotlightSlideBody = memo(
             product={product}
             isActive={isActive}
             badge={
-              <div className="hero-badge px-3 py-1.5 text-xs font-bold flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5" />
+              <div className="hero-badge px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-bold flex items-center gap-1 sm:gap-1.5">
+                <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 FEATURED
               </div>
             }

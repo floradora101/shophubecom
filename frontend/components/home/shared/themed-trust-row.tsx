@@ -18,28 +18,28 @@ export const ThemedTrustRow = memo(function ThemedTrustRow({
 }: ThemedTrustRowProps) {
   return (
     <div
-      className={`flex flex-wrap items-center gap-4 sm:gap-6 lg:gap-8 ${
+      className={`flex flex-nowrap items-center gap-1.5 sm:gap-3 md:gap-6 lg:gap-8 overflow-x-auto ${
         className || ""
       }`}
     >
       {items.map((item, index) => (
         <div
           key={index}
-          className="flex items-center gap-3 font-medium text-sm"
+          className="flex items-center gap-2 sm:gap-3 font-medium text-xs sm:text-sm"
           style={{
             background: "transparent",
           }}
         >
           {item.icon ? (
             <item.icon
-              className="h-4 w-4"
+              className="h-3 w-3 sm:h-4 sm:w-4"
               style={{
                 color: "var(--hero-theme-from)",
               }}
             />
           ) : item.useDot ? (
             <div
-              className="w-2 h-2 rounded-full"
+              className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full"
               style={{
                 backgroundColor: "var(--hero-theme-from)",
               }}

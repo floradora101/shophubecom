@@ -23,10 +23,10 @@ export const HeroPriceBlock = memo(function HeroPriceBlock({
   const { currentPrice, originalPrice, discountPercent, hasDiscount } = pricing;
 
   return (
-    <div className={`flex items-center gap-3 ${className || ""}`}>
+    <div className={`flex items-center gap-2 sm:gap-3 ${className || ""}`}>
       {/* Main Price Pill */}
       <div
-        className="inline-flex items-center px-4 py-2 rounded-full font-bold text-white shadow-lg transition-transform hover:scale-105"
+        className="inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-bold text-white shadow-lg transition-transform hover:scale-105"
         style={{
           background: `linear-gradient(135deg, var(--hero-accent) 0%, var(--hero-accent-weak) 100%)`,
           boxShadow: `
@@ -36,17 +36,17 @@ export const HeroPriceBlock = memo(function HeroPriceBlock({
           `,
         }}
       >
-        <span className="text-lg tabular-nums">
+        <span className="text-base sm:text-lg tabular-nums">
           <Price amount={currentPrice} />
         </span>
       </div>
 
       {/* Discount Elements */}
       {hasDiscount && (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {/* Strikethrough Original Price */}
           <div
-            className="text-sm font-medium tabular-nums relative"
+            className="text-xs sm:text-sm font-medium tabular-nums relative"
             style={{ color: "var(--hero-muted)" }}
           >
             <Price amount={originalPrice!} />
@@ -63,7 +63,7 @@ export const HeroPriceBlock = memo(function HeroPriceBlock({
           {/* Savings Badge */}
           {discountPercent && (
             <div
-              className="inline-flex items-center px-2 py-1 text-xs font-bold rounded-md border-2"
+              className="inline-flex items-center px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-bold rounded-md border-2"
               style={{
                 backgroundColor: "var(--hero-accent-weak)",
                 borderColor: "var(--hero-accent)",

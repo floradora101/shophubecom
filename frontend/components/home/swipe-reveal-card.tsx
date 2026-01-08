@@ -100,12 +100,14 @@ export function SwipeRevealCard({
     >
       {/* Reveal Layer - Use standard ProductCard component */}
       <div className="absolute inset-0 z-0 bg-white">
-        <div className="p-4 h-full">
-          <ProductCard
-            product={product}
-            layout="vertical"
-            hideDescription={true}
-          />
+        <div className="p-4 h-full flex items-center justify-center">
+          <div className="w-3/4 max-w-xs">
+            <ProductCard
+              product={product}
+              layout="vertical"
+              hideDescription={true}
+            />
+          </div>
         </div>
       </div>
 
@@ -219,33 +221,33 @@ export function SwipeRevealCard({
 
           {/* Premium Tech Content */}
           <div className="relative z-10 text-center space-y-6 p-8">
-            {/* Tech badge with premium styling */}
-            <div className="relative inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-gray-800/95 backdrop-blur-xl border border-gray-600/50 shadow-2xl mb-4">
+            {/* Tech badge with premium styling - responsive sizing */}
+            <div className="relative inline-flex items-center gap-2 sm:gap-3 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 rounded-xl sm:rounded-2xl bg-gray-800/95 backdrop-blur-xl border border-gray-600/50 shadow-2xl mb-4">
               {/* Glow effect */}
-              <div className="absolute inset-0 rounded-2xl bg-linear-to-r from-gray-500/20 via-gray-500/20 to-gray-500/20 blur-sm"></div>
+              <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-linear-to-r from-gray-500/20 via-gray-500/20 to-gray-500/20 blur-sm"></div>
 
-              <div className="relative flex items-center gap-3">
-                {/* Tech icon */}
+              <div className="relative flex items-center gap-2 sm:gap-3">
+                {/* Tech icon - smaller on mobile */}
                 <div className="relative">
-                  <div className="w-6 h-6 border border-gray-400/60 rounded rotate-45 flex items-center justify-center">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 border border-gray-400/60 rounded rotate-45 flex items-center justify-center">
+                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-400 rounded-full animate-pulse"></div>
                   </div>
-                  <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-gray-400 rounded-full animate-ping opacity-75"></div>
+                  <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-400 rounded-full animate-ping opacity-75"></div>
                 </div>
 
-                <span className="text-sm font-bold text-white uppercase tracking-wider">
+                <span className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider">
                   Premium Deal
                 </span>
 
-                {/* Status indicators */}
-                <div className="flex gap-1.5">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                {/* Status indicators - smaller on mobile */}
+                <div className="flex gap-1 sm:gap-1.5">
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-400 rounded-full animate-pulse"></div>
                   <div
-                    className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"
+                    className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-400 rounded-full animate-pulse"
                     style={{ animationDelay: "0.3s" }}
                   ></div>
                   <div
-                    className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"
+                    className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-400 rounded-full animate-pulse"
                     style={{ animationDelay: "0.6s" }}
                   ></div>
                 </div>

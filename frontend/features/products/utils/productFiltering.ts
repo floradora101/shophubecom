@@ -50,8 +50,8 @@ export function filterSortProducts(
     const scoredProducts = filteredProducts.map((product) => {
       const name = product.name.toLowerCase();
       const description = product.description?.toLowerCase() || "";
-      const category = product.category?.toLowerCase() || "";
-      const tags = product.tags?.join(" ").toLowerCase() || "";
+      const category = product.category?.name?.toLowerCase() || "";
+      const tags = "";
 
       let score = 0;
       let matchCount = 0;

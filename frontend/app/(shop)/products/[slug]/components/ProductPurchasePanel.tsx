@@ -169,14 +169,10 @@ export function ProductPurchasePanel({
           canAddToCart
             ? "destructive"
             : optionKeys.length > 0 && !isUserSelectionComplete
-            ? "outline"
+            ? "destructive"
             : "secondary"
         }
-        className={`w-auto h-10 sm:h-9 text-sm font-medium rounded-lg transition-all duration-200 ${
-          optionKeys.length > 0 && !isUserSelectionComplete
-            ? "border-amber-300 text-amber-700 hover:bg-amber-50 hover:border-amber-400"
-            : ""
-        }`}
+        className="w-auto h-10 sm:h-9 text-sm font-medium rounded-lg transition-all duration-200"
         size="default"
       >
         {isOutOfStock

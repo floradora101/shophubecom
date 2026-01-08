@@ -104,6 +104,7 @@ export interface Product {
   discountValue?: number | null;
   saleStartsAt?: string | null;
   saleEndsAt?: string | null;
+  brand?: string | null;
   categoryId?: string;
   category?: Category;
   variants?: ProductVariant[];
@@ -157,4 +158,6 @@ export interface ProductFilters {
   search?: string;
   sortBy?: "name" | "price" | "createdAt";
   sortOrder?: "asc" | "desc";
+  minRating?: number | null;
+  selectedBrands?: string[] | null;
 }

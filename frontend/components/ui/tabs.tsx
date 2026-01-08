@@ -53,7 +53,7 @@ export function Tabs({
     sizeClasses[size]
   );
 
-  const getVariantClasses = (isActive: boolean, tabId: string) => {
+  const getVariantClasses = (isActive: boolean) => {
     switch (variant) {
       case "pill":
         return cn(
@@ -94,17 +94,14 @@ export function Tabs({
       {/* Tab Navigation */}
       <div className="relative mb-6 sm:mb-8">
         {/* Tab buttons container */}
-        <div className="flex gap-1 sm:gap-2 p-1.5 bg-surface rounded-xl border border-border/40">
+        <div className="flex justify-center gap-1 p-1 bg-surface rounded-xl border border-border/40 overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => handleTabChange(tab.id)}
-                className={cn(
-                  tabButtonClasses,
-                  getVariantClasses(isActive, tab.id)
-                )}
+                className={cn(tabButtonClasses, getVariantClasses(isActive))}
                 disabled={false}
               >
                 {/* Tab content */}

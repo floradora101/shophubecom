@@ -12,10 +12,12 @@ import { SlideLayout, contentClamp } from "../shared/slide-layout";
 import { HeroItem } from "../shared/hero-item";
 import { useHeroRunCounter } from "@/lib/hooks/use-hero-run-counter";
 import type { HeroSlide } from "@/lib/types/heroSlides.types";
+import type { Product } from "@/features/products/types";
 import { getDetailedCountdown } from "@/lib/utils/date";
 
 interface OfferSlideBodyProps {
   slide: HeroSlide & { type: "OFFER" };
+  product?: Product;
   isActive: boolean;
   index: number;
   onMouseEnter?: () => void;
@@ -61,14 +63,14 @@ export const OfferSlideBody = memo(function OfferSlideBody({
       <HeroItem run={run} animationKey={animationKey}>
         <div className={`space-y-3 hero-item-enter hero-headline`}>
           <h1
-            className={`text-3xl md:text-4xl lg:text-5xl font-(--font-dm-sans) font-bold italic leading-tight underline decoration-2 underline-offset-4`}
+            className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-(--font-dm-sans) italic leading-tight underline decoration-2 underline-offset-4`}
             style={{ color: "var(--hero-text)" }}
           >
             {slide.headline}
           </h1>
           {slide.highlight && (
             <h2
-              className="text-xl md:text-2xl lg:text-3xl font-(--font-inter) font-bold overline decoration-1"
+              className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-(--font-inter) overline decoration-1"
               style={{ color: "var(--hero-accent)" }}
             >
               {slide.highlight}
@@ -80,7 +82,7 @@ export const OfferSlideBody = memo(function OfferSlideBody({
       {/* Row 3: Description */}
       <HeroItem run={run} animationKey={animationKey}>
         <p
-          className={`text-lg leading-relaxed hero-item-enter hero-description ${contentClamp.description}`}
+          className={`text-xs sm:text-sm md:text-base lg:text-lg leading-relaxed hero-item-enter hero-description ${contentClamp.description}`}
           style={{ color: "var(--hero-muted)" }}
         >
           {slide.description}
@@ -116,13 +118,14 @@ export const OfferSlideBody = memo(function OfferSlideBody({
                 }}
               />
 
-              {/* Compact Content - Single Row Layout */}
-              <div className="relative p-6">
-                <div className="flex items-center justify-between gap-4">
-                  {/* Left: Icon + Offer */}
-                  <div className="flex items-center gap-5 flex-1">
+              {/* Responsive Content Layout */}
+              <div className="relative p-4 sm:p-6">
+                {/* Mobile: Stacked Layout | Desktop: Side-by-Side */}
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 lg:gap-4">
+                  {/* Left: Icon + Offer - Always visible */}
+                  <div className="flex items-center gap-4 lg:gap-5 flex-1 min-w-0">
                     <div
-                      className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+                      className="w-10 h-10 lg:w-10 lg:h-10 rounded-lg flex items-center justify-center shrink-0"
                       style={{
                         backgroundColor: "var(--hero-theme-from)",
                         boxShadow: "0 3px 6px rgba(0,0,0,0.2)",
@@ -133,13 +136,13 @@ export const OfferSlideBody = memo(function OfferSlideBody({
 
                     <div className="flex-1 min-w-0">
                       <div
-                        className="font-bold text-2xl lg:text-3xl tracking-tight truncate"
+                        className="font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl tracking-tight truncate"
                         style={{ color: "var(--hero-text)" }}
                       >
                         {slide.offerLabel}
                       </div>
                       <div
-                        className="text-base opacity-80"
+                        className="text-xs sm:text-sm md:text-base opacity-80"
                         style={{ color: "var(--hero-muted)" }}
                       >
                         Limited time • Use code below
@@ -147,50 +150,50 @@ export const OfferSlideBody = memo(function OfferSlideBody({
                     </div>
                   </div>
 
-                  {/* Right: Timer + Coupon Stack */}
-                  <div className="flex flex-col gap-4 items-end">
-                    {/* Prominent Timer with Labels */}
+                  {/* Right: Timer + Coupon Stack - Responsive sizing */}
+                  <div className="flex flex-col sm:flex-row lg:flex-col gap-2 sm:gap-3 md:gap-4 lg:gap-4 items-start sm:items-center lg:items-end w-full sm:w-auto">
+                    {/* Prominent Timer with Labels - Responsive sizing */}
                     <div
-                      className="px-5 py-3 rounded-lg font-mono text-base font-bold min-w-[140px]"
+                      className="px-2 py-1.5 sm:px-3 sm:py-2 md:px-4 md:py-3 lg:px-5 lg:py-3 rounded-lg font-mono text-xs sm:text-sm md:text-base font-bold min-w-[90px] sm:min-w-[100px] md:min-w-[120px] lg:min-w-[140px] w-full sm:w-auto"
                       style={{
                         backgroundColor: "var(--hero-theme-from)",
                         color: "white",
                       }}
                     >
-                      <div className="flex items-center gap-2 mb-2">
-                        <Clock className="w-5 h-5" />
-                        <span className="text-sm font-semibold">TIME LEFT</span>
+                      <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 mb-1 sm:mb-1.5 md:mb-2">
+                        <Clock className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 lg:w-5 lg:h-5" />
+                        <span className="text-xs font-semibold">TIME LEFT</span>
                       </div>
                       {detailedCountdown.isEndingSoon ? (
-                        <div className="text-xl font-black animate-pulse">
+                        <div className="text-sm sm:text-base md:text-lg font-black animate-pulse">
                           ENDING SOON
                         </div>
                       ) : (
                         <div className="flex items-baseline gap-1 justify-center">
-                          <span className="text-3xl font-black">
+                          <span className="text-lg sm:text-xl md:text-2xl font-black">
                             {detailedCountdown.hours
                               .toString()
                               .padStart(2, "0")}
                           </span>
-                          <span className="text-base font-bold opacity-90 ml-1">
+                          <span className="text-xs font-bold opacity-90 ml-0.5 sm:ml-1">
                             h
                           </span>
-                          <span className="text-3xl font-black ml-2">
+                          <span className="text-lg sm:text-xl md:text-2xl font-black ml-1.5 sm:ml-2">
                             {detailedCountdown.minutes
                               .toString()
                               .padStart(2, "0")}
                           </span>
-                          <span className="text-base font-bold opacity-90 ml-1">
+                          <span className="text-xs font-bold opacity-90 ml-0.5 sm:ml-1">
                             m
                           </span>
                         </div>
                       )}
                     </div>
 
-                    {/* Coupon Badge */}
+                    {/* Coupon Badge - Full width on mobile */}
                     {slide.promoCode && (
                       <div
-                        className="px-5 py-2.5 rounded-lg cursor-pointer border transition-all duration-200 hover:scale-105"
+                        className="px-3 py-2 sm:px-4 sm:py-2.5 md:px-5 rounded-lg cursor-pointer border transition-all duration-200 hover:scale-105 w-full sm:w-auto"
                         style={{
                           backgroundColor:
                             "var(--hero-surface, rgba(255,255,255,0.1))",
@@ -201,21 +204,21 @@ export const OfferSlideBody = memo(function OfferSlideBody({
                         }}
                         onClick={handleCopyCode}
                       >
-                        <div className="flex items-center gap-2.5">
+                        <div className="flex items-center justify-center sm:justify-start gap-2 sm:gap-2.5">
                           <code
-                            className="font-mono font-bold text-base select-all"
+                            className="font-mono font-bold text-xs sm:text-sm md:text-base select-all"
                             style={{ color: "var(--hero-theme-from)" }}
                           >
                             {promoCode}
                           </code>
                           {copied ? (
                             <Check
-                              className="w-5 h-5 animate-pulse"
+                              className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse"
                               style={{ color: "#10b981" }}
                             />
                           ) : (
                             <Copy
-                              className="w-5 h-5"
+                              className="w-4 h-4 sm:w-5 sm:h-5"
                               style={{ color: "var(--hero-muted)" }}
                             />
                           )}
@@ -232,16 +235,16 @@ export const OfferSlideBody = memo(function OfferSlideBody({
 
       {/* Row 5: CTAs */}
       <HeroItem run={run} animationKey={animationKey}>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start hero-item-enter hero-buttons">
+        <div className="flex flex-row gap-2 sm:gap-3 md:gap-4 justify-center lg:justify-start hero-item-enter hero-buttons">
           <Link
             href={slide.ctaPrimary.href}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
           >
-            <Button className="group w-auto">
-              <span className="flex items-center gap-2">
+            <Button className="group w-auto px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 md:py-3 text-xs sm:text-sm md:text-base">
+              <span className="flex items-center gap-1 sm:gap-1.5 md:gap-2">
                 {slide.ctaPrimary.label}
-                <Percent className="h-4 w-4 transition-transform group-hover:scale-110" />
+                <Percent className="h-3 w-3 sm:h-4 sm:w-4 transition-transform group-hover:scale-110" />
               </span>
             </Button>
           </Link>
@@ -249,6 +252,7 @@ export const OfferSlideBody = memo(function OfferSlideBody({
             <ThemedSecondaryButton
               label={slide.ctaSecondary.label}
               href={slide.ctaSecondary.href}
+              className="px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 md:py-2 min-h-8 sm:min-h-9 md:min-h-10 text-xs sm:text-sm md:text-sm"
               onMouseEnter={onMouseEnter}
               onMouseLeave={onMouseLeave}
             />

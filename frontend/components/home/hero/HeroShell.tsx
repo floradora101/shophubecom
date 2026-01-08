@@ -13,7 +13,6 @@ import { SlideIndicators } from "../shared/slide-indicators";
 import { SlideBodyRenderer } from "./SlideBodyRenderer";
 import { usePrefersReducedMotion } from "@/lib/hooks/usePrefersReducedMotion";
 import { useSwipe } from "@/lib/hooks/useSwipe";
-import { motion } from "@/lib/ui-tokens";
 import { validateHeroTheme } from "@/lib/utils/hero-theme-resolver";
 import { useHeroSlideProcessor } from "@/lib/utils/hero-slide-hydrator";
 import type { HeroSlide } from "@/lib/types/heroSlides.types";
@@ -37,11 +36,11 @@ const floatingPositions = [
 
 export function HeroShellSkeleton() {
   return (
-    <div className="relative overflow-hidden h-[var(--hero-h)] py-10 sm:py-14">
+    <div className="relative min-h-[var(--hero-h)] py-10 sm:py-14">
       <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8 xl:max-w-none xl:px-0">
         <div className="relative">
           {/* Solid hero frame (no blur / no glass) */}
-          <div className="relative overflow-hidden rounded-2xl  border border-border shadow-2xl ring-1 ring-border w-full">
+          <div className="relative rounded-2xl border border-border shadow-2xl ring-1 ring-border w-full">
             <div className="w-full h-full grid grid-cols-1 lg:grid-cols-2 items-center gap-8 lg:gap-12 xl:gap-20 px-5 py-6 lg:px-14 lg:py-8">
               {/* Left: Content */}
               <div className="flex flex-col justify-center space-y-5 min-w-0 text-center lg:text-left">
@@ -400,7 +399,7 @@ export function HeroShell({
             >
               <div
                 ref={slideTrackRef}
-                className={`flex ${transitionClasses}`}
+                className={`flex h-full ${transitionClasses}`}
                 style={{
                   transform: transformValue,
                   transition: prefersReducedMotion ? "none" : undefined,
@@ -441,14 +440,14 @@ export function HeroShell({
 
             {processedSlides.length > 1 && (
               <>
-                {/* Arrows */}
+                {/* Arrows - Responsive positioning for mobile */}
                 <NavigationButton
                   variant="primary"
                   direction="left"
                   onClick={prevSlide}
                   onMouseEnter={handleMouseEnter}
                   onMouseLeave={handleMouseLeave}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 z-30"
+                  className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-30"
                   aria-label="Previous slide"
                 />
                 <NavigationButton
@@ -457,7 +456,7 @@ export function HeroShell({
                   onClick={nextSlide}
                   onMouseEnter={handleMouseEnter}
                   onMouseLeave={handleMouseLeave}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 z-30"
+                  className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-30"
                   aria-label="Next slide"
                 />
 

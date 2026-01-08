@@ -270,10 +270,6 @@ export async function getHomePageData(): Promise<HomePageData> {
       )
       .slice(0, 8)
       .map(mockProductToProduct),
-    gamingLaptopsProducts: mockProducts
-      .filter((p) => p.categorySlug?.startsWith("gaming-laptops"))
-      .slice(0, 8)
-      .map(mockProductToProduct),
     featuredProducts: mockProducts.slice(0, 4).map(mockProductToProduct),
     categories: mockCategories
       .filter((cat) => !cat.parentId || cat.parentId === null)

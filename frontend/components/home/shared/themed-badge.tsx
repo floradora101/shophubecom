@@ -14,7 +14,7 @@ export const ThemedBadge = memo(function ThemedBadge({
 }: ThemedBadgeProps) {
   return (
     <div
-      className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 mt-6 w-fit text-sm font-semibold text-white border border-white/22 ${
+      className={`inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-2 sm:px-3 py-1 sm:py-1.5 mt-4 sm:mt-6 w-fit text-xs sm:text-sm font-semibold text-white border border-white/22 ${
         className || ""
       }`}
       style={{
@@ -22,7 +22,7 @@ export const ThemedBadge = memo(function ThemedBadge({
           "linear-gradient(90deg, var(--hero-theme-from), var(--hero-theme-to))",
       }}
     >
-      {Icon && <Icon className="h-3.5 w-3.5" />}
+      {Icon && <Icon className="h-3 w-3 sm:h-3.5 sm:w-3.5" />}
       <span>{children}</span>
     </div>
   );

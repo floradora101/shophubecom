@@ -86,7 +86,7 @@ export function ProductFilters({
               .sort((a, b) => a.name.localeCompare(b.name))
               .map((child) =>
                 renderCategory(
-                  { ...child, children: (child as any).children },
+                  { ...child, children: child.children },
                   depth + 1
                 )
               )}

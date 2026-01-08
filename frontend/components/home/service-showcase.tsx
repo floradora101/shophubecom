@@ -1,14 +1,12 @@
 // Service Showcase: Cyberpunk tech services with advanced visual design
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect } from "react";
 import {
   Smartphone,
   CreditCard,
   Headphones,
   PenTool,
-  Sparkles,
-  CheckCircle,
   Zap,
   Shield,
   Clock,
@@ -107,7 +105,7 @@ function ServiceCard({
 
   return (
     <div
-      className="group relative bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl rounded-3xl p-8 border border-gray-700/50 hover:border-gray-600/70 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-gray-900/50 overflow-hidden"
+      className="group relative bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl rounded-3xl p-4 sm:p-6 lg:p-8 border border-gray-700/50 hover:border-gray-600/70 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-gray-900/50 overflow-hidden"
       style={{
         animationDelay: `${index * 150}ms`,
       }}
@@ -125,7 +123,7 @@ function ServiceCard({
       />
 
       {/* Tech Icon Section */}
-      <div className="relative flex justify-center mb-6">
+      <div className="relative flex justify-center mb-3 sm:mb-4 lg:mb-6">
         <div className="relative">
           {/* Multi-layer Glow Effects */}
           <div
@@ -137,10 +135,10 @@ function ServiceCard({
 
           {/* Main Icon Container */}
           <div
-            className={`relative p-6 ${service.iconBg} rounded-2xl border border-gray-600/30 group-hover:border-gray-500/50 group-hover:scale-110 transition-all duration-500 ${service.glowColor} group-hover:shadow-2xl`}
+            className={`relative p-3 sm:p-4 lg:p-6 ${service.iconBg} rounded-2xl border border-gray-600/30 group-hover:border-gray-500/50 group-hover:scale-110 transition-all duration-500 ${service.glowColor} group-hover:shadow-2xl`}
           >
             <Icon
-              className={`h-12 w-12 ${service.accentColor} drop-shadow-lg`}
+              className={`h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 ${service.accentColor} drop-shadow-lg`}
             />
 
             {/* Animated Dots */}
@@ -156,11 +154,11 @@ function ServiceCard({
       </div>
 
       {/* Content Section */}
-      <div className="relative text-center space-y-4 flex-1 flex flex-col">
+      <div className="relative text-center space-y-2 sm:space-y-3 lg:space-y-4 flex-1 flex flex-col">
         {/* Header */}
-        <div className="space-y-3">
+        <div className="space-y-2 sm:space-y-3">
           <h3
-            className={`text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent group-hover:from-white group-hover:to-white transition-all duration-300`}
+            className={`text-lg sm:text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent group-hover:from-white group-hover:to-white transition-all duration-300`}
           >
             {service.title}
           </h3>
@@ -176,7 +174,7 @@ function ServiceCard({
         </div>
 
         {/* Stats Row */}
-        <div className="flex justify-center gap-4 text-xs">
+        <div className="flex justify-center gap-2 sm:gap-4 text-xs">
           <div className="flex items-center gap-1 text-gray-400">
             <Clock className="h-3 w-3 text-blue-400" />
             <span>{service.stats.turnaround}</span>
@@ -184,16 +182,16 @@ function ServiceCard({
         </div>
 
         {/* Description */}
-        <p className="text-sm text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors duration-300">
+        <p className="text-xs sm:text-sm text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors duration-300 line-clamp-3">
           {service.description}
         </p>
 
         {/* Tech Elements */}
-        <div className="flex flex-wrap justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
-          {service.techElements.map((tech, techIndex) => (
+        <div className="flex flex-wrap justify-center gap-1 sm:gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
+          {service.techElements.slice(0, 2).map((tech, techIndex) => (
             <span
               key={tech}
-              className="text-xs px-2 py-1 bg-gray-800/50 text-gray-300 rounded-md border border-gray-600/30 backdrop-blur-sm"
+              className="text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 bg-gray-800/50 text-gray-300 rounded-md border border-gray-600/30 backdrop-blur-sm"
               style={{
                 animationDelay: `${techIndex * 100 + 300}ms`,
               }}
@@ -204,16 +202,16 @@ function ServiceCard({
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-2 gap-2 flex-1">
-          {service.features.map((feature, featureIndex) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-2 flex-1">
+          {service.features.slice(0, 3).map((feature, featureIndex) => (
             <div
               key={feature}
-              className="flex items-center gap-2 text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0"
+              className="flex items-center gap-1.5 sm:gap-2 text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0"
               style={{
                 transitionDelay: `${featureIndex * 100 + 400}ms`,
               }}
             >
-              <div className="w-1.5 h-1.5 bg-primary-400 rounded-full animate-pulse" />
+              <div className="w-1 sm:w-1.5 h-1 sm:h-1.5 bg-primary-400 rounded-full animate-pulse" />
               <span className="truncate">{feature}</span>
             </div>
           ))}
@@ -255,9 +253,9 @@ export function ServiceShowcase() {
       </div>
 
       <Container className="relative z-10">
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
           {/* Cyberpunk Header */}
-          <div className="text-center space-y-6">
+          <div className="text-center space-y-4 sm:space-y-6">
             {/* Animated Badge */}
             <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-primary-500/20 via-emerald-500/15 to-violet-500/20 backdrop-blur-md border border-primary-400/30 shadow-xl shadow-primary-500/20">
               <div className="relative">
@@ -288,28 +286,28 @@ export function ServiceShowcase() {
 
             {/* Enhanced Description */}
             <div className="max-w-4xl mx-auto">
-              <p className="text-gray-300 text-lg leading-relaxed mb-6">
+              <p className="text-gray-300 text-sm md:text-lg leading-relaxed mb-6">
                 Cutting-edge maintenance and personalization services for all
                 your smart devices. Powered by certified technicians using
                 premium tools and AI-driven diagnostics.
               </p>
 
               {/* Trust Indicators Row */}
-              <div className="flex flex-wrap justify-center gap-6 text-sm">
-                <div className="flex items-center gap-2 bg-gray-800/50 px-4 py-2 rounded-full border border-gray-600/30 backdrop-blur-sm">
-                  <Shield className="h-4 w-4 text-green-400" />
+              <div className="flex flex-wrap justify-center gap-3 sm:gap-4 lg:gap-6 text-xs sm:text-sm">
+                <div className="flex items-center gap-1.5 sm:gap-2 bg-gray-800/50 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-full border border-gray-600/30 backdrop-blur-sm">
+                  <Shield className="h-3 w-3 sm:h-4 sm:w-4 text-green-400" />
                   <span className="text-gray-300">Certified Technicians</span>
                 </div>
-                <div className="flex items-center gap-2 bg-gray-800/50 px-4 py-2 rounded-full border border-gray-600/30 backdrop-blur-sm">
-                  <Clock className="h-4 w-4 text-blue-400" />
+                <div className="flex items-center gap-1.5 sm:gap-2 bg-gray-800/50 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-full border border-gray-600/30 backdrop-blur-sm">
+                  <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-blue-400" />
                   <span className="text-gray-300">90-Day Warranty</span>
                 </div>
-                <div className="flex items-center gap-2 bg-gray-800/50 px-4 py-2 rounded-full border border-gray-600/30 backdrop-blur-sm">
-                  <Zap className="h-4 w-4 text-yellow-400" />
+                <div className="flex items-center gap-1.5 sm:gap-2 bg-gray-800/50 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-full border border-gray-600/30 backdrop-blur-sm">
+                  <Zap className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400" />
                   <span className="text-gray-300">Same-Day Service</span>
                 </div>
-                <div className="flex items-center gap-2 bg-gray-800/50 px-4 py-2 rounded-full border border-gray-600/30 backdrop-blur-sm">
-                  <Star className="h-4 w-4 text-orange-400" />
+                <div className="flex items-center gap-1.5 sm:gap-2 bg-gray-800/50 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-full border border-gray-600/30 backdrop-blur-sm">
+                  <Star className="h-3 w-3 sm:h-4 sm:w-4 text-orange-400" />
                   <span className="text-gray-300">AI Diagnostics</span>
                 </div>
               </div>
@@ -318,7 +316,7 @@ export function ServiceShowcase() {
 
           {/* Services Grid */}
           {mounted && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
               {services.map((service, index) => (
                 <div
                   key={service.title}
@@ -335,21 +333,21 @@ export function ServiceShowcase() {
 
           {/* Bottom Tech Accent */}
           <div className="flex justify-center">
-            <div className="flex items-center gap-4 px-8 py-4 bg-gradient-to-r from-gray-800/50 to-gray-700/50 backdrop-blur-md rounded-full border border-gray-600/30">
-              <div className="flex gap-2">
-                <div className="w-2 h-2 bg-primary-400 rounded-full animate-pulse" />
-                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse delay-200" />
-                <div className="w-2 h-2 bg-violet-400 rounded-full animate-pulse delay-400" />
-                <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse delay-600" />
+            <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gray-800/50 to-gray-700/50 backdrop-blur-md rounded-full border border-gray-600/30">
+              <div className="flex gap-1.5">
+                <div className="w-1.5 h-1.5 bg-primary-400 rounded-full animate-pulse" />
+                <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse delay-200" />
+                <div className="w-1.5 h-1.5 bg-violet-400 rounded-full animate-pulse delay-400" />
+                <div className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-pulse delay-600" />
               </div>
-              <span className="text-gray-400 text-sm font-medium">
+              <span className="text-gray-400 text-xs font-medium">
                 Premium Quality Assured
               </span>
-              <div className="flex gap-2">
-                <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse delay-600" />
-                <div className="w-2 h-2 bg-violet-400 rounded-full animate-pulse delay-400" />
-                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse delay-200" />
-                <div className="w-2 h-2 bg-primary-400 rounded-full animate-pulse" />
+              <div className="flex gap-1.5">
+                <div className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-pulse delay-600" />
+                <div className="w-1.5 h-1.5 bg-violet-400 rounded-full animate-pulse delay-400" />
+                <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse delay-200" />
+                <div className="w-1.5 h-1.5 bg-primary-400 rounded-full animate-pulse" />
               </div>
             </div>
           </div>

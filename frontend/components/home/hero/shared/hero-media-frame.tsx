@@ -64,11 +64,8 @@ export function HeroMediaFrame({
     ) {
       if (isActive) {
         // Attempt to play video with proper error handling
-        videoRef.current.play().catch((error) => {
+        videoRef.current.play().catch(() => {
           // Silently handle autoplay failures (common in browsers)
-          if (process.env.NODE_ENV === "development") {
-            console.warn("Video autoplay failed:", error.message);
-          }
         });
       } else {
         // Pause when not active
@@ -132,13 +129,14 @@ export function HeroMediaFrame({
 
           {/* image */}
           {slide.media.kind === "product" && product ? (
-            <div className="absolute inset-10">
+            <div className="absolute inset-2 sm:inset-4 md:inset-6 lg:inset-8 xl:inset-10 flex items-center justify-center">
               <Image
                 src={getProductImageWithPlaceholder(product)}
                 alt={slide.media.alt || product.name}
-                fill
+                width={400}
+                height={400}
                 className={cn(
-                  "relative z-10 object-contain scale-[1.06] group-hover:scale-[1.1] transition-transform duration-700 ease-out",
+                  "relative z-10 object-contain scale-[1.06] group-hover:scale-[1.1] transition-transform duration-700 ease-out max-w-full max-h-full",
                   getObjectPositionClass(slide.media.position)
                 )}
                 priority={shouldPrioritize}

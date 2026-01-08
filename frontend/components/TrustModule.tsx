@@ -74,36 +74,34 @@ function TrustItem({
 export function TrustModule() {
   return (
     <div className="w-full">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {/* Delivery & Returns Section */}
-        <div className="space-y-2">
-          <TrustItem
-            icon={<Truck className="h-4 w-4" />}
-            title="Fast Delivery"
-            description="Same day in Beirut, 3-6 days Lebanon"
-          />
-          <TrustItem
-            icon={<RotateCcw className="h-4 w-4" />}
-            title="Easy Returns"
-            description="Within 3 days of purchase"
-          />
-        </div>
+      <div className="grid grid-cols-2 gap-3">
+        {/* Fast Delivery */}
+        <TrustItem
+          icon={<Truck className="h-4 w-4" />}
+          title="Fast Delivery"
+          description="Same day in Beirut, 3-6 days Lebanon"
+        />
 
-        {/* Security & Trust Section */}
-        <div className="space-y-2">
-          <TrustItem
-            icon={<Shield className="h-4 w-4" />}
-            title="Secure Checkout"
-            description="Bank-level SSL encryption"
-            className="sm:col-span-1"
-          />
-          <TrustItem
-            icon={<Receipt className="h-4 w-4" />}
-            title="Duties & Taxes"
-            description="Non-refundable, included in price"
-            className="sm:col-span-1"
-          />
-        </div>
+        {/* Easy Returns */}
+        <TrustItem
+          icon={<RotateCcw className="h-4 w-4" />}
+          title="Easy Returns"
+          description="Within 3 days of purchase"
+        />
+
+        {/* Secure Checkout */}
+        <TrustItem
+          icon={<Shield className="h-4 w-4" />}
+          title="Secure Checkout"
+          description="Bank-level SSL encryption"
+        />
+
+        {/* Duties & Taxes */}
+        <TrustItem
+          icon={<Receipt className="h-4 w-4" />}
+          title="Duties & Taxes"
+          description="Non-refundable, included in price"
+        />
       </div>
 
       {/* Security indicators - compact horizontal layout */}
