@@ -32,7 +32,7 @@ export function HeroMediaFrame({
   // Priority: only active slide gets priority
   const shouldPrioritize = isActive;
 
-  // Prefetch next slide image when this slide becomes active
+  // 1 Prefetch next slide image when this slide becomes active
   useEffect(() => {
     if (isActive) {
       // Prefetch logic for next slide (lightweight Image() constructor)
