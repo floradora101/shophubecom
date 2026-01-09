@@ -218,7 +218,6 @@ export default function CheckoutPage() {
 
     try {
       // Mock coupon validation - in production this would be an API call
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API delay
 
       // Simple mock logic - accept "SAVE10", "DISCOUNT20", or "WELCOME15"
       const validCoupons: Record<string, number> = {

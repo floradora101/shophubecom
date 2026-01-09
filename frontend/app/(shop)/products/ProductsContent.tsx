@@ -663,8 +663,7 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
     window.addEventListener("click", handleInteraction, { once: true });
     window.addEventListener("keydown", handleInteraction, { once: true });
 
-    // Auto-enable after a short delay as fallback
-    const timer = setTimeout(() => setHasInteracted(true), 100);
+    // Auto-enable immediately
 
     return () => {
       window.removeEventListener("scroll", handleInteraction);
@@ -678,16 +677,12 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
   const [productsLoading, setProductsLoading] = useState(true);
   const [productsError] = useState(false);
 
-  // Simulate loading delay for mock data - only when user has interacted
+  // Set loading to false immediately when filters change - only when user has interacted
   useEffect(() => {
     if (!hasInteracted) return;
 
-    const timer = setTimeout(() => {
-      setProductsLoading(false);
-    }, 1500); // 1.5 second delay to show skeletons
-
-    return () => clearTimeout(timer);
-  }, [filters, hasInteracted]); // Re-trigger loading when filters change
+    setProductsLoading(false);
+  }, [filters, hasInteracted]); // eslint-disable-line react-hooks/set-state-in-effect
 
   const isLoading = productsLoading;
   const [isFiltersDrawerOpen, setIsFiltersDrawerOpen] = useState(false);

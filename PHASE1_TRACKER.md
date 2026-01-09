@@ -66,15 +66,15 @@
 - **Risk notes:** None
 - **Notes:** Duplicate file already removed, all imports correct
 
-### STEP 6 — REMOVE FAKE LOADING / DEMO DELAYS IN CORE FLOWS
+### STEP 6 — REMOVE FAKE LOADING / DEMO DELAYS IN CORE FLOWS ✅
 
-- [ ] 6.1 Checkout: Remove artificial delays
-- [ ] 6.2 Search: Remove 50ms/200ms simulated delays
-- [ ] 6.3 ProductsContent: Remove fake loading delays
-- **Files changed:** `app/(shop)/checkout/page.tsx`, `app/(shop)/search/page.tsx`, `app/(shop)/products/ProductsContent.tsx`
+- [x] 6.1 Checkout: Remove 1000ms artificial coupon delay
+- [x] 6.2 Search: Remove 50ms/200ms simulated API delays
+- [x] 6.3 ProductsContent: Remove 100ms hasInteracted timer + 1500ms loading delay
+- **Files changed:** `frontend/app/(shop)/checkout/page.tsx`, `frontend/app/(shop)/search/page.tsx`, `frontend/app/(shop)/products/ProductsContent.tsx`
 - **Commands:** `npm run lint`, `npx tsc -p tsconfig.json --noEmit`, `npm run build`
 - **Manual check:** Search immediate, checkout no pause, filters no wait
-- **Risk notes:** Performance improvement
+- **Risk notes:** Performance improvement - no functional changes
 
 ### STEP 7 — INTRODUCE LOGGER WRAPPER + REDUCE CONSOLE NOISE
 
@@ -112,5 +112,5 @@
 
 ## Progress Summary
 
-- **Completed:** 4/10 steps (0, 1, 2, 3, 4)
-- **Next:** Step 5 - Remove duplicate ProductCardSkeleton
+- **Completed:** 5/10 steps (0, 1, 2, 3, 4, 5)
+- **Next:** Step 6 - Remove fake loading delays

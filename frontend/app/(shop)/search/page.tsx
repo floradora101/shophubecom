@@ -26,9 +26,6 @@ async function fetchResultsCount(
   query: string,
   signal?: AbortSignal
 ): Promise<number> {
-  // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 50));
-
   if (signal?.aborted) return 0;
 
   if (!query.trim()) return 0;
@@ -46,9 +43,6 @@ async function fetchResults(
   signal?: AbortSignal,
   limit: number = 8
 ): Promise<Product[]> {
-  // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 200));
-
   if (signal?.aborted) return [];
 
   if (!query.trim()) return [];
