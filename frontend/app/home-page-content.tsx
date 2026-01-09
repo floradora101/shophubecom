@@ -5,9 +5,17 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 // eslint-disable-next-line no-restricted-imports
 import { HeroShell } from "@/components/home/hero/HeroShell";
-import { SkeletonBlock } from "@/components/ui/skeleton";
+import { LazySection } from "@/components/ui/lazy-section";
 import type { HomePageData } from "@/lib/data/home";
-import type { Product } from "@/features/products/types";
+
+// Import skeleton components for dynamic loading
+import { DepartmentTabsSkeleton } from "@/components/home/department-tabs";
+import { ServiceShowcaseSkeleton } from "@/components/home/service-showcase";
+import { ProductRevealSectionSkeleton } from "@/components/home/product-reveal-section";
+import { TrendingNowSkeleton } from "@/components/home/trending-now";
+import { CategorySpotlightSkeleton } from "@/components/home/category-spotlight";
+import { LatestProductsCarouselSkeleton } from "@/components/home/deals-carousel";
+import { BrandStorySkeleton } from "@/components/home/brand-story";
 
 // Dynamic imports for below-the-fold sections with skeleton fallbacks
 const DepartmentTabs = dynamic(
@@ -16,7 +24,7 @@ const DepartmentTabs = dynamic(
       default: mod.DepartmentTabs,
     })),
   {
-    loading: () => <SkeletonBlock className="h-64 w-full" />,
+    loading: () => <DepartmentTabsSkeleton />,
   }
 );
 
@@ -26,7 +34,7 @@ const ServiceShowcase = dynamic(
       default: mod.ServiceShowcase,
     })),
   {
-    loading: () => <SkeletonBlock className="h-96 w-full" />,
+    loading: () => <ServiceShowcaseSkeleton />,
   }
 );
 
@@ -36,7 +44,7 @@ const ProductRevealSection = dynamic(
       default: mod.ProductRevealSection,
     })),
   {
-    loading: () => <SkeletonBlock className="h-[600px] w-full" />,
+    loading: () => <ProductRevealSectionSkeleton />,
   }
 );
 
@@ -46,7 +54,7 @@ const TrendingNow = dynamic(
       default: mod.TrendingNow,
     })),
   {
-    loading: () => <SkeletonBlock className="h-80 w-full" />,
+    loading: () => <TrendingNowSkeleton />,
   }
 );
 
@@ -56,7 +64,7 @@ const CategorySpotlight = dynamic(
       default: mod.CategorySpotlight,
     })),
   {
-    loading: () => <SkeletonBlock className="h-[500px] w-full" />,
+    loading: () => <CategorySpotlightSkeleton />,
   }
 );
 
@@ -66,7 +74,7 @@ const LatestProductsCarousel = dynamic(
       default: mod.LatestProductsCarousel,
     })),
   {
-    loading: () => <SkeletonBlock className="h-72 w-full" />,
+    loading: () => <LatestProductsCarouselSkeleton />,
   }
 );
 
@@ -76,7 +84,7 @@ const BrandStory = dynamic(
       default: mod.BrandStory,
     })),
   {
-    loading: () => <SkeletonBlock className="h-80 w-full" />,
+    loading: () => <BrandStorySkeleton />,
   }
 );
 
@@ -95,44 +103,58 @@ export function HomePageContent({ data }: HomePageContentProps) {
         {/* Hero */}
         <HeroShell slides={data.heroSlides} productsBySlug={productsBySlug} />
 
-        {/* Department Tabs */}
-        <DepartmentTabs
-          categories={data.categories}
-          productsByCategory={productsByCategory}
-        />
+        {/* Department Tabs - Lazy loaded when in viewport */}
+        <LazySection>
+          <DepartmentTabs
+            categories={data.categories}
+            productsByCategory={productsByCategory}
+          />
+        </LazySection>
 
-        {/* Service Showcase */}
-        <ServiceShowcase />
+        {/* Service Showcase - Lazy loaded when in viewport */}
+        <LazySection>
+          <ServiceShowcase />
+        </LazySection>
 
-        {/* Product Reveal */}
-        <ProductRevealSection
-          products={data.trendingProducts}
-          categories={data.categories}
-        />
+        {/* Product Reveal - Lazy loaded when in viewport */}
+        <LazySection>
+          <ProductRevealSection
+            products={data.trendingProducts}
+            categories={data.categories}
+          />
+        </LazySection>
 
-        {/* Trending Now */}
-        <TrendingNow
-          trendingProducts={data.trendingProducts}
-          categories={data.categories || []}
-        />
+        {/* Trending Now - Lazy loaded when in viewport */}
+        <LazySection>
+          <TrendingNow
+            trendingProducts={data.trendingProducts}
+            categories={data.categories || []}
+          />
+        </LazySection>
 
-        {/* Category Spotlight */}
-        <CategorySpotlight
-          spotlightCategory={{
-            slug: "gaming-laptops",
-            name: "Gaming Laptops",
-            description: "High-performance laptops built for gaming excellence",
-            products: productsByCategory["gaming-laptops"] || [],
-            accentColor: "#8b5cf6",
-          }}
-          categories={data.categories}
-        />
+        {/* Category Spotlight - Lazy loaded when in viewport */}
+        <LazySection>
+          <CategorySpotlight
+            spotlightCategory={{
+              slug: "gaming-laptops",
+              name: "Gaming Laptops",
+              description: "High-performance laptops built for gaming excellence",
+              products: productsByCategory["gaming-laptops"] || [],
+              accentColor: "#8b5cf6",
+            }}
+            categories={data.categories}
+          />
+        </LazySection>
 
-        {/* Latest Products */}
-        <LatestProductsCarousel products={data.latestProducts} />
+        {/* Latest Products - Lazy loaded when in viewport */}
+        <LazySection>
+          <LatestProductsCarousel products={data.latestProducts} />
+        </LazySection>
 
-        {/* Brand Story */}
-        <BrandStory />
+        {/* Brand Story - Lazy loaded when in viewport */}
+        <LazySection>
+          <BrandStory />
+        </LazySection>
       </main>
       <Footer />
     </div>

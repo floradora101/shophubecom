@@ -28,14 +28,7 @@ import {
   deleteHeroSlide,
   type HeroSlide,
 } from "../_lib/admin-data";
-import {
-  Plus,
-  MoreHorizontal,
-  Edit,
-  Trash2,
-  Eye,
-  EyeOff,
-} from "lucide-react";
+import { Plus, MoreHorizontal, Edit, Trash2, Eye, EyeOff } from "lucide-react";
 
 type TypeFilter =
   | "all"
@@ -250,7 +243,11 @@ export default function HeroSlidesPage() {
 
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" aria-label="More actions">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label="More actions"
+                        >
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
