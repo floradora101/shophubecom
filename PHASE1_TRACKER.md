@@ -102,13 +102,14 @@
 - **Manual check:** Products page works exactly the same
 - **Risk notes:** None - safe constant extraction
 
-### STEP 10 (BONUS) — PDP ROUTE LOADING SKELETON
+### STEP 10 (BONUS) — PDP ROUTE LOADING SKELETON ✅
 
-- [ ] 10.1 Add `app/(shop)/products/[slug]/loading.tsx`
-- **Files changed:** `app/(shop)/products/[slug]/loading.tsx`
+- [x] 10.1 Add `app/(shop)/products/[slug]/loading.tsx`
+- [x] 10.2 Use existing ProductDetailSkeleton
+- **Files changed:** `frontend/app/(shop)/products/[slug]/loading.tsx`
 - **Commands:** `npm run lint`, `npx tsc -p tsconfig.json --noEmit`, `npm run build`
 - **Manual check:** Hard refresh PDP shows skeleton briefly
-- **Risk notes:** None
+- **Risk notes:** None - safe loading UI
 
 ## Progress Summary
 
