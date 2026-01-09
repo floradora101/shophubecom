@@ -155,8 +155,6 @@ export function ProfileAccountDetails() {
             <LoadingButton type="submit" loading={isLoading} size="lg">
               Update Profile
             </LoadingButton>
-              Update Profile
-            </Button>
           </div>
         </form>
       </div>

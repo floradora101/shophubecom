@@ -288,7 +288,6 @@ export function OrderSummaryCard({
             >
               Place Order
             </LoadingButton>
-            </Button>
           </div>
         )}
       </div>
