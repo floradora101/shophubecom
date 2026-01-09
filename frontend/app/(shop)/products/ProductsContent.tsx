@@ -61,7 +61,7 @@ interface UpdateFilters {
   setBrands: (brands: string[] | null) => void;
   setPage: (page: number) => void;
 }
-import { FiltersSidebarSkeleton } from "@/components/ui/loading-spinner";
+import { FiltersSidebarSkeleton } from "@/lib/ui/loading";
 
 // CategoryCarousel moved to components/CategoryCarousel.tsx
 

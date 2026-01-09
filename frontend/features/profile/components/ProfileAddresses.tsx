@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { LoadingSpinner } from "@/components/ui/spinner";
 import { extractErrorMessage } from "@/lib/utils/error-handler";
 import { AddressForm } from "./AddressForm";
 import { Button } from "@/components/ui/button";

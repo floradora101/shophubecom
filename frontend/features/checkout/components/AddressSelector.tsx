@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useAddressesQuery } from "@/features/addresses/queries";
 import type { Address } from "@/features/addresses/api";
 import { MapPin, Plus, Check } from "lucide-react";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { LoadingSpinner } from "@/components/ui/spinner";
 
 interface AddressSelectorProps {
   selectedAddressId: string | null;

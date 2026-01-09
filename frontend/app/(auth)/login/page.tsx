@@ -4,7 +4,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { LoadingSpinner } from "@/components/ui/spinner";
 import { LoginForm } from "@/features/auth";
 
 function LoginContent() {

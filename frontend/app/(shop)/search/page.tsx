@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { ProductCard } from "@/features/products/components/ProductCard";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { LoadingSpinner } from "@/components/ui/spinner";
 import {
   mockProducts,
   mockProductToProduct,

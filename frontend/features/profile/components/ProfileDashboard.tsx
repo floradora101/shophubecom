@@ -3,7 +3,7 @@
 
 import { toast } from "sonner";
 import { useOrderStatsQuery } from "@/features/orders/queries";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { LoadingSpinner } from "@/components/ui/spinner";
 import { Package, DollarSign, Clock, CheckCircle } from "lucide-react";
 import { extractErrorMessage } from "@/lib/utils/error-handler";
 import { formatPrice } from "@/lib/utils";

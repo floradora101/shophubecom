@@ -3,7 +3,7 @@
 
 import { Suspense, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { LoadingSpinner } from "@/components/ui/spinner";
 import { ProfileDashboard } from "@/features/profile/components/ProfileDashboard";
 import { ProfileOrders } from "@/features/profile/components/ProfileOrders";
 import { ProfileAddresses } from "@/features/profile/components/ProfileAddresses";

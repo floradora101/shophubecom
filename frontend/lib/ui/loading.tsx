@@ -1,6 +1,6 @@
 // Loading UI helpers and utilities
 import { SkeletonBlock } from "@/components/ui/skeleton";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { LoadingSpinner } from "@/components/ui/spinner";
 
 // Route-level loading skeletons for common patterns
 
@@ -24,7 +24,7 @@ export function PageLoadingSpinner({
 /**
  * Products grid loading skeleton
  */
-export function ProductsGridSkeletonBlock({ count = 8 }: { count?: number } = {}) {
+export function ProductsGridSkeleton({ count = 8 }: { count?: number } = {}) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {Array.from({ length: count }, (_, i) => (
@@ -47,7 +47,7 @@ export function ProductsGridSkeletonBlock({ count = 8 }: { count?: number } = {}
 /**
  * Category listing skeleton
  */
-export function CategoryGridSkeletonBlock({ count = 6 }: { count?: number } = {}) {
+export function CategoryGridSkeleton({ count = 6 }: { count?: number } = {}) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
       {Array.from({ length: count }, (_, i) => (
@@ -63,7 +63,7 @@ export function CategoryGridSkeletonBlock({ count = 6 }: { count?: number } = {}
 /**
  * Search results loading skeleton
  */
-export function SearchResultsSkeletonBlock() {
+export function SearchResultsSkeleton() {
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
@@ -78,7 +78,7 @@ export function SearchResultsSkeletonBlock() {
 /**
  * Cart items loading skeleton
  */
-export function CartItemsSkeletonBlock({ count = 3 }: { count?: number } = {}) {
+export function CartItemsSkeleton({ count = 3 }: { count?: number } = {}) {
   return (
     <div className="space-y-4">
       {Array.from({ length: count }, (_, i) => (
@@ -101,7 +101,7 @@ export function CartItemsSkeletonBlock({ count = 3 }: { count?: number } = {}) {
 /**
  * Profile sections loading skeleton
  */
-export function ProfileSkeletonBlock() {
+export function ProfileSkeleton() {
   return (
     <div className="space-y-8">
       <div className="text-center space-y-4">
@@ -128,7 +128,7 @@ export function ProfileSkeletonBlock() {
 /**
  * Form loading skeleton
  */
-export function FormSkeletonBlock({ fields = 4 }: { fields?: number } = {}) {
+export function FormSkeleton({ fields = 4 }: { fields?: number } = {}) {
   return (
     <div className="space-y-6 max-w-md mx-auto">
       {Array.from({ length: fields }, (_, i) => (
@@ -138,6 +138,67 @@ export function FormSkeletonBlock({ fields = 4 }: { fields?: number } = {}) {
         </div>
       ))}
       <SkeletonBlock className="h-10 w-full" />
+    </div>
+  );
+}
+
+/**
+ * Filters sidebar skeleton for products page
+ * Mimics the structure of the filters sidebar during loading
+ */
+export function FiltersSidebarSkeleton() {
+  return (
+    <div className="relative bg-white/80 backdrop-blur-xl rounded-lg p-8 shadow-lg border border-warm-gray-200/50">
+      <div className="mb-6">
+        <SkeletonBlock className="h-6 w-3/4 mb-2" />
+        <SkeletonBlock className="h-4 w-1/2" />
+      </div>
+
+      {/* Category section skeleton */}
+      <div className="space-y-3 mb-8">
+        <SkeletonBlock className="h-4 w-full" />
+        <SkeletonBlock className="h-4 w-5/6 ml-4" />
+        <SkeletonBlock className="h-4 w-4/6 ml-4" />
+        <SkeletonBlock className="h-4 w-full ml-8" />
+        <SkeletonBlock className="h-4 w-3/4 ml-8" />
+        <SkeletonBlock className="h-4 w-5/6" />
+        <SkeletonBlock className="h-4 w-2/3 ml-4" />
+      </div>
+
+      {/* Price range section skeleton */}
+      <div className="space-y-4 mb-8">
+        <div className="flex items-center gap-2 mb-4">
+          <SkeletonBlock className="w-4 h-4 rounded" />
+          <SkeletonBlock className="h-4 w-24" />
+        </div>
+
+        <div className="space-y-2">
+          <SkeletonBlock className="h-3 w-20" />
+          <div className="grid grid-cols-1 gap-1">
+            {Array.from({ length: 5 }, (_, i) => (
+              <SkeletonBlock key={i} className="h-8 rounded-lg" />
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <SkeletonBlock className="h-3 w-24" />
+          <div className="flex items-center gap-2">
+            <SkeletonBlock className="h-8 flex-1 rounded" />
+            <SkeletonBlock className="h-8 flex-1 rounded" />
+          </div>
+          <SkeletonBlock className="h-8 w-full rounded" />
+        </div>
+      </div>
+
+      {/* Availability section skeleton */}
+      <div>
+        <SkeletonBlock className="h-4 w-20 mb-4" />
+        <div className="flex items-center gap-3">
+          <SkeletonBlock className="w-4 h-4 rounded" />
+          <SkeletonBlock className="h-4 w-24" />
+        </div>
+      </div>
     </div>
   );
 }

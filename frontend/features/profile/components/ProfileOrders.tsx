@@ -5,7 +5,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { useOrdersQuery } from "@/features/orders/queries";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { LoadingSpinner } from "@/components/ui/spinner";
 import { extractErrorMessage } from "@/lib/utils/error-handler";
 import { formatPrice } from "@/lib/utils";
 

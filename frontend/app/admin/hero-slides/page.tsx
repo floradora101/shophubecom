@@ -33,7 +33,6 @@ import {
   MoreHorizontal,
   Edit,
   Trash2,
-  Image,
   Eye,
   EyeOff,
 } from "lucide-react";

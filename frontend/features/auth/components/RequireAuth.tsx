@@ -34,7 +34,7 @@ import { Suspense, useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useShallow } from "zustand/react/shallow";
 import { useAuthStore } from "@/store/auth-store";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { LoadingSpinner } from "@/components/ui/spinner";
 import type { User } from "../types";
 import { buildFullPath, buildLoginRedirect } from "../routes";
 

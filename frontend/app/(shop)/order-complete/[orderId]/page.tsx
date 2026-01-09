@@ -8,7 +8,7 @@ import { Section } from "@/components/ui/section";
 import { Container } from "@/components/ui/container";
 import { Stack } from "@/components/ui/stack";
 import { Card } from "@/components/ui/card";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { LoadingSpinner } from "@/components/ui/spinner";
 import { Stepper } from "@/components/ui/stepper";
 import { Heading, Text } from "@/components/ui/typography";
 import { ordersApi } from "@/features/orders/api";

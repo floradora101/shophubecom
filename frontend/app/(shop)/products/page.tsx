@@ -8,7 +8,7 @@
  * Other filters (search, price, sort, inStockOnly) remain as query parameters.
  */
 import { Suspense } from "react";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
+import { LoadingSpinner } from "@/components/ui/spinner";
 import { ProductsContent } from "./ProductsContent";
 
 export default function ProductsPage() {
