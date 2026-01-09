@@ -1,4 +1,5 @@
 import * as React from "react";
+import Link from "next/link";
 import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 import { Button } from "./button";
 import { cn } from "@/lib/utils/cn";
@@ -131,10 +132,10 @@ export function ErrorState({
             </Button>
           )}
           <Button asChild variant="outline">
-            <a href="/">
+            <Link href="/">
               <Home className="h-4 w-4 mr-2" />
               Go Home
-            </a>
+            </Link>
           </Button>
         </div>
       )}
