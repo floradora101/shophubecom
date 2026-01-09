@@ -70,7 +70,7 @@ export function SearchResultsSkeleton() {
         <SkeletonBlock className="h-8 w-64 mx-auto" />
         <SkeletonBlock className="h-4 w-96 mx-auto" />
       </div>
-      <ProductsGridSkeletonBlock count={12} />
+      <ProductsGridSkeleton count={12} />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
+import { SkeletonBlock, SkeletonCircle, SkeletonText } from "@/components/ui/skeleton";
 
 export default function CheckoutLoading() {
   return (
@@ -8,8 +9,8 @@ export default function CheckoutLoading() {
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Header skeleton */}
           <div className="text-center space-y-4">
-            <div className="h-8 bg-gray-200 rounded w-40 mx-auto animate-pulse" />
-            <div className="h-4 bg-gray-200 rounded w-80 mx-auto animate-pulse" />
+            <SkeletonText className="mx-auto" lines={1} lineHeight="h-8" />
+            <SkeletonText className="mx-auto" lines={1} lineHeight="h-4" />
           </div>
 
           <div className="grid lg:grid-cols-3 gap-8">
@@ -19,8 +20,8 @@ export default function CheckoutLoading() {
               <div className="flex justify-center space-x-8">
                 {Array.from({ length: 3 }, (_, i) => (
                   <div key={i} className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse" />
-                    <div className="h-4 bg-gray-200 rounded w-20 animate-pulse" />
+                    <SkeletonCircle className="w-8 h-8" />
+                    <SkeletonBlock className="h-4 w-20" />
                   </div>
                 ))}
               </div>
@@ -32,12 +33,12 @@ export default function CheckoutLoading() {
                     key={i}
                     className="border border-gray-200 rounded-lg p-6 space-y-4"
                   >
-                    <div className="h-6 bg-gray-200 rounded w-32 animate-pulse" />
+                    <SkeletonBlock className="h-6 w-32" />
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {Array.from({ length: 4 }, (_, j) => (
                         <div key={j} className="space-y-2">
-                          <div className="h-4 bg-gray-200 rounded w-24 animate-pulse" />
-                          <div className="h-10 bg-gray-200 rounded animate-pulse" />
+                          <SkeletonBlock className="h-4 w-24" />
+                          <SkeletonBlock className="h-10 w-full" />
                         </div>
                       ))}
                     </div>
@@ -49,23 +50,23 @@ export default function CheckoutLoading() {
             {/* Sidebar */}
             <div className="space-y-6">
               <div className="border border-gray-200 rounded-lg p-6 space-y-4">
-                <div className="h-6 bg-gray-200 rounded w-24 animate-pulse" />
+                <SkeletonBlock className="h-6 w-24" />
                 <div className="space-y-3">
                   {Array.from({ length: 3 }, (_, i) => (
                     <div key={i} className="flex justify-between">
-                      <div className="h-4 bg-gray-200 rounded w-32 animate-pulse" />
-                      <div className="h-4 bg-gray-200 rounded w-16 animate-pulse" />
+                      <SkeletonBlock className="h-4 w-32" />
+                      <SkeletonBlock className="h-4 w-16" />
                     </div>
                   ))}
                 </div>
                 <div className="border-t pt-4">
                   <div className="flex justify-between">
-                    <div className="h-5 bg-gray-200 rounded w-16 animate-pulse" />
-                    <div className="h-5 bg-gray-200 rounded w-20 animate-pulse" />
+                    <SkeletonBlock className="h-5 w-16" />
+                    <SkeletonBlock className="h-5 w-20" />
                   </div>
                 </div>
               </div>
-              <div className="h-12 bg-gray-200 rounded animate-pulse" />
+              <SkeletonBlock className="h-12 w-full" />
             </div>
           </div>
         </div>

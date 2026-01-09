@@ -1,5 +1,6 @@
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
+import { SkeletonBlock, SkeletonText } from "@/components/ui/skeleton";
 import { ProductsGridSkeleton } from "@/lib/ui/loading";
 
 export default function ProductsLoading() {
@@ -9,24 +10,24 @@ export default function ProductsLoading() {
         <div className="space-y-8">
           {/* Header skeleton */}
           <div className="text-center space-y-4">
-            <div className="h-8 bg-gray-200 rounded w-64 mx-auto animate-pulse" />
-            <div className="h-4 bg-gray-200 rounded w-96 mx-auto animate-pulse" />
+            <SkeletonText className="mx-auto" lines={1} lineHeight="h-8" />
+            <SkeletonText className="mx-auto" lines={1} lineHeight="h-4" />
           </div>
 
           {/* Filters skeleton */}
           <div className="flex flex-wrap gap-4 justify-center">
             {Array.from({ length: 4 }, (_, i) => (
-              <div
+              <SkeletonBlock
                 key={i}
-                className="h-10 bg-gray-200 rounded-full w-24 animate-pulse"
+                className="h-10 rounded-full w-24"
               />
             ))}
           </div>
 
           {/* Sort skeleton */}
           <div className="flex justify-between items-center">
-            <div className="h-4 bg-gray-200 rounded w-32 animate-pulse" />
-            <div className="h-8 bg-gray-200 rounded w-32 animate-pulse" />
+            <SkeletonBlock className="h-4 w-32" />
+            <SkeletonBlock className="h-8 w-32" />
           </div>
 
           {/* Products grid skeleton */}
