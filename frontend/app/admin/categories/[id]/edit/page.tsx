@@ -256,7 +256,7 @@ export default function EditCategoryPage() {
             <LoadingButton type="submit" loading={isSubmitting}>
               <Save className="h-4 w-4 mr-2" />
               {isSubmitting ? "Saving..." : "Save Changes"}
-            </Button>
+            </LoadingButton>
           </div>
         </form>
       </Card>

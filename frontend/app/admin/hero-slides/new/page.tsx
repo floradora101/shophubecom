@@ -87,7 +87,7 @@ export default function NewHeroSlidePage() {
             <LoadingButton type="submit" loading={isSubmitting}>
               <Save className="h-4 w-4 mr-2" />
               {isSubmitting ? "Creating..." : "Create Slide"}
-            </Button>
+            </LoadingButton>
           </div>
         </Card>
       </form>

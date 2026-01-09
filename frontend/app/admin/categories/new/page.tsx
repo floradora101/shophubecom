@@ -195,7 +195,7 @@ export default function NewCategoryPage() {
             <LoadingButton type="submit" loading={isSubmitting}>
               <Save className="h-4 w-4 mr-2" />
               {isSubmitting ? "Creating..." : "Create Category"}
-            </Button>
+            </LoadingButton>
           </div>
         </form>
       </Card>

@@ -287,6 +287,7 @@ export function OrderSummaryCard({
               loadingText="Placing order..."
             >
               Place Order
+            </LoadingButton>
             </Button>
           </div>
         )}
