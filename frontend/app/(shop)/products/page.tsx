@@ -7,8 +7,6 @@
  * Categories are now handled via routes: /products/category/[category-slug]
  * Other filters (search, price, sort, inStockOnly) remain as query parameters.
  */
-"use client";
-
 import { Suspense } from "react";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { ProductsContent } from "./ProductsContent";
