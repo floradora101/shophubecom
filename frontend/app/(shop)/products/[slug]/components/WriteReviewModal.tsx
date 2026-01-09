@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { PenTool, X, ArrowLeft, ArrowRight, Check } from "lucide-react";
 import {
   Dialog,
@@ -234,10 +235,12 @@ export function WriteReviewModal({
           <Card className="p-4 bg-surface-muted/50 border-border mb-6">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-lg overflow-hidden border border-border">
-                <img
+                <Image
                   src={product.images?.[0] || "/placeholder-product.png"}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
+                  sizes="48px"
                 />
               </div>
               <div className="flex-1 min-w-0">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -120,10 +121,13 @@ export default function HeroSlidesPage() {
     return (
       <div className="flex items-center gap-3">
         {slide.media.kind === "image" && slide.media.imageUrl ? (
-          <img
+          <Image
             src={slide.media.imageUrl}
             alt={slide.media.alt || ""}
-            className="w-16 h-16 object-cover rounded-lg"
+            width={64}
+            height={64}
+            className="object-cover rounded-lg"
+            sizes="64px"
           />
         ) : (
           <div className="w-16 h-16 bg-warm-gray-100 rounded-lg flex items-center justify-center">

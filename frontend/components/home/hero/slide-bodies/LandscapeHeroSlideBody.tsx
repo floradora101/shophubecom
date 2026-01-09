@@ -1,6 +1,7 @@
 "use client";
 
 import { memo } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import type { LandscapeImageSlide } from "@/lib/types/heroSlides.types";
 import { getLandscapeTextClasses } from "@/lib/utils/landscape-style-resolver";
@@ -67,19 +68,18 @@ export const LandscapeHeroSlideBody = memo(function LandscapeHeroSlideBody({
       <div className="absolute inset-0 bg-gray-900" />
 
       {/* Full-frame landscape background image */}
-      <img
+      <Image
         src={slide.media.imageUrl}
         alt={slide.media.alt || ""}
-        className="absolute inset-0 w-full h-full object-contain md:object-cover object-center md:object-top"
+        fill
+        className="object-contain md:object-cover object-center md:object-top"
         style={{
           zIndex: 1,
-          minHeight: "100%",
           objectPosition:
             objectPosition !== "center" ? objectPosition : undefined,
         }}
-        loading={isActive ? "eager" : "lazy"}
-        fetchPriority={isActive ? "high" : "auto"}
-        decoding="async"
+        sizes="100vw"
+        priority={isActive}
       />
 
       {/* Optional text content overlay */}

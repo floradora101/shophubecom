@@ -208,6 +208,7 @@ export function Header() {
                   width={120}
                   height={120}
                   className="object-contain"
+                  sizes="120px"
                 />
               </Link>
 
