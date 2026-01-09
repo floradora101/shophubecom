@@ -1,6 +1,3 @@
-"use client";
-
-import { useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Heading, Text } from "@/components/ui/typography";
 import { PageHeader } from "@/components/ui/page-header";
@@ -54,7 +51,7 @@ function StatCard({
 }
 
 export default function AdminDashboard() {
-  const stats = useMemo(() => getDashboardStats(), []);
+  const stats = getDashboardStats();
 
   return (
     <div className="space-y-6">
