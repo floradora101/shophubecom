@@ -1,4 +1,4 @@
-yesimport { Card } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Heading, Text } from "@/components/ui/typography";
 import { PageHeader } from "@/components/ui/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
