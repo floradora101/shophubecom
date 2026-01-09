@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/features/products/components/ProductCard";
 import { ProductCardSkeleton } from "@/features/products/components/ProductCardSkeleton";
 import { cn } from "@/lib/utils/cn";
-import { ProgressiveSkeletonGrid } from "@/components/ui/loading-spinner";
 import type { Product } from "@/features/products/types";
 
 interface ProductsGridProps {

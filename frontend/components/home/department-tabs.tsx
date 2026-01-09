@@ -19,7 +19,6 @@ import { Section } from "@/components/ui/section";
 import { SkeletonBlock } from "@/components/ui/skeleton";
 import { ProductCard } from "@/features/products/components/ProductCard";
 import { ProductCardSkeleton } from "@/features/products/components/ProductCardSkeleton";
-import { ProgressiveSkeletonGrid } from "@/components/ui/loading-spinner";
 import { SectionTitle } from "./shared/section-header";
 import type { Product, Category } from "@/features/products/types";
 import { getDiscountInfo } from "@/lib/utils/products";
