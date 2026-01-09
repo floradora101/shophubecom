@@ -221,10 +221,8 @@ export function ProfileAccountDetails() {
 
           <div className="pt-4">
             <LoadingButton type="submit" loading={isPasswordLoading} size="lg">
-              Update Password
-            </LoadingButton>
               Change Password
-            </Button>
+            </LoadingButton>
           </div>
         </form>
       </div>
