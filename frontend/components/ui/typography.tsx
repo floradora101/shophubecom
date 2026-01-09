@@ -45,6 +45,23 @@ export interface HeadingProps
   extends React.HTMLAttributes<HTMLHeadingElement>,
     VariantProps<typeof headingVariants> {
   as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
+  level?: VariantProps<typeof headingVariants>["level"] | 1 | 2 | 3 | 4 | 5 | 6;
+}
+
+function getHeadingTag(level: VariantProps<typeof headingVariants>["level"] | 1 | 2 | 3 | 4 | 5 | 6): "h1" | "h2" | "h3" | "h4" | "h5" | "h6" {
+  if (typeof level === "string") {
+    return level;
+  }
+  // Map numbers to heading tags
+  switch (level) {
+    case 1: return "h1";
+    case 2: return "h2";
+    case 3: return "h3";
+    case 4: return "h4";
+    case 5: return "h5";
+    case 6: return "h6";
+    default: return "h1";
+  }
 }
 
 export function Heading({
@@ -53,10 +70,11 @@ export function Heading({
   as,
   ...props
 }: HeadingProps) {
-  const Component = as || (level as "h1" | "h2" | "h3" | "h4" | "h5" | "h6");
+  const Component = as || getHeadingTag(level);
+  const variantLevel = typeof level === "number" ? `h${level}` as const : level;
   return (
     <Component
-      className={cn(headingVariants({ level }), className)}
+      className={cn(headingVariants({ level: variantLevel }), className)}
       {...props}
     />
   );

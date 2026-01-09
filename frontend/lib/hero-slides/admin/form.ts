@@ -334,9 +334,12 @@ export function toFormValues(slide: HeroSlide): HeroSlideFormValues {
 }
 
 // Convert form values back to HeroSlide
-export function fromFormValues(values: HeroSlideFormValues): HeroSlide {
+export function fromFormValues(
+  values: HeroSlideFormValues,
+  existingId?: string
+): HeroSlide {
   const baseSlide: BaseHeroSlide = {
-    id: crypto.randomUUID(), // Generate temporary ID for form preview
+    id: existingId || crypto.randomUUID(), // Use existing ID or generate new one
     type: values.type,
     priority: values.priority,
     isActive: values.isActive,

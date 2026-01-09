@@ -146,6 +146,58 @@ const SelectSeparator = React.forwardRef<
 ));
 SelectSeparator.displayName = SelectPrimitive.Separator.displayName;
 
+// Custom Select wrapper that accepts options
+interface SelectOption {
+  value: string;
+  label: string;
+}
+
+interface SelectWithOptionsProps {
+  value?: string;
+  onValueChange?: (value: string) => void;
+  options: SelectOption[];
+  placeholder?: string;
+  disabled?: boolean;
+  className?: string;
+}
+
+const SelectWithOptions = React.forwardRef<
+  React.ElementRef<typeof Select>,
+  SelectWithOptionsProps
+>(
+  (
+    {
+      value,
+      onValueChange,
+      options,
+      placeholder,
+      disabled,
+      className,
+      ...props
+    },
+    ref
+  ) => (
+    <Select
+      value={value}
+      onValueChange={onValueChange}
+      disabled={disabled}
+      {...props}
+    >
+      <SelectTrigger className={className} ref={ref}>
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent>
+        {options.map((option) => (
+          <SelectItem key={option.value} value={option.value}>
+            {option.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  )
+);
+SelectWithOptions.displayName = "SelectWithOptions";
+
 export {
   Select,
   SelectGroup,
@@ -157,4 +209,5 @@ export {
   SelectSeparator,
   SelectScrollUpButton,
   SelectScrollDownButton,
+  SelectWithOptions,
 };
