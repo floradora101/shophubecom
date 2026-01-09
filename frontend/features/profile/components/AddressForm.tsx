@@ -167,7 +167,11 @@ export function AddressForm({
         />
 
         <div className="flex gap-4 pt-4">
-          <LoadingButton type="submit" loading={isSubmitting} className="flex-1">
+          <LoadingButton
+            type="submit"
+            loading={isSubmitting}
+            className="flex-1"
+          >
             {address ? "Update Address" : "Add Address"}
           </LoadingButton>
           <Button

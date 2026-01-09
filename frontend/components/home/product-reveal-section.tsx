@@ -30,8 +30,9 @@ export function ProductRevealSection({ products }: ProductRevealSectionProps) {
 
   // Trigger animations on mount
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoaded(true), 100);
-    return () => clearTimeout(timer);
+    // const timer = setTimeout(() => setIsLoaded(true), 100); // Removed fake delay
+    setIsLoaded(true); // Immediate load
+    // return () => clearTimeout(timer);
   }, []);
 
   const handleToggleCards = () => {

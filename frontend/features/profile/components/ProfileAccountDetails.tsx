@@ -53,7 +53,7 @@ export function ProfileAccountDetails() {
 
       // Mock update - just simulate success
       // TODO: Replace with actual API call: await profileApi.updateProfile(_data);
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // await new Promise((resolve) => setTimeout(resolve, 500)); // Removed fake delay
 
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
@@ -94,7 +94,7 @@ export function ProfileAccountDetails() {
 
       // Mock password update - just simulate success
       // TODO: Replace with actual API call: await profileApi.changePassword(_data);
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // await new Promise((resolve) => setTimeout(resolve, 500)); // Removed fake delay
 
       setPasswordSuccess(true);
       resetPassword();

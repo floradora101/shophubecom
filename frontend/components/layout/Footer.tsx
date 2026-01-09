@@ -55,7 +55,7 @@ export function Footer() {
 
     setIsSubmitting(true);
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // await new Promise((resolve) => setTimeout(resolve, 1000)); // Removed fake delay
     setSubmitted(true);
     setIsSubmitting(false);
     setEmail("");

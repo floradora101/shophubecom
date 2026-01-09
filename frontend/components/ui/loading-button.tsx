@@ -11,13 +11,22 @@ import { Button, ButtonProps } from "./button";
  * - Consistent loading text or custom loading text
  * - Follows loading-policy.md guidelines
  */
-export interface LoadingButtonProps extends Omit<ButtonProps, 'isLoading'> {
+export interface LoadingButtonProps extends Omit<ButtonProps, "isLoading"> {
   loading?: boolean;
   loadingText?: string;
 }
 
 const LoadingButton = React.forwardRef<HTMLButtonElement, LoadingButtonProps>(
-  ({ loading = false, loadingText = "Loading...", children, disabled, ...props }, ref) => {
+  (
+    {
+      loading = false,
+      loadingText = "Loading...",
+      children,
+      disabled,
+      ...props
+    },
+    ref
+  ) => {
     return (
       <Button
         ref={ref}
