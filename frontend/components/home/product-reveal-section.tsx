@@ -176,7 +176,6 @@ export function ProductRevealSection({ products }: ProductRevealSectionProps) {
               </button>
             </div>
           )}
-
         </div>
       </Container>
     </Section>
@@ -253,7 +252,6 @@ export function ProductRevealSectionSkeleton() {
               </div>
             ))}
           </div>
-
         </div>
       </Container>
     </Section>
