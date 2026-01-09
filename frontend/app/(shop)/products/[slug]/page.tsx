@@ -1,6 +1,6 @@
 // Product detail page - server component shell
 import type { Metadata } from "next";
-import { mockProducts, mockProductToProduct } from "@/lib/mock-data/mock-data";
+import { getProductBySlugSync } from "@/lib/data/products";
 import { ProductDetailClient } from "./ProductDetailClient";
 
 interface PageProps {
@@ -15,11 +15,10 @@ export async function generateMetadata({
     ? resolvedParams.slug[0]
     : resolvedParams.slug;
 
-  // Find product in mock data
-  const mockProduct = mockProducts.find((p) => p.slug === slug);
+  // Find product using data layer
+  const product = getProductBySlugSync(slug);
 
-  if (mockProduct) {
-    const product = mockProductToProduct(mockProduct);
+  if (product) {
     return {
       title: product.name,
       description:

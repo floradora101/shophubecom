@@ -1,7 +1,7 @@
 // Professional footer with CTA and enhanced design matching website vibes.
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Mail,
@@ -25,7 +25,8 @@ import { Heading, Text } from "@/components/ui/typography";
 import Image from "next/image";
 import { ui } from "@/lib/ui-tokens";
 import { cn } from "@/lib/utils/cn";
-import { getMainCategories, getSubcategories } from "@/lib/mock-data/mock-data";
+import { getMainCategories } from "@/lib/data/categories";
+import { getSubcategories } from "@/lib/mock-data/mock-data";
 
 export function Footer() {
   const [email, setEmail] = useState("");
@@ -35,8 +36,11 @@ export function Footer() {
   // Accordion state for mobile
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
-  // Get categories from mock data
-  const mainCategories = getMainCategories();
+  // Get categories from data layer
+  const [mainCategories, setMainCategories] = useState<Category[]>([]);
+  useEffect(() => {
+    getMainCategories().then(setMainCategories).catch(console.error);
+  }, []);
 
   const toggleSection = (section: string) => {
     setOpenSections((prev) => ({

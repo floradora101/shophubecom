@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { Heart } from "lucide-react";
 import { ProductCard } from "@/features/products/components/ProductCard";
 import { Stack } from "@/components/ui/stack";
-import { mockProducts, mockProductToProduct } from "@/lib/mock-data/mock-data";
+import { getAllProductsSync } from "@/lib/data/products";
 import type { Product } from "@/features/products/types";
 
 interface YouMayAlsoLikeProps {
@@ -15,9 +15,8 @@ interface YouMayAlsoLikeProps {
 export function YouMayAlsoLike({ currentProduct }: YouMayAlsoLikeProps) {
   const recommendations = useMemo(() => {
     // Get products from same category or similar price range
-    const relatedProducts = mockProducts
+    const relatedProducts = getAllProductsSync()
       .filter((p) => p.id !== currentProduct.id)
-      .map(mockProductToProduct)
       .filter((product) => {
         // Same category or similar price range (±20%)
         const sameCategory = product.categoryId === currentProduct.categoryId;

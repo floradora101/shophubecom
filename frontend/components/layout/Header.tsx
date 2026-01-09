@@ -13,10 +13,7 @@ import { useCart } from "@/features/cart/hooks";
 import { CartSidebar } from "@/features/cart/components/CartSidebar";
 import { AuthModal } from "@/features/auth";
 import * as NavigationMenu from "@radix-ui/react-navigation-menu";
-import {
-  mockCategories,
-  mockCategoryToCategory,
-} from "@/lib/mock-data/mock-data";
+import { getAllCategories } from "@/lib/data/categories";
 import type { Category } from "@/features/products/types";
 import { motion } from "@/lib/ui-tokens";
 import { AnnouncementBar } from "./AnnouncementBar";
@@ -155,10 +152,10 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Category data
-  const categories = useMemo(
-    () => mockCategories.map(mockCategoryToCategory),
-    []
-  );
+  const [categories, setCategories] = useState<Category[]>([]);
+  useEffect(() => {
+    getAllCategories().then(setCategories).catch(console.error);
+  }, []);
   const categoryTree = useMemo(
     () => buildCategoryTree(categories),
     [categories]
