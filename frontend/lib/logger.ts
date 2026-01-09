@@ -6,10 +6,10 @@
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 interface Logger {
-  debug: (...args: unknown[]) => void;
-  info: (...args: unknown[]) => void;
-  warn: (...args: unknown[]) => void;
-  error: (...args: unknown[]) => void;
+  debug: (...args: Parameters<typeof console.debug>) => void;
+  info: (...args: Parameters<typeof console.info>) => void;
+  warn: (...args: Parameters<typeof console.warn>) => void;
+  error: (...args: Parameters<typeof console.error>) => void;
 }
 
 const isDevelopment = process.env.NODE_ENV === 'development';

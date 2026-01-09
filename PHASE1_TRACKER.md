@@ -94,13 +94,13 @@
 - **Manual check:** Hero slides never blank during load/transition
 - **Risk notes:** None - safe loading fallbacks
 
-### STEP 9 — PRODUCTS: EXTRACT LARGE STATIC CONSTANTS
+### STEP 9 — PRODUCTS: EXTRACT LARGE STATIC CONSTANTS ✅
 
-- [ ] 9.1 Extract constants from ProductsContent.tsx
-- **Files changed:** `app/(shop)/products/ProductsContent.tsx`, `app/(shop)/products/catalog.constants.ts`
+- [x] 9.1 Extract COMPACT_CATEGORY_ICONS from ProductsContent.tsx to catalog.constants.ts
+- **Files changed:** `frontend/app/(shop)/products/ProductsContent.tsx`, `frontend/app/(shop)/products/catalog.constants.ts`
 - **Commands:** `npm run lint`, `npx tsc -p tsconfig.json --noEmit`, `npm run build`
 - **Manual check:** Products page works exactly the same
-- **Risk notes:** None
+- **Risk notes:** None - safe constant extraction
 
 ### STEP 10 (BONUS) — PDP ROUTE LOADING SKELETON
 
@@ -112,5 +112,5 @@
 
 ## Progress Summary
 
-- **Completed:** 7/10 steps (0, 1, 2, 3, 4, 5, 6, 7)
-- **Next:** Step 8 - Hero dynamic import fallbacks
+- **Completed:** 9/10 steps (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+- **Next:** Step 10 - Add PDP route loading skeleton

@@ -19,15 +19,6 @@ import {
   ChevronDown,
   ChevronLeft,
   Filter,
-  Smartphone,
-  Tablet,
-  Laptop,
-  Watch,
-  Gamepad2,
-  Camera,
-  Headphones,
-  Monitor,
-  Package,
 } from "lucide-react";
 import { useSwipe } from "@/lib/hooks/useSwipe";
 import { Container } from "@/components/ui/container";
@@ -60,6 +51,7 @@ import { FiltersDrawer } from "./components/FiltersDrawer";
 import { ActiveFilterChips } from "./components/ActiveFilterChips";
 import { ProductsGrid } from "./components/ProductsGrid";
 import { cn } from "@/lib/utils/cn";
+import { COMPACT_CATEGORY_ICONS } from "./catalog.constants";
 
 interface UpdateFilters {
   setCategory: (categorySlug: string | null) => void;
@@ -72,129 +64,6 @@ interface UpdateFilters {
 }
 import { FiltersSidebarSkeleton } from "@/components/ui/loading-spinner";
 
-// Cyberpunk category icons carousel - popular subcategories with advanced styling
-const COMPACT_CATEGORY_ICONS = [
-  {
-    slug: "iphone",
-    name: "iPhone",
-    icon: Smartphone,
-    gradient: "from-blue-500 via-blue-600 to-blue-700",
-    iconBg: "bg-gradient-to-br from-blue-500/20 to-blue-600/10",
-    accentColor: "text-blue-400",
-    glowColor: "shadow-blue-500/25",
-    parent: "Phones",
-    stats: { items: "50+", trending: true },
-    techElements: ["Face ID", "A-Series", "Super Retina"],
-  },
-  {
-    slug: "samsung-phones",
-    name: "Samsung",
-    icon: Smartphone,
-    gradient: "from-blue-500 via-blue-600 to-blue-700",
-    iconBg: "bg-gradient-to-br from-blue-500/20 to-blue-600/10",
-    accentColor: "text-blue-400",
-    glowColor: "shadow-blue-500/25",
-    parent: "Phones",
-    stats: { items: "35+", trending: false },
-    techElements: ["AMOLED", "Snapdragon", "S Pen"],
-  },
-  {
-    slug: "apple-tablets",
-    name: "iPad",
-    icon: Tablet,
-    gradient: "from-emerald-500 via-emerald-600 to-emerald-700",
-    iconBg: "bg-gradient-to-br from-emerald-500/20 to-emerald-600/10",
-    accentColor: "text-emerald-400",
-    glowColor: "shadow-emerald-500/25",
-    parent: "Tablets",
-    stats: { items: "25+", trending: true },
-    techElements: ["M1/M2", "Liquid Retina", "Apple Pencil"],
-  },
-  {
-    slug: "macbook",
-    name: "MacBook",
-    icon: Laptop,
-    gradient: "from-orange-500 via-orange-600 to-orange-700",
-    iconBg: "bg-gradient-to-br from-orange-500/20 to-orange-600/10",
-    accentColor: "text-orange-400",
-    glowColor: "shadow-orange-500/25",
-    parent: "Laptops",
-    stats: { items: "40+", trending: true },
-    techElements: ["M3 Chip", "Liquid Retina", "MagSafe"],
-  },
-  {
-    slug: "gaming-laptops",
-    name: "Gaming",
-    icon: Monitor,
-    gradient: "from-orange-500 via-orange-600 to-orange-700",
-    iconBg: "bg-gradient-to-br from-orange-500/20 to-orange-600/10",
-    accentColor: "text-orange-400",
-    glowColor: "shadow-orange-500/25",
-    parent: "Laptops",
-    stats: { items: "30+", trending: false },
-    techElements: ["RTX 40", "AMD Ryzen", "RGB"],
-  },
-  {
-    slug: "smart-watches",
-    name: "Watches",
-    icon: Watch,
-    gradient: "from-violet-500 via-violet-600 to-violet-700",
-    iconBg: "bg-gradient-to-br from-violet-500/20 to-violet-600/10",
-    accentColor: "text-violet-400",
-    glowColor: "shadow-violet-500/25",
-    parent: "Wearables",
-    stats: { items: "20+", trending: true },
-    techElements: ["Health", "GPS", "Always-On"],
-  },
-  {
-    slug: "earphones",
-    name: "Earphones",
-    icon: Headphones,
-    gradient: "from-violet-500 via-violet-600 to-violet-700",
-    iconBg: "bg-gradient-to-br from-violet-500/20 to-violet-600/10",
-    accentColor: "text-violet-400",
-    glowColor: "shadow-violet-500/25",
-    parent: "Wearables",
-    stats: { items: "45+", trending: false },
-    techElements: ["ANC", "Spatial Audio", "Fast Charge"],
-  },
-  {
-    slug: "gaming-consoles",
-    name: "Consoles",
-    icon: Gamepad2,
-    gradient: "from-cyan-500 via-cyan-600 to-cyan-700",
-    iconBg: "bg-gradient-to-br from-cyan-500/20 to-cyan-600/10",
-    accentColor: "text-cyan-400",
-    glowColor: "shadow-cyan-500/25",
-    parent: "Gaming",
-    stats: { items: "15+", trending: true },
-    techElements: ["4K Gaming", "Ray Tracing", "SSD"],
-  },
-  {
-    slug: "smart-cameras",
-    name: "Cameras",
-    icon: Camera,
-    gradient: "from-red-500 via-red-600 to-red-700",
-    iconBg: "bg-gradient-to-br from-red-500/20 to-red-600/10",
-    accentColor: "text-red-400",
-    glowColor: "shadow-red-500/25",
-    parent: "Smart Gadgets",
-    stats: { items: "12+", trending: false },
-    techElements: ["4K Video", "AI Tracking", "Wireless"],
-  },
-  {
-    slug: "phone-cases",
-    name: "Phone Cases",
-    icon: Package,
-    gradient: "from-green-500 via-green-600 to-green-700",
-    iconBg: "bg-gradient-to-br from-green-500/20 to-green-600/10",
-    accentColor: "text-green-400",
-    glowColor: "shadow-green-500/25",
-    parent: "Accessories",
-    stats: { items: "80+", trending: true },
-    techElements: ["Military Grade", "Wireless Charge", "Slim Design"],
-  },
-];
 
 // Cyberpunk Category Icon Carousel Component
 function CategoryCarousel({
@@ -669,7 +538,6 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
       window.removeEventListener("scroll", handleInteraction);
       window.removeEventListener("click", handleInteraction);
       window.removeEventListener("keydown", handleInteraction);
-      clearTimeout(timer);
     };
   }, []);
 
