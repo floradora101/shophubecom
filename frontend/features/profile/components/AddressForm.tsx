@@ -11,6 +11,7 @@ import {
   type CreateAddressData,
 } from "@/features/addresses/api";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormErrorAlert } from "@/components/ui/form-error-alert";

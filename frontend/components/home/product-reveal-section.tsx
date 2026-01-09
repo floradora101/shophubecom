@@ -28,12 +28,10 @@ export function ProductRevealSection({ products }: ProductRevealSectionProps) {
   const [visibleCards, setVisibleCards] = useState(4);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Trigger animations on mount
+  // Trigger animations on mount - immediate load (no fake delay)
   useEffect(() => {
-    // const timer = setTimeout(() => setIsLoaded(true), 100); // Removed fake delay
-    setIsLoaded(true); // Immediate load
-    // return () => clearTimeout(timer);
-  }, []);
+    setIsLoaded(true);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleToggleCards = () => {
     if (visibleCards === 4) {
