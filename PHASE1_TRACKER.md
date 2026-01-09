@@ -85,14 +85,14 @@
 - **Manual check:** No functional changes, errors still surface in dev
 - **Risk notes:** None - safe logger wrapper
 
-### STEP 8 — HERO DYNAMIC IMPORT FALLBACKS
+### STEP 8 — HERO DYNAMIC IMPORT FALLBACKS ✅
 
-- [ ] 8.1 Add loading fallbacks to SlideBodyRenderer.tsx
-- [ ] 8.2 Replace console.error with logger.error
-- **Files changed:** `components/home/hero/SlideBodyRenderer.tsx`
+- [x] 8.1 Add loading fallbacks to SlideBodyRenderer.tsx (5 dynamic imports)
+- [x] 8.2 Replace console.error with logger.error
+- **Files changed:** `frontend/components/home/hero/SlideBodyRenderer.tsx`, `PHASE1_TRACKER.md`
 - **Commands:** `npm run lint`, `npx tsc -p tsconfig.json --noEmit`, `npm run build`
 - **Manual check:** Hero slides never blank during load/transition
-- **Risk notes:** None
+- **Risk notes:** None - safe loading fallbacks
 
 ### STEP 9 — PRODUCTS: EXTRACT LARGE STATIC CONSTANTS
 
@@ -112,5 +112,5 @@
 
 ## Progress Summary
 
-- **Completed:** 6/10 steps (0, 1, 2, 3, 4, 5, 6)
-- **Next:** Step 7 - Introduce logger wrapper
+- **Completed:** 7/10 steps (0, 1, 2, 3, 4, 5, 6, 7)
+- **Next:** Step 8 - Hero dynamic import fallbacks

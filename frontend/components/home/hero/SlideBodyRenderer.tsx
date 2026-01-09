@@ -5,6 +5,7 @@ import type {
   LandscapeImageSlide,
 } from "@/lib/types/heroSlides.types";
 import type { Product } from "@/features/products/types";
+import { logger } from "@/lib/logger";
 
 // Code-split slide body components with next/dynamic
 const ProductSpotlightSlideBody = dynamic(
@@ -12,7 +13,10 @@ const ProductSpotlightSlideBody = dynamic(
     import("./slide-bodies/ProductSpotlightSlideBody").then((mod) => ({
       default: mod.ProductSpotlightSlideBody,
     })),
-  { ssr: false }
+  {
+    ssr: false,
+    loading: () => <div className="w-full h-full" />,
+  }
 );
 
 const CategorySpotlightSlideBody = dynamic(
@@ -20,7 +24,10 @@ const CategorySpotlightSlideBody = dynamic(
     import("./slide-bodies/CategorySpotlightSlideBody").then((mod) => ({
       default: mod.CategorySpotlightSlideBody,
     })),
-  { ssr: false }
+  {
+    ssr: false,
+    loading: () => <div className="w-full h-full" />,
+  }
 );
 
 const OfferSlideBody = dynamic(
@@ -28,7 +35,10 @@ const OfferSlideBody = dynamic(
     import("./slide-bodies/OfferSlideBody").then((mod) => ({
       default: mod.OfferSlideBody,
     })),
-  { ssr: false }
+  {
+    ssr: false,
+    loading: () => <div className="w-full h-full" />,
+  }
 );
 
 const TestimonialSlideBody = dynamic(
@@ -36,7 +46,10 @@ const TestimonialSlideBody = dynamic(
     import("./slide-bodies/TestimonialSlideBody").then((mod) => ({
       default: mod.TestimonialSlideBody,
     })),
-  { ssr: false }
+  {
+    ssr: false,
+    loading: () => <div className="w-full h-full" />,
+  }
 );
 
 const LandscapeHeroSlideBody = dynamic(
@@ -44,7 +57,10 @@ const LandscapeHeroSlideBody = dynamic(
     import("./slide-bodies/LandscapeHeroSlideBody").then((mod) => ({
       default: mod.LandscapeHeroSlideBody,
     })),
-  { ssr: false }
+  {
+    ssr: false,
+    loading: () => <div className="w-full h-full" />,
+  }
 );
 
 interface SlideBodyRendererProps {
@@ -129,7 +145,7 @@ export const SlideBodyRenderer = memo(function SlideBodyRenderer({
           default:
             // Dev-only visible error box for unknown slide types - never fail silently
             const unknownSlide = slide as HeroSlide;
-            console.error(
+            logger.error(
               `SlideBodyRenderer: Unknown slide type "${unknownSlide.type}" for slide "${unknownSlide.id}". This should never happen in production.`
             );
             return process.env.NODE_ENV === "development" ? (
