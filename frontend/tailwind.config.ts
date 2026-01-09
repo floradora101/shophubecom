@@ -6,6 +6,8 @@ const config: Config = {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./lib/**/*.{js,ts,jsx,tsx,mdx}",
+    "./features/**/*.{js,ts,jsx,tsx,mdx}",
+    "./store/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
@@ -17,7 +19,7 @@ const config: Config = {
           200: "var(--primary-200)",
           300: "var(--primary-300)",
           400: "var(--primary-400)",
-          500: "var(--primary-600)",
+          500: "var(--primary-500)",
           600: "var(--primary-600)",
         },
         // Warm colors mapped to CSS variables
