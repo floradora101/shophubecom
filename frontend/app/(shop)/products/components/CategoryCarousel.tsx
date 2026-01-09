@@ -11,14 +11,17 @@ interface CategoryCarouselProps {
   searchParams: URLSearchParams;
   router: any; // Next.js router
   basePath: string;
-  updateSearchParams: (params: URLSearchParams, updates: Partial<CanonicalFilters>) => URLSearchParams;
+  updateSearchParams: (
+    params: URLSearchParams,
+    updates: Partial<CanonicalFilters>
+  ) => URLSearchParams;
   updateFilters: {
     setCategory: (categorySlug: string | null) => void;
   };
 }
 
 interface CategoryIconProps {
-  category: typeof COMPACT_CATEGORY_ICONS[0];
+  category: (typeof COMPACT_CATEGORY_ICONS)[0];
   isActive: boolean;
   onClick: (categorySlug: string) => void;
 }
@@ -43,12 +46,20 @@ function CategoryIcon({ category, isActive, onClick }: CategoryIconProps) {
 
       <div className="flex flex-col items-center justify-center h-full p-2">
         {/* Icon */}
-        <div className={`relative mb-1 ${category.iconBg} p-2 rounded-lg transition-all duration-300 ${
-          isActive ? "scale-110" : "group-hover:scale-105"
-        }`}>
-          <IconComponent className={`h-5 w-5 sm:h-6 sm:w-6 ${category.accentColor} transition-colors duration-300 ${
-            isActive ? "drop-shadow-lg" : ""
-          }`} />
+        <div
+          className={`relative mb-1 ${
+            category.iconBg
+          } p-2 rounded-lg transition-all duration-300 ${
+            isActive ? "scale-110" : "group-hover:scale-105"
+          }`}
+        >
+          <IconComponent
+            className={`h-5 w-5 sm:h-6 sm:w-6 ${
+              category.accentColor
+            } transition-colors duration-300 ${
+              isActive ? "drop-shadow-lg" : ""
+            }`}
+          />
           {/* Icon glow */}
           {isActive && (
             <div className="absolute inset-0 rounded-lg bg-primary-400/30 blur-sm -z-10" />
@@ -56,9 +67,13 @@ function CategoryIcon({ category, isActive, onClick }: CategoryIconProps) {
         </div>
 
         {/* Label */}
-        <span className={`text-xs font-medium transition-colors duration-300 ${
-          isActive ? "text-primary-300" : "text-gray-300 group-hover:text-white"
-        }`}>
+        <span
+          className={`text-xs font-medium transition-colors duration-300 ${
+            isActive
+              ? "text-primary-300"
+              : "text-gray-300 group-hover:text-white"
+          }`}
+        >
           {category.name}
         </span>
       </div>
@@ -149,18 +164,15 @@ export function CategoryCarousel({
     }
   }, [updateScrollState]);
 
-  const handleKeyDown = useCallback(
-    (event: React.KeyboardEvent) => {
-      if (event.key === "ArrowLeft") {
-        event.preventDefault();
-        scrollCarousel("left");
-      } else if (event.key === "ArrowRight") {
-        event.preventDefault();
-        scrollCarousel("right");
-      }
-    },
-    []
-  );
+  const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      scrollCarousel("left");
+    } else if (event.key === "ArrowRight") {
+      event.preventDefault();
+      scrollCarousel("right");
+    }
+  }, []);
 
   const handleCategoryClick = (categorySlug: string) => {
     updateFilters.setCategory(categorySlug);

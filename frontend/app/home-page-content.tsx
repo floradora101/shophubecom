@@ -1,28 +1,84 @@
+import dynamic from "next/dynamic";
 // eslint-disable-next-line no-restricted-imports
 import { Header } from "@/components/layout/Header";
 // eslint-disable-next-line no-restricted-imports
 import { Footer } from "@/components/layout/Footer";
 // eslint-disable-next-line no-restricted-imports
 import { HeroShell } from "@/components/home/hero/HeroShell";
-// eslint-disable-next-line no-restricted-imports
-import { ServiceShowcase } from "@/components/home/service-showcase";
-// eslint-disable-next-line no-restricted-imports
-import { ProductRevealSection } from "@/components/home/product-reveal-section";
-// eslint-disable-next-line no-restricted-imports
-import { DepartmentTabs } from "@/components/home/department-tabs";
-// eslint-disable-next-line no-restricted-imports
-import { CategorySpotlight } from "@/components/home/category-spotlight";
-// eslint-disable-next-line no-restricted-imports
-import { TrendingNow } from "@/components/home/trending-now";
-// eslint-disable-next-line no-restricted-imports
-import { LatestProductsCarousel } from "@/components/home/deals-carousel";
-// eslint-disable-next-line no-restricted-imports
-import { BrandStory } from "@/components/home/brand-story";
+import { SkeletonBlock } from "@/components/ui/skeleton";
 import type { HomePageData } from "@/lib/data/home";
 import type { Product } from "@/features/products/types";
 
-// All components are now imported normally since we removed dynamic loading
-// Dynamic imports were only needed for code splitting with Suspense/loading states
+// Dynamic imports for below-the-fold sections with skeleton fallbacks
+const DepartmentTabs = dynamic(
+  () =>
+    import("@/components/home/department-tabs").then((mod) => ({
+      default: mod.DepartmentTabs,
+    })),
+  {
+    loading: () => <SkeletonBlock className="h-64 w-full" />,
+  }
+);
+
+const ServiceShowcase = dynamic(
+  () =>
+    import("@/components/home/service-showcase").then((mod) => ({
+      default: mod.ServiceShowcase,
+    })),
+  {
+    loading: () => <SkeletonBlock className="h-96 w-full" />,
+  }
+);
+
+const ProductRevealSection = dynamic(
+  () =>
+    import("@/components/home/product-reveal-section").then((mod) => ({
+      default: mod.ProductRevealSection,
+    })),
+  {
+    loading: () => <SkeletonBlock className="h-[600px] w-full" />,
+  }
+);
+
+const TrendingNow = dynamic(
+  () =>
+    import("@/components/home/trending-now").then((mod) => ({
+      default: mod.TrendingNow,
+    })),
+  {
+    loading: () => <SkeletonBlock className="h-80 w-full" />,
+  }
+);
+
+const CategorySpotlight = dynamic(
+  () =>
+    import("@/components/home/category-spotlight").then((mod) => ({
+      default: mod.CategorySpotlight,
+    })),
+  {
+    loading: () => <SkeletonBlock className="h-[500px] w-full" />,
+  }
+);
+
+const LatestProductsCarousel = dynamic(
+  () =>
+    import("@/components/home/deals-carousel").then((mod) => ({
+      default: mod.LatestProductsCarousel,
+    })),
+  {
+    loading: () => <SkeletonBlock className="h-72 w-full" />,
+  }
+);
+
+const BrandStory = dynamic(
+  () =>
+    import("@/components/home/brand-story").then((mod) => ({
+      default: mod.BrandStory,
+    })),
+  {
+    loading: () => <SkeletonBlock className="h-80 w-full" />,
+  }
+);
 
 interface HomePageContentProps {
   data: HomePageData;

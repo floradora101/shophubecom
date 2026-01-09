@@ -85,14 +85,14 @@ export function SectionTitle({
     <h2
       className={`text-2xl md:text-3xl lg:text-4xl text-slate-900 ${baseClasses} ${className} group`}
     >
-      <span className="font-(--font-dm-sans) font-bold italic relative">
+      <span className="font-[var(--font-dm-sans)] font-bold italic relative">
         {italic}
         {/* Always visible partial underline + animated extension for italic part */}
         <span className="absolute -bottom-1 left-0 w-[25%] h-0.5 bg-red-600/60 rounded-full"></span>
         <span className="absolute -bottom-1 left-0 w-[25%] h-0.5 bg-linear-to-r from-red-500 via-red-600 to-red-700 rounded-full group-hover:w-full transition-all duration-700 ease-out"></span>
-      </span>
+      </span>{" "}
       <span
-        className={`font-(--font-inter) font-bold text-red-600 ${ui.typography.splitHeading} relative`}
+        className={`font-[var(--font-inter)] font-bold text-red-600 ${ui.typography.splitHeading} relative`}
       >
         {bold}
         {/* Always visible partial underline + animated extension for bold part */}
@@ -122,14 +122,14 @@ export function SectionHeader({
             className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r ${badgeGradient} mb-2`}
           >
             <badge.icon className="h-4 w-4 text-primary-600" />
-            <span className="text-sm font-semibold text-primary-600 font-(--font-inter)">
+            <span className="text-sm font-semibold text-primary-600 font-[var(--font-inter)]">
               {badge.text}
             </span>
           </div>
         )}
         <SectionTitle italic={title.italic} bold={title.bold} />
         {description && (
-          <p className="text-warm-gray-600 max-w-2xl text-sm md:text-lg font-(--font-inter) font-light leading-relaxed">
+          <p className="text-warm-gray-600 max-w-2xl text-sm md:text-lg font-[var(--font-inter)] font-light leading-relaxed">
             {description}
           </p>
         )}

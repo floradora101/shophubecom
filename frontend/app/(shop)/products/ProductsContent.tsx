@@ -45,7 +45,11 @@ import { FiltersDrawer } from "./components/FiltersDrawer";
 import { ActiveFilterChips } from "./components/ActiveFilterChips";
 import { ProductsGrid } from "./components/ProductsGrid";
 import { cn } from "@/lib/utils/cn";
-import { COMPACT_CATEGORY_ICONS, SORT_OPTIONS, ITEMS_PER_PAGE } from "./catalog.constants";
+import {
+  COMPACT_CATEGORY_ICONS,
+  SORT_OPTIONS,
+  ITEMS_PER_PAGE,
+} from "./catalog.constants";
 import { CategoryCarousel } from "./components/CategoryCarousel";
 
 interface UpdateFilters {
@@ -58,7 +62,6 @@ interface UpdateFilters {
   setPage: (page: number) => void;
 }
 import { FiltersSidebarSkeleton } from "@/components/ui/loading-spinner";
-
 
 // CategoryCarousel moved to components/CategoryCarousel.tsx
 

@@ -198,10 +198,10 @@ export function Footer() {
               <Image
                 src="/logo.png"
                 alt="ShopHub Logo"
-                width={96}
-                height={96}
+                width={120}
+                height={120}
                 className="object-contain hover:opacity-90 transition-opacity duration-200"
-                sizes="96px"
+                sizes="120px"
               />
             </div>
             <Text

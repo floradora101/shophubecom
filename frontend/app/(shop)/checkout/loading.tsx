@@ -28,7 +28,10 @@ export default function CheckoutLoading() {
               {/* Form sections skeleton */}
               <div className="space-y-6">
                 {Array.from({ length: 3 }, (_, i) => (
-                  <div key={i} className="border border-gray-200 rounded-lg p-6 space-y-4">
+                  <div
+                    key={i}
+                    className="border border-gray-200 rounded-lg p-6 space-y-4"
+                  >
                     <div className="h-6 bg-gray-200 rounded w-32 animate-pulse" />
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {Array.from({ length: 4 }, (_, j) => (

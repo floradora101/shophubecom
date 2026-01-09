@@ -27,7 +27,7 @@
  */
 
 import React from "react";
-import { Heart, LucideIcon } from "lucide-react";
+import { Zap, LucideIcon } from "lucide-react";
 
 interface SectionTitleProps {
   // Main badge text (what appears in the rounded badge)
@@ -54,7 +54,7 @@ export function SectionTitle({
   badgeText = "You May Also Like",
   title = "Discover More",
   subtitle = "Curated recommendations based on your interests",
-  showHearts = true,
+  showHearts = false,
   icon,
   className = "",
   badgeClassName = "",
@@ -72,11 +72,10 @@ export function SectionTitle({
           <div className="relative mr-2">
             {icon ? (
               React.createElement(icon, {
-                className:
-                  "w-4 h-4 text-primary-500 fill-primary-500",
+                className: "w-4 h-4 text-primary-500 fill-primary-500",
               })
             ) : (
-              <Heart className="w-4 h-4 text-primary-500 fill-primary-500" />
+              <Zap className="w-4 h-4 text-primary-500 fill-primary-500" />
             )}
             <div className="absolute -top-1 -left-1 w-2 h-2 bg-primary-400 rounded-full opacity-75" />
           </div>
@@ -97,7 +96,7 @@ export function SectionTitle({
 
       {/* Subtitle */}
       <p
-        className={`text-slate-600 max-w-none mx-auto whitespace-normal break-word lg:max-w-md ${subtitleClassName}`}
+        className={`text-slate-600 max-w-none mx-auto whitespace-normal break-words lg:max-w-md ${subtitleClassName}`}
       >
         {subtitle}
       </p>

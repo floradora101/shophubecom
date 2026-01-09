@@ -110,8 +110,8 @@ export function BrandStory() {
                   <Image
                     src="/logo.png"
                     alt="ShopHub Logo"
-                    width={140}
-                    height={140}
+                    width={120}
+                    height={120}
                     className="relative object-contain drop-shadow-sm"
                   />
                 </div>

@@ -49,9 +49,11 @@ export async function getSubcategories(parentId: string): Promise<Category[]> {
 /**
  * Get category by slug
  */
-export async function getCategoryBySlug(slug: string): Promise<Category | null> {
+export async function getCategoryBySlug(
+  slug: string
+): Promise<Category | null> {
   if (USE_MOCKS) {
-    const mockCategory = mockCategories.find(c => c.slug === slug);
+    const mockCategory = mockCategories.find((c) => c.slug === slug);
     return mockCategory ? mockCategoryToCategory(mockCategory) : null;
   }
 

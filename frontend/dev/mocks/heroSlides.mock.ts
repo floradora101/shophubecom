@@ -32,8 +32,8 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=800&fit=crop&crop=center",
-      alt: "Clean minimal landscape",
+        "https://images.unsplash.com/photo-1486312338219-ce68e2c6f44d?w=1200&h=800&fit=crop&crop=center",
+      alt: "Clean minimal workspace with laptop",
       position: "center",
     },
 
@@ -72,8 +72,8 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&h=800&fit=crop&crop=center",
-      alt: "Forest with underline text",
+        "https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=1200&h=800&fit=crop&crop=center",
+      alt: "Modern office workspace with technology",
       position: "center",
     },
 
@@ -112,8 +112,8 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop&crop=center",
-      alt: "Urban landscape with gradient text",
+        "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&h=800&fit=crop&crop=center",
+      alt: "Clean circuit board pattern",
       position: "center",
     },
 
@@ -152,8 +152,8 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=800&fit=crop&crop=center",
-      alt: "Mountain with accent bar",
+        "https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=1200&h=800&fit=crop&crop=center",
+      alt: "Modern tech workspace",
       position: "center",
     },
 
@@ -192,8 +192,8 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&h=800&fit=crop&crop=center",
-      alt: "Forest with outline text",
+        "https://images.unsplash.com/photo-1486312338219-ce68e2c6f44d?w=1200&h=800&fit=crop&crop=center",
+      alt: "Clean workspace with laptop and coffee",
       position: "center",
     },
 
@@ -232,8 +232,8 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop&crop=center",
-      alt: "Urban landscape with outline fill",
+        "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&h=800&fit=crop&crop=center",
+      alt: "Abstract circuit board design",
       position: "center",
     },
 
@@ -271,8 +271,8 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=800&fit=crop&crop=center",
-      alt: "Mountain with glow text",
+        "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=1200&h=800&fit=crop&crop=center",
+      alt: "Modern desk with laptop and gadgets",
       position: "center",
     },
 
@@ -311,8 +311,8 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&h=800&fit=crop&crop=center",
-      alt: "Forest with red accent text",
+        "https://images.unsplash.com/photo-1486312338219-ce68e2c6f44d?w=1200&h=800&fit=crop&crop=center",
+      alt: "Clean modern workspace setup",
       position: "center",
     },
 
@@ -351,8 +351,8 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=800&fit=crop&crop=center",
-      alt: "Night city with neon text",
+        "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=1200&h=800&fit=crop&crop=center",
+      alt: "Modern tech workspace with neon elements",
       position: "center",
     },
 
@@ -393,8 +393,8 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=800&fit=crop&crop=center",
-      alt: "Mountain with double underline text",
+        "https://images.unsplash.com/photo-1486312338219-ce68e2c6f44d?w=1200&h=800&fit=crop&crop=center",
+      alt: "Clean workspace with double underline text",
       position: "center",
     },
 
@@ -434,8 +434,8 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&h=800&fit=crop&crop=center",
-      alt: "Forest with wavy underline text",
+        "https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=1200&h=800&fit=crop&crop=center",
+      alt: "Modern office with wavy underline text",
       position: "center",
     },
 
@@ -475,8 +475,8 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop&crop=center",
-      alt: "Urban landscape with boxed text",
+        "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&h=800&fit=crop&crop=center",
+      alt: "Circuit board with boxed text",
       position: "center",
     },
 
@@ -515,8 +515,8 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=800&fit=crop&crop=center",
-      alt: "Night city with shadow text",
+        "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=1200&h=800&fit=crop&crop=center",
+      alt: "Modern workspace with shadow text",
       position: "center",
     },
 
@@ -555,8 +555,8 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=800&fit=crop&crop=center",
-      alt: "Mountain with metallic text",
+        "https://images.unsplash.com/photo-1486312338219-ce68e2c6f44d?w=1200&h=800&fit=crop&crop=center",
+      alt: "Clean workspace with metallic text",
       position: "center",
     },
 
@@ -596,8 +596,8 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&h=800&fit=crop&crop=center",
-      alt: "Forest with glitch text",
+        "https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=1200&h=800&fit=crop&crop=center",
+      alt: "Modern office with glitch text",
       position: "center",
     },
 
@@ -637,8 +637,8 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=800&fit=crop&crop=center",
-      alt: "Night city with silver glow text",
+        "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&h=800&fit=crop&crop=center",
+      alt: "Circuit board with silver glow text",
       position: "center",
     },
 
@@ -677,8 +677,8 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop&crop=center",
-      alt: "Urban landscape with chrome text",
+        "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=1200&h=800&fit=crop&crop=center",
+      alt: "Modern workspace with chrome text",
       position: "center",
     },
 
@@ -718,8 +718,8 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=800&fit=crop&crop=center",
-      alt: "Mountain with platinum text",
+        "https://images.unsplash.com/photo-1486312338219-ce68e2c6f44d?w=1200&h=800&fit=crop&crop=center",
+      alt: "Clean workspace with platinum text",
       position: "center",
     },
 
@@ -758,8 +758,8 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=800&fit=crop&crop=center",
-      alt: "Mountain landscape",
+        "https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=1200&h=800&fit=crop&crop=center",
+      alt: "Modern tech workspace",
       position: "center",
     },
 
@@ -798,8 +798,8 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&h=800&fit=crop&crop=center",
-      alt: "Forest landscape",
+        "https://images.unsplash.com/photo-1486312338219-ce68e2c6f44d?w=1200&h=800&fit=crop&crop=center",
+      alt: "Clean modern workspace",
       position: "center",
     },
 
@@ -838,8 +838,8 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop&crop=center",
-      alt: "Minimalist workspace with clean design",
+        "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&h=800&fit=crop&crop=center",
+      alt: "Minimalist tech workspace with clean design",
       position: "center",
     },
 
@@ -883,8 +883,8 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200&h=800&fit=crop&crop=center",
-      alt: "Modern glass architecture with reflections",
+        "https://images.unsplash.com/photo-1551650975-87deedd944c3?w=1200&h=800&fit=crop&crop=center",
+      alt: "Modern tech architecture with clean design",
       position: "center",
     },
 
@@ -924,8 +924,8 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=800&fit=crop&crop=center",
-      alt: "Futuristic neon cityscape at night",
+        "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&h=800&fit=crop&crop=center",
+      alt: "Futuristic tech cityscape with neon elements",
       position: "center",
     },
 
@@ -1269,8 +1269,8 @@ export const HERO_SLIDES: HeroSlide[] = [
     media: {
       kind: "image",
       imageUrl:
-        "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=1200&h=800&fit=crop&crop=center",
-      alt: "Dark urban landscape perfect for neon glow effects",
+        "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&h=800&fit=crop&crop=center",
+      alt: "Dark tech landscape perfect for neon glow effects",
       position: "center",
     },
 

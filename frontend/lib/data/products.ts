@@ -37,7 +37,7 @@ export async function getAllProducts(): Promise<Product[]> {
  */
 export function getProductBySlugSync(slug: string): Product | null {
   if (USE_MOCKS) {
-    const mockProduct = mockProducts.find(p => p.slug === slug);
+    const mockProduct = mockProducts.find((p) => p.slug === slug);
     return mockProduct ? mockProductToProduct(mockProduct) : null;
   }
 
@@ -49,7 +49,7 @@ export function getProductBySlugSync(slug: string): Product | null {
  */
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   if (USE_MOCKS) {
-    const mockProduct = mockProducts.find(p => p.slug === slug);
+    const mockProduct = mockProducts.find((p) => p.slug === slug);
     return mockProduct ? mockProductToProduct(mockProduct) : null;
   }
 
@@ -60,10 +60,12 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 /**
  * Get products by category slug
  */
-export async function getProductsByCategory(categorySlug: string): Promise<Product[]> {
+export async function getProductsByCategory(
+  categorySlug: string
+): Promise<Product[]> {
   if (USE_MOCKS) {
     return mockProducts
-      .filter(p => p.categorySlug === categorySlug)
+      .filter((p) => p.categorySlug === categorySlug)
       .map(mockProductToProduct);
   }
 
@@ -78,10 +80,11 @@ export async function searchProducts(query: string): Promise<Product[]> {
   if (USE_MOCKS) {
     const lowercaseQuery = query.toLowerCase();
     return mockProducts
-      .filter(p =>
-        p.name.toLowerCase().includes(lowercaseQuery) ||
-        p.description?.toLowerCase().includes(lowercaseQuery) ||
-        p.categorySlug?.toLowerCase().includes(lowercaseQuery)
+      .filter(
+        (p) =>
+          p.name.toLowerCase().includes(lowercaseQuery) ||
+          p.description?.toLowerCase().includes(lowercaseQuery) ||
+          p.categorySlug?.toLowerCase().includes(lowercaseQuery)
       )
       .map(mockProductToProduct);
   }
@@ -93,7 +96,9 @@ export async function searchProducts(query: string): Promise<Product[]> {
 /**
  * Get featured products
  */
-export async function getFeaturedProducts(limit: number = 8): Promise<Product[]> {
+export async function getFeaturedProducts(
+  limit: number = 8
+): Promise<Product[]> {
   if (USE_MOCKS) {
     return mockProducts.slice(0, limit).map(mockProductToProduct);
   }
@@ -111,9 +116,10 @@ export async function getProductsByCategoryPrefix(
 ): Promise<Product[]> {
   if (USE_MOCKS) {
     return mockProducts
-      .filter(p =>
-        categoryPrefixes.some(prefix =>
-          p.categorySlug?.startsWith(prefix) || p.categorySlug === prefix
+      .filter((p) =>
+        categoryPrefixes.some(
+          (prefix) =>
+            p.categorySlug?.startsWith(prefix) || p.categorySlug === prefix
         )
       )
       .slice(0, limit)
