@@ -17,10 +17,7 @@ export default function ProductsLoading() {
           {/* Filters skeleton */}
           <div className="flex flex-wrap gap-4 justify-center">
             {Array.from({ length: 4 }, (_, i) => (
-              <SkeletonBlock
-                key={i}
-                className="h-10 rounded-full w-24"
-              />
+              <SkeletonBlock key={i} className="h-10 rounded-full w-24" />
             ))}
           </div>
 

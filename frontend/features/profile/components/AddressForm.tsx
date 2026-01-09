@@ -11,7 +11,7 @@ import {
   type CreateAddressData,
 } from "@/features/addresses/api";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormErrorAlert } from "@/components/ui/form-error-alert";
 import { FormField } from "@/components/ui/form-field";
@@ -167,7 +167,7 @@ export function AddressForm({
         />
 
         <div className="flex gap-4 pt-4">
-          <Button type="submit" isLoading={isSubmitting} className="flex-1">
+          <LoadingButton type="submit" loading={isSubmitting} className="flex-1">
             {address ? "Update Address" : "Add Address"}
           </Button>
           <Button

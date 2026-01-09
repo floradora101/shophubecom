@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Card } from "@/components/ui/card";
 import { FormField, FormSection } from "@/components/ui/form-field";
 import { PageHeader } from "@/components/ui/page-header";
@@ -84,7 +84,7 @@ export default function NewHeroSlidePage() {
                 Cancel
               </Button>
             </Link>
-            <Button type="submit" disabled={isSubmitting}>
+            <LoadingButton type="submit" loading={isSubmitting}>
               <Save className="h-4 w-4 mr-2" />
               {isSubmitting ? "Creating..." : "Create Slide"}
             </Button>

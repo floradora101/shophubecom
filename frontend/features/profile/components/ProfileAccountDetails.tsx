@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { updateProfileSchema, changePasswordSchema } from "../schemas";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FormField } from "@/components/ui/form-field";
 import { extractErrorMessage } from "@/lib/utils/error-handler";
@@ -152,7 +152,7 @@ export function ProfileAccountDetails() {
           </FormField>
 
           <div className="pt-4">
-            <Button type="submit" isLoading={isLoading} size="lg">
+            <LoadingButton type="submit" loading={isLoading} size="lg">
               Update Profile
             </Button>
           </div>
@@ -220,7 +220,7 @@ export function ProfileAccountDetails() {
           </FormField>
 
           <div className="pt-4">
-            <Button type="submit" isLoading={isPasswordLoading} size="lg">
+            <LoadingButton type="submit" loading={isPasswordLoading} size="lg">
               Change Password
             </Button>
           </div>

@@ -1,6 +1,10 @@
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
-import { SkeletonBlock, SkeletonCircle, SkeletonText } from "@/components/ui/skeleton";
+import {
+  SkeletonBlock,
+  SkeletonCircle,
+  SkeletonText,
+} from "@/components/ui/skeleton";
 
 export default function CheckoutLoading() {
   return (

@@ -1,5 +1,5 @@
 // Professional order summary card component for checkout and order details
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Card } from "@/components/ui/card";
 import { ProductImage } from "@/components/ui/product-image";
 import { Price } from "@/components/ui/price";
@@ -278,21 +278,15 @@ export function OrderSummaryCard({
         {/* CTA Button */}
         {showCTA && (
           <div className="pt-2">
-            <Button
+            <LoadingButton
               type="submit"
               size="lg"
               variant="destructive"
               className="w-full rounded-full py-3 text-base font-semibold shadow-sm transition-all hover:shadow-md"
-              disabled={isSubmitting}
+              loading={isSubmitting}
+              loadingText="Placing order..."
             >
-              {isSubmitting ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Placing order...
-                </div>
-              ) : (
-                "Place Order"
-              )}
+              Place Order
             </Button>
           </div>
         )}

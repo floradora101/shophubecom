@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { InteractiveStarRating } from "@/components/ui/star-rating";
@@ -369,13 +369,15 @@ export function WriteReviewModal({
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           ) : (
-            <Button
+            <LoadingButton
               onClick={handleSubmit}
-              disabled={isSubmitting || !canProceedToNextStep()}
+              loading={isSubmitting}
+              disabled={!canProceedToNextStep()}
+              loadingText="Submitting..."
               className="min-w-[120px]"
             >
-              {isSubmitting ? "Submitting..." : "Submit Review"}
-            </Button>
+              Submit Review
+            </LoadingButton>
           )}
         </div>
       </DialogContent>
