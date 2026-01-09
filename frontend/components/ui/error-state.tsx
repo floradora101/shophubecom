@@ -85,38 +85,28 @@ export function ErrorState({
     >
       {/* Error Icon */}
       <div className="mb-6">
-        <Icon
-          className={cn(
-            "text-red-500",
-            sizes.icon
-          )}
-          aria-hidden="true"
-        />
+        <Icon className={cn("text-red-500", sizes.icon)} aria-hidden="true" />
       </div>
 
       {/* Error Code (if provided) */}
       {code && (
-        <div className={cn(
-          "mb-2 font-mono font-semibold text-red-600",
-          sizes.code
-        )}>
+        <div
+          className={cn(
+            "mb-2 font-mono font-semibold text-red-600",
+            sizes.code
+          )}
+        >
           {code}
         </div>
       )}
 
       {/* Error Title */}
-      <h1 className={cn(
-        "mb-3 font-semibold text-gray-900",
-        sizes.title
-      )}>
+      <h1 className={cn("mb-3 font-semibold text-gray-900", sizes.title)}>
         {title}
       </h1>
 
       {/* Error Description */}
-      <p className={cn(
-        "mb-8 max-w-md text-gray-600",
-        sizes.description
-      )}>
+      <p className={cn("mb-8 max-w-md text-gray-600", sizes.description)}>
         {description}
       </p>
 
