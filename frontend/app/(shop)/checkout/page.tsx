@@ -27,6 +27,7 @@ import { useAddressesQuery } from "@/features/addresses/queries";
 import { extractErrorMessage } from "@/lib/utils/error-handler";
 import { DEMO_CHECKOUT } from "@/lib/flags";
 import { createDemoOrder } from "@/features/orders/demo/demoOrders";
+import { logger } from "@/lib/logger";
 import type { Address } from "@/features/addresses/api";
 import { SkeletonBlock, SkeletonText } from "@/components/ui/skeleton";
 
@@ -90,9 +91,7 @@ export default function CheckoutPage() {
   const isEmpty = !isLoading && items.length === 0;
 
   // Dev-only debug log for demo mode
-  if (process.env.NODE_ENV === "development") {
-    console.log("DEMO_CHECKOUT:", DEMO_CHECKOUT);
-  }
+  logger.debug("DEMO_CHECKOUT:", DEMO_CHECKOUT);
   const { data: addresses = [] } = useAddressesQuery();
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
 
@@ -272,9 +271,7 @@ export default function CheckoutPage() {
 
       if (DEMO_CHECKOUT) {
         // Demo checkout mode - create order client-side
-        if (process.env.NODE_ENV === "development") {
-          console.log("Using demo checkout mode");
-        }
+        logger.debug("Using demo checkout mode");
 
         const shippingCost =
           data.shippingOption === "pickup"

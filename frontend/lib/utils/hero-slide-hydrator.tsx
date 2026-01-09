@@ -1,6 +1,7 @@
 import { useMemo, useCallback } from "react";
 import type { HeroSlide } from "@/lib/types/heroSlides.types";
 import type { Product, Category } from "@/features/products/types";
+import { logger } from "@/lib/logger";
 
 interface HeroSlideHydrationOptions {
   slides: HeroSlide[];
@@ -26,7 +27,7 @@ export function useHeroSlideProcessor({
     const activeSlides = slides
       .filter((slide) => {
         if (!slide.isActive) {
-          console.log(
+          logger.debug(
             `Slide filtered out (isActive=false): ${slide.id} - ${
               slide.headline || "no headline"
             }`

@@ -13,6 +13,7 @@ import { Stepper } from "@/components/ui/stepper";
 import { Heading, Text } from "@/components/ui/typography";
 import { ordersApi } from "@/features/orders/api";
 import { DEMO_CHECKOUT } from "@/lib/flags";
+import { logger } from "@/lib/logger";
 import { getDemoOrder } from "@/features/orders/demo/demoOrders";
 import { SuccessHeader } from "@/features/orders/components/SuccessHeader";
 import { OrderSummaryCard } from "@/features/orders/components/OrderSummaryCard";
@@ -32,14 +33,12 @@ export default function OrderCompletePage() {
   const orderId = Array.isArray(orderIdParam) ? orderIdParam[0] : orderIdParam;
 
   // Dev-only debug log for demo mode
-  if (process.env.NODE_ENV === "development") {
-    console.log(
-      "OrderCompletePage - DEMO_CHECKOUT:",
-      DEMO_CHECKOUT,
-      "isDemo:",
-      isDemo
-    );
-  }
+  logger.debug(
+    "OrderCompletePage - DEMO_CHECKOUT:",
+    DEMO_CHECKOUT,
+    "isDemo:",
+    isDemo
+  );
 
   // For demo mode, load demo order immediately
   const demoOrder = isDemo ? getDemoOrder(orderId!) : null;

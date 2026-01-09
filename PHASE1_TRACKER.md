@@ -76,14 +76,14 @@
 - **Manual check:** Search immediate, checkout no pause, filters no wait
 - **Risk notes:** Performance improvement - no functional changes
 
-### STEP 7 — INTRODUCE LOGGER WRAPPER + REDUCE CONSOLE NOISE
+### STEP 7 — INTRODUCE LOGGER WRAPPER + REDUCE CONSOLE NOISE ✅
 
-- [ ] 7.1 Create `lib/logger.ts`
-- [ ] 7.2 Replace console usage in active paths
-- **Files changed:** `lib/logger.ts`, various files with console.log
+- [x] 7.1 Create `lib/logger.ts` with debug/info/warn/error methods
+- [x] 7.2 Replace console usage in active paths (checkout, order-complete, product-tabs, hero-hydrator)
+- **Files changed:** `frontend/lib/logger.ts`, `frontend/app/(shop)/checkout/page.tsx`, `frontend/app/(shop)/order-complete/[orderId]/page.tsx`, `frontend/app/(shop)/products/[slug]/components/ProductDetailsTabs.tsx`, `frontend/lib/utils/hero-slide-hydrator.tsx`, `PHASE1_TRACKER.md`
 - **Commands:** `npm run lint`, `npx tsc -p tsconfig.json --noEmit`, `npm run build`
-- **Manual check:** No functional changes, errors surface in dev
-- **Risk notes:** None
+- **Manual check:** No functional changes, errors still surface in dev
+- **Risk notes:** None - safe logger wrapper
 
 ### STEP 8 — HERO DYNAMIC IMPORT FALLBACKS
 
@@ -112,5 +112,5 @@
 
 ## Progress Summary
 
-- **Completed:** 5/10 steps (0, 1, 2, 3, 4, 5)
-- **Next:** Step 6 - Remove fake loading delays
+- **Completed:** 6/10 steps (0, 1, 2, 3, 4, 5, 6)
+- **Next:** Step 7 - Introduce logger wrapper

@@ -27,6 +27,7 @@ import {
   type ReviewStats,
 } from "@/lib/mock-data/mock-reviews";
 import { cn } from "@/lib/utils/cn";
+import { logger } from "@/lib/logger";
 import { WriteReviewModal } from "./WriteReviewModal";
 
 interface ProductDetailsTabsProps {
@@ -251,7 +252,7 @@ function ReviewsTab({ product }: { product: Product }) {
     userEmail: string;
   }) => {
     // In a real app, this would submit to an API
-    console.log("Submitting review:", reviewData);
+    logger.debug("Submitting review:", reviewData);
 
     // For demo purposes, we'll just show an alert
     alert(
