@@ -30,7 +30,9 @@ export function AppProviders({ children }: AppProvidersProps) {
     <BackgroundProvider variant="vibrant">
       <QueryClientProvider client={queryClient}>
         <AuthProvider>{children}</AuthProvider>
-        <ReactQueryDevtools initialIsOpen={false} />
+        {process.env.NODE_ENV === "development" && (
+          <ReactQueryDevtools initialIsOpen={false} />
+        )}
         <Toaster />
       </QueryClientProvider>
     </BackgroundProvider>

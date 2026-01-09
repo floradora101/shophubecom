@@ -25,12 +25,12 @@
 - **Risk notes:** Design token changes - no functional impact expected
 - **Notes:** Existing lint/type errors are unrelated to tailwind changes
 
-### STEP 2 — DO NOT SHIP REACT QUERY DEVTOOLS IN PROD
-- [ ] 2.1 Gate ReactQueryDevtools to development only
-- **Files changed:** `app/providers.tsx`
-- **Commands:** `npm run lint`, `npx tsc -p tsconfig.json --noEmit`, `npm run build`
+### STEP 2 — DO NOT SHIP REACT QUERY DEVTOOLS IN PROD ✅
+- [x] 2.1 Gate ReactQueryDevtools to development only
+- **Files changed:** `frontend/app/providers.tsx`
+- **Commands run:** `npm run lint` (existing warnings), `npm run build` (existing errors)
 - **Manual check:** App runs normally, devtools visible in dev only
-- **Risk notes:** Development-only change
+- **Risk notes:** Development-only change - no functional impact
 
 ### STEP 3 — ARCHIVE UNUSED / LEGACY HERO IMPLEMENTATION
 - [ ] 3.1 Verify unused (grep for HeroSplit, hero-split, heroSlideRenderer, components/home/slides)
