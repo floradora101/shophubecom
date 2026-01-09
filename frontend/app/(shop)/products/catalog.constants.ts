@@ -133,3 +133,15 @@ export const COMPACT_CATEGORY_ICONS = [
     techElements: ["Military Grade", "Wireless Charge", "Slim Design"],
   },
 ];
+
+// Sort options for products catalog
+export const SORT_OPTIONS = [
+  { value: "latest", label: "Latest" },
+  { value: "price-low", label: "Price: Low to High" },
+  { value: "price-high", label: "Price: High to Low" },
+  { value: "rating", label: "Highest Rated" },
+  { value: "name", label: "Name A-Z" },
+] as const;
+
+// Items per page for pagination
+export const ITEMS_PER_PAGE = 10;

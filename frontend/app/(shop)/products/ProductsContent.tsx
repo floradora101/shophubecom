@@ -14,13 +14,7 @@ import {
   ReadonlyURLSearchParams,
 } from "next/navigation";
 import Link from "next/link";
-import {
-  ChevronRight,
-  ChevronDown,
-  ChevronLeft,
-  Filter,
-} from "lucide-react";
-import { useSwipe } from "@/lib/hooks/useSwipe";
+import { Filter } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { SectionTitle } from "@/components/ui/SectionTitle";
@@ -51,7 +45,8 @@ import { FiltersDrawer } from "./components/FiltersDrawer";
 import { ActiveFilterChips } from "./components/ActiveFilterChips";
 import { ProductsGrid } from "./components/ProductsGrid";
 import { cn } from "@/lib/utils/cn";
-import { COMPACT_CATEGORY_ICONS } from "./catalog.constants";
+import { COMPACT_CATEGORY_ICONS, SORT_OPTIONS, ITEMS_PER_PAGE } from "./catalog.constants";
+import { CategoryCarousel } from "./components/CategoryCarousel";
 
 interface UpdateFilters {
   setCategory: (categorySlug: string | null) => void;
@@ -65,233 +60,9 @@ interface UpdateFilters {
 import { FiltersSidebarSkeleton } from "@/components/ui/loading-spinner";
 
 
-// Cyberpunk Category Icon Carousel Component
-function CategoryCarousel({
-  categories,
-  scrollRef,
-  isDragging,
-  canScrollLeft,
-  canScrollRight,
-  handleMouseDown,
-  handleMouseMove,
-  handleMouseUp,
-  handleTouchStart,
-  handleTouchMove,
-  handleTouchEnd,
-  handleKeyDown,
-  scrollCarousel,
-  filters,
-  searchParams,
-  router,
-  basePath,
-  updateSearchParams,
-  updateFilters,
-}: {
-  categories: typeof COMPACT_CATEGORY_ICONS;
-  scrollRef: React.RefObject<HTMLDivElement | null>;
-  isDragging: boolean;
-  canScrollLeft: boolean;
-  canScrollRight: boolean;
-  handleMouseDown: (e: React.MouseEvent) => void;
-  handleMouseMove: (e: React.MouseEvent) => void;
-  handleMouseUp: () => void;
-  handleTouchStart: (e: React.TouchEvent) => void;
-  handleTouchMove: (e: React.TouchEvent) => void;
-  handleTouchEnd: () => void;
-  handleKeyDown: (event: React.KeyboardEvent) => void;
-  scrollCarousel: (direction: "left" | "right") => void;
-  filters: CanonicalFilters;
-  searchParams: ReadonlyURLSearchParams;
-  router: ReturnType<typeof useRouter>;
-  basePath: string;
-  updateSearchParams: UpdateSearchParamsFn;
-  updateFilters: UpdateFilters;
-}) {
-  const handleCategoryClick = (categorySlug: string) => {
-    updateFilters.setCategory(categorySlug);
-  };
+// CategoryCarousel moved to components/CategoryCarousel.tsx
 
-  const CategoryIcon = ({
-    category,
-  }: {
-    category: (typeof COMPACT_CATEGORY_ICONS)[0];
-  }) => {
-    const IconComponent = category.icon;
-    const isActive = filters.category === category.slug;
-
-    return (
-      <button
-        onClick={() => handleCategoryClick(category.slug)}
-        className="group flex flex-col items-center p-3 sm:p-4 rounded-2xl bg-white/5 backdrop-blur-sm border border-gray-700/30 hover:border-gray-600/50 transition-all duration-300 hover:scale-105 sm:hover:scale-110 hover:bg-white/10 min-h-[80px] sm:min-h-[100px]"
-      >
-        <div className="relative">
-          {/* Multi-layer Glow Effects */}
-          <div
-            className={`absolute inset-0 ${category.iconBg} rounded-2xl blur-2xl opacity-0 group-hover:opacity-80 transition-opacity duration-500 scale-125`}
-          />
-          <div
-            className={`absolute inset-0 ${category.iconBg} rounded-2xl blur-xl opacity-0 group-hover:opacity-60 transition-opacity duration-500 scale-110`}
-          />
-
-          {/* Main Icon Container */}
-          <div
-            className={`relative p-3 sm:p-4 ${
-              category.iconBg
-            } rounded-2xl border border-gray-600/30 group-hover:border-gray-500/50 group-hover:scale-105 sm:group-hover:scale-110 transition-all duration-500 ${
-              category.glowColor
-            } group-hover:shadow-2xl ${
-              isActive ? "ring-2 ring-primary-400/50 bg-primary-400/10" : ""
-            }`}
-          >
-            <IconComponent
-              className={`h-7 w-7 sm:h-8 sm:w-8 ${
-                category.accentColor
-              } drop-shadow-lg transition-colors duration-300 ${
-                isActive ? "text-primary-300" : ""
-              }`}
-            />
-
-            {/* Animated Dots */}
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-blue-400 rounded-full animate-ping opacity-0 group-hover:opacity-100 transition-opacity delay-100" />
-
-            {/* Scanning Line Effect */}
-            <div className="absolute inset-0 rounded-2xl overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-primary-400 to-transparent animate-pulse opacity-0 group-hover:opacity-80" />
-            </div>
-          </div>
-        </div>
-
-        <h3
-          className={`text-sm font-semibold text-center mt-3 transition-colors duration-300 ${
-            isActive
-              ? "text-primary-300"
-              : "text-gray-300 group-hover:text-white"
-          }`}
-        >
-          {category.name}
-        </h3>
-      </button>
-    );
-  };
-
-  return (
-    <div className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
-      {/* Advanced Tech Background */}
-      <div className="absolute inset-0 opacity-20">
-        {/* Grid Pattern */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(59,130,246,0.1),transparent_50%),radial-gradient(circle_at_75%_75%,rgba(139,92,246,0.1),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(59,130,246,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.05)_1px,transparent_1px)] bg-[size:40px_40px]" />
-
-        {/* Floating Tech Elements */}
-        <div className="absolute top-8 left-20 w-16 h-16 border border-primary-400/20 rounded-lg rotate-12 animate-pulse" />
-        <div className="absolute top-16 right-32 w-12 h-12 border border-emerald-400/20 rounded-full animate-pulse delay-1000" />
-        <div className="absolute bottom-8 left-1/3 w-10 h-10 border border-violet-400/20 rounded-lg rotate-45 animate-pulse delay-500" />
-        <div className="absolute top-1/2 right-20 w-8 h-8 border border-orange-400/20 rounded-full animate-pulse delay-1500" />
-
-        {/* Data Flow Lines */}
-        <div className="absolute top-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary-400/30 to-transparent animate-pulse" />
-        <div className="absolute bottom-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-emerald-400/30 to-transparent animate-pulse delay-2000" />
-      </div>
-
-      <Container className="relative z-10 py-6">
-        <div className="space-y-6">
-          {/* Carousel Navigation */}
-          <div className="relative max-w-7xl mx-auto">
-            {/* Navigation Buttons */}
-            <button
-              onClick={() => scrollCarousel("left")}
-              disabled={!canScrollLeft}
-              className="absolute -left-3 sm:-left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-gray-900/95 to-gray-800/95 backdrop-blur-xl rounded-full shadow-xl border border-gray-700/50 flex items-center justify-center hover:bg-gray-700/80 hover:scale-110 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group"
-              aria-label="Previous categories"
-            >
-              <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 text-white group-hover:text-primary-400 transition-colors" />
-              <div className="absolute inset-0 bg-primary-400/10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity blur-xl" />
-            </button>
-
-            <button
-              onClick={() => scrollCarousel("right")}
-              disabled={!canScrollRight}
-              className="absolute -right-3 sm:-right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-gray-900/95 to-gray-800/95 backdrop-blur-xl rounded-full shadow-xl border border-gray-700/50 flex items-center justify-center hover:bg-gray-700/80 hover:scale-110 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group"
-              aria-label="Next categories"
-            >
-              <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-white group-hover:text-primary-400 transition-colors" />
-              <div className="absolute inset-0 bg-primary-400/10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity blur-xl" />
-            </button>
-
-            {/* Drag-based Horizontal Scroll Carousel */}
-            <div className="overflow-hidden px-2 sm:px-6">
-              <div
-                ref={scrollRef}
-                className={`flex gap-3 sm:gap-4 md:gap-5 lg:gap-6 overflow-x-auto scrollbar-hide cursor-grab focus:outline-none ${
-                  isDragging ? "cursor-grabbing select-none" : ""
-                }`}
-                style={{
-                  scrollBehavior: isDragging ? "auto" : "smooth",
-                  WebkitOverflowScrolling: "touch", // iOS momentum scrolling
-                }}
-                tabIndex={0}
-                role="region"
-                aria-label="Category carousel - drag to scroll"
-                onKeyDown={handleKeyDown}
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
-                onMouseLeave={handleMouseUp}
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
-              >
-                {categories.map((category, index) => (
-                  <div
-                    key={category.slug}
-                    className="flex-shrink-0 w-20 sm:w-24 md:w-28 lg:w-32"
-                    style={{
-                      animationDelay: `${index * 150}ms`,
-                    }}
-                  >
-                    <CategoryIcon category={category} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Removed drag hint from small screens as requested */}
-
-          {/* Bottom Tech Accent */}
-          <div className="flex justify-center">
-            <div className="flex items-center gap-2 md:gap-3 px-2 py-1.5 md:px-4 md:py-2 bg-gradient-to-r from-gray-800/50 to-gray-700/50 backdrop-blur-md rounded-full border border-gray-600/30">
-              <div className="flex gap-1 md:gap-1.5">
-                <div className="w-1 h-1 md:w-1.5 md:h-1.5 bg-primary-400 rounded-full animate-pulse" />
-                <div className="w-1 h-1 md:w-1.5 md:h-1.5 bg-emerald-400 rounded-full animate-pulse delay-200" />
-                <div className="w-1 h-1 md:w-1.5 md:h-1.5 bg-violet-400 rounded-full animate-pulse delay-400" />
-                <div className="w-1 h-1 md:w-1.5 md:h-1.5 bg-orange-400 rounded-full animate-pulse delay-600" />
-              </div>
-              <span className="text-gray-400 text-xs font-medium">
-                Curated Excellence
-              </span>
-              <div className="flex gap-1 md:gap-1.5">
-                <div className="w-1 h-1 md:w-1.5 md:h-1.5 bg-orange-400 rounded-full animate-pulse delay-600" />
-                <div className="w-1 h-1 md:w-1.5 md:h-1.5 bg-violet-400 rounded-full animate-pulse delay-400" />
-                <div className="w-1 h-1 md:w-1.5 md:h-1.5 bg-emerald-400 rounded-full animate-pulse delay-200" />
-                <div className="w-1 h-1 md:w-1.5 md:h-1.5 bg-primary-400 rounded-full animate-pulse" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </Container>
-    </div>
-  );
-}
-
-// Sort options for the dropdown
-const SORT_OPTIONS = [
-  { value: "latest", label: "Latest" },
-  { value: "price-low", label: "Price: Low to High" },
-  { value: "price-high", label: "Price: High to Low" },
-  { value: "name", label: "Name: A-Z" },
-];
+// SORT_OPTIONS moved to catalog.constants.ts
 
 interface ProductsContentProps {
   categorySlug?: string | null;
@@ -307,106 +78,7 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
 
   // Responsive logic removed - drag carousel adapts naturally
 
-  // Drag-based carousel navigation
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startPos, setStartPos] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true);
-    setStartPos(e.pageX - (scrollRef.current?.offsetLeft || 0));
-    setScrollLeft(scrollRef.current?.scrollLeft || 0);
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    e.preventDefault();
-    const x = e.pageX - (scrollRef.current?.offsetLeft || 0);
-    const walk = (x - startPos) * 2; // Scroll speed multiplier
-    if (scrollRef.current) {
-      scrollRef.current.scrollLeft = scrollLeft - walk;
-    }
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setIsDragging(true);
-    setStartPos(e.touches[0].pageX - (scrollRef.current?.offsetLeft || 0));
-    setScrollLeft(scrollRef.current?.scrollLeft || 0);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging) return;
-    const x = e.touches[0].pageX - (scrollRef.current?.offsetLeft || 0);
-    const walk = (x - startPos) * 2;
-    if (scrollRef.current) {
-      scrollRef.current.scrollLeft = scrollLeft - walk;
-    }
-  };
-
-  const handleTouchEnd = () => {
-    setIsDragging(false);
-  };
-
-  const scrollCarousel = (direction: "left" | "right") => {
-    if (scrollRef.current) {
-      const scrollAmount = 200;
-      const newPosition =
-        scrollRef.current.scrollLeft +
-        (direction === "left" ? -scrollAmount : scrollAmount);
-      scrollRef.current.scrollTo({
-        left: Math.max(
-          0,
-          Math.min(
-            newPosition,
-            scrollRef.current.scrollWidth - scrollRef.current.clientWidth
-          )
-        ),
-        behavior: "smooth",
-      });
-    }
-  };
-
-  // Scroll state for navigation buttons
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
-
-  // Update scroll state when scrolling occurs
-  const updateScrollState = useCallback(() => {
-    if (scrollRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      setCanScrollLeft(scrollLeft > 0);
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1); // -1 for rounding errors
-    }
-  }, []);
-
-  // Listen for scroll events
-  useEffect(() => {
-    const element = scrollRef.current;
-    if (element) {
-      element.addEventListener("scroll", updateScrollState);
-      // Initial check
-      updateScrollState();
-      return () => element.removeEventListener("scroll", updateScrollState);
-    }
-  }, [updateScrollState]);
-
-  const handleKeyDown = useCallback(
-    (event: React.KeyboardEvent) => {
-      if (event.key === "ArrowLeft") {
-        event.preventDefault();
-        scrollCarousel("left");
-      } else if (event.key === "ArrowRight") {
-        event.preventDefault();
-        scrollCarousel("right");
-      }
-    },
-    [scrollCarousel]
-  );
+  // CategoryCarousel moved to separate component - no longer needs scroll handling
 
   // Performance guard: delay expensive computations until user interacts
   // Initialize this FIRST before any other state to avoid "before initialization" errors
@@ -556,7 +228,7 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
   const [isFiltersDrawerOpen, setIsFiltersDrawerOpen] = useState(false);
 
   // Paginate filtered products
-  const ITEMS_PER_PAGE = 10;
+  // ITEMS_PER_PAGE moved to catalog.constants.ts
   const paginationResult = useMemo(
     () => paginateProducts(filteredProducts, filters.page, ITEMS_PER_PAGE),
     [filteredProducts, filters.page]
@@ -770,19 +442,6 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
       <Stack spacing="xs" className="relative z-0">
         {/* Cyberpunk Category Carousel - Top of Page */}
         <CategoryCarousel
-          categories={COMPACT_CATEGORY_ICONS}
-          scrollRef={scrollRef}
-          isDragging={isDragging}
-          canScrollLeft={canScrollLeft}
-          canScrollRight={canScrollRight}
-          handleMouseDown={handleMouseDown}
-          handleMouseMove={handleMouseMove}
-          handleMouseUp={handleMouseUp}
-          handleTouchStart={handleTouchStart}
-          handleTouchMove={handleTouchMove}
-          handleTouchEnd={handleTouchEnd}
-          handleKeyDown={handleKeyDown}
-          scrollCarousel={scrollCarousel}
           filters={filters}
           searchParams={searchParams}
           router={router}
