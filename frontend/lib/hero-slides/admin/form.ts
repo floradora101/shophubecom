@@ -57,19 +57,6 @@ const baseHeroSlideSchema = z.object({
     .optional(),
   mediaAspect: z.enum(["landscape", "default"]).optional(),
 
-  // Theme - Required for proper theming
-  themeAccentToken: z
-    .enum([
-      "red-black",
-      "red-blue",
-      "red-pink",
-      "red-gray",
-      "red-burgundy",
-      "blue-green",
-      "red-orange",
-    ])
-    .default("red-black"),
-
   // Type-specific fields
   // CATEGORY_SPOTLIGHT
   categoryBullets: z
@@ -124,6 +111,23 @@ const baseHeroSlideSchema = z.object({
   subtitle: z.string().max(80).optional().or(z.literal("")), // Subtitle overlay safe
   textPosition: z.enum(["left", "center", "right"]).default("center"),
   overlayOpacity: z.number().min(0).max(1).default(0.3),
+
+  // New Landscape specific fields
+  landscapeVariant: z.enum(["minimal", "glass", "editorial", "neon"]).default("minimal"),
+  landscapePlacement: z.enum(["left", "center", "right"]).default("center"),
+  landscapeTextAlign: z.enum(["left", "center", "right"]).default("center"),
+  landscapeMaxWidth: z.enum(["sm", "md", "lg"]).default("lg"),
+  landscapeHeadlineDecoration: z.enum([
+    "none", "underline", "gradient", "accentBar", "outline", "outlineFill",
+    "glow", "redAccent", "neon", "redNeonGlow", "doubleUnderline",
+    "wavyUnderline", "animatedUnderline", "boxed", "shadow", "metallic",
+    "glitch", "stripe", "silverGlow", "chrome", "silverOutline", "iceGlow", "platinum"
+  ]).default("none"),
+  landscapeHighlightEffect: z.enum(["none", "underlineGlow", "pulse", "shimmer", "bounce"]).default("none"),
+  landscapeBadgeVariant: z.enum(["solid", "outline", "pill"]).default("solid"),
+  landscapeOverlayType: z.enum(["solid", "gradient"]).default("solid"),
+  landscapeMaskReveal: z.boolean().default(false),
+  landscapeStagger: z.boolean().default(true),
 });
 
 // Main schema with conditional validation
@@ -230,7 +234,6 @@ export function getDefaultHeroSlideFormValues(
     mediaAlt: "",
     mediaPosition: "center",
     mediaAspect: "default",
-    themeAccentToken: "red-black",
     categoryBullets: type === "CATEGORY_SPOTLIGHT" ? [""] : undefined,
     offerLabel: "",
     offerEndsAt: "",
@@ -244,6 +247,16 @@ export function getDefaultHeroSlideFormValues(
     subtitle: "",
     textPosition: "center",
     overlayOpacity: 0.3,
+    landscapeVariant: "minimal",
+    landscapePlacement: "center",
+    landscapeTextAlign: "center",
+    landscapeMaxWidth: "lg",
+    landscapeHeadlineDecoration: "none",
+    landscapeHighlightEffect: "none",
+    landscapeBadgeVariant: "solid",
+    landscapeOverlayType: "solid",
+    landscapeMaskReveal: false,
+    landscapeStagger: true,
   };
 
   return defaults;
@@ -277,7 +290,6 @@ export function toFormValues(slide: HeroSlide): HeroSlideFormValues {
     mediaPosition: slide.media.position || "center",
     mediaAspect:
       "aspect" in slide.media ? slide.media.aspect || "default" : "default",
-    themeAccentToken: slide.theme?.accentToken || "red-black",
   };
 
   // Add type-specific fields
@@ -316,9 +328,19 @@ export function toFormValues(slide: HeroSlide): HeroSlideFormValues {
     case "LANDSCAPE_IMAGE":
       return {
         ...baseValues,
-        subtitle: slide.subtitle || "",
-        textPosition: slide.textPosition || "center",
-        overlayOpacity: slide.overlayOpacity || 0.3,
+        subtitle: slide.subtitle || slide.content?.subtitle || "",
+        textPosition: slide.textPosition || slide.textStyle?.placement || "center",
+        overlayOpacity: slide.overlayOpacity ?? slide.overlay?.opacity ?? 0.3,
+        landscapeVariant: slide.textStyle?.variant || "minimal",
+        landscapePlacement: slide.textStyle?.placement || "center",
+        landscapeTextAlign: slide.textStyle?.textAlign || "center",
+        landscapeMaxWidth: slide.textStyle?.maxWidth || "lg",
+        landscapeHeadlineDecoration: slide.textStyle?.headlineDecoration || "none",
+        landscapeHighlightEffect: slide.textStyle?.highlightEffect || "none",
+        landscapeBadgeVariant: slide.textStyle?.badgeVariant || "solid",
+        landscapeOverlayType: slide.overlay?.type || "solid",
+        landscapeMaskReveal: slide.textStyle?.animation?.maskReveal || false,
+        landscapeStagger: slide.textStyle?.animation?.stagger ?? true,
         urgencyLevel: "medium",
         rating: 5,
       };
@@ -329,6 +351,16 @@ export function toFormValues(slide: HeroSlide): HeroSlideFormValues {
         rating: 5,
         textPosition: "center",
         overlayOpacity: 0.3,
+        landscapeVariant: "minimal",
+        landscapePlacement: "center",
+        landscapeTextAlign: "center",
+        landscapeMaxWidth: "lg",
+        landscapeHeadlineDecoration: "none",
+        landscapeHighlightEffect: "none",
+        landscapeBadgeVariant: "solid",
+        landscapeOverlayType: "solid",
+        landscapeMaskReveal: false,
+        landscapeStagger: true,
       };
   }
 }
@@ -369,11 +401,6 @@ export function fromFormValues(
       position: values.mediaPosition,
       aspect: values.mediaAspect,
     },
-    theme: values.themeAccentToken
-      ? {
-          accentToken: values.themeAccentToken,
-        }
-      : undefined,
   };
 
   // Add type-specific fields
@@ -409,6 +436,30 @@ export function fromFormValues(
         subtitle: values.subtitle || undefined,
         textPosition: values.textPosition,
         overlayOpacity: values.overlayOpacity,
+        content: {
+          badgeText: values.badgeText || undefined,
+          subtitle: values.subtitle || undefined,
+          headline: values.headline,
+          highlight: values.highlight || undefined,
+          description: values.description,
+        },
+        textStyle: {
+          variant: values.landscapeVariant,
+          placement: values.landscapePlacement,
+          textAlign: values.landscapeTextAlign,
+          maxWidth: values.landscapeMaxWidth,
+          headlineDecoration: values.landscapeHeadlineDecoration,
+          highlightEffect: values.landscapeHighlightEffect,
+          badgeVariant: values.landscapeBadgeVariant,
+          animation: {
+            maskReveal: values.landscapeMaskReveal,
+            stagger: values.landscapeStagger,
+          },
+        },
+        overlay: {
+          opacity: values.overlayOpacity,
+          type: values.landscapeOverlayType,
+        },
         media: {
           kind: "image",
           imageUrl: values.mediaImageUrl,

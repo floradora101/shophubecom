@@ -43,9 +43,9 @@ export const HeroCTAs = memo(function HeroCTAs({
           <button
             className="inline-flex items-center justify-center gap-2 px-6 py-2 border font-semibold rounded-lg shadow-sm hover:shadow-md transition-all duration-200 w-auto min-h-10"
             style={{
-              borderColor: "var(--hero-accent)",
-              color: "var(--hero-accent)",
-              backgroundColor: "var(--hero-accent-weak)",
+              borderColor: "#fa0603",
+              color: "#fa0603",
+              backgroundColor: "rgba(250, 6, 3, 0.12)",
             }}
           >
             <span className="flex items-center gap-2">{secondary.label}</span>

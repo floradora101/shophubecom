@@ -11,6 +11,14 @@ import {
   ChevronUp,
   PenTool,
   Settings,
+  Monitor,
+  Cpu,
+  Database,
+  Battery,
+  Weight,
+  Maximize2,
+  Zap,
+  Package,
 } from "lucide-react";
 import { Tabs, TabItem } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
@@ -29,6 +37,26 @@ import {
 import { cn } from "@/lib/utils/cn";
 import { logger } from "@/lib/logger";
 import { WriteReviewModal } from "./WriteReviewModal";
+
+// Helper to get icon for spec label
+function getSpecIcon(label: string) {
+  const l = label.toLowerCase();
+  if (l.includes("screen") || l.includes("display"))
+    return <Monitor className="h-4 w-4" />;
+  if (l.includes("processor") || l.includes("cpu") || l.includes("chip"))
+    return <Cpu className="h-4 w-4" />;
+  if (l.includes("storage") || l.includes("ssd") || l.includes("memory"))
+    return <Database className="h-4 w-4" />;
+  if (l.includes("battery") || l.includes("power"))
+    return <Battery className="h-4 w-4" />;
+  if (l.includes("weight") || l.includes("mass"))
+    return <Weight className="h-4 w-4" />;
+  if (l.includes("dimension") || l.includes("size") || l.includes("width"))
+    return <Maximize2 className="h-4 w-4" />;
+  if (l.includes("performance") || l.includes("speed"))
+    return <Zap className="h-4 w-4" />;
+  return <Package className="h-4 w-4" />;
+}
 
 interface ProductDetailsTabsProps {
   product: Product;
@@ -96,7 +124,9 @@ function ReviewCard({ review }: { review: Review }) {
 
         {/* Review title */}
         <div>
-          <h4 className="font-semibold text-foreground mb-2">{review.title}</h4>
+          <h4 className="font-display font-bold text-foreground mb-2">
+            {review.title}
+          </h4>
         </div>
 
         {/* Review content */}
@@ -165,7 +195,9 @@ function ReviewsSummary({ stats }: { stats: ReviewStats }) {
 
       {/* Rating Distribution */}
       <Card padding="lg" className="bg-transparent">
-        <h4 className="font-semibold text-foreground mb-4">Rating Breakdown</h4>
+        <h4 className="font-display font-bold text-foreground mb-4">
+          Rating Breakdown
+        </h4>
         <div className="space-y-3">
           {[5, 4, 3, 2, 1].map((rating) => {
             const count =
@@ -258,20 +290,6 @@ function ReviewsTab({ product }: { product: Product }) {
     alert(
       "Thank you for your review! In a real application, this would be saved to the database."
     );
-
-    // You could also update the local state to show the new review immediately
-    // const newReview: Review = {
-    //   id: `review-${Date.now()}`,
-    //   userId: reviewData.userEmail,
-    //   userName: reviewData.userName,
-    //   rating: reviewData.rating,
-    //   title: reviewData.content.substring(0, 50) + "...", // Generate title from content
-    //   content: reviewData.content,
-    //   date: new Date(),
-    //   verified: false,
-    //   helpful: 0,
-    //   productVariant: "Your Purchase"
-    // };
   };
 
   return (
@@ -282,7 +300,7 @@ function ReviewsTab({ product }: { product: Product }) {
 
         {/* Reviews Header */}
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-foreground">
+          <h3 className="text-lg font-display font-bold text-foreground">
             Customer Reviews ({stats.totalReviews})
           </h3>
           <div className="flex items-center gap-3">
@@ -402,26 +420,25 @@ function SpecificationsTab({ product }: { product: Product }) {
 
   return (
     <div className="space-y-4">
-      <div className="bg-surface rounded-xl border border-border/40 overflow-hidden">
-        <div className="divide-y divide-border/30">
-          {product.specs.map((spec, index) => (
-            <div
-              key={index}
-              className="group px-4 py-3 hover:bg-surface-muted/50 transition-colors duration-200"
-            >
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-sm font-medium text-muted-fg flex-1 min-w-0">
-                  {spec.label}
-                </span>
-                <span className="text-sm font-semibold text-fg flex-1 min-w-0 text-right">
-                  {spec.value}
-                </span>
-              </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {product.specs.map((spec, index) => (
+          <div
+            key={index}
+            className="flex items-center gap-4 p-4 rounded-lg border border-border/50 bg-surface/30 hover:bg-surface/50 transition-colors"
+          >
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+              {getSpecIcon(spec.label)}
             </div>
-          ))}
-        </div>
-        {/* Compact footer accent */}
-        <div className="h-1 bg-linear-to-r from-primary/20 via-primary/40 to-primary/20" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-muted-fg uppercase tracking-wider">
+                {spec.label}
+              </p>
+              <p className="text-sm font-semibold text-fg truncate">
+                {spec.value}
+              </p>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -446,11 +463,50 @@ function DescriptionTab({ product }: { product: Product }) {
   }
 
   return (
-    <Card padding="lg" className="prose prose-sm max-w-none bg-transparent">
-      <div className="text-foreground leading-relaxed whitespace-pre-line">
-        {description}
-      </div>
-    </Card>
+    <div className="relative">
+      <div className="absolute -left-4 top-0 bottom-0 w-1 bg-linear-to-b from-primary-500/50 via-primary-500/20 to-transparent rounded-full hidden md:block" />
+      <Card
+        variant="default"
+        padding="xl"
+        className="bg-surface/40 backdrop-blur-xs border-border/40 overflow-hidden relative group"
+      >
+        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity duration-700 pointer-events-none">
+          <FileText className="h-32 w-32 rotate-12" />
+        </div>
+
+        <div className="relative space-y-6">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+              <PenTool className="h-4 w-4" />
+            </div>
+            <h4 className="text-lg font-display font-bold text-warm-gray-900 tracking-tight">
+              Design & Features
+            </h4>
+          </div>
+
+          <div className="prose prose-slate prose-sm md:prose-base max-w-none">
+            <div className="text-warm-gray-700 leading-relaxed whitespace-pre-line font-sans font-normal tracking-wide text-base md:text-lg italic border-l-4 border-primary-500/10 pl-6 py-2 bg-primary-50/5 rounded-r-xl">
+              {description}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-4 pt-4 border-t border-border/40">
+            <div className="flex items-center gap-2 text-xs font-semibold text-warm-gray-500 uppercase tracking-widest">
+              <CheckCircle className="h-4 w-4 text-success" />
+              <span>Premium Quality</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs font-semibold text-warm-gray-500 uppercase tracking-widest">
+              <CheckCircle className="h-4 w-4 text-success" />
+              <span>Expertly Crafted</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs font-semibold text-warm-gray-500 uppercase tracking-widest">
+              <CheckCircle className="h-4 w-4 text-success" />
+              <span>Modern Design</span>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </div>
   );
 }
 
@@ -511,7 +567,7 @@ export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
     });
 
     return tabItems;
-  }, [product]);
+  }, [product, isLargeScreen]);
 
   if (tabs.length === 0) {
     return (

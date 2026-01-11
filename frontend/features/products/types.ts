@@ -3,7 +3,9 @@ export interface Category {
   name: string;
   slug: string;
   description: string | null;
+  image?: string | null;
   parentId?: string | null;
+  sortOrder?: number;
   productCount?: number;
   createdAt: string;
   updatedAt: string;

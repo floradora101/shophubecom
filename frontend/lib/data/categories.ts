@@ -60,3 +60,6 @@ export async function getCategoryBySlug(
   // TODO: Replace with actual API call when backend is ready
   throw new Error("API implementation not yet available");
 }
+
+
+

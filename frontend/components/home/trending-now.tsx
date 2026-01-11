@@ -359,7 +359,7 @@ export function TrendingNow({ trendingProducts }: TrendingNowProps) {
             <div className="text-center md:text-left space-y-4 flex-1">
               <div
                 className={cn(
-                  "inline-flex items-center px-4 py-2 rounded-full bg-linear-to-r from-orange-100 via-primary-100 to-orange-100 mb-2",
+                  "inline-flex items-center px-4 py-2 rounded-full bg-linear-to-r from-primary-50 via-primary-100 to-primary-50 mb-2",
                   ui.gap.xs
                 )}
               >

@@ -13,11 +13,8 @@ const USE_MOCKS = process.env.NEXT_PUBLIC_USE_MOCKS !== "false";
  * Get all products (synchronous for server components)
  */
 export function getAllProductsSync(): Product[] {
-  if (USE_MOCKS) {
-    return mockProducts.map(mockProductToProduct);
-  }
-
-  throw new Error("API implementation not yet available - use async version");
+  // Always return mocks for sync version to prevent server crashes
+  return mockProducts.map(mockProductToProduct);
 }
 
 /**
@@ -36,12 +33,9 @@ export async function getAllProducts(): Promise<Product[]> {
  * Get product by slug (synchronous for server components)
  */
 export function getProductBySlugSync(slug: string): Product | null {
-  if (USE_MOCKS) {
-    const mockProduct = mockProducts.find((p) => p.slug === slug);
-    return mockProduct ? mockProductToProduct(mockProduct) : null;
-  }
-
-  throw new Error("API implementation not yet available - use async version");
+  // Always return mocks for sync version to prevent server crashes
+  const mockProduct = mockProducts.find((p) => p.slug === slug);
+  return mockProduct ? mockProductToProduct(mockProduct) : null;
 }
 
 /**

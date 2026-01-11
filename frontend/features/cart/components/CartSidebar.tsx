@@ -129,7 +129,7 @@ export function CartSidebar() {
               {items.map((item) => (
                 <li
                   key={item.key}
-                  className="flex gap-4 rounded-xl border border-gray-200/50 bg-white p-4 shadow-sm hover:shadow-md transition-shadow duration-200"
+                  className="flex gap-4 rounded-lg border border-gray-200/50 bg-white p-4 shadow-sm hover:shadow-md transition-shadow duration-200"
                 >
                   <div className="relative h-20 w-20 overflow-hidden rounded-md bg-white">
                     <Image
@@ -247,7 +247,7 @@ export function CartSidebar() {
               <Link href="/cart" onClick={() => toggleCart(false)}>
                 <Button
                   variant="secondary"
-                  className="w-full rounded-full py-2 font-semibold text-sm h-9 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]"
+                  className="w-full rounded-lg py-2 font-semibold text-sm h-9 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]"
                 >
                   View Cart
                 </Button>
@@ -255,13 +255,13 @@ export function CartSidebar() {
             )}
             {items.length > 0 ? (
               <Link href="/checkout" onClick={() => toggleCart(false)}>
-                <Button className="w-full rounded-full py-2 font-semibold text-sm h-9 bg-primary-600 hover:bg-primary-700 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]">
+                <Button className="w-full rounded-lg py-2 font-semibold text-sm h-9 bg-primary-600 hover:bg-primary-700 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]">
                   Proceed to Checkout
                 </Button>
               </Link>
             ) : (
               <Link href="/products" onClick={() => toggleCart(false)}>
-                <Button className="w-full rounded-full py-2 font-semibold text-sm h-9 bg-primary-600 hover:bg-primary-700 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]">
+                <Button className="w-full rounded-lg py-2 font-semibold text-sm h-9 bg-primary-600 hover:bg-primary-700 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99]">
                   Shop Now
                 </Button>
               </Link>
@@ -269,7 +269,7 @@ export function CartSidebar() {
             {items.length > 0 && (
               <Button
                 variant="ghost"
-                className="w-full rounded-full py-1 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-50 h-7"
+                className="w-full rounded-lg py-1 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-50 h-7"
                 onClick={clearCart}
               >
                 Clear Cart

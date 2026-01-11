@@ -1,82 +1,112 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { NavigationButton } from "@/components/ui/navigation-button";
+import { Container } from "@/components/ui/container";
 import { COMPACT_CATEGORY_ICONS } from "../catalog.constants";
 import type { CanonicalFilters } from "@/features/products/utils/filters";
+import { cn } from "@/lib/utils/cn";
+import { ReadonlyURLSearchParams } from "next/navigation";
+
+type UpdateSearchParamsFn = (
+  currentParams: URLSearchParams,
+  updates: Partial<CanonicalFilters>
+) => URLSearchParams;
+
+interface UpdateFilters {
+  setCategory: (categorySlug: string | null) => void;
+  setPriceRange: (range: { min: number; max: number }) => void;
+  setSortBy: (sortBy: CanonicalFilters["sortBy"]) => void;
+  setInStockOnly: (inStockOnly: boolean) => void;
+  setMinRating: (minRating: number | null) => void;
+  setBrands: (brands: string[] | null) => void;
+  setPage: (page: number) => void;
+}
 
 interface CategoryCarouselProps {
   filters: CanonicalFilters;
-  searchParams: URLSearchParams;
-  router: any; // Next.js router
+  searchParams: ReadonlyURLSearchParams;
+  router: ReturnType<typeof useRouter>;
   basePath: string;
-  updateSearchParams: (
-    params: URLSearchParams,
-    updates: Partial<CanonicalFilters>
-  ) => URLSearchParams;
-  updateFilters: {
-    setCategory: (categorySlug: string | null) => void;
+  updateSearchParams: UpdateSearchParamsFn;
+  updateFilters: UpdateFilters;
+  title?: {
+    italic: string;
+    bold: string;
   };
 }
 
 interface CategoryIconProps {
   category: (typeof COMPACT_CATEGORY_ICONS)[0];
-  isActive: boolean;
-  onClick: (categorySlug: string) => void;
+  filters: CanonicalFilters;
+  onCategoryClick: (categorySlug: string) => void;
 }
 
-function CategoryIcon({ category, isActive, onClick }: CategoryIconProps) {
+function CategoryIcon({
+  category,
+  filters,
+  onCategoryClick,
+}: CategoryIconProps) {
   const IconComponent = category.icon;
+  const isActive = filters.category === category.slug;
 
   return (
     <button
-      onClick={() => onClick(category.slug)}
-      className={`group relative flex-shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-xl border-2 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2 ${
+      onClick={() => onCategoryClick(category.slug)}
+      className={cn(
+        "group flex flex-col items-center p-4 sm:p-5 rounded-lg transition-all duration-500 min-h-[100px] sm:min-h-[120px] w-full relative overflow-hidden",
         isActive
-          ? "border-primary-400 bg-gradient-to-br from-primary-500/20 to-primary-600/10 shadow-lg shadow-primary-500/25 scale-105"
-          : "border-border hover:border-primary-300 bg-white/5 hover:bg-white/10 hover:shadow-md hover:scale-102"
-      }`}
-      aria-label={`Filter by ${category.name}`}
+          ? "bg-white shadow-2xl shadow-primary-500/10 border-primary-200"
+          : "bg-white/40 backdrop-blur-sm border-transparent hover:bg-white hover:shadow-xl hover:shadow-warm-gray-200/50"
+      )}
     >
-      {/* Glow effect */}
+      {/* Active Indicator Glow */}
       {isActive && (
-        <div className="absolute inset-0 rounded-xl bg-primary-400/20 blur-sm -z-10" />
+        <div className="absolute inset-0 bg-linear-to-br from-primary-50/50 to-transparent pointer-events-none" />
       )}
 
-      <div className="flex flex-col items-center justify-center h-full p-2">
-        {/* Icon */}
+      <div className="relative z-10">
+        {/* Modern Icon Container */}
         <div
-          className={`relative mb-1 ${
-            category.iconBg
-          } p-2 rounded-lg transition-all duration-300 ${
-            isActive ? "scale-110" : "group-hover:scale-105"
-          }`}
+          className={cn(
+            "relative p-4 sm:p-5 rounded-lg transition-all duration-500 transform group-hover:scale-110",
+            isActive
+              ? "bg-primary-600 text-white shadow-lg shadow-primary-600/30 rotate-3"
+              : "bg-warm-gray-100 text-warm-gray-600 group-hover:bg-primary-50 group-hover:text-primary-600 group-hover:-rotate-3"
+          )}
         >
           <IconComponent
-            className={`h-5 w-5 sm:h-6 sm:w-6 ${
-              category.accentColor
-            } transition-colors duration-300 ${
-              isActive ? "drop-shadow-lg" : ""
-            }`}
+            className={cn(
+              "h-7 w-7 sm:h-8 sm:w-8 transition-transform duration-500",
+              isActive && "scale-110"
+            )}
           />
-          {/* Icon glow */}
-          {isActive && (
-            <div className="absolute inset-0 rounded-lg bg-primary-400/30 blur-sm -z-10" />
-          )}
         </div>
 
-        {/* Label */}
-        <span
-          className={`text-xs font-medium transition-colors duration-300 ${
-            isActive
-              ? "text-primary-300"
-              : "text-gray-300 group-hover:text-white"
-          }`}
-        >
-          {category.name}
-        </span>
+        {/* Animated Sparkle for Active */}
+        {isActive && (
+          <Sparkles className="absolute -top-2 -right-2 h-4 w-4 text-primary-400 animate-pulse" />
+        )}
       </div>
+
+      <h3
+        className={cn(
+          "text-xs sm:text-sm font-bold text-center mt-4 transition-colors duration-300 tracking-tight leading-none",
+          isActive ? "text-primary-900" : "text-warm-gray-500 group-hover:text-warm-gray-900"
+        )}
+      >
+        {category.name}
+      </h3>
+
+      {/* Active Bottom Bar */}
+      <div
+        className={cn(
+          "absolute bottom-0 left-1/2 -translate-x-1/2 h-1 bg-primary-600 transition-all duration-500 rounded-t-full",
+          isActive ? "w-12 opacity-100" : "w-0 opacity-0 group-hover:w-6 group-hover:opacity-50"
+        )}
+      />
     </button>
   );
 }
@@ -88,6 +118,10 @@ export function CategoryCarousel({
   basePath,
   updateSearchParams,
   updateFilters,
+  title = {
+    italic: "Advanced",
+    bold: "Hardware",
+  },
 }: CategoryCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -105,7 +139,7 @@ export function CategoryCarousel({
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging) return;
     const x = e.pageX - (scrollRef.current?.offsetLeft || 0);
-    const walk = (x - startPos) * 2; // Scroll speed multiplier
+    const walk = (x - startPos) * 2;
     if (scrollRef.current) {
       scrollRef.current.scrollLeft = scrollLeft - walk;
     }
@@ -141,7 +175,13 @@ export function CategoryCarousel({
         scrollRef.current.scrollLeft +
         (direction === "left" ? -scrollAmount : scrollAmount);
       scrollRef.current.scrollTo({
-        left: newPosition,
+        left: Math.max(
+          0,
+          Math.min(
+            newPosition,
+            scrollRef.current.scrollWidth - scrollRef.current.clientWidth
+          )
+        ),
         behavior: "smooth",
       });
     }
@@ -159,79 +199,122 @@ export function CategoryCarousel({
     const element = scrollRef.current;
     if (element) {
       element.addEventListener("scroll", updateScrollState);
-      updateScrollState(); // Initial check
+      updateScrollState();
       return () => element.removeEventListener("scroll", updateScrollState);
     }
   }, [updateScrollState]);
 
-  const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
-    if (event.key === "ArrowLeft") {
-      event.preventDefault();
-      scrollCarousel("left");
-    } else if (event.key === "ArrowRight") {
-      event.preventDefault();
-      scrollCarousel("right");
-    }
-  }, []);
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent) => {
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        scrollCarousel("left");
+      } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        scrollCarousel("right");
+      }
+    },
+    [scrollCarousel]
+  );
 
   const handleCategoryClick = (categorySlug: string) => {
-    updateFilters.setCategory(categorySlug);
+    // If clicking the same category, clear the filter (toggle behavior)
+    if (filters.category === categorySlug) {
+      updateFilters.setCategory(null);
+    } else {
+      updateFilters.setCategory(categorySlug);
+    }
   };
 
   return (
-    <div className="relative">
-      {/* Navigation buttons */}
-      {canScrollLeft && (
-        <Button
-          variant="outline"
-          size="sm"
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black/50 border-white/20 text-white hover:bg-black/70 backdrop-blur-sm"
-          onClick={() => scrollCarousel("left")}
-          aria-label="Scroll categories left"
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </Button>
-      )}
-
-      {canScrollRight && (
-        <Button
-          variant="outline"
-          size="sm"
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black/50 border-white/20 text-white hover:bg-black/70 backdrop-blur-sm"
-          onClick={() => scrollCarousel("right")}
-          aria-label="Scroll categories right"
-        >
-          <ChevronRight className="h-4 w-4" />
-        </Button>
-      )}
-
-      {/* Scrollable container */}
-      <div
-        ref={scrollRef}
-        className={`flex gap-3 overflow-x-auto scrollbar-hide pb-2 ${
-          isDragging ? "cursor-grabbing" : "cursor-grab"
-        }`}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        onKeyDown={handleKeyDown}
-        tabIndex={0}
-        role="region"
-        aria-label="Product categories"
-      >
-        {COMPACT_CATEGORY_ICONS.map((category) => (
-          <CategoryIcon
-            key={category.slug}
-            category={category}
-            isActive={filters.category === category.slug}
-            onClick={handleCategoryClick}
-          />
-        ))}
+    <div className="relative bg-linear-to-b from-warm-gray-50/80 to-transparent border-b border-warm-gray-100 overflow-hidden">
+      {/* Boutique Background Accents */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary-100/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-warm-gray-200/30 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
       </div>
+
+      <Container className="relative z-10 py-10">
+        <div className="space-y-8">
+          {/* Section Header */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 px-4 sm:px-0">
+            <div className="space-y-2 animate-in fade-in slide-in-from-left-4 duration-700">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 border border-primary-100 text-primary-600 text-[10px] font-bold uppercase tracking-widest">
+                <Sparkles className="h-3 w-3" />
+                <span>Explore Tech Ecosystem</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-display font-bold text-warm-gray-900 tracking-tight">
+                {title.italic} <span className="italic font-normal text-primary-600">{title.bold}</span>
+              </h2>
+            </div>
+
+            {/* Navigation Buttons */}
+            <div className="hidden sm:flex gap-3 animate-in fade-in slide-in-from-right-4 duration-700">
+              <NavigationButton
+                direction="left"
+                variant="secondary"
+                onClick={() => scrollCarousel("left")}
+                disabled={!canScrollLeft}
+                aria-label="Previous categories"
+                className="h-12 w-12"
+              />
+              <NavigationButton
+                direction="right"
+                variant="secondary"
+                onClick={() => scrollCarousel("right")}
+                disabled={!canScrollRight}
+                aria-label="Next categories"
+                className="h-12 w-12"
+              />
+            </div>
+          </div>
+
+          {/* Carousel Navigation */}
+          <div className="relative">
+            {/* Drag-based Horizontal Scroll Carousel */}
+            <div className="overflow-visible px-2">
+              <div
+                ref={scrollRef}
+                className={cn(
+                  "flex gap-4 sm:gap-6 md:gap-8 overflow-x-auto scrollbar-hide cursor-grab focus:outline-none py-4",
+                  isDragging && "cursor-grabbing select-none"
+                )}
+                style={{
+                  scrollBehavior: isDragging ? "auto" : "smooth",
+                  WebkitOverflowScrolling: "touch",
+                }}
+                tabIndex={0}
+                role="region"
+                aria-label="Category carousel - drag to scroll"
+                onKeyDown={handleKeyDown}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              >
+                {COMPACT_CATEGORY_ICONS.map((category, index) => (
+                  <div
+                    key={category.slug}
+                    className="flex-shrink-0 w-[110px] sm:w-[140px] md:w-[160px]"
+                    style={{
+                      animation: `fade-in 0.7s ease-out ${index * 100}ms both, slide-in-from-bottom-4 0.7s ease-out ${index * 100}ms both`,
+                    }}
+                  >
+                    <CategoryIcon
+                      category={category}
+                      filters={filters}
+                      onCategoryClick={handleCategoryClick}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </Container>
     </div>
   );
 }

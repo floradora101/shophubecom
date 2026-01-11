@@ -295,21 +295,13 @@
     --hero-h: clamp(600px, min(82svh, 95svw * 0.8), 870px);
   }
 
-  /* New theme variables - only used for themed elements (badges, offer backgrounds) */
-  --hero-theme-from: var(--primary-600);
-  --hero-theme-to: var(--secondary-900);
-  --hero-accent: var(--primary-600);
-  --hero-accent-weak: color-mix(in srgb, var(--hero-accent) 12%, white);
-  --hero-landscape-accent: var(--primary-600);
-
-  /* Legacy variables - keep for backward compatibility and neutral text */
-  --hero-text: var(--gray-900);
-  --hero-muted: var(--warm-gray-600);
-  --hero-border: color-mix(
-    in srgb,
-    var(--hero-accent) 18%,
-    rgba(0, 0, 0, 0.08)
-  );
+  /* Hardcoded red and black colors - no theme switching */
+  --hero-text: #171717; /* gray-900 */
+  --hero-muted: #7a6b67; /* warm-gray-600 */
+  --hero-accent: #fa0603; /* primary-600 red */
+  --hero-accent-weak: rgba(250, 6, 3, 0.12); /* red with 12% opacity */
+  --hero-landscape-accent: #fa0603; /* primary-600 red */
+  --hero-border: rgba(250, 6, 3, 0.18); /* red with 18% opacity */
 
   /* Hero Glass UI Utility Classes */
   --hero-glass-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
@@ -572,6 +564,16 @@ body {
   }
   50% {
     transform: translateY(-10px);
+  }
+}
+
+@keyframes bounce-x {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(5px);
   }
 }
 
@@ -847,6 +849,29 @@ body {
   perspective: 1000px;
 }
 
+.red-neon-glow {
+  color: white;
+  text-shadow: 0 0 10px #fa0603, 0 0 20px #fa0603, 0 0 30px #fa0603, 0 0 40px #fa0603;
+  animation: neon-pulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes neon-pulse {
+  from {
+    text-shadow: 0 0 10px #fa0603, 0 0 20px #fa0603, 0 0 30px #fa0603;
+  }
+  to {
+    text-shadow: 0 0 15px #fa0603, 0 0 25px #fa0603, 0 0 35px #fa0603, 0 0 45px #fa0603;
+  }
+}
+
+/* Ensure consistent button centering */
+.hero-item-enter.hero-buttons {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
 /* Pause on hover for accessibility */
 .animate-marquee:hover {
   animation-play-state: paused;
@@ -859,92 +884,6 @@ body {
   }
 }
 
-/* Hero Theme Overrides */
-[data-theme="red-black"] {
-  --hero-theme-from: var(--primary-600);
-  --hero-theme-to: var(--black);
-  --hero-accent: var(--primary-600);
-  --hero-accent-weak: color-mix(in srgb, var(--hero-accent) 12%, white);
-  --hero-landscape-accent: var(--primary-600);
-  --hero-border: color-mix(
-    in srgb,
-    var(--hero-accent) 18%,
-    rgba(0, 0, 0, 0.08)
-  );
-}
-
-[data-theme="red-blue"] {
-  --hero-theme-from: var(--primary-600);
-  --hero-theme-to: var(--purple-500);
-  --hero-accent: var(--purple-700);
-  --hero-accent-weak: color-mix(in srgb, var(--hero-accent) 12%, white);
-  --hero-landscape-accent: var(--purple-700);
-  --hero-border: color-mix(
-    in srgb,
-    var(--hero-accent) 18%,
-    rgba(0, 0, 0, 0.08)
-  );
-}
-
-[data-theme="red-pink"] {
-  --hero-theme-from: var(--primary-600);
-  --hero-theme-to: var(--pink-500);
-  --hero-accent: var(--pink-600);
-  --hero-accent-weak: color-mix(in srgb, var(--hero-accent) 12%, white);
-  --hero-border: color-mix(
-    in srgb,
-    var(--hero-accent) 18%,
-    rgba(0, 0, 0, 0.08)
-  );
-}
-
-[data-theme="red-gray"] {
-  --hero-theme-from: var(--primary-600);
-  --hero-theme-to: var(--warm-gray-500);
-  --hero-accent: var(--warm-gray-700);
-  --hero-accent-weak: color-mix(in srgb, var(--hero-accent) 12%, white);
-  --hero-border: color-mix(
-    in srgb,
-    var(--hero-accent) 18%,
-    rgba(0, 0, 0, 0.08)
-  );
-}
-
-[data-theme="red-burgundy"] {
-  --hero-theme-from: var(--primary-600);
-  --hero-theme-to: var(--primary-800);
-  --hero-accent: var(--primary-700);
-  --hero-accent-weak: color-mix(in srgb, var(--hero-accent) 12%, white);
-  --hero-border: color-mix(
-    in srgb,
-    var(--hero-accent) 18%,
-    rgba(0, 0, 0, 0.08)
-  );
-}
-
-[data-theme="blue-green"] {
-  --hero-theme-from: var(--primary-600);
-  --hero-theme-to: var(--teal-400);
-  --hero-accent: var(--teal-500);
-  --hero-accent-weak: color-mix(in srgb, var(--hero-accent) 12%, white);
-  --hero-border: color-mix(
-    in srgb,
-    var(--hero-accent) 18%,
-    rgba(0, 0, 0, 0.08)
-  );
-}
-
-[data-theme="red-orange"] {
-  --hero-theme-from: var(--primary-600);
-  --hero-theme-to: var(--orange-500);
-  --hero-accent: var(--orange-600);
-  --hero-accent-weak: color-mix(in srgb, var(--hero-accent) 12%, white);
-  --hero-border: color-mix(
-    in srgb,
-    var(--hero-accent) 18%,
-    rgba(0, 0, 0, 0.08)
-  );
-}
 
 /* Landscape text decoration effects */
 .outline-text {
@@ -1546,4 +1485,22 @@ body {
     opacity: 1;
     transform: none;
   }
+}
+
+/* Sparkle/Glitter effect for Hero Slides */
+@keyframes sparkle {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale(0.6) rotate(0deg) translate3d(0, 0, 0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1) rotate(180deg) translate3d(0, -15px, 0);
+  }
+}
+
+.animate-sparkle {
+  animation: sparkle ease-in-out infinite;
+  will-change: transform, opacity;
 }

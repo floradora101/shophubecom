@@ -152,7 +152,7 @@ export const SlideBodyRenderer = memo(function SlideBodyRenderer({
               <div className="w-full h-full flex items-center justify-center bg-red-500 text-white p-8 rounded-lg">
                 <div className="text-center">
                   <div className="text-2xl font-bold mb-2">
-                    🚨 Unknown Slide Type
+                    Unknown Slide Type
                   </div>
                   <div className="text-lg">
                     Type: &quot;{unknownSlide.type}&quot;

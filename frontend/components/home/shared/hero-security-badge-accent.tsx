@@ -14,9 +14,9 @@ export const HeroSecurityBadgeAccent = memo(function HeroSecurityBadgeAccent({
         className || ""
       }`}
       style={{
-        borderColor: "var(--hero-accent)",
-        color: "var(--hero-accent)",
-        backgroundColor: "var(--hero-accent-weak)",
+        borderColor: "#fa0603",
+        color: "#fa0603",
+        backgroundColor: "rgba(250, 6, 3, 0.12)",
       }}
     >
       <Shield className="h-3.5 w-3.5" />

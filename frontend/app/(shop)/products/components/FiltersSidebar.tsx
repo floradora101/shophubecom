@@ -9,11 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import {
   DollarSign,
   ChevronDown,
-  Package,
-  Archive,
+  ShoppingBag,
+  Layers,
   Star,
   Shield,
   CheckCircle,
+  Zap,
 } from "lucide-react";
 import { Stack } from "@/components/ui/stack";
 import { cn } from "@/lib/utils/cn";
@@ -191,307 +192,215 @@ export function FiltersSidebar({
 
   return (
     <div className="sticky top-24 w-full">
-      <div className="w-full space-y-6">
-        <div className="text-center pb-2 border-b border-warm-gray-100">
-          <h3 className="text-sm font-semibold text-warm-gray-900">
-            Smart Filters
+      <div className="w-full space-y-8">
+        <div className="pb-4 border-b border-warm-gray-100">
+          <h3 className="text-lg font-display font-bold text-warm-gray-900 tracking-tight">
+            Refine <span className="italic font-normal text-primary-600">Selection</span>
           </h3>
-          <p className="text-xs text-warm-gray-600 mt-1">
-            Find exactly what you need
+          <p className="text-xs text-warm-gray-500 mt-1 font-medium">
+            Curating your perfect match
           </p>
         </div>
 
         {/* Category Filter */}
-        <div className="bg-white rounded-xl border border-warm-gray-200 shadow-sm overflow-hidden min-h-[60px]">
-          <button
-            onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-            className="flex items-center justify-between w-full px-5 py-4 text-left bg-warm-gray-50 hover:bg-primary-50 transition-colors"
-            aria-expanded={isCategoryOpen}
-          >
-            <div className="flex items-center gap-3">
-              <Archive className="w-4 h-4 text-primary-600" />
-              <span className="text-sm font-semibold text-warm-gray-900">
-                Categories
-              </span>
-            </div>
-            <ChevronDown
-              className={cn(
-                "h-4 w-4 text-warm-gray-500 transition-transform",
-                isCategoryOpen && "rotate-180"
-              )}
-            />
-          </button>
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 px-1">
+            <Layers className="w-4 h-4 text-primary-600" />
+            <span className="text-sm font-bold text-warm-gray-900 uppercase tracking-wider">
+              Departments
+            </span>
+          </div>
 
-          {isCategoryOpen && (
-            <div className="px-5 pb-5 border-t border-warm-gray-100">
-              <div className="pt-4">
-                <button
-                  onClick={() => onCategoryChange(null)}
-                  className={cn(
-                    "w-full text-left mb-3 p-3 rounded-lg transition-colors",
-                    !selectedCategory
-                      ? "bg-primary-50 text-primary-700 font-medium"
-                      : "text-warm-gray-700 hover:bg-primary-50"
-                  )}
-                >
-                  All Products
-                </button>
-                <ul className="space-y-2">
-                  {categoryTree.map((category) => renderCategory(category, 0))}
-                </ul>
-              </div>
-            </div>
-          )}
+          <div className="space-y-1">
+            <button
+              onClick={() => onCategoryChange(null)}
+              className={cn(
+                "w-full text-left px-4 py-2.5 rounded-lg transition-all duration-300 text-sm",
+                !selectedCategory
+                  ? "bg-primary-600 text-white shadow-lg shadow-primary-600/20 font-bold"
+                  : "text-warm-gray-600 hover:bg-warm-gray-100 hover:text-warm-gray-900"
+              )}
+            >
+              All Collections
+            </button>
+            <ul className="space-y-1 mt-2">
+              {categoryTree.map((category) => renderCategory(category, 0))}
+            </ul>
+          </div>
         </div>
 
         {/* Price Filter */}
-        <div className="bg-white rounded-xl border border-warm-gray-200 shadow-sm overflow-hidden min-h-[60px]">
-          <button
-            onClick={() => setIsPriceOpen(!isPriceOpen)}
-            className="flex items-center justify-between w-full px-5 py-4 text-left bg-warm-gray-50 hover:bg-green-50 transition-colors"
-            aria-expanded={isPriceOpen}
-          >
-            <div className="flex items-center gap-3">
-              <DollarSign className="w-4 h-4 text-green-600" />
-              <span className="text-sm font-semibold text-warm-gray-900">
-                Price Range
-              </span>
+        <div className="space-y-4 pt-4 border-t border-warm-gray-100">
+          <div className="flex items-center gap-3 px-1">
+            <DollarSign className="w-4 h-4 text-emerald-600" />
+            <span className="text-sm font-bold text-warm-gray-900 uppercase tracking-wider">
+              Price Range
+            </span>
+          </div>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-2">
+              {PRICE_RANGES.map((preset) => (
+                <button
+                  key={preset.label}
+                  onClick={() =>
+                    onPriceRangeChange({
+                      min: preset.min,
+                      max: preset.max,
+                    })
+                  }
+                  className={cn(
+                    "w-full text-left px-4 py-2 rounded-lg border transition-all duration-300 text-xs font-medium",
+                    priceRange.min === preset.min && priceRange.max === preset.max
+                      ? "bg-emerald-50 border-emerald-200 text-emerald-700 shadow-sm"
+                      : "bg-white border-warm-gray-200 text-warm-gray-600 hover:border-emerald-200 hover:text-emerald-600"
+                  )}
+                >
+                  {preset.label}
+                </button>
+              ))}
             </div>
-            <ChevronDown
-              className={cn(
-                "h-4 w-4 text-warm-gray-500 transition-transform",
-                isPriceOpen && "rotate-180"
-              )}
-            />
-          </button>
 
-          {isPriceOpen && (
-            <div className="px-5 pb-5 border-t border-warm-gray-100">
-              <div className="pt-4 space-y-4">
-                {/* Quick Price Presets */}
-                <div>
-                  <div className="text-xs font-semibold text-warm-gray-700 uppercase tracking-wide mb-2">
-                    Quick Select
-                  </div>
-                  <div className="grid grid-cols-1 gap-2">
-                    {PRICE_RANGES.map((preset) => (
-                      <button
-                        key={preset.label}
-                        onClick={() =>
-                          onPriceRangeChange({
-                            min: preset.min,
-                            max: preset.max,
-                          })
-                        }
-                        className="w-full text-left p-3 rounded-lg hover:bg-green-50 transition-colors border border-warm-gray-200 text-sm"
-                      >
-                        {preset.label}
-                      </button>
-                    ))}
-                  </div>
+            <div className="space-y-3 pt-2">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-gray-400 text-xs">$</span>
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    value={localMin}
+                    onChange={(e) => setLocalMin(e.target.value)}
+                    className="w-full pl-7 pr-3 py-2 text-xs border border-warm-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all placeholder:text-warm-gray-300"
+                  />
                 </div>
-
-                {/* Custom Price Range Inputs */}
-                <div className="border-t border-warm-gray-100 pt-4">
-                  <div className="text-xs font-semibold text-warm-gray-700 uppercase tracking-wide mb-3">
-                    Custom Range
-                  </div>
-                  <div className="space-y-3">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label htmlFor="min-price" className="sr-only">
-                          Minimum price
-                        </label>
-                        <input
-                          id="min-price"
-                          type="number"
-                          placeholder="Min"
-                          value={localMin}
-                          onChange={(e) => setLocalMin(e.target.value)}
-                          className="w-full px-3 py-2 text-sm border border-warm-gray-200 rounded-lg bg-white focus:outline-none placeholder:text-warm-gray-400"
-                          min="0"
-                          step="0.01"
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="max-price" className="sr-only">
-                          Maximum price
-                        </label>
-                        <input
-                          id="max-price"
-                          type="number"
-                          placeholder="Max"
-                          value={localMax}
-                          onChange={(e) => setLocalMax(e.target.value)}
-                          className="w-full px-3 py-2 text-sm border border-warm-gray-200 rounded-lg bg-white focus:outline-none placeholder:text-warm-gray-400"
-                          min="0"
-                          step="0.01"
-                        />
-                      </div>
-                    </div>
-                    <Button
-                      onClick={handlePriceFilter}
-                      size="sm"
-                      className="w-full bg-green-600 hover:bg-green-700 text-white"
-                      disabled={!localMin && !localMax}
-                    >
-                      Apply Custom Range
-                    </Button>
-                  </div>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-gray-400 text-xs">$</span>
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    value={localMax}
+                    onChange={(e) => setLocalMax(e.target.value)}
+                    className="w-full pl-7 pr-3 py-2 text-xs border border-warm-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all placeholder:text-warm-gray-300"
+                  />
                 </div>
               </div>
+              <Button
+                onClick={handlePriceFilter}
+                size="sm"
+                className="w-full bg-warm-gray-900 hover:bg-black text-white rounded-lg text-xs font-bold py-5 transition-all active:scale-95"
+                disabled={!localMin && !localMax}
+              >
+                Apply Range
+              </Button>
             </div>
-          )}
+          </div>
         </div>
 
         {/* Availability Filter */}
-        <div className="bg-white rounded-xl border border-warm-gray-200 shadow-sm overflow-hidden min-h-[60px]">
-          <button
-            onClick={() => setIsAvailabilityOpen(!isAvailabilityOpen)}
-            className="flex items-center justify-between w-full px-5 py-4 text-left bg-warm-gray-50 hover:bg-orange-50 transition-colors"
-            aria-expanded={isAvailabilityOpen}
-          >
-            <div className="flex items-center gap-3">
-              <Package className="w-4 h-4 text-orange-600" />
-              <span className="text-sm font-semibold text-warm-gray-900">
-                Availability
-              </span>
-            </div>
-            <ChevronDown
-              className={cn(
-                "h-4 w-4 text-warm-gray-500 transition-transform",
-                isAvailabilityOpen && "rotate-180"
-              )}
-            />
-          </button>
+        <div className="space-y-4 pt-4 border-t border-warm-gray-100">
+          <div className="flex items-center gap-3 px-1">
+            <Zap className="w-4 h-4 text-orange-500" />
+            <span className="text-sm font-bold text-warm-gray-900 uppercase tracking-wider">
+              Status
+            </span>
+          </div>
 
-          {isAvailabilityOpen && (
-            <div className="px-5 pb-5 border-t border-warm-gray-100">
-              <div className="pt-4">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={inStockOnly}
-                    onChange={(e) => onInStockChange(e.target.checked)}
-                    className="rounded border-warm-gray-300 text-orange-600"
-                  />
-                  <span className="text-sm text-warm-gray-700">
-                    In Stock Only
-                  </span>
-                </label>
-              </div>
+          <label className="flex items-center gap-3 cursor-pointer group px-1">
+            <div className="relative flex items-center">
+              <input
+                type="checkbox"
+                checked={inStockOnly}
+                onChange={(e) => onInStockChange(e.target.checked)}
+                className="peer sr-only"
+              />
+              <div className="w-5 h-5 border-2 border-warm-gray-300 rounded-md bg-white peer-checked:bg-orange-500 peer-checked:border-orange-500 transition-all duration-300" />
+              <CheckCircle className="absolute inset-0 w-5 h-5 text-white opacity-0 peer-checked:opacity-100 transition-opacity scale-75" />
             </div>
-          )}
+            <span className="text-sm text-warm-gray-600 font-medium group-hover:text-warm-gray-900 transition-colors">
+              In Stock Only
+            </span>
+          </label>
         </div>
 
         {/* Rating Filter */}
-        <div className="bg-white rounded-xl border border-warm-gray-200 shadow-sm overflow-hidden min-h-[60px]">
-          <button
-            onClick={() => setIsRatingOpen(!isRatingOpen)}
-            className="flex items-center justify-between w-full px-5 py-4 text-left bg-warm-gray-50 hover:bg-yellow-50 transition-colors"
-            aria-expanded={isRatingOpen}
-          >
-            <div className="flex items-center gap-3">
-              <Star className="w-4 h-4 text-yellow-600" />
-              <span className="text-sm font-semibold text-warm-gray-900">
-                Rating
-              </span>
-            </div>
-            <ChevronDown
-              className={cn(
-                "h-4 w-4 text-warm-gray-500 transition-transform",
-                isRatingOpen && "rotate-180"
-              )}
-            />
-          </button>
+        <div className="space-y-4 pt-4 border-t border-warm-gray-100">
+          <div className="flex items-center gap-3 px-1">
+            <Star className="w-4 h-4 text-amber-500" />
+            <span className="text-sm font-bold text-warm-gray-900 uppercase tracking-wider">
+              Rating
+            </span>
+          </div>
 
-          {isRatingOpen && (
-            <div className="px-5 pb-5 border-t border-warm-gray-100">
-              <div className="pt-4 space-y-2">
-                {[4, 3, 2, 1].map((rating) => (
-                  <button
-                    key={rating}
-                    onClick={() =>
-                      onMinRatingChange(minRating === rating ? null : rating)
-                    }
-                    className={cn(
-                      "w-full text-left p-3 rounded-lg transition-colors",
-                      minRating === rating
-                        ? "bg-yellow-50 text-yellow-700 font-medium"
-                        : "text-warm-gray-700 hover:bg-yellow-50"
-                    )}
-                  >
-                    {rating}+ Stars
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+          <div className="grid grid-cols-2 gap-2">
+            {[4, 3, 2, 1].map((rating) => (
+              <button
+                key={rating}
+                onClick={() =>
+                  onMinRatingChange(minRating === rating ? null : rating)
+                }
+                className={cn(
+                  "flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border transition-all duration-300 text-xs font-bold",
+                  minRating === rating
+                    ? "bg-amber-50 border-amber-200 text-amber-700 shadow-sm"
+                    : "bg-white border-warm-gray-200 text-warm-gray-500 hover:border-amber-200 hover:text-amber-600"
+                )}
+              >
+                <Star className={cn("w-3 h-3", minRating === rating ? "fill-current" : "")} />
+                {rating}+
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Brands Filter */}
         {availableBrands && availableBrands.length > 0 && (
-          <div className="bg-white rounded-xl border border-warm-gray-200 shadow-sm overflow-hidden min-h-[60px]">
-            <button
-              onClick={() => setIsBrandsOpen(!isBrandsOpen)}
-              className="flex items-center justify-between w-full px-5 py-4 text-left bg-warm-gray-50 hover:bg-indigo-50 transition-colors"
-              aria-expanded={isBrandsOpen}
-            >
-              <div className="flex items-center gap-3">
-                <Shield className="w-4 h-4 text-indigo-600" />
-                <span className="text-sm font-semibold text-warm-gray-900">
-                  Brands
-                </span>
-              </div>
-              <ChevronDown
-                className={cn(
-                  "h-4 w-4 text-warm-gray-500 transition-transform",
-                  isBrandsOpen && "rotate-180"
-                )}
-              />
-            </button>
+          <div className="space-y-4 pt-4 border-t border-warm-gray-100">
+            <div className="flex items-center gap-3 px-1">
+              <Shield className="w-4 h-4 text-indigo-600" />
+              <span className="text-sm font-bold text-warm-gray-900 uppercase tracking-wider">
+                Brands
+              </span>
+            </div>
 
-            {isBrandsOpen && (
-              <div className="px-5 pb-5 border-t border-warm-gray-100">
-                <div className="pt-4 space-y-2">
-                  {availableBrands.map((brand) => {
-                    const isSelected = selectedBrands?.includes(brand) || false;
-                    return (
-                      <label
-                        key={brand}
-                        className="flex items-center gap-3 cursor-pointer"
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={(e) => {
-                            const newBrands = e.target.checked
-                              ? [...(selectedBrands || []), brand]
-                              : (selectedBrands || []).filter(
-                                  (b) => b !== brand
-                                );
-                            onBrandsChange(
-                              newBrands.length > 0 ? newBrands : null
-                            );
-                          }}
-                          className="rounded border-warm-gray-300 text-indigo-600"
-                        />
-                        <span
-                          className={cn(
-                            "text-sm",
-                            isSelected
-                              ? "text-indigo-700 font-medium"
-                              : "text-warm-gray-700"
-                          )}
-                        >
-                          {brand}
-                        </span>
-                      </label>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+            <div className="space-y-2 max-h-48 overflow-y-auto scrollbar-hide pr-2">
+              {availableBrands.map((brand) => {
+                const isSelected = selectedBrands?.includes(brand) || false;
+                return (
+                  <label
+                    key={brand}
+                    className="flex items-center gap-3 cursor-pointer group"
+                  >
+                    <div className="relative flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={(e) => {
+                          const newBrands = e.target.checked
+                            ? [...(selectedBrands || []), brand]
+                            : (selectedBrands || []).filter(
+                                (b) => b !== brand
+                              );
+                          onBrandsChange(
+                            newBrands.length > 0 ? newBrands : null
+                          );
+                        }}
+                        className="peer sr-only"
+                      />
+                      <div className="w-4 h-4 border-2 border-warm-gray-300 rounded peer-checked:bg-indigo-600 peer-checked:border-indigo-600 transition-all duration-300" />
+                      <CheckCircle className="absolute inset-0 w-4 h-4 text-white opacity-0 peer-checked:opacity-100 transition-opacity scale-75" />
+                    </div>
+                    <span
+                      className={cn(
+                        "text-sm font-medium transition-colors",
+                        isSelected ? "text-indigo-700" : "text-warm-gray-600 group-hover:text-warm-gray-900"
+                      )}
+                    >
+                      {brand}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>

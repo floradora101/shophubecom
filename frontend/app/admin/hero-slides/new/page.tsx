@@ -1,96 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { LoadingButton } from "@/components/ui/loading-button";
-import { Card } from "@/components/ui/card";
-import { FormField, FormSection } from "@/components/ui/form-field";
-import { PageHeader } from "@/components/ui/page-header";
-import { HeroSlideForm } from "../../_components/HeroSlideForm";
-import { createHeroSlide } from "../../_lib/admin-data";
-import {
-  HeroSlideFormSchema,
-  type HeroSlideFormValues,
-} from "@/lib/hero-slides/admin/form";
-import { ArrowLeft, Save } from "lucide-react";
+import { HeroSlideForm } from "../_components/HeroSlideForm";
+import { Heading, Text } from "@/components/ui/typography";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 
 export default function NewHeroSlidePage() {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const form = useForm<HeroSlideFormValues>({
-    resolver: zodResolver(HeroSlideFormSchema),
-    defaultValues: {
-      type: "PRODUCT_SPOTLIGHT",
-      priority: 0,
-      isActive: true,
-      startsAt: "",
-      endsAt: "",
-      badgeText: "",
-      headline: "",
-      highlight: "",
-      description: "",
-      ctaPrimaryLabel: "",
-      ctaPrimaryHref: "",
-      ctaSecondaryLabel: "",
-      ctaSecondaryHref: "",
-      mediaKind: "none",
-      mediaProductSlug: "",
-      mediaImageUrl: "",
-      mediaAlt: "",
-      mediaPosition: "center",
-      mediaAspect: "default",
-      themeAccentToken: "red-black",
-    },
-  });
-
-  const onSubmit = async (data: HeroSlideFormValues) => {
-    try {
-      setIsSubmitting(true);
-      createHeroSlide(data);
-      router.push("/admin/hero-slides");
-    } catch (error) {
-      console.error("Failed to create hero slide:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="New Hero Slide"
-        description="Create a new homepage hero slide"
-        actions={
-          <Link href="/admin/hero-slides">
-            <Button variant="outline">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Slides
-            </Button>
-          </Link>
-        }
-      />
-
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <HeroSlideForm form={form} />
-
-        <Card padding="lg" className="mt-6">
-          <div className="flex justify-end gap-3">
-            <Link href="/admin/hero-slides">
-              <Button type="button" variant="outline">
-                Cancel
-              </Button>
-            </Link>
-            <LoadingButton type="submit" loading={isSubmitting}>
-              <Save className="h-4 w-4 mr-2" />
-              {isSubmitting ? "Creating..." : "Create Slide"}
-            </LoadingButton>
+    <div className="space-y-8 pb-20">
+      <div className="flex flex-col gap-4">
+        <Link
+          href="/admin/hero-slides"
+          className="flex items-center text-sm text-neutral-500 hover:text-primary transition-colors w-fit group"
+        >
+          <div className="mr-2 p-1 rounded-full group-hover:bg-primary/10 transition-colors">
+            <ChevronLeft className="w-4 h-4" />
           </div>
-        </Card>
-      </form>
+          Back to Hero Slides
+        </Link>
+        <div>
+          <Heading level="h2">Create New Hero Slide</Heading>
+          <Text className="text-neutral-500 max-w-2xl">
+            Design a new promotional banner for your homepage. Choose from various styles including the high-impact Landscape Image.
+          </Text>
+        </div>
+      </div>
+
+      <HeroSlideForm
+        onSuccess={() => router.push("/admin/hero-slides")}
+        onCancel={() => router.push("/admin/hero-slides")}
+      />
     </div>
   );
 }

@@ -1,113 +1,58 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { LoadingButton } from "@/components/ui/loading-button";
-import { Card } from "@/components/ui/card";
-import { PageHeader } from "@/components/ui/page-header";
-import { SkeletonBlock } from "@/components/ui/skeleton";
-import { HeroSlideForm } from "../../../_components/HeroSlideForm";
-import { getHeroSlide, updateHeroSlide } from "../../../_lib/admin-data";
-import {
-  HeroSlideFormSchema,
-  type HeroSlideFormValues,
-  toFormValues,
-} from "@/lib/hero-slides/admin/form";
-import { ArrowLeft, Save } from "lucide-react";
+import { HeroSlideForm } from "../../_components/HeroSlideForm";
+import { Heading, Text } from "@/components/ui/typography";
+import { ChevronLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { mockHeroSlides } from "@/dev/mocks/heroSlides.mock";
 
 export default function EditHeroSlidePage() {
   const router = useRouter();
   const params = useParams();
   const slideId = params.id as string;
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
-  const form = useForm<HeroSlideFormValues>({
-    resolver: zodResolver(HeroSlideFormSchema),
-  });
+  // Find the slide from mock data
+  const slide = useMemo(() => {
+    return mockHeroSlides.find((s) => s.id === slideId);
+  }, [slideId]);
 
-  // Load slide data
-  useEffect(() => {
-    const loadSlide = () => {
-      const slide = getHeroSlide(slideId);
-      if (!slide) {
-        router.push("/admin/hero-slides");
-        return;
-      }
-
-      const formValues = toFormValues(slide);
-      form.reset(formValues);
-      setIsLoading(false);
-    };
-
-    loadSlide();
-  }, [slideId, router, form]);
-
-  const onSubmit = async (data: HeroSlideFormValues) => {
-    try {
-      setIsSubmitting(true);
-      const updated = updateHeroSlide(slideId, data);
-      if (updated) {
-        router.push("/admin/hero-slides");
-      }
-    } catch (error) {
-      console.error("Failed to update hero slide:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  if (isLoading) {
+  if (!slide) {
     return (
-      <div className="space-y-6">
-        <SkeletonBlock className="h-8 w-48" />
-        <Card padding="lg">
-          <div className="space-y-6">
-            <SkeletonBlock className="h-4 w-32" />
-            <SkeletonBlock className="h-10 w-full" />
-            <SkeletonBlock className="h-10 w-full" />
-            <SkeletonBlock className="h-24 w-full" />
-          </div>
-        </Card>
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
+        <Heading level="h3">Loading Slide...</Heading>
+        <Text className="text-neutral-500">Retrieving slide data for {slideId}</Text>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Edit Hero Slide"
-        description="Update hero slide content and settings"
-        actions={
-          <Link href="/admin/hero-slides">
-            <Button variant="outline">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Slides
-            </Button>
-          </Link>
-        }
-      />
-
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <HeroSlideForm form={form} />
-
-        <Card padding="lg" className="mt-6">
-          <div className="flex justify-end gap-3">
-            <Link href="/admin/hero-slides">
-              <Button type="button" variant="outline">
-                Cancel
-              </Button>
-            </Link>
-            <LoadingButton type="submit" loading={isSubmitting}>
-              <Save className="h-4 w-4 mr-2" />
-              {isSubmitting ? "Saving..." : "Save Changes"}
-            </LoadingButton>
+    <div className="space-y-8 pb-20">
+      <div className="flex flex-col gap-4">
+        <Link
+          href="/admin/hero-slides"
+          className="flex items-center text-sm text-neutral-500 hover:text-primary transition-colors w-fit group"
+        >
+          <div className="mr-2 p-1 rounded-full group-hover:bg-primary/10 transition-colors">
+            <ChevronLeft className="w-4 h-4" />
           </div>
-        </Card>
-      </form>
+          Back to Hero Slides
+        </Link>
+        <div>
+          <Heading level="h2">Edit Hero Slide</Heading>
+          <Text className="text-neutral-500 max-w-2xl">
+            Update your promotional banner content and styling. Changes will be reflected in the preview in real-time.
+          </Text>
+        </div>
+      </div>
+
+      <HeroSlideForm
+        slide={slide}
+        onSuccess={() => router.push("/admin/hero-slides")}
+        onCancel={() => router.push("/admin/hero-slides")}
+      />
     </div>
   );
 }

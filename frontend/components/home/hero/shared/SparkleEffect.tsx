@@ -1,0 +1,96 @@
+"use client";
+
+import { memo, useMemo } from "react";
+
+interface Particle {
+  id: number;
+  left: string;
+  top: string;
+  size: string;
+  duration: string;
+  delay: string;
+  opacity: number;
+  type: "star" | "flower" | "dot";
+  rotation: string;
+}
+
+interface SparkleEffectProps {
+  count?: number;
+  className?: string;
+  isActive?: boolean;
+}
+
+export const SparkleEffect = memo(function SparkleEffect({
+  count = 30,
+  className = "",
+  isActive = true,
+}: SparkleEffectProps) {
+  const particles = useMemo(() => {
+    return Array.from({ length: count }).map((_, i) => {
+      const typeRand = Math.random();
+      let type: "star" | "flower" | "dot" = "dot";
+      if (typeRand > 0.7) type = "star";
+      else if (typeRand > 0.4) type = "flower";
+
+      return {
+        id: i,
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 100}%`,
+        size: `${Math.random() * 8 + 2}px`, // Slightly smaller
+        duration: `${Math.random() * 5 + 4}s`, // Slower
+        delay: `${Math.random() * 10}s`, // More varied delay
+        opacity: Math.random() * 0.3 + 0.1, // More subtle
+        type,
+        rotation: `${Math.random() * 360}deg`,
+      };
+    });
+  }, [count]);
+
+  if (!isActive) return null;
+
+  return (
+    <div
+      className={`absolute inset-0 pointer-events-none overflow-hidden select-none ${className}`}
+      aria-hidden="true"
+    >
+      {particles.map((p) => (
+        <div
+          key={p.id}
+          className="absolute animate-sparkle"
+          style={{
+            left: p.left,
+            top: p.top,
+            width: p.size,
+            height: p.size,
+            opacity: p.opacity,
+            animationDuration: p.duration,
+            animationDelay: p.delay,
+            transform: `rotate(${p.rotation})`,
+          }}
+        >
+          {p.type === "star" && (
+            <svg
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-full h-full text-white/80 drop-shadow-[0_0_2px_rgba(255,255,255,0.8)]"
+            >
+              <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
+            </svg>
+          )}
+          {p.type === "flower" && (
+            <svg
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="w-full h-full text-white/60 drop-shadow-[0_0_1px_rgba(255,255,255,0.5)]"
+            >
+              <path d="M12,2L13.1,5.1C13.5,6.1 14.5,6.7 15.5,6.5L18.7,5.9L17.1,8.7C16.6,9.5 16.6,10.5 17.1,11.3L18.7,14.1L15.5,13.5C14.5,13.3 13.5,13.9 13.1,14.9L12,18L10.9,14.9C10.5,13.9 9.5,13.3 8.5,13.5L5.3,14.1L6.9,11.3C7.4,10.5 7.4,9.5 6.9,8.7L5.3,5.9L8.5,6.5C9.5,6.7 10.5,6.1 10.9,5.1L12,2Z" />
+            </svg>
+          )}
+          {p.type === "dot" && (
+            <div className="w-full h-full bg-white/40 rounded-full blur-[1px]" />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+});

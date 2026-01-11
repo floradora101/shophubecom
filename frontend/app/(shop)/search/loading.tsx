@@ -13,3 +13,6 @@ export default function SearchLoading() {
     </Container>
   );
 }
+
+
+

@@ -15,7 +15,7 @@ export const HeroSecurityBadge = memo(function HeroSecurityBadge({
       }`}
       style={{
         background:
-          "linear-gradient(90deg, var(--hero-theme-from), var(--hero-theme-to))",
+          "linear-gradient(90deg, #fa0603, #000000)",
       }}
     >
       <Shield className="h-3.5 w-3.5" />

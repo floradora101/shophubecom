@@ -2,7 +2,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Heart } from "lucide-react";
+import { Heart, Sparkles } from "lucide-react";
 import { ProductCard } from "@/features/products/components/ProductCard";
 import { Stack } from "@/components/ui/stack";
 import { getAllProductsSync } from "@/lib/data/products";
@@ -37,13 +37,17 @@ export function YouMayAlsoLike({ currentProduct }: YouMayAlsoLikeProps) {
   return (
     <div className="pb-8 sm:pb-12 lg:pb-16">
       <Stack spacing="lg" className="sm:space-y-8 mt-12 sm:mt-16">
-        {/* Header */}
-        <div className="w-full text-center mb-6 sm:mb-8">
-          <h2 className="text-xl sm:text-2xl font-semibold text-warm-gray-900 mb-2">
-            Discover More
+        {/* Header - 2026 Trendy Style */}
+        <div className="w-full text-center mb-10 sm:mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 border border-primary-100 text-primary-600 text-[10px] font-bold uppercase tracking-widest mb-4">
+            <Sparkles className="h-3 w-3" />
+            <span>Curated For You</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-display font-bold text-warm-gray-900 tracking-tight">
+            You May <span className="italic font-normal text-primary-600">Also Like</span>
           </h2>
-          <p className="text-sm text-warm-gray-600 max-w-xs mx-auto">
-            Curated recommendations based on your interests
+          <p className="text-sm text-warm-gray-600 max-w-xs mx-auto mt-3 font-light leading-relaxed">
+            Personalized tech recommendations for your ecosystem
           </p>
         </div>
 
@@ -59,3 +63,4 @@ export function YouMayAlsoLike({ currentProduct }: YouMayAlsoLikeProps) {
     </div>
   );
 }
+

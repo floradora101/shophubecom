@@ -17,15 +17,17 @@ import { getAllCategories } from "@/lib/data/categories";
 import type { Category } from "@/features/products/types";
 import { motion } from "@/lib/ui-tokens";
 import { AnnouncementBar } from "./AnnouncementBar";
+import { cn } from "@/lib/utils";
 
 // Shared menu design tokens
-const MENU_PANEL_CLASS = "bg-gray-50 border border-border rounded-xl shadow-xl";
-const MENU_PAD_CLASS = "p-4";
-const MENU_SECTION_GAP = "space-y-2";
+const MENU_PANEL_CLASS =
+  "bg-white border border-border rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl bg-white/95";
+const MENU_PAD_CLASS = "p-6";
+const MENU_SECTION_GAP = "space-y-4";
 const MENU_HEADING_LINK_CLASS =
-  "inline-flex rounded-md px-2 py-1 text-xs font-semibold tracking-wide text-fg uppercase transition-all duration-200 hover:bg-red-50 hover:scale-105 focus:text-red-600 focus:outline-none";
+  "inline-flex text-[11px] font-bold tracking-[0.15em] text-fg uppercase transition-all duration-200 hover:text-primary-600 focus:text-primary-600 focus:outline-none";
 const MENU_ITEM_LINK_CLASS =
-  "block rounded-md px-2 py-1.5 text-sm text-muted-fg transition-all duration-200 hover:bg-red-50 hover:scale-105 focus:text-red-600 focus:outline-none";
+  "block text-sm text-muted-fg transition-all duration-200 hover:text-primary-600 hover:translate-x-1 focus:text-primary-600 focus:outline-none";
 
 // Category tree building and mega-menu logic
 type CategoryNode = Category & { children: CategoryNode[] };
@@ -61,35 +63,47 @@ const buildCategoryTree = (categories: Category[]): CategoryNode[] => {
 };
 
 const MegaMenu = ({ categoryTree }: { categoryTree: CategoryNode[] }) => {
+  const pathname = usePathname();
+  const isCategoryActive = (slug: string) =>
+    pathname === `/products/category/${slug}`;
+
   return (
     <div
       id="shop-all-menu"
       role="menu"
       aria-label="Shop all categories"
-      className={`${MENU_PANEL_CLASS} ${MENU_PAD_CLASS} max-h-[70vh] overflow-y-auto`}
+      className={cn(
+        MENU_PANEL_CLASS,
+        MENU_PAD_CLASS,
+        "max-h-[75vh] overflow-y-auto"
+      )}
     >
-      <div
-        className="grid gap-x-6 gap-y-6"
-        style={{ gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}
-      >
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-10 gap-y-10">
         {categoryTree.map((category) => (
-          <div key={category.id} className={`min-w-0 ${MENU_SECTION_GAP}`}>
+          <div key={category.id} className={cn("min-w-0", MENU_SECTION_GAP)}>
             <h3 className="m-0 p-0">
               <Link
                 href={`/products/category/${category.slug}`}
-                className={MENU_HEADING_LINK_CLASS}
+                className={cn(
+                  MENU_HEADING_LINK_CLASS,
+                  isCategoryActive(category.slug) && "text-primary-600"
+                )}
               >
                 {category.name.toUpperCase()}
               </Link>
             </h3>
 
             {category.children?.length ? (
-              <ul className="m-0 p-0 list-none space-y-1">
+              <ul className="m-0 p-0 list-none space-y-2.5">
                 {category.children.map((child) => (
                   <li key={child.id} className="m-0 p-0">
                     <Link
                       href={`/products/category/${child.slug}`}
-                      className={MENU_ITEM_LINK_CLASS}
+                      className={cn(
+                        MENU_ITEM_LINK_CLASS,
+                        isCategoryActive(child.slug) &&
+                          "text-primary-600 font-medium translate-x-1"
+                      )}
                     >
                       {child.name}
                     </Link>
@@ -109,10 +123,7 @@ function SearchIconButton() {
   const pathname = usePathname();
 
   const handleClick = () => {
-    if (pathname === "/search") {
-      // If already on search page, do nothing (no focus)
-      return;
-    }
+    if (pathname === "/search") return;
     router.push("/search");
   };
 
@@ -121,10 +132,10 @@ function SearchIconButton() {
       id="search"
       type="button"
       onClick={handleClick}
-      className={`p-3 text-warm-gray-600 hover:text-red-600 ${motion(
-        "hover",
-        "colors"
-      )} focus:outline-none rounded-lg`}
+      className={cn(
+        "p-2 sm:p-2.5 text-muted-fg hover:text-primary-600 transition-all duration-200 focus:outline-none rounded-full hover:bg-primary-50",
+        pathname === "/search" && "text-primary-600 bg-primary-50"
+      )}
       aria-label="Search"
     >
       <Search className="h-5 w-5" />
@@ -161,6 +172,15 @@ export function Header() {
     [categories]
   );
 
+  const isActive = (path: string) => {
+    if (path === "/") return pathname === "/";
+    return pathname === path || pathname?.startsWith(path + "/");
+  };
+
+  const isCategoryActive = (slug: string) => {
+    return pathname === `/products/category/${slug}`;
+  };
+
   // Keyboard shortcut: Cmd/Ctrl+K to open search (desktop only)
   useEffect(() => {
     // Only enable keyboard shortcut on desktop screens (width >= 1024px)
@@ -191,60 +211,77 @@ export function Header() {
         {/* Professional Consolidated Header */}
         <header
           id="navigation"
-          className="w-full bg-linear-to-br from-gray-50 via-gray-100 to-gray-200/40 border-b border-border shadow-sm"
+          className="w-full bg-white/90 backdrop-blur-md border-b border-border shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
           role="banner"
         >
           <div className="container mx-auto px-4 md:px-6 lg:px-8 relative">
             {/* Top Bar - Logo, Search, Cart, Auth */}
-            <div className="flex h-16 items-center justify-between">
+            <div className="flex h-16 sm:h-20 items-center justify-between">
               {/* Logo */}
               <Link
                 href="/"
-                className="flex items-center shrink-0 hover:opacity-90 transition-opacity duration-200 rounded-lg px-2 py-1 -mx-2"
+                className="flex items-center shrink-0 hover:opacity-90 transition-opacity duration-200 rounded-xl"
               >
                 <Image
                   src="/logo.png"
                   alt="ShopHub Logo"
-                  width={120}
-                  height={120}
-                  className="object-contain"
-                  sizes="120px"
+                  width={140}
+                  height={140}
+                  className="object-contain w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28"
+                  sizes="(max-width: 640px) 80px, (max-width: 1024px) 100px, 140px"
+                  priority
                 />
               </Link>
 
               {/* Desktop Navigation - Categories */}
-              <NavigationMenu.Root className="hidden lg:flex items-center justify-center flex-1 mx-8">
-                <NavigationMenu.List className="flex items-center w-full justify-center">
+              <NavigationMenu.Root className="hidden lg:flex items-center justify-center flex-1 mx-12">
+                <NavigationMenu.List className="flex items-center gap-2">
                   {/* Shop All Mega Menu */}
                   <NavigationMenu.Item>
-                    <NavigationMenu.Trigger className="flex h-full items-center gap-2 px-4 text-sm font-semibold text-primary-600 hover:bg-red-50 hover:scale-105 transition-all duration-200 rounded-lg data-[state=open]:text-red-700 data-[state=open]:bg-red-50">
-                      Shop All
-                      <ChevronDown className="h-4 w-4 transition-transform duration-200 data-[state=open]:rotate-180" />
+                    <NavigationMenu.Trigger
+                      className={cn(
+                        "flex h-10 items-center gap-2 px-5 text-[13px] font-bold tracking-wider text-primary-600 transition-all duration-300 rounded-full hover:bg-primary-50 data-[state=open]:bg-primary-50",
+                        isActive("/products") && "bg-primary-50"
+                      )}
+                    >
+                      SHOP ALL
+                      <ChevronDown className="h-3.5 w-3.5 transition-transform duration-300 data-[state=open]:rotate-180" />
                     </NavigationMenu.Trigger>
 
-                    <NavigationMenu.Content className="absolute left-1/2 top-full mt-2 z-50">
-                      <div className="fixed left-[50vw] -translate-x-1/2 w-[min(100vw-2rem,80rem)]">
+                    <NavigationMenu.Content className="absolute left-1/2 top-full mt-3 z-50">
+                      <div className="fixed left-[50vw] -translate-x-1/2 w-[min(100vw-2rem,85rem)] animate-in fade-in slide-in-from-top-2 duration-300">
                         <MegaMenu categoryTree={categoryTree} />
                       </div>
                     </NavigationMenu.Content>
                   </NavigationMenu.Item>
 
                   {/* Individual Category Links */}
-                  {categoryTree.slice(0, 6).map((category) => (
+                  {categoryTree.slice(0, 5).map((category) => (
                     <NavigationMenu.Item
                       key={category.id}
                       className="relative h-full"
                     >
                       {category.children?.length > 0 ? (
                         <>
-                          <NavigationMenu.Trigger className="flex h-full items-center gap-1.5 px-4 text-sm font-medium text-muted-fg hover:bg-red-50 hover:scale-105 transition-all duration-200 rounded-lg data-[state=open]:text-red-600 data-[state=open]:bg-red-50">
+                          <NavigationMenu.Trigger
+                            className={cn(
+                              "flex h-10 items-center gap-1.5 px-4 text-[13px] font-semibold text-muted-fg transition-all duration-300 rounded-full hover:bg-gray-50 hover:text-fg data-[state=open]:bg-gray-50 data-[state=open]:text-primary-600",
+                              isCategoryActive(category.slug) &&
+                                "text-primary-600 bg-primary-50"
+                            )}
+                          >
                             {category.name.toUpperCase()}
-                            <ChevronDown className="h-3 w-3 transition-transform duration-200 data-[state=open]:rotate-180" />
+                            <ChevronDown className="h-3 w-3 transition-transform duration-300 data-[state=open]:rotate-180" />
                           </NavigationMenu.Trigger>
 
-                          <NavigationMenu.Content className="absolute left-1/2 top-full -translate-x-1/2 mt-2 z-50">
+                          <NavigationMenu.Content className="absolute left-1/2 top-full -translate-x-1/2 mt-3 z-50">
                             <div
-                              className={`${MENU_PANEL_CLASS} w-72 ${MENU_PAD_CLASS}`}
+                              className={cn(
+                                MENU_PANEL_CLASS,
+                                "w-72",
+                                MENU_PAD_CLASS,
+                                "animate-in fade-in slide-in-from-top-2 duration-300"
+                              )}
                             >
                               <div className={MENU_SECTION_GAP}>
                                 <Link
@@ -254,12 +291,16 @@ export function Header() {
                                   {category.name.toUpperCase()}
                                 </Link>
 
-                                <div className="space-y-1">
+                                <div className="space-y-2">
                                   {category.children.map((child) => (
                                     <Link
                                       key={child.id}
                                       href={`/products/category/${child.slug}`}
-                                      className={MENU_ITEM_LINK_CLASS}
+                                      className={cn(
+                                        MENU_ITEM_LINK_CLASS,
+                                        isCategoryActive(child.slug) &&
+                                          "text-primary-600 font-medium translate-x-1"
+                                      )}
                                     >
                                       {child.name}
                                     </Link>
@@ -273,7 +314,11 @@ export function Header() {
                         <NavigationMenu.Link asChild>
                           <Link
                             href={`/products/category/${category.slug}`}
-                            className="flex h-full items-center px-4 text-sm font-medium text-muted-fg hover:text-red-600 transition-colors rounded-lg"
+                            className={cn(
+                              "flex h-10 items-center px-4 text-[13px] font-semibold text-muted-fg transition-all duration-300 rounded-full hover:bg-gray-50 hover:text-fg",
+                              isCategoryActive(category.slug) &&
+                                "text-primary-600 bg-primary-50"
+                            )}
                           >
                             {category.name.toUpperCase()}
                           </Link>
@@ -283,14 +328,18 @@ export function Header() {
                   ))}
 
                   {/* More Categories */}
-                  {categoryTree.length > 6 && (
+                  {categoryTree.length > 5 && (
                     <NavigationMenu.Item>
                       <NavigationMenu.Link asChild>
                         <Link
-                          href="/products"
-                          className="flex h-full items-center px-4 text-sm font-medium text-muted-fg hover:bg-red-50 hover:scale-105 transition-all duration-200 rounded-lg"
+                          href="/categories"
+                          className={cn(
+                            "flex h-10 items-center px-5 text-[13px] font-semibold text-muted-fg transition-all duration-300 rounded-full hover:bg-gray-50 hover:text-fg",
+                            pathname === "/categories" &&
+                              "text-primary-600 bg-primary-50"
+                          )}
                         >
-                          More
+                          MORE
                         </Link>
                       </NavigationMenu.Link>
                     </NavigationMenu.Item>
@@ -299,7 +348,7 @@ export function Header() {
               </NavigationMenu.Root>
 
               {/* Actions */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-2">
                 {/* Search */}
                 <SearchIconButton />
 
@@ -307,17 +356,14 @@ export function Header() {
                 <button
                   type="button"
                   onClick={() => toggleCart(true)}
-                  className={`relative p-3 text-warm-gray-600 hover:text-red-600 ${motion(
-                    "hover",
-                    "colors"
-                  )} focus:outline-none rounded-lg`}
+                  className="group relative p-2 sm:p-2.5 text-muted-fg hover:text-primary-600 transition-all duration-200 focus:outline-none rounded-full hover:bg-primary-50"
                   aria-label="Open cart"
                   suppressHydrationWarning
                 >
                   <ShoppingCart className="h-5 w-5" />
                   {cartCount > 0 && (
                     <span
-                      className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-linear-to-br from-primary-500 to-primary-600 text-[10px] font-bold text-white shadow-lg shadow-primary-500/40"
+                      className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary-600 text-[10px] font-bold text-white shadow-sm ring-2 ring-white"
                       suppressHydrationWarning
                     >
                       {cartCount}
@@ -325,53 +371,53 @@ export function Header() {
                   )}
                 </button>
 
+                <div className="w-px h-6 bg-border mx-1 hidden sm:block" />
+
                 {/* User Menu */}
                 {isAuthenticated ? (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 sm:gap-2">
                     <Button
-                      variant="outline"
+                      variant="ghost"
                       size="sm"
-                      className="bg-white border border-warm-gray-300 text-warm-gray-700 hover:text-primary-600 hover:border-primary-500 transition-colors rounded-lg"
+                      className="rounded-full px-3 text-muted-fg hover:text-primary-600 hover:bg-primary-50 font-medium transition-all"
                       onClick={() => router.push("/profile?tab=dashboard")}
                     >
-                      <User className="h-4 w-4" />
-                      <span className="hidden xl:inline font-medium ml-2">
-                        {userFirstName}
-                      </span>
+                      <User className="h-4 w-4 sm:mr-2" />
+                      <span className="hidden xl:inline">{userFirstName}</span>
                     </Button>
                     <Button
-                      variant="outline"
+                      variant="ghost"
                       size="sm"
                       onClick={async () => {
                         await logout();
                         router.push("/login");
                       }}
-                      className="hidden xl:flex bg-white border border-warm-gray-300 text-warm-gray-700 hover:text-primary-600 hover:border-primary-500 transition-colors rounded-lg"
+                      className="hidden xl:flex rounded-full text-muted-fg hover:text-primary-600 hover:bg-primary-50"
                     >
                       Logout
                     </Button>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1 sm:gap-2">
                     <Button
-                      variant="outline"
+                      variant="ghost"
                       size="sm"
                       onClick={() => {
                         setAuthModalTab("login");
                         setAuthModalOpen(true);
                       }}
-                      className="bg-white border border-warm-gray-300 text-warm-gray-700 hover:bg-primary-500 hover:text-white hover:border-primary-500 transition-colors rounded-lg"
+                      className="rounded-lg px-4 text-muted-fg hover:text-primary-600 hover:bg-primary-50 font-semibold"
                     >
                       Login
                     </Button>
                     <Button
-                      variant="destructive"
+                      variant="default"
                       size="sm"
                       onClick={() => {
                         setAuthModalTab("register");
                         setAuthModalOpen(true);
                       }}
-                      className="hidden xl:flex rounded-lg"
+                      className="hidden xl:flex rounded-lg bg-primary-600 hover:bg-primary-700 text-white font-semibold shadow-md hover:shadow-lg transition-all"
                     >
                       Sign Up
                     </Button>
@@ -381,7 +427,7 @@ export function Header() {
                 {/* Mobile Menu Toggle */}
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="lg:hidden p-3 text-warm-gray-600 hover:text-red-600 transition-colors rounded-lg"
+                  className="lg:hidden p-2 text-muted-fg hover:text-primary-600 transition-all rounded-full hover:bg-primary-50"
                   aria-label="Toggle mobile menu"
                 >
                   {isMobileMenuOpen ? (
@@ -395,39 +441,47 @@ export function Header() {
 
             {/* Mobile Menu */}
             {isMobileMenuOpen && (
-              <div className="lg:hidden border-t border-border bg-linear-to-br from-gray-50 via-gray-100 to-gray-200/40">
-                <nav className="px-4 py-6 space-y-4">
+              <div className="lg:hidden border-t border-border bg-white animate-in slide-in-from-top duration-300">
+                <nav className="px-4 py-8 space-y-6 max-h-[80vh] overflow-y-auto">
                   {/* Shop All */}
                   <Link
                     href="/products"
-                    className="block px-4 py-2 text-base font-semibold text-primary-600 hover:bg-red-50 hover:scale-105 transition-all duration-200 rounded-lg"
+                    className={cn(
+                      "block px-4 py-3 text-sm font-bold tracking-wider text-primary-600 hover:bg-primary-50 rounded-xl transition-all",
+                      isActive("/products") && "bg-primary-50"
+                    )}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    Shop All
+                    SHOP ALL
                   </Link>
 
                   {/* Categories */}
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {categoryTree.map((category) => (
-                      <div
-                        key={category.id}
-                        className="border-b border-border pb-4 last:border-b-0"
-                      >
+                      <div key={category.id} className="space-y-3">
                         <Link
                           href={`/products/category/${category.slug}`}
-                          className="block px-4 py-2 text-sm font-medium text-fg hover:bg-red-50 hover:scale-105 transition-all duration-200 uppercase rounded-lg"
+                          className={cn(
+                            "block px-4 py-2 text-sm font-bold tracking-widest text-fg hover:text-primary-600 transition-all uppercase",
+                            isCategoryActive(category.slug) &&
+                              "text-primary-600"
+                          )}
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           {category.name.toUpperCase()}
                         </Link>
 
                         {category.children?.length > 0 && (
-                          <div className="ml-6 mt-2 space-y-1">
+                          <div className="ml-4 grid grid-cols-1 gap-1 border-l-2 border-border pl-4">
                             {category.children.map((child) => (
                               <Link
                                 key={child.id}
                                 href={`/products/category/${child.slug}`}
-                                className="block px-4 py-1.5 text-sm text-muted-fg hover:bg-red-50 hover:scale-105 transition-all duration-200 rounded-lg"
+                                className={cn(
+                                  "block px-4 py-2 text-[13px] text-muted-fg hover:text-primary-600 hover:translate-x-1 transition-all rounded-lg",
+                                  isCategoryActive(child.slug) &&
+                                    "text-primary-600 font-medium bg-primary-50/50"
+                                )}
                                 onClick={() => setIsMobileMenuOpen(false)}
                               >
                                 {child.name}

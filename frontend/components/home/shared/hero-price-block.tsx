@@ -28,7 +28,7 @@ export const HeroPriceBlock = memo(function HeroPriceBlock({
       <div
         className="inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-bold text-white shadow-lg transition-transform hover:scale-105"
         style={{
-          background: `linear-gradient(135deg, var(--hero-accent) 0%, var(--hero-accent-weak) 100%)`,
+          background: `linear-gradient(135deg, #fa0603 0%, rgba(250, 6, 3, 0.12) 100%)`,
           boxShadow: `
             0 4px 14px 0 rgba(0, 0, 0, 0.1),
             0 2px 4px 0 rgba(0, 0, 0, 0.08),
@@ -47,14 +47,14 @@ export const HeroPriceBlock = memo(function HeroPriceBlock({
           {/* Strikethrough Original Price */}
           <div
             className="text-xs sm:text-sm font-medium tabular-nums relative"
-            style={{ color: "var(--hero-muted)" }}
+            style={{ color: "#7a6b67" }}
           >
             <Price amount={originalPrice!} />
             <div
               className="absolute inset-0 top-1/2 transform -translate-y-0.5 rotate-12"
               style={{
                 height: "1px",
-                backgroundColor: "var(--hero-muted)",
+                backgroundColor: "#7a6b67",
                 opacity: 0.6,
               }}
             />
@@ -65,9 +65,9 @@ export const HeroPriceBlock = memo(function HeroPriceBlock({
             <div
               className="inline-flex items-center px-1.5 sm:px-2 py-0.5 sm:py-1 text-xs font-bold rounded-md border-2"
               style={{
-                backgroundColor: "var(--hero-accent-weak)",
-                borderColor: "var(--hero-accent)",
-                color: "var(--hero-accent)",
+                backgroundColor: "rgba(250, 6, 3, 0.12)",
+                borderColor: "#fa0603",
+                color: "#fa0603",
               }}
             >
               -{discountPercent}%

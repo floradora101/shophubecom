@@ -4,12 +4,12 @@
 export function QualityStrip() {
   const qualityItems = [
     {
-      title: "Carefully Selected",
-      description: "Curated materials and verified suppliers.",
+      title: "Precision Engineered",
+      description: "Advanced components and certified tech partners.",
     },
     {
-      title: "Quality Check",
-      description: "Inspected for finish, packaging, and consistency.",
+      title: "Performance Tested",
+      description: "Rigorous testing for performance and reliability.",
     },
     {
       title: "Easy Returns",

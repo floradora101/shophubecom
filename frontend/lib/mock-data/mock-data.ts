@@ -45,6 +45,21 @@ export interface MockProduct {
   reviewCount?: number; // Number of reviews
 }
 
+export interface MockCoupon {
+  id: string;
+  code: string;
+  description: string;
+  type: "PERCENTAGE" | "FIXED_AMOUNT";
+  value: number;
+  minOrderTotal?: number;
+  startsAt?: string;
+  expiresAt?: string;
+  usageLimit?: number;
+  usedCount: number;
+  isActive: boolean;
+  createdAt: string;
+}
+
 // Utility to convert MockCategory to full Category interface
 export function mockCategoryToCategory(
   mock: MockCategory
@@ -54,7 +69,9 @@ export function mockCategoryToCategory(
     name: mock.name,
     slug: mock.slug,
     description: mock.description,
+    image: mock.image,
     parentId: mock.parentId,
+    sortOrder: 0, // Default sort order for mock data
     productCount: mock.productCount,
     createdAt: "2024-01-01T00:00:00.000Z",
     updatedAt: "2024-01-01T00:00:00.000Z",
@@ -551,6 +568,64 @@ export const mockCategories: MockCategory[] = [
     productCount: 20,
     accentColor: "#84cc16",
     parentId: "accessories",
+  },
+];
+
+export const mockCoupons: MockCoupon[] = [
+  {
+    id: "coupon-1",
+    code: "WELCOME10",
+    description: "10% off for new customers",
+    type: "PERCENTAGE",
+    value: 10,
+    minOrderTotal: 50,
+    startsAt: "2025-01-01T00:00:00.000Z",
+    expiresAt: "2026-12-31T23:59:59.000Z",
+    usageLimit: 1000,
+    usedCount: 156,
+    isActive: true,
+    createdAt: "2025-01-01T00:00:00.000Z",
+  },
+  {
+    id: "coupon-2",
+    code: "SAVE20",
+    description: "$20 off on orders over $100",
+    type: "FIXED_AMOUNT",
+    value: 20,
+    minOrderTotal: 100,
+    startsAt: "2025-06-01T00:00:00.000Z",
+    expiresAt: "2026-06-01T23:59:59.000Z",
+    usageLimit: 500,
+    usedCount: 42,
+    isActive: true,
+    createdAt: "2025-06-01T00:00:00.000Z",
+  },
+  {
+    id: "coupon-3",
+    code: "FLASH50",
+    description: "Flash Sale - 50% off everything",
+    type: "PERCENTAGE",
+    value: 50,
+    startsAt: "2025-12-24T00:00:00.000Z",
+    expiresAt: "2025-12-26T23:59:59.000Z",
+    usageLimit: 100,
+    usedCount: 100,
+    isActive: false,
+    createdAt: "2025-12-01T00:00:00.000Z",
+  },
+  {
+    id: "coupon-4",
+    code: "FREESHIP",
+    description: "Free shipping on all orders",
+    type: "FIXED_AMOUNT",
+    value: 15, // Assuming 15 is standard shipping cost
+    minOrderTotal: 0,
+    startsAt: "2025-01-01T00:00:00.000Z",
+    expiresAt: "2026-12-31T23:59:59.000Z",
+    usageLimit: null as any,
+    usedCount: 890,
+    isActive: true,
+    createdAt: "2025-01-01T00:00:00.000Z",
   },
 ];
 
@@ -1777,4 +1852,8 @@ export function getAllProducts(): MockProduct[] {
 
 export function getAllCategories(): MockCategory[] {
   return mockCategories;
+}
+
+export function getAllCoupons(): MockCoupon[] {
+  return mockCoupons;
 }

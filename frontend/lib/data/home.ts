@@ -118,9 +118,7 @@ export async function getHomePageData(): Promise<HomePageData> {
         .slice(0, 8)
         .map(mockProductToProduct),
       featuredProducts: mockProducts.slice(0, 4).map(mockProductToProduct),
-      categories: mockCategories
-        .filter((cat) => !cat.parentId || cat.parentId === null)
-        .map(mockCategoryToCategory),
+      categories: mockCategories.map(mockCategoryToCategory),
       trendingProducts: mockProducts.slice(4, 12).map(mockProductToProduct),
       heroSlides: HERO_SLIDES,
       latestProducts: mockProducts.slice(0, 8).map(mockProductToProduct),
@@ -271,9 +269,7 @@ export async function getHomePageData(): Promise<HomePageData> {
       .slice(0, 8)
       .map(mockProductToProduct),
     featuredProducts: mockProducts.slice(0, 4).map(mockProductToProduct),
-    categories: mockCategories
-      .filter((cat) => !cat.parentId || cat.parentId === null)
-      .map(mockCategoryToCategory),
+    categories: mockCategories.map(mockCategoryToCategory),
     trendingProducts: mockProducts.slice(4, 12).map(mockProductToProduct),
     heroSlides: HERO_SLIDES,
     latestProducts: mockProducts.slice(0, 8).map(mockProductToProduct),

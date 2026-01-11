@@ -14,7 +14,7 @@ import {
   ReadonlyURLSearchParams,
 } from "next/navigation";
 import Link from "next/link";
-import { Filter } from "lucide-react";
+import { Filter, ChevronRight, ChevronDown } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { SectionTitle } from "@/components/ui/SectionTitle";
@@ -44,6 +44,7 @@ import { FiltersSidebar } from "./components/FiltersSidebar";
 import { FiltersDrawer } from "./components/FiltersDrawer";
 import { ActiveFilterChips } from "./components/ActiveFilterChips";
 import { ProductsGrid } from "./components/ProductsGrid";
+import { Pagination } from "./components/Pagination";
 import { cn } from "@/lib/utils/cn";
 import {
   COMPACT_CATEGORY_ICONS,
@@ -83,11 +84,8 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
 
   // CategoryCarousel moved to separate component - no longer needs scroll handling
 
-  // Performance guard: delay expensive computations until user interacts
-  // Initialize this FIRST before any other state to avoid "before initialization" errors
-  const [hasInteractedState, setHasInteracted] = useState(false);
-  // Use a const to ensure it's always available (no temporal dead zone issues)
-  const hasInteracted = hasInteractedState;
+  // Performance guard removed - load immediately for better UX
+  const hasInteracted = true;
 
   // Sort dropdown state
   const [isSortOpen, setIsSortOpen] = useState(false);
@@ -195,37 +193,21 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
     return filterSortProducts(allMockProducts, filters, categoryTreeHelpers);
   }, [allMockProducts, filters, categoryTreeHelpers, hasInteracted]);
 
-  // Track user interaction (scroll, click, etc.)
+  // Track user interaction (scroll, click, etc.) - logic removed
   useEffect(() => {
-    const handleInteraction = () => setHasInteracted(true);
-
-    // Listen for user interactions that indicate they're ready to see content
-    window.addEventListener("scroll", handleInteraction, {
-      once: true,
-      passive: true,
-    });
-    window.addEventListener("click", handleInteraction, { once: true });
-    window.addEventListener("keydown", handleInteraction, { once: true });
-
-    // Auto-enable immediately
-
-    return () => {
-      window.removeEventListener("scroll", handleInteraction);
-      window.removeEventListener("click", handleInteraction);
-      window.removeEventListener("keydown", handleInteraction);
-    };
+    // No-op - everything loads immediately now
   }, []);
 
   // Simulate loading states for demonstration
-  const [productsLoading, setProductsLoading] = useState(true);
+  const [productsLoading, setProductsLoading] = useState(false);
   const [productsError] = useState(false);
+  const [gridLayout, setGridLayout] = useState<"cozy" | "compact">("cozy");
 
-  // Set loading to false immediately when filters change - only when user has interacted
+  // Set loading to false immediately when filters change
   useEffect(() => {
-    if (!hasInteracted) return;
-
+    // Just a tiny delay to show the "updating" state if needed, or keep it false
     setProductsLoading(false);
-  }, [filters, hasInteracted]); // eslint-disable-line react-hooks/set-state-in-effect
+  }, [filters]);
 
   const isLoading = productsLoading;
   const [isFiltersDrawerOpen, setIsFiltersDrawerOpen] = useState(false);
@@ -335,6 +317,20 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
 
   // Get current category name for breadcrumb
   const currentCategory = categories.find((c) => c.slug === filters.category);
+
+  // Get current category title for carousel
+  const currentCategoryTitle = useMemo(() => {
+    if (isCategoryPage && currentCategory) {
+      return {
+        italic: "Category",
+        bold: currentCategory.name,
+      };
+    }
+    return {
+      italic: "Advanced",
+      bold: "Hardware",
+    };
+  }, [isCategoryPage, currentCategory]);
 
   // Get available brands from all products
   const getAvailableBrands = useMemo(() => {
@@ -451,6 +447,7 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
           basePath={basePath}
           updateSearchParams={updateSearchParams}
           updateFilters={updateFilters}
+          title={currentCategoryTitle}
         />
 
         {/* Breadcrumb */}
@@ -519,63 +516,117 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
               )}
             </div>
 
-            {/* Sort Dropdown */}
-            <div className="relative" ref={sortRef}>
+            {/* Sort and Grid Controls */}
+            <div className="flex items-center gap-2">
+              <div className="hidden sm:flex items-center bg-warm-gray-100 p-1 rounded-lg mr-2">
+                <button
+                  onClick={() => setGridLayout("cozy")}
+                  className={cn(
+                    "p-1.5 rounded-md transition-all duration-200",
+                    gridLayout === "cozy"
+                      ? "bg-white shadow-sm text-primary-600"
+                      : "text-warm-gray-500 hover:text-warm-gray-900"
+                  )}
+                  title="Cozy View"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                    />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => setGridLayout("compact")}
+                  className={cn(
+                    "p-1.5 rounded-md transition-all duration-200",
+                    gridLayout === "compact"
+                      ? "bg-white shadow-sm text-primary-600"
+                      : "text-warm-gray-500 hover:text-warm-gray-900"
+                  )}
+                  title="Compact View"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 5a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM11 5a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1V5zM18 5a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1V5zM4 12a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2zM11 12a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2zM18 12a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2zM4 19a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2zM11 19a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2zM18 19a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2z"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Sort Dropdown */}
+              <div className="relative" ref={sortRef}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsSortOpen(!isSortOpen)}
+                  className="gap-2 w-full sm:w-auto justify-between sm:justify-center"
+                  aria-expanded={isSortOpen}
+                  aria-haspopup="true"
+                >
+                  <span className="hidden sm:inline">{currentSortLabel}</span>
+                  <span className="sm:hidden">Sort</span>
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 transition-transform",
+                      isSortOpen && "rotate-180 text-primary-600"
+                    )}
+                  />
+                </Button>
+
+                {isSortOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-border rounded-lg shadow-lg z-50">
+                    {SORT_OPTIONS.map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => {
+                          updateFilters.setSortBy(
+                            option.value as CanonicalFilters["sortBy"]
+                          );
+                          setIsSortOpen(false);
+                        }}
+                        className={cn(
+                          "block w-full text-left px-3 py-2 text-sm transition-all duration-200",
+                          "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2",
+                          filters.sortBy === option.value
+                            ? "text-primary-600 font-medium bg-primary-50"
+                            : "text-muted-fg hover:bg-red-50 hover:scale-105"
+                        )}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Filters Button (Mobile) */}
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setIsSortOpen(!isSortOpen)}
-                className="gap-2 w-full sm:w-auto justify-between sm:justify-center"
-                aria-expanded={isSortOpen}
-                aria-haspopup="true"
+                onClick={() => setIsFiltersDrawerOpen(true)}
+                className="gap-2 lg:hidden"
+                aria-label="Open filters"
               >
-                <span className="hidden sm:inline">{currentSortLabel}</span>
-                <span className="sm:hidden">Sort</span>
-                <ChevronDown
-                  className={cn(
-                    "h-4 w-4 transition-transform",
-                    isSortOpen && "rotate-180 text-primary-600"
-                  )}
-                />
+                <Filter className="h-4 w-4" />
+                <span className="hidden sm:inline">Filters</span>
               </Button>
-
-              {isSortOpen && (
-                <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-border rounded-lg shadow-lg z-50">
-                  {SORT_OPTIONS.map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => {
-                        updateFilters.setSortBy(
-                          option.value as CanonicalFilters["sortBy"]
-                        );
-                        setIsSortOpen(false);
-                      }}
-                      className={cn(
-                        "block w-full text-left px-3 py-2 text-sm transition-all duration-200",
-                        "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2",
-                        filters.sortBy === option.value
-                          ? "text-primary-600 font-medium bg-primary-50"
-                          : "text-muted-fg hover:bg-red-50 hover:scale-105"
-                      )}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
-
-            {/* Filters Button (Mobile) */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsFiltersDrawerOpen(true)}
-              className="gap-2 lg:hidden"
-              aria-label="Open filters"
-            >
-              <Filter className="h-4 w-4" />
-              <span className="hidden sm:inline">Filters</span>
-            </Button>
           </div>
 
           <div className="flex gap-12 lg:gap-16">
@@ -624,7 +675,7 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
               {productsError && (
                 <div className="animate-in slide-in-from-bottom-4 duration-500 bg-red-50/80 backdrop-blur-sm rounded-lg p-8 border border-red-200/50 shadow-lg">
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center shrink-0">
+                    <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center shrink-0">
                       <svg
                         className="w-6 h-6 text-red-600"
                         fill="none"
@@ -668,82 +719,19 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
                   onClearFilters={handleClearAll}
                   searchTerm={filters.search}
                   hasActiveFilters={hasActiveFilters()}
+                  layout={gridLayout}
                 />
               </div>
 
-              {/* Premium Pagination with Smart Interactions */}
-              {safeTotalPages > 1 && (
-                <div className="mt-12 animate-in slide-in-from-bottom-4 duration-700 delay-700">
-                  <div className="bg-white/60 backdrop-blur-sm rounded-lg p-6 shadow-lg border border-warm-gray-200/40">
-                    <div className="flex items-center justify-between">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          updateFilters.setPage(Math.max(1, filters.page - 1))
-                        }
-                        disabled={filters.page === 1 || isLoading}
-                        aria-label="Previous page"
-                        className="rounded-xl hover:shadow-md transition-all duration-300 hover:scale-105 disabled:hover:scale-100"
-                      >
-                        <svg
-                          className="w-4 h-4 mr-2"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15 19l-7-7 7-7"
-                          />
-                        </svg>
-                        Previous
-                      </Button>
-
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2 px-4 py-2 bg-primary-50 rounded-xl">
-                          <span className="text-sm font-medium text-primary-600">
-                            Page {filters.page} of {safeTotalPages}
-                          </span>
-                          {isLoading && (
-                            <div className="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
-                          )}
-                        </div>
-                      </div>
-
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          updateFilters.setPage(
-                            Math.min(safeTotalPages, filters.page + 1)
-                          )
-                        }
-                        disabled={filters.page === safeTotalPages || isLoading}
-                        aria-label="Next page"
-                        className="rounded-xl hover:shadow-md transition-all duration-300 hover:scale-105 disabled:hover:scale-100"
-                      >
-                        Next
-                        <svg
-                          className="w-4 h-4 ml-2"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 5l7 7-7 7"
-                          />
-                        </svg>
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )}
+              {/* Professional Pagination */}
+              <div className="mt-8 animate-in slide-in-from-bottom-4 duration-700 delay-700">
+                <Pagination
+                  currentPage={filters.page}
+                  totalPages={safeTotalPages}
+                  onPageChange={updateFilters.setPage}
+                  isLoading={isLoading}
+                />
+              </div>
             </Stack>
           </div>
         </Container>

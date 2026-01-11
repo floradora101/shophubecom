@@ -1,11 +1,14 @@
 // Professional Product Gallery - Media Frame Style
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, Expand } from "lucide-react";
+import { ChevronLeft, ChevronRight, Expand, Share2, Heart } from "lucide-react";
+import { useFavoritesStore } from "@/store/favorites-store";
+import { toast } from "sonner";
 
 interface ProductGalleryProps {
+  productId: string;
   images: string[];
   productName: string;
   isOutOfStock?: boolean;
@@ -13,6 +16,7 @@ interface ProductGalleryProps {
 }
 
 export function ProductGallery({
+  productId,
   images,
   productName,
   isOutOfStock,
@@ -22,6 +26,54 @@ export function ProductGallery({
   const [showFullscreen, setShowFullscreen] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  // Professional Zoom state
+  const [zoomState, setZoomState] = useState({
+    show: false,
+    x: 0,
+    y: 0,
+  });
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const { toggleFavorite, isFavorite } = useFavoritesStore();
+  const favorite = isFavorite(productId);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Only zoom on desktop (no touch device)
+    if (window.matchMedia("(pointer: coarse)").matches) return;
+    if (!containerRef.current) return;
+
+    const { left, top, width, height } =
+      containerRef.current.getBoundingClientRect();
+    const x = ((e.clientX - left) / width) * 100;
+    const y = ((e.clientY - top) / height) * 100;
+
+    setZoomState({
+      show: true,
+      x,
+      y,
+    });
+  };
+
+  const handleMouseLeave = () => {
+    setZoomState((prev) => ({ ...prev, show: false }));
+  };
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: productName,
+          url: window.location.href,
+        });
+      } catch (err) {
+        console.error("Error sharing:", err);
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast.success("Link copied to clipboard!");
+    }
+  };
 
   const handlePrevious = useCallback(() => {
     if (images.length <= 1) return;
@@ -68,7 +120,7 @@ export function ProductGallery({
 
   if (images.length === 0) {
     return (
-      <div className="aspect-4/5 rounded-2xl bg-surface-muted flex items-center justify-center">
+      <div className="aspect-4/5 rounded-lg bg-surface-muted flex items-center justify-center">
         <span className="text-muted-fg text-sm">No image available</span>
       </div>
     );
@@ -84,7 +136,7 @@ export function ProductGallery({
               <button
                 key={`${image}-${index}`}
                 onClick={() => handleThumbnailClick(index)}
-                className={`relative w-16 h-16 xl:w-20 xl:h-20 rounded-lg xl:rounded-xl border-2 overflow-hidden transition-all duration-200 ${
+                className={`relative w-16 h-16 xl:w-20 xl:h-20 rounded-lg xl:rounded-lg border-2 overflow-hidden transition-all duration-200 ${
                   index === activeIndex
                     ? "border-fg ring-2 ring-surface-muted shadow-sm"
                     : "border-border hover:border-border-hover"
@@ -108,33 +160,64 @@ export function ProductGallery({
         <div className="w-full mx-auto space-y-3 sm:space-y-4">
           {/* Sliding Image Carousel */}
           <div
+            ref={containerRef}
             className="relative w-full aspect-square sm:aspect-4/5 lg:aspect-4/5 max-w-[520px] mx-auto sm:max-w-none max-h-none sm:max-h-[600px] lg:max-h-[650px] xl:max-h-[700px] rounded-lg overflow-hidden ring-1 ring-black/5 group cursor-grab active:cursor-grabbing"
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
           >
             <div
               className="flex h-full transition-transform duration-500 ease-out"
-              style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+              style={{
+                transform: `translateX(-${activeIndex * 100}%)`,
+              }}
             >
               {images.map((image, index) => (
-                <div key={index} className="shrink-0 w-full h-full relative">
+                <div key={index} className="shrink-0 w-full h-full relative overflow-hidden">
                   <Image
                     src={image}
                     alt={`${productName} - Image ${index + 1} of ${
                       images.length
                     }`}
                     fill
-                    className="object-contain object-[60%_50%] sm:object-center p-0 sm:p-1 md:p-3 lg:p-4"
+                    className={`object-contain transition-transform duration-200 ease-out ${
+                      index === activeIndex && zoomState.show ? "scale-150 sm:scale-[2.5]" : "scale-100"
+                    }`}
+                    style={
+                      index === activeIndex && zoomState.show
+                        ? { transformOrigin: `${zoomState.x}% ${zoomState.y}%` }
+                        : undefined
+                    }
                     sizes="(min-width: 1024px) 560px, 100vw"
                     priority={index === 0}
                     unoptimized={image.startsWith("data:")}
                   />
-
-                  {/* Zoom on hover effect */}
-                  <div className="absolute inset-0 bg-transparent hover:bg-[radial-gradient(circle_at_center,transparent_40%,rgba(0,0,0,0.02)_100%)] transition-all duration-300 pointer-events-none opacity-0 hover:opacity-100" />
                 </div>
               ))}
+            </div>
+
+            {/* Floating Action Buttons */}
+            <div className="absolute top-2 left-2 sm:top-4 sm:left-4 flex flex-col gap-2 z-10">
+              <button
+                onClick={handleShare}
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-surface/90 backdrop-blur-sm border border-black/5 flex items-center justify-center text-fg hover:bg-surface transition-all duration-200 shadow-sm"
+                aria-label="Share product"
+              >
+                <Share2 className="h-4 w-4 sm:h-5 sm:w-5" />
+              </button>
+              <button
+                onClick={() => toggleFavorite(productId)}
+                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-surface/90 backdrop-blur-sm border border-black/5 flex items-center justify-center transition-all duration-200 shadow-sm ${
+                  favorite ? "text-red-500" : "text-fg hover:text-red-500"
+                }`}
+                aria-label={favorite ? "Remove from favorites" : "Add to favorites"}
+              >
+                <Heart
+                  className={`h-4 w-4 sm:h-5 sm:w-5 ${favorite ? "fill-current" : ""}`}
+                />
+              </button>
             </div>
 
             {/* Navigation Arrows */}
@@ -142,17 +225,19 @@ export function ProductGallery({
               <>
                 <button
                   onClick={handlePrevious}
-                  className="absolute left-2 sm:left-3 lg:left-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full bg-surface/90 backdrop-blur-sm border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 lg:opacity-100 transition-opacity duration-200 hover:bg-surface shadow-sm"
+                  className="absolute left-2 sm:left-3 lg:left-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-surface/90 backdrop-blur-sm border border-black/5 rounded-full shadow-lg flex items-center justify-center hover:bg-surface hover:scale-110 transition-all duration-300 opacity-0 group-hover:opacity-100 lg:opacity-100 group/btn"
                   aria-label="Previous image"
                 >
-                  <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-fg" />
+                  <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-fg group-hover/btn:text-primary transition-colors" />
+                  <div className="absolute inset-0 bg-primary/5 rounded-full opacity-0 group-hover/btn:opacity-100 transition-opacity blur-xl" />
                 </button>
                 <button
                   onClick={handleNext}
-                  className="absolute right-2 sm:right-3 lg:right-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-full bg-surface/90 backdrop-blur-sm border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 lg:opacity-100 transition-opacity duration-200 hover:bg-surface shadow-sm"
+                  className="absolute right-2 sm:right-3 lg:right-4 top-1/2 -translate-y-1/2 z-20 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 bg-surface/90 backdrop-blur-sm border border-black/5 rounded-full shadow-lg flex items-center justify-center hover:bg-surface hover:scale-110 transition-all duration-300 opacity-0 group-hover:opacity-100 lg:opacity-100 group/btn"
                   aria-label="Next image"
                 >
-                  <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-fg" />
+                  <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-fg group-hover/btn:text-primary transition-colors" />
+                  <div className="absolute inset-0 bg-primary/5 rounded-full opacity-0 group-hover/btn:opacity-100 transition-opacity blur-xl" />
                 </button>
               </>
             )}
@@ -269,10 +354,11 @@ export function ProductGallery({
                     e.stopPropagation();
                     handlePrevious();
                   }}
-                  className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+                  className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 bg-white/10 backdrop-blur-md border border-white/20 rounded-full shadow-2xl flex items-center justify-center text-white hover:bg-white/20 hover:scale-110 transition-all duration-300 group/fs-btn"
                   aria-label="Previous image"
                 >
-                  <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+                  <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6 group-hover/fs-btn:text-primary-400 transition-colors" />
+                  <div className="absolute inset-0 bg-primary-400/20 rounded-full opacity-0 group-hover/fs-btn:opacity-100 transition-opacity blur-xl" />
                 </button>
                 <button
                   type="button"
@@ -280,10 +366,11 @@ export function ProductGallery({
                     e.stopPropagation();
                     handleNext();
                   }}
-                  className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+                  className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 bg-white/10 backdrop-blur-md border border-white/20 rounded-full shadow-2xl flex items-center justify-center text-white hover:bg-white/20 hover:scale-110 transition-all duration-300 group/fs-btn"
                   aria-label="Next image"
                 >
-                  <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
+                  <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6 group-hover/fs-btn:text-primary-400 transition-colors" />
+                  <div className="absolute inset-0 bg-primary-400/20 rounded-full opacity-0 group-hover/fs-btn:opacity-100 transition-opacity blur-xl" />
                 </button>
               </>
             )}

@@ -4,12 +4,11 @@ import { memo, useState } from "react";
 import { Percent, Clock, Gift, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ThemedBadge } from "../../shared/themed-badge";
+import { Badge } from "@/components/ui/badge";
 import { HeroMediaFrame } from "../shared/hero-media-frame";
-import { ThemedSecondaryButton } from "../../shared/themed-secondary-button";
-import { ThemedTrustRow } from "../../shared/themed-trust-row";
 import { SlideLayout, contentClamp } from "../shared/slide-layout";
 import { HeroItem } from "../shared/hero-item";
+import { SparkleEffect } from "../shared/SparkleEffect";
 import { useHeroRunCounter } from "@/lib/hooks/use-hero-run-counter";
 import type { HeroSlide } from "@/lib/types/heroSlides.types";
 import type { Product } from "@/features/products/types";
@@ -53,9 +52,10 @@ export const OfferSlideBody = memo(function OfferSlideBody({
       {/* Row 1: Themed Badge */}
       <HeroItem run={run} animationKey={animationKey}>
         <div className="hero-item-enter hero-badge">
-          <ThemedBadge icon={Percent}>
+          <Badge variant="primary" className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-2 sm:px-3 py-1 sm:py-1.5 mt-4 sm:mt-6 w-fit text-xs sm:text-sm font-semibold text-white border border-white/22 bg-linear-to-r from-red-600 via-red-700 to-red-800">
+            <Percent className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
             {slide.badgeText || "Limited Time Offer"}
-          </ThemedBadge>
+          </Badge>
         </div>
       </HeroItem>
 
@@ -64,14 +64,14 @@ export const OfferSlideBody = memo(function OfferSlideBody({
         <div className={`space-y-3 hero-item-enter hero-headline`}>
           <h1
             className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-display font-bold italic leading-tight underline decoration-2 underline-offset-4`}
-            style={{ color: "var(--hero-text)" }}
+            style={{ color: "#171717" }}
           >
             {slide.headline}
           </h1>
           {slide.highlight && (
             <h2
               className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-sans font-bold overline decoration-1"
-              style={{ color: "var(--hero-accent)" }}
+              style={{ color: "#fa0603" }}
             >
               {slide.highlight}
             </h2>
@@ -83,7 +83,7 @@ export const OfferSlideBody = memo(function OfferSlideBody({
       <HeroItem run={run} animationKey={animationKey}>
         <p
           className={`text-xs sm:text-sm md:text-base lg:text-lg leading-relaxed hero-item-enter hero-description ${contentClamp.description}`}
-          style={{ color: "var(--hero-muted)" }}
+          style={{ color: "#7a6b67" }}
         >
           {slide.description}
         </p>
@@ -98,8 +98,8 @@ export const OfferSlideBody = memo(function OfferSlideBody({
               className="relative rounded-lg border overflow-hidden"
               data-no-swipe
               style={{
-                backgroundColor: "var(--hero-surface, rgba(255,255,255,0.04))",
-                borderColor: "var(--hero-border)",
+                backgroundColor: "rgba(255,255,255,0.04)",
+                borderColor: "rgba(250, 6, 3, 0.18)",
                 borderWidth: "1px",
                 boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
               }}
@@ -109,10 +109,10 @@ export const OfferSlideBody = memo(function OfferSlideBody({
                 className="absolute inset-0 opacity-4"
                 style={{
                   backgroundImage: `
-                    linear-gradient(45deg, var(--hero-theme-from) 25%, transparent 25%),
-                    linear-gradient(-45deg, var(--hero-theme-from) 25%, transparent 25%),
-                    linear-gradient(45deg, transparent 75%, var(--hero-theme-from) 75%),
-                    linear-gradient(-45deg, transparent 75%, var(--hero-theme-from) 75%)
+                    linear-gradient(45deg, #fa0603 25%, transparent 25%),
+                    linear-gradient(-45deg, #fa0603 25%, transparent 25%),
+                    linear-gradient(45deg, transparent 75%, #fa0603 75%),
+                    linear-gradient(-45deg, transparent 75%, #fa0603 75%)
                   `,
                   backgroundSize: "8px 8px",
                   backgroundPosition: "0 0, 0 4px, 4px -4px, -4px 0px",
@@ -128,7 +128,7 @@ export const OfferSlideBody = memo(function OfferSlideBody({
                     <div
                       className="w-10 h-10 lg:w-10 lg:h-10 rounded-lg flex items-center justify-center shrink-0"
                       style={{
-                        backgroundColor: "var(--hero-theme-from)",
+                        backgroundColor: "#fa0603",
                         boxShadow: "0 3px 6px rgba(0,0,0,0.2)",
                       }}
                     >
@@ -138,13 +138,13 @@ export const OfferSlideBody = memo(function OfferSlideBody({
                     <div className="flex-1 min-w-0">
                       <div
                         className="font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl tracking-tight truncate"
-                        style={{ color: "var(--hero-text)" }}
+                        style={{ color: "#171717" }}
                       >
                         {slide.offerLabel}
                       </div>
                       <div
                         className="text-xs sm:text-sm md:text-base opacity-80"
-                        style={{ color: "var(--hero-muted)" }}
+                        style={{ color: "#7a6b67" }}
                       >
                         Limited time • Use code below
                       </div>
@@ -157,7 +157,7 @@ export const OfferSlideBody = memo(function OfferSlideBody({
                     <div
                       className="px-2 py-1.5 sm:px-3 sm:py-2 md:px-4 md:py-3 lg:px-5 lg:py-3 rounded-lg font-mono text-xs sm:text-sm md:text-base font-bold min-w-[90px] sm:min-w-[100px] md:min-w-[120px] lg:min-w-[140px] w-full sm:w-auto"
                       style={{
-                        backgroundColor: "var(--hero-theme-from)",
+                        backgroundColor: "#fa0603",
                         color: "white",
                       }}
                     >
@@ -197,10 +197,9 @@ export const OfferSlideBody = memo(function OfferSlideBody({
                         className="px-3 py-2 sm:px-4 sm:py-2.5 md:px-5 rounded-lg cursor-pointer border transition-all duration-200 hover:scale-105 w-full sm:w-auto select-none touch-manipulation"
                         data-no-swipe
                         style={{
-                          backgroundColor:
-                            "var(--hero-surface, rgba(255,255,255,0.1))",
+                          backgroundColor: "rgba(255,255,255,0.1)",
                           borderColor: copied
-                            ? "var(--hero-theme-from)"
+                            ? "#fa0603"
                             : "transparent",
                           borderWidth: "1px",
                         }}
@@ -209,7 +208,7 @@ export const OfferSlideBody = memo(function OfferSlideBody({
                         <div className="flex items-center justify-center sm:justify-start gap-2 sm:gap-2.5">
                           <code
                             className="font-mono font-bold text-xs sm:text-sm md:text-base select-none sm:select-all"
-                            style={{ color: "var(--hero-theme-from)" }}
+                            style={{ color: "#fa0603" }}
                           >
                             {promoCode}
                           </code>
@@ -221,7 +220,7 @@ export const OfferSlideBody = memo(function OfferSlideBody({
                           ) : (
                             <Copy
                               className="w-4 h-4 sm:w-5 sm:h-5"
-                              style={{ color: "var(--hero-muted)" }}
+                              style={{ color: "#7a6b67" }}
                             />
                           )}
                         </div>
@@ -251,13 +250,13 @@ export const OfferSlideBody = memo(function OfferSlideBody({
             </Button>
           </Link>
           {slide.ctaSecondary && (
-            <ThemedSecondaryButton
-              label={slide.ctaSecondary.label}
-              href={slide.ctaSecondary.href}
-              className="px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 md:py-2 min-h-8 sm:min-h-9 md:min-h-10 text-xs sm:text-sm md:text-sm"
-              onMouseEnter={onMouseEnter}
-              onMouseLeave={onMouseLeave}
-            />
+            <Link href={slide.ctaSecondary.href} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+              <button
+                className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-1.5 sm:py-2 font-semibold rounded-lg shadow-sm hover:shadow-md transition-all duration-200 w-auto min-h-8 sm:min-h-10 text-xs sm:text-sm text-white border border-white/22 bg-linear-to-r from-red-600 via-red-700 to-red-800"
+              >
+                <span className="flex items-center gap-1.5 sm:gap-2">{slide.ctaSecondary.label}</span>
+              </button>
+            </Link>
           )}
         </div>
       </HeroItem>
@@ -265,13 +264,25 @@ export const OfferSlideBody = memo(function OfferSlideBody({
       {/* Row 6: Trust Signals */}
       <HeroItem run={run} animationKey={animationKey}>
         <div className="hero-item-enter hero-description">
-          <ThemedTrustRow
-            items={[
+          <div className="flex flex-nowrap items-center gap-1.5 sm:gap-3 md:gap-6 lg:gap-8 overflow-x-auto">
+            {[
               { icon: Gift, text: "Exclusive Deals" },
               { icon: Clock, text: "Limited Time" },
               { text: "Easy Checkout", useDot: true },
-            ]}
-          />
+            ].map((item, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-2 sm:gap-3 font-medium text-xs sm:text-sm text-transparent bg-linear-to-r from-red-600 to-red-700 bg-clip-text"
+              >
+                {item.icon ? (
+                  <item.icon className="h-3 w-3 sm:h-4 sm:w-4 text-red-600" />
+                ) : item.useDot ? (
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-red-600" />
+                ) : null}
+                <span>{item.text}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </HeroItem>
     </>
@@ -279,5 +290,12 @@ export const OfferSlideBody = memo(function OfferSlideBody({
 
   const mediaContent = <HeroMediaFrame slide={slide} isActive={isActive} />;
 
-  return <SlideLayout textContent={textContent} mediaContent={mediaContent} />;
+  return (
+    <div className="relative w-full h-full">
+      {/* Glittery Sparkle Effect - Best Practice implementation */}
+      <SparkleEffect isActive={isActive} count={40} />
+
+      <SlideLayout textContent={textContent} mediaContent={mediaContent} />
+    </div>
+  );
 });

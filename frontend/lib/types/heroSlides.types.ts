@@ -1,4 +1,3 @@
-import type { HeroTheme } from "@/lib/ui-tokens";
 
 export type HeroSlideType =
   | "PRODUCT_SPOTLIGHT"
@@ -41,16 +40,15 @@ export interface BaseHeroSlide {
     position?: "center" | "top" | "bottom" | "left" | "right"; // For LANDSCAPE_HERO cropping
     aspect?: "landscape" | "default"; // For non-fullscreen slides
   };
-
-  // Theme
-  theme?: {
-    accentToken?: HeroTheme;
-  };
 }
 
 export interface ProductSpotlightSlide extends BaseHeroSlide {
   type: "PRODUCT_SPOTLIGHT";
-  // Product spotlight specific fields can be added here if needed
+  // Product spotlight specific fields
+  features?: Array<{
+    iconName?: string; // Lucide icon name string
+    text: string;
+  }>;
 }
 
 export interface CategorySpotlightSlide extends BaseHeroSlide {
@@ -138,6 +136,12 @@ export interface LandscapeImageSlide
   overlay?: {
     opacity?: number;
     type?: "solid" | "gradient";
+  };
+
+  actionButton?: {
+    label: string;
+    href: string;
+    icon?: string; // Lucide icon name
   };
 
   // Restrict media to only images for landscape slides

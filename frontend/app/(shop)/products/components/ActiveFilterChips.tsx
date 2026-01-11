@@ -9,7 +9,6 @@
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { theme } from "../../../../lib/config/theme";
 import { cn } from "@/lib/utils/cn";
 import { formatPrice } from "@/lib/utils";
 import type { CanonicalFilters } from "@/features/products/utils/filters";
@@ -120,35 +119,38 @@ export function ActiveFilterChips({
   }
 
   return (
-    <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-2">
-      {/* Chips Container - Scrollable */}
+    <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide py-4 animate-in fade-in slide-in-from-left-4 duration-700 delay-300">
       <div className="flex items-center gap-2 flex-1 min-w-0">
+        <span className="text-xs font-bold text-warm-gray-400 uppercase tracking-widest mr-2 shrink-0">
+          Active:
+        </span>
         {activeFilters.map((filter) => (
           <Badge
             key={filter.key}
             variant="secondary"
             className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5",
-              theme.radius.pill,
-              "bg-white border border-warm-gray-300",
-              "text-sm font-medium"
+              "flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 group hover:border-primary-200 hover:bg-primary-50 hover:shadow-md",
+              "bg-white border border-warm-gray-200",
+              "text-xs font-semibold whitespace-nowrap"
             )}
           >
-            <span className={cn(theme.text.muted, "text-xs")}>
-              {filter.label}:
+            <span className="text-warm-gray-400 font-medium">
+              {filter.label}
             </span>
-            <span className={cn(theme.text.body)}>{filter.value}</span>
+            <span className="text-warm-gray-900 border-l border-warm-gray-200 pl-2 ml-1">
+              {filter.value}
+            </span>
             <button
               onClick={() => onRemoveFilter(filter.key)}
               className={cn(
-                "ml-1 rounded-full p-0.5",
-                "hover:bg-warm-gray-100",
+                "ml-2 rounded-full p-1 bg-warm-gray-100",
+                "hover:bg-primary-600 hover:text-white group-hover:scale-110",
                 "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2",
-                "transition-colors"
+                "transition-all duration-300"
               )}
               aria-label={`Remove ${filter.label} filter`}
             >
-              <X className="h-3 w-3 text-warm-gray-500" />
+              <X className="h-3 w-3" />
             </button>
           </Badge>
         ))}
@@ -156,19 +158,13 @@ export function ActiveFilterChips({
 
       {/* Clear All Button */}
       {activeFilters.length > 0 && (
-        <Button
-          variant="ghost"
-          size="sm"
+        <button
           onClick={onClearAll}
-          className={cn(
-            "shrink-0 text-sm",
-            theme.text.muted,
-            "hover:text-warm-gray-900"
-          )}
+          className="shrink-0 text-xs font-bold text-primary-600 hover:text-primary-700 underline underline-offset-4 decoration-primary-600/30 hover:decoration-primary-600 transition-all px-2"
           aria-label="Clear all filters"
         >
-          Clear all
-        </Button>
+          Clear Selection
+        </button>
       )}
     </div>
   );

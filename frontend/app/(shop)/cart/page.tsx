@@ -186,7 +186,7 @@ export default function CartPage() {
         )}
 
         {!isLoading && items.length === 0 ? (
-          <div className="rounded-xl border border-border bg-surface p-10 text-center shadow-sm">
+          <div className="rounded-lg border border-border bg-surface p-10 text-center shadow-sm">
             <p className="text-lg font-semibold text-fg">
               Your cart is currently empty.
             </p>
@@ -194,7 +194,7 @@ export default function CartPage() {
               Return to the shop to add products.
             </p>
             <Link href="/products" className="mt-5 inline-block">
-              <Button className="rounded-full px-6">Return to shop</Button>
+              <Button className="rounded-lg px-6">Return to shop</Button>
             </Link>
           </div>
         ) : (
@@ -386,12 +386,12 @@ export default function CartPage() {
 
               <div className="mt-6 grid gap-3">
                 <Link href="/checkout">
-                  <Button variant="destructive" className="w-full rounded-full">
+                  <Button variant="destructive" className="w-full rounded-lg">
                     Proceed to Checkout
                   </Button>
                 </Link>
                 <Link href="/products">
-                  <Button variant="secondary" className="w-full rounded-full">
+                  <Button variant="secondary" className="w-full rounded-lg">
                     Continue Shopping
                   </Button>
                 </Link>

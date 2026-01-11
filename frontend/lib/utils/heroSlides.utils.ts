@@ -155,7 +155,7 @@ export function assertUniqueSlideContent(slides: HeroSlide[]): void {
     const key = `${slide.headline}|${slide.description}`;
     if (contentMap.has(key)) {
       console.warn(
-        `⚠️  Duplicate slide content detected:\n` +
+        `Warning: Duplicate slide content detected:\n` +
           `   Slide "${slide.id}" (${
             slide.type
           }) has the same headline+description as "${contentMap.get(key)}"\n` +

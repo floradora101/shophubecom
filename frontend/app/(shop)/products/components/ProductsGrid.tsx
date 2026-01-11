@@ -20,6 +20,7 @@ interface ProductsGridProps {
   onClearFilters?: () => void;
   searchTerm?: string | null;
   hasActiveFilters?: boolean;
+  layout?: "cozy" | "compact";
 }
 
 /**
@@ -155,11 +156,20 @@ export function ProductsGrid({
   onClearFilters,
   searchTerm,
   hasActiveFilters,
+  layout = "cozy",
 }: ProductsGridProps) {
   if (isLoading) {
+    const skeletonCount = layout === "compact" ? 12 : 8;
     return (
-      <div className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-        {Array.from({ length: 8 }, (_, index) => (
+      <div
+        className={cn(
+          "grid w-full gap-4 md:gap-6",
+          layout === "compact"
+            ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-5"
+            : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+        )}
+      >
+        {Array.from({ length: skeletonCount }, (_, index) => (
           <ProductCardSkeleton key={`skeleton-${index}`} />
         ))}
       </div>
@@ -180,13 +190,42 @@ export function ProductsGrid({
     <div className="relative">
       <div
         className={cn(
-          "grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 transition-opacity duration-200",
+          "grid w-full gap-4 md:gap-6 transition-all duration-500 ease-in-out",
+          layout === "compact"
+            ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
+            : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
           isUpdating && "opacity-60 pointer-events-none"
         )}
       >
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} layout="vertical" />
-        ))}
+        {products.map((product, index) => {
+          // Every 7th product in cozy layout can be a "featured" larger card
+          const isFeatured = layout === "cozy" && (index + 1) % 7 === 0;
+
+          return (
+            <div
+              key={product.id}
+              className={cn(
+                "animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both",
+                isFeatured && "md:col-span-2 md:row-span-1"
+              )}
+              style={{
+                animationDelay: `${(index % 8) * 100}ms`,
+              }}
+            >
+              <ProductCard
+                product={product}
+                layout="vertical"
+                compact={layout === "compact"}
+              />
+              {isFeatured && (
+                <div className="mt-2 text-xs font-bold text-primary-600 uppercase tracking-widest flex items-center gap-1.5 opacity-70 group-hover:opacity-100 transition-opacity">
+                  <Sparkles className="h-3 w-3" />
+                  <span>Expert Choice</span>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Updating overlay */}

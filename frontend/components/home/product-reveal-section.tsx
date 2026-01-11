@@ -114,10 +114,10 @@ export function ProductRevealSection({ products }: ProductRevealSectionProps) {
             badge={{
               icon: Zap,
               text: "Interactive Discovery",
-              gradient: "from-primary-100 via-primary-200 to-primary-100",
+              gradient: "from-primary-50 via-primary-100 to-primary-50",
             }}
             title={{ italic: "Swipe", bold: "to Reveal" }}
-            description="Discover exclusive price drops with our interactive reveal cards"
+            description="Discover exclusive price drops with our interactive 2026 reveal cards. Experience the thrill of the hunt."
           />
 
           {/* Reveal Cards Grid */}
@@ -125,16 +125,16 @@ export function ProductRevealSection({ products }: ProductRevealSectionProps) {
             {revealProducts.slice(0, visibleCards).map((reveal, index) => (
               <div
                 key={`${reveal.product.id}-${reveal.revealType}`}
-                className="group relative transform transition-all duration-500 ease-out hover:scale-[1.02] hover:-translate-y-1 animate-fadeInUp"
+                className="group relative transform transition-all duration-700 ease-out hover:scale-[1.03] hover:-translate-y-2 animate-fadeInUp"
                 style={{
                   animationDelay: `${index * 100}ms`,
                 }}
               >
-                {/* Subtle shadow and border effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                {/* 2026 Style: Animated Glow behind card */}
+                <div className="absolute -inset-1 bg-linear-to-r from-primary-600/20 to-primary-600/0 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                {/* Card content */}
-                <div className="relative bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+                {/* Card container */}
+                <div className="relative rounded-2xl shadow-xl overflow-hidden border border-white/5 bg-neutral-900">
                   <SwipeRevealCard
                     product={reveal.product}
                     revealType={reveal.revealType}
@@ -146,31 +146,29 @@ export function ProductRevealSection({ products }: ProductRevealSectionProps) {
 
           {/* Toggle Cards Button */}
           {revealProducts.length > 4 && (
-            <div className="flex justify-center pt-8">
+            <div className="flex justify-center pt-12">
               <button
                 onClick={handleToggleCards}
-                className="group relative inline-flex items-center gap-3 px-8 py-4 bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-600 font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-4 focus:ring-primary-500/25 overflow-hidden"
+                className="group relative inline-flex items-center gap-3 px-10 py-4 bg-neutral-950 text-white hover:text-primary-400 font-bold rounded-full transition-all duration-500 shadow-2xl border border-white/10 hover:border-primary-500/50 hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-primary-500/20 overflow-hidden"
                 aria-label={
                   visibleCards === 4
                     ? `Show ${revealProducts.length - 4} more deals`
                     : "Show fewer deals"
                 }
               >
-                {/* Shimmer effect */}
-                <div
-                  className="absolute inset-0 rounded-xl bg-linear-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-shimmer"
-                  style={{ animation: "shimmer 2s infinite" }}
-                />
+                {/* 2026 Style: Internal glow */}
+                <div className="absolute inset-0 bg-linear-to-tr from-primary-600/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
                 {visibleCards === 4 ? (
                   <>
-                    <Sparkles className="h-5 w-5 transition-transform duration-300 group-hover:rotate-12" />
-                    <span className="relative z-10">Discover More Deals</span>
-                    <ChevronDown className="h-5 w-5 transition-transform duration-300 group-hover:translate-y-1" />
+                    <Sparkles className="h-5 w-5 text-primary-500 transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110" />
+                    <span className="relative z-10 tracking-tight">Expand Experience</span>
+                    <ChevronDown className="h-5 w-5 text-primary-500 transition-transform duration-500 group-hover:translate-y-1" />
                   </>
                 ) : (
                   <>
-                    <ChevronDown className="h-5 w-5 transition-transform duration-300 group-hover:-rotate-12" />
-                    <span className="relative z-10">Show Fewer Deals</span>
+                    <ChevronDown className="h-5 w-5 text-primary-500 transition-transform duration-500 group-hover:-rotate-180" />
+                    <span className="relative z-10 tracking-tight">Collapse Deals</span>
                   </>
                 )}
               </button>
@@ -196,10 +194,10 @@ export function ProductRevealSectionSkeleton() {
       <BackgroundGradients variant="decorative" />
 
       <Container className="relative z-10">
-        <div className="space-y-8">
-          {/* Header - matches SectionHeader structure */}
+        <div className="space-y-12">
+          {/* Header Skeleton - matches consistent SectionHeader structure */}
           <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r from-primary-100 via-primary-200 to-primary-100">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r from-primary-50 via-primary-100 to-primary-50 mb-2">
               <SkeletonBlock className="w-4 h-4 rounded" />
               <SkeletonBlock className="h-4 w-40 rounded" />
             </div>
@@ -207,46 +205,26 @@ export function ProductRevealSectionSkeleton() {
             <SkeletonBlock className="h-5 w-96 rounded" />
           </div>
 
-          {/* Reveal Cards Grid - matches production: responsive grid layout */}
+          {/* Reveal Cards Grid - matches production: responsive grid layout with 2026 rounded corners */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             {Array.from({ length: 4 }, (_, i) => (
               <div key={i} className="relative">
-                <div className="relative bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden min-h-[300px] md:min-h-[350px]">
+                <div className="relative rounded-2xl shadow-sm border border-gray-100 overflow-hidden min-h-[300px] md:min-h-[350px] bg-neutral-900">
                   {/* Card content skeleton - matches SwipeRevealCard structure */}
-                  <div className="p-4 h-full">
-                    {/* ProductCard inside SwipeRevealCard */}
-                    <div className="flex flex-col w-full">
-                      {/* Image area - aspect-square */}
-                      <SkeletonBlock className="aspect-square rounded-lg border border-warm-gray-200 mb-3" />
-
-                      {/* Product info */}
-                      <div className="mt-3 space-y-1 min-h-16 flex flex-col justify-end">
-                        {/* Product name skeleton - matches line-clamp-2 */}
-                        <SkeletonBlock className="h-4 md:h-5" />
-                        <SkeletonBlock className="h-4 md:h-5 w-3/4" />
-
-                        {/* Rating skeleton (optional) */}
-                        <SkeletonBlock className="h-3 w-1/2 mt-1" />
-
-                        {/* Price skeleton - matches pricing layout */}
-                        <div className="flex items-baseline gap-2 flex-wrap mt-2">
-                          <SkeletonBlock className="h-4 md:h-5 w-16" />
-                          <SkeletonBlock className="h-3 w-12" />
-                          <SkeletonBlock className="h-3 w-20" />
-                        </div>
-                      </div>
+                  <div className="p-4 h-full flex flex-col items-center justify-center">
+                    <SkeletonBlock className="w-44 h-44 rounded-2xl mb-8" />
+                    <div className="space-y-3 w-full max-w-[200px]">
+                      <SkeletonBlock className="h-5 w-full rounded" />
+                      <SkeletonBlock className="h-4 w-2/3 rounded mx-auto" />
                     </div>
                   </div>
 
-                  {/* Swipe handle - matches SwipeRevealCard handle structure */}
+                  {/* Swipe handle skeleton */}
                   <div
                     className="absolute top-0 bottom-0 z-20 flex items-center justify-center select-none"
                     style={{ left: "50%", transform: "translateX(-50%)" }}
                   >
-                    <div className="flex items-center gap-1.5">
-                      <SkeletonBlock className="flex items-center justify-center w-6 h-6 rounded-full" />
-                      <SkeletonBlock className="flex items-center justify-center w-6 h-6 rounded-full" />
-                    </div>
+                    <SkeletonBlock className="w-10 h-10 rounded-full" />
                   </div>
                 </div>
               </div>

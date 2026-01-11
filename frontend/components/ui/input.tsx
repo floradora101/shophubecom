@@ -26,11 +26,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           type={type}
           id={inputId}
           className={cn(
-            "flex h-11 w-full rounded-lg border border-warm-gray-200 bg-white px-3 py-2 text-sm transition-colors",
+            "flex h-11 w-full rounded-lg border border-warm-gray-200 bg-white px-3 py-2 text-sm text-warm-gray-900 transition-all",
             "placeholder:text-warm-gray-400",
-            "focus:border-primary-500 focus:outline-none",
+            "hover:border-warm-gray-300",
+            "focus:border-primary-500 focus:bg-white focus:text-warm-gray-900 focus:outline-none focus:ring-4 focus:ring-primary-500/10",
+            "selection:bg-primary-100 selection:text-primary-900",
             "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-warm-gray-50",
-            error && "border-error focus:border-error",
+            error &&
+              "border-error focus:border-error focus-visible:ring-error/20",
             className
           )}
           ref={ref}

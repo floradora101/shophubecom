@@ -514,14 +514,14 @@ export default function CheckoutPage() {
                 </Text>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
                   <Link href="/products">
-                    <Button className="rounded-full px-8 w-full sm:w-auto">
+                    <Button className="rounded-lg px-8 w-full sm:w-auto">
                       Return to shop
                     </Button>
                   </Link>
                   <Link href="/cart">
                     <Button
                       variant="secondary"
-                      className="rounded-full px-8 w-full sm:w-auto"
+                      className="rounded-lg px-8 w-full sm:w-auto"
                     >
                       Go to cart
                     </Button>

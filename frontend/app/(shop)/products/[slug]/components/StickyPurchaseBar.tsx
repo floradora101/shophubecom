@@ -98,7 +98,7 @@ export function StickyPurchaseBar({
               onClick={canAddToCart ? onAddToCart : undefined}
               disabled={!canAddToCart}
               variant="destructive"
-              className="h-12 sm:h-10 font-medium rounded-xl text-sm sm:text-sm flex-shrink-0 min-w-32 sm:min-w-0"
+              className="h-12 sm:h-10 font-medium rounded-lg text-sm sm:text-sm flex-shrink-0 min-w-32 sm:min-w-0"
               size="default"
             >
               {isOutOfStock

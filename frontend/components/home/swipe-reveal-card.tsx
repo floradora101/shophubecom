@@ -77,20 +77,20 @@ export function SwipeRevealCard({
   // Cover clip path - clip from RIGHT (show LEFT part up to divider)
   const coverClipPath = `inset(0 ${(1 - position) * 100}% 0 0)`;
 
-  // Handle colors for price reveal
+  // Handle colors for price reveal - 2026 Red Theme
   const colors = {
-    border: "border-gray-300",
-    borderHover: "border-gray-500",
-    bg: "bg-gray-400",
-    text: "text-gray-600",
-    icon: "text-gray-600",
+    border: "border-primary-500/30",
+    borderHover: "border-primary-500",
+    bg: "bg-primary-600",
+    text: "text-primary-600",
+    icon: "text-primary-600",
   };
 
   return (
     <div
       ref={cardRef}
-      className={`relative w-full h-full min-h-[300px] md:min-h-[350px] rounded-lg overflow-hidden bg-white border border-gray-200 shadow-sm hover:shadow-lg hover:scale-[1.02] transition-all duration-300 ${
-        isDragging ? "select-none scale-105 shadow-xl" : ""
+      className={`relative w-full h-full min-h-[300px] md:min-h-[350px] rounded-xl overflow-hidden bg-white border border-gray-100 shadow-md hover:shadow-2xl hover:scale-[1.01] transition-all duration-500 ${
+        isDragging ? "select-none scale-102 shadow-2xl" : ""
       }`}
       style={{
         touchAction: "pan-y",
@@ -111,189 +111,103 @@ export function SwipeRevealCard({
         </div>
       </div>
 
-      {/* Cover Layer - Premium Tech Design */}
+      {/* Cover Layer - 2026 Premium Red Tech Design */}
       {revealType === "price" && (
         <div
           className={`absolute inset-0 z-10 ${
-            isDragging ? "" : "transition-all duration-300 ease-out"
+            isDragging ? "" : "transition-all duration-500 ease-out"
           }`}
           style={{ clipPath: coverClipPath }}
         >
-          {/* Premium metallic gradient background with gray tones */}
-          <div className="absolute inset-0 bg-linear-to-br from-gray-900 via-gray-800 to-gray-900">
-            {/* Primary metallic gradient overlay */}
-            <div className="absolute inset-0 bg-linear-to-tl from-gray-800/50 via-slate-700/40 to-zinc-800/50"></div>
+          {/* Deep Charcoal background with Red Glows */}
+          <div className="absolute inset-0 bg-neutral-950 overflow-hidden">
+            {/* Dynamic Red Glows - 2026 Style */}
+            <div className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] bg-primary-600/20 blur-[100px] rounded-full animate-pulse-slow"></div>
+            <div className="absolute -bottom-[20%] -right-[10%] w-[50%] h-[50%] bg-primary-600/15 blur-[80px] rounded-full animate-pulse-slow" style={{ animationDelay: '1.5s' }}></div>
 
-            {/* Secondary accent gradient */}
-            <div
-              className="absolute inset-0 bg-linear-to-r from-gray-600/15 via-transparent to-slate-600/15 animate-pulse"
-              style={{ animationDelay: "2s" }}
-            ></div>
+            {/* Sophisticated Tech Grid overlay */}
+            <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: `linear-gradient(to right, #fa0603 1px, transparent 1px), linear-gradient(to bottom, #fa0603 1px, transparent 1px)`, backgroundSize: '32px 32px' }}></div>
 
-            {/* Tech circuit pattern overlay */}
-            <div className="absolute inset-0 opacity-20">
-              <svg
-                className="w-full h-full"
-                viewBox="0 0 400 400"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <defs>
-                  <pattern
-                    id="circuit-pattern"
-                    x="0"
-                    y="0"
-                    width="40"
-                    height="40"
-                    patternUnits="userSpaceOnUse"
-                  >
-                    <path
-                      d="M20 0v20m0 0h20m-20 0v20m0-20h-20"
-                      stroke="currentColor"
-                      strokeWidth="0.5"
-                      className="text-gray-400/60"
-                    />
-                    <circle
-                      cx="20"
-                      cy="20"
-                      r="1"
-                      fill="currentColor"
-                      className="text-slate-400/40"
-                    />
-                  </pattern>
-                </defs>
-                <rect width="100%" height="100%" fill="url(#circuit-pattern)" />
-              </svg>
-            </div>
+            {/* Micro-dot pattern for detail */}
+            <div className="absolute inset-0 opacity-[0.1]" style={{ backgroundImage: `radial-gradient(#fa0603 0.5px, transparent 0.5px)`, backgroundSize: '8px 8px' }}></div>
           </div>
 
-          {/* Floating tech elements */}
+          {/* Floating tech elements - Red Themed */}
           <div className="absolute inset-0 overflow-hidden">
-            {/* Hexagonal nodes */}
-            <div
-              className="absolute top-12 left-8 w-12 h-12 border border-gray-400/30 rotate-45 animate-pulse"
-              style={{ animationDelay: "0.5s" }}
-            >
-              <div className="absolute inset-1 border border-slate-300/20 rotate-12"></div>
-            </div>
-            <div
-              className="absolute top-24 right-12 w-8 h-8 border border-zinc-400/40 rotate-12 animate-pulse"
-              style={{ animationDelay: "1.8s" }}
-            >
-              <div className="absolute inset-0.5 border border-zinc-300/30"></div>
-            </div>
+            {/* Subtle light beams */}
+            <div className="absolute top-0 left-1/4 w-px h-full bg-linear-to-b from-transparent via-primary-500/20 to-transparent"></div>
+            <div className="absolute top-0 right-1/4 w-px h-full bg-linear-to-b from-transparent via-primary-500/10 to-transparent"></div>
 
-            {/* Circuit connections */}
+            {/* Animated particles */}
             <div
-              className="absolute bottom-16 left-12 w-20 h-px bg-linear-to-r from-transparent via-gray-400/60 to-transparent animate-pulse"
-              style={{ animationDelay: "1.2s" }}
+              className="absolute top-1/4 left-1/3 w-1 h-1 bg-primary-500/40 rounded-full animate-ping"
+              style={{ animationDuration: '3s' }}
             ></div>
             <div
-              className="absolute bottom-20 right-8 w-16 h-px bg-linear-to-r from-transparent via-slate-400/50 to-transparent animate-pulse"
-              style={{ animationDelay: "2.5s" }}
-            ></div>
-
-            {/* Data flow particles */}
-            <div
-              className="absolute bottom-24 left-16 w-2 h-2 bg-gray-400/80 rounded-full animate-bounce"
-              style={{ animationDelay: "0.8s" }}
-            ></div>
-            <div
-              className="absolute bottom-28 right-16 w-1.5 h-1.5 bg-slate-400/70 rounded-full animate-bounce"
-              style={{ animationDelay: "1.5s" }}
+              className="absolute bottom-1/3 right-1/4 w-1.5 h-1.5 bg-primary-600/30 rounded-full animate-ping"
+              style={{ animationDuration: '4s', animationDelay: '1s' }}
             ></div>
           </div>
 
-          {/* Product Image - Enhanced tech overlay */}
-          <div className="absolute inset-0 opacity-80">
+          {/* Product Image Overlay - Elegant Glassmorphism */}
+          <div className="absolute inset-0 opacity-40">
             <Image
               src={productImage}
               alt={product.name}
               fill
-              className="object-cover blur-sm scale-105"
+              className="object-cover blur-md scale-110"
               sizes="(max-width: 768px) 100vw, 50vw"
             />
-            {/* Tech scan lines effect */}
-            <div className="absolute inset-0 bg-linear-to-b from-transparent via-slate-900/20 to-slate-900/40">
-              <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(107,114,128,0.03)_2px,rgba(107,114,128,0.03)_4px)] animate-pulse"></div>
-            </div>
           </div>
+          <div className="absolute inset-0 bg-linear-to-b from-neutral-950/20 via-neutral-950/60 to-neutral-950/90"></div>
 
-          {/* Premium Tech Content */}
-          <div className="relative z-10 text-center space-y-6 p-8">
-            {/* Tech badge with premium styling - responsive sizing */}
-            <div className="relative inline-flex items-center gap-2 sm:gap-3 px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4 rounded-xl sm:rounded-2xl bg-gray-800/95 backdrop-blur-xl border border-gray-600/50 shadow-2xl mb-4">
-              {/* Glow effect */}
-              <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-linear-to-r from-gray-500/20 via-gray-500/20 to-gray-500/20 blur-sm"></div>
-
-              <div className="relative flex items-center gap-2 sm:gap-3">
-                {/* Tech icon - smaller on mobile */}
-                <div className="relative">
-                  <div className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 border border-gray-400/60 rounded rotate-45 flex items-center justify-center">
-                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-400 rounded-full animate-pulse"></div>
-                  </div>
-                  <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-400 rounded-full animate-ping opacity-75"></div>
-                </div>
-
-                <span className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider">
-                  Premium Deal
-                </span>
-
-                {/* Status indicators - smaller on mobile */}
-                <div className="flex gap-1 sm:gap-1.5">
-                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-400 rounded-full animate-pulse"></div>
-                  <div
-                    className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-400 rounded-full animate-pulse"
-                    style={{ animationDelay: "0.3s" }}
-                  ></div>
-                  <div
-                    className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-400 rounded-full animate-pulse"
-                    style={{ animationDelay: "0.6s" }}
-                  ></div>
-                </div>
+          {/* Content - Responsive sizing */}
+          <div className="relative z-10 h-full flex flex-col items-center justify-center text-center p-6 sm:p-8">
+            {/* Premium badge - 2026 Style */}
+            <div className="hero-glass flex items-center gap-2.5 px-4 py-2 rounded-full border border-primary-500/30 shadow-lg mb-8 group">
+              <div className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-600"></span>
               </div>
+              <span className="text-[10px] sm:text-xs font-bold text-white uppercase tracking-[0.2em]">
+                Exclusive Reveal
+              </span>
             </div>
 
-            {/* Enhanced product image display */}
-            <div className="relative w-40 h-40 mx-auto">
-              <div className="relative w-full h-full rounded-3xl overflow-hidden border border-slate-600/50 shadow-2xl">
-                {/* Tech frame */}
-                <div className="absolute inset-0 border-2 border-gray-400/30 rounded-3xl"></div>
-                <div className="absolute inset-2 border border-slate-400/20 rounded-2xl"></div>
-
+            {/* Enhanced product image display - Red Glow Frame */}
+            <div className="relative w-44 h-44 sm:w-52 sm:h-52 mx-auto mb-8 group">
+              <div className="absolute -inset-4 bg-primary-600/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+              <div className="relative w-full h-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl backdrop-blur-sm">
                 <Image
                   src={productImage}
                   alt={product.name}
                   fill
-                  className="object-cover"
-                  sizes="160px"
+                  className="object-contain p-4 group-hover:scale-110 transition-transform duration-700"
+                  sizes="208px"
                 />
 
-                {/* Corner accents */}
-                <div className="absolute top-2 left-2 w-3 h-3 border-l-2 border-t-2 border-gray-400/60"></div>
-                <div className="absolute top-2 right-2 w-3 h-3 border-r-2 border-t-2 border-gray-400/60"></div>
-                <div className="absolute bottom-2 left-2 w-3 h-3 border-l-2 border-b-2 border-gray-400/60"></div>
-                <div className="absolute bottom-2 right-2 w-3 h-3 border-r-2 border-b-2 border-gray-400/60"></div>
+                {/* 2026 Detail: Corner accents */}
+                <div className="absolute top-0 left-0 w-4 h-4 border-l border-t border-primary-500/40"></div>
+                <div className="absolute top-0 right-0 w-4 h-4 border-r border-t border-primary-500/40"></div>
+                <div className="absolute bottom-0 left-0 w-4 h-4 border-l border-b border-primary-500/40"></div>
+                <div className="absolute bottom-0 right-0 w-4 h-4 border-r border-b border-primary-500/40"></div>
               </div>
             </div>
 
-            <div className="space-y-4">
-              <p className="text-base text-white drop-shadow-lg line-clamp-2 leading-tight">
+            <div className="space-y-4 max-w-[200px] sm:max-w-xs">
+              <h3 className="text-base sm:text-lg font-display text-white drop-shadow-md line-clamp-2 leading-snug">
                 {product.name}
-              </p>
+              </h3>
 
-              {/* Enhanced swipe hint with tech styling */}
-              <div className="mt-6 flex items-center justify-center gap-3 text-slate-300">
-                <div className="flex items-center gap-1">
-                  <ArrowLeft className="h-4 w-4 animate-pulse text-gray-400" />
-                  <div className="w-6 h-px bg-linear-to-r from-transparent to-gray-400/60"></div>
-                </div>
-                <span className="text-xs font-medium uppercase tracking-wide">
-                  Swipe to Unlock
+              {/* Enhanced swipe hint */}
+              <div className="mt-8 flex flex-col items-center gap-3">
+                <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary-400/80">
+                  Swipe to Reveal Price
                 </span>
-                <div className="flex items-center gap-1">
-                  <div className="w-6 h-px bg-linear-to-l from-transparent to-gray-400/60"></div>
-                  <ArrowRight className="h-4 w-4 animate-pulse text-gray-400" />
+                <div className="flex items-center gap-6">
+                  <ArrowLeft className="h-4 w-4 text-primary-500 animate-[bounce-x_2s_infinite]" />
+                  <div className="w-12 h-0.5 bg-linear-to-r from-transparent via-primary-500/40 to-transparent"></div>
+                  <ArrowRight className="h-4 w-4 text-primary-500 animate-[bounce-x_2s_infinite_reverse]" />
                 </div>
               </div>
             </div>
@@ -301,7 +215,7 @@ export function SwipeRevealCard({
         </div>
       )}
 
-      {/* Draggable Handle at Divider Position */}
+      {/* Draggable Handle - Redesigned for 2026 */}
       <div
         ref={handleRef}
         className="absolute top-0 bottom-0 z-20 flex items-center justify-center select-none"
@@ -314,39 +228,19 @@ export function SwipeRevealCard({
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerCancel}
       >
-        {/* Handle Container - Circular arrows only */}
-        <div
-          className={`flex items-center gap-1.5 ${
-            isDragging ? "animate-pulse" : ""
-          }`}
-        >
-          <div
-            className={`flex items-center justify-center w-6 h-6 rounded-full ${
-              colors.bg
-            } shadow-sm hover:shadow-md hover:scale-110 active:scale-95 transition-all duration-200 cursor-grab active:cursor-grabbing select-none ${
-              isDragging ? "scale-110 shadow-lg" : ""
-            }`}
-          >
-            <ArrowLeft
-              className={`h-3 w-3 text-white transition-transform duration-200 ${
-                isDragging ? "animate-bounce" : ""
-              }`}
-              strokeWidth={2.5}
-            />
-          </div>
-          <div
-            className={`flex items-center justify-center w-6 h-6 rounded-full ${
-              colors.bg
-            } shadow-sm hover:shadow-md hover:scale-110 active:scale-95 transition-all duration-200 cursor-grab active:cursor-grabbing select-none ${
-              isDragging ? "scale-110 shadow-lg" : ""
-            }`}
-          >
-            <ArrowRight
-              className={`h-3 w-3 text-white transition-transform duration-200 ${
-                isDragging ? "animate-bounce" : ""
-              }`}
-              strokeWidth={2.5}
-            />
+        {/* Divider Line */}
+        <div className={`absolute inset-y-0 w-px bg-linear-to-b from-transparent via-primary-500 to-transparent transition-opacity duration-300 ${isDragging ? 'opacity-100' : 'opacity-40'}`}></div>
+
+        {/* Handle Button */}
+        <div className="relative group">
+          {/* Outer Ring Glow */}
+          <div className={`absolute -inset-3 bg-primary-600/30 blur-md rounded-full transition-transform duration-300 ${isDragging ? 'scale-125 opacity-100' : 'scale-75 opacity-0 group-hover:opacity-100'}`}></div>
+
+          <div className={`relative flex items-center justify-center w-10 h-10 rounded-full bg-neutral-900 border border-primary-500/50 shadow-2xl transition-all duration-300 ${isDragging ? 'scale-110 border-primary-400' : 'hover:scale-105'} cursor-grab active:cursor-grabbing`}>
+            <div className="flex items-center gap-0.5">
+              <ArrowLeft className="h-3.5 w-3.5 text-primary-500" strokeWidth={3} />
+              <ArrowRight className="h-3.5 w-3.5 text-primary-500" strokeWidth={3} />
+            </div>
           </div>
         </div>
       </div>

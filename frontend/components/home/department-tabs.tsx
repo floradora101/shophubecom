@@ -1,7 +1,7 @@
 // DepartmentTabs: Consistent grid layout across all departments
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   Smartphone,
@@ -13,10 +13,12 @@ import {
   Package,
   Grid3X3,
   ArrowRight,
+  Sparkles,
 } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { SkeletonBlock } from "@/components/ui/skeleton";
+import { NavigationButton } from "@/components/ui/navigation-button";
 import { ProductCard } from "@/features/products/components/ProductCard";
 import { ProductCardSkeleton } from "@/features/products/components/ProductCardSkeleton";
 import { SectionTitle } from "./shared/section-header";
@@ -44,50 +46,50 @@ const departmentConfig: Record<
 > = {
   phones: {
     icon: Smartphone,
-    gradient: "from-blue-500 to-cyan-600",
-    bgGradient: "from-blue-50 to-cyan-50",
+    gradient: "from-primary-500 to-primary-600",
+    bgGradient: "from-primary-50 to-primary-100",
     description: "Latest smartphones and mobile technology",
     tagline: "Stay Connected",
   },
   tablets: {
     icon: Tablet,
-    gradient: "from-purple-500 to-pink-600",
-    bgGradient: "from-purple-50 to-pink-50",
+    gradient: "from-primary-600 to-primary-700",
+    bgGradient: "from-primary-50 to-primary-100",
     description: "Powerful tablets for work and entertainment",
     tagline: "Portable Power",
   },
   laptops: {
     icon: Laptop,
-    gradient: "from-indigo-500 to-blue-600",
-    bgGradient: "from-indigo-50 to-blue-50",
+    gradient: "from-primary-500 to-primary-600",
+    bgGradient: "from-primary-50 to-primary-100",
     description: "High-performance laptops for every need",
     tagline: "Unleash Productivity",
   },
   wearables: {
     icon: Watch,
-    gradient: "from-emerald-500 to-teal-600",
-    bgGradient: "from-emerald-50 to-teal-50",
+    gradient: "from-primary-600 to-primary-700",
+    bgGradient: "from-primary-50 to-primary-100",
     description: "Wearable technology and accessories",
     tagline: "Tech on Your Wrist",
   },
   "smart-gadgets": {
     icon: Zap,
-    gradient: "from-orange-500 to-red-600",
-    bgGradient: "from-orange-50 to-red-50",
+    gradient: "from-primary-500 to-primary-600",
+    bgGradient: "from-primary-50 to-primary-100",
     description: "Smart home devices and gadgets",
     tagline: "Smart Living",
   },
   "gaming-console": {
     icon: Gamepad2,
-    gradient: "from-violet-500 to-purple-600",
-    bgGradient: "from-violet-50 to-purple-50",
+    gradient: "from-primary-600 to-primary-700",
+    bgGradient: "from-primary-50 to-primary-100",
     description: "Gaming consoles and accessories",
     tagline: "Game On",
   },
   accessories: {
     icon: Package,
-    gradient: "from-slate-500 to-gray-600",
-    bgGradient: "from-slate-50 to-gray-50",
+    gradient: "from-primary-500 to-primary-600",
+    bgGradient: "from-primary-50 to-primary-100",
     description: "Device cases, bags, and protection",
     tagline: "Complete Your Setup",
   },
@@ -119,7 +121,7 @@ export function DepartmentTabsSkeleton() {
             {Array.from({ length: 7 }, (_, i) => (
               <div
                 key={i}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-gray-200"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-lg border border-gray-200"
               >
                 <SkeletonBlock className="w-4 h-4 rounded" />
                 <SkeletonBlock className="h-4 w-20 rounded" />
@@ -131,7 +133,7 @@ export function DepartmentTabsSkeleton() {
           <div className="relative overflow-hidden rounded-lg p-5 bg-linear-to-r from-gray-50 to-gray-100 border border-white/20">
             <div className="flex flex-col md:flex-row items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <SkeletonBlock className="p-2.5 rounded-xl w-10 h-10" />
+                <SkeletonBlock className="p-2.5 rounded-lg w-10 h-10" />
                 <div>
                   <SkeletonBlock className="h-5 w-32 mb-0.5" />
                   <SkeletonBlock className="h-4 w-48" />
@@ -162,6 +164,17 @@ export function DepartmentTabs({
   categories,
   productsByCategory,
 }: DepartmentTabsProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: "left" | "right") => {
+    if (!scrollRef.current) return;
+    const scrollAmount = 300;
+    scrollRef.current.scrollBy({
+      left: direction === "left" ? -scrollAmount : scrollAmount,
+      behavior: "smooth",
+    });
+  };
+
   // Filter to only show main categories (parent categories) that are configured in departmentConfig
   const mainCategories = useMemo(() => {
     const safeCategories = Array.isArray(categories) ? categories : [];
@@ -286,6 +299,21 @@ export function DepartmentTabs({
                 Discover curated collections tailored to your lifestyle
               </p>
             </div>
+            {/* Slider Navigation */}
+            <div className="hidden md:flex gap-2">
+              <NavigationButton
+                variant="primary"
+                direction="left"
+                onClick={() => scroll("left")}
+                aria-label="Scroll left"
+              />
+              <NavigationButton
+                variant="primary"
+                direction="right"
+                onClick={() => scroll("right")}
+                aria-label="Scroll right"
+              />
+            </div>
           </div>
 
           {/* Enhanced Tabs with Icons */}
@@ -300,26 +328,29 @@ export function DepartmentTabs({
                 <button
                   key={category.id}
                   onClick={() => setActiveTab(category.slug)}
-                  className={`group relative px-3 py-2 rounded-lg font-medium transition-all duration-300 ease-in-out transform hover:scale-[1.02] ${
+                  className={`group relative px-4 py-2 rounded-xl font-bold transition-all duration-500 ease-out transform hover:scale-[1.05] active:scale-95 ${
                     isActive
-                      ? `bg-linear-to-r ${config.gradient} text-white shadow-md scale-[1.02]`
-                      : "bg-white text-gray-700 hover:text-gray-900 border border-gray-200 hover:border-gray-300 shadow-sm hover:shadow-sm"
+                      ? "bg-linear-to-r from-red-600 via-red-700 to-red-800 text-white shadow-xl shadow-red-500/25 border border-white/20"
+                      : "bg-white/80 backdrop-blur-md text-gray-600 hover:text-red-600 border border-gray-200/50 hover:border-red-200 hover:bg-red-50/50 shadow-sm hover:shadow-md"
                   }`}
                   aria-selected={isActive}
                   role="tab"
                 >
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-2">
                     <Icon
-                      className={`h-3.5 w-3.5 transition-transform duration-300 ${
-                        isActive ? "scale-105" : "group-hover:scale-105"
+                      className={`h-4 w-4 transition-all duration-500 ${
+                        isActive
+                          ? "scale-110 rotate-3"
+                          : "group-hover:scale-110 group-hover:-rotate-3"
                       }`}
                     />
-                    <span className="text-xs">{category.name}</span>
-                    {isActive && <Zap className="h-3 w-3 animate-pulse" />}
+                    <span className="text-xs sm:text-sm tracking-tight">
+                      {category.name}
+                    </span>
+                    {isActive && (
+                      <Sparkles className="h-3.5 w-3.5 animate-pulse text-white/80" />
+                    )}
                   </div>
-                  {isActive && (
-                    <div className="absolute -bottom-0.5 left-1/2 transform -translate-x-1/2 w-6 h-0.5 bg-white rounded-full" />
-                  )}
                 </button>
               );
             })}
@@ -332,7 +363,7 @@ export function DepartmentTabs({
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <div
-                  className={`p-2.5 rounded-xl bg-gradient-to-br ${activeConfig.gradient} shadow-md`}
+                  className={`p-2.5 rounded-lg bg-gradient-to-br ${activeConfig.gradient} shadow-md`}
                 >
                   <activeConfig.icon className="h-5 w-5 text-white" />
                 </div>
@@ -358,23 +389,32 @@ export function DepartmentTabs({
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
           </div>
 
-          {/* Content - Grid layout only, consistent across all tabs */}
+          {/* Content - Horizontal Scroll Slider */}
           <div
             role="tabpanel"
             className="min-h-[350px] transition-all duration-300 ease-in-out"
             key={activeTab}
           >
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-fade-in">
-              {selectedProducts.map((product) => (
-                <ProductCard
+            <div
+              ref={scrollRef}
+              className="flex gap-4 overflow-x-auto pb-6 scrollbar-hide scroll-smooth"
+            >
+              {selectedProducts.map((product, index) => (
+                <div
                   key={product.id}
-                  product={product}
-                  layout="vertical"
-                />
+                  className="shrink-0 w-[280px] animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
+                  style={{
+                    animationDelay: `${(index % 8) * 100}ms`,
+                  }}
+                >
+                  <ProductCard product={product} layout="vertical" />
+                </div>
               ))}
-              {/* Render skeleton placeholders to maintain grid shape */}
+              {/* Render skeleton placeholders to maintain layout */}
               {Array.from({ length: skeletonCount }).map((_, index) => (
-                <ProductCardSkeleton key={`skeleton-${index}`} />
+                <div key={`skeleton-${index}`} className="shrink-0 w-[280px]">
+                  <ProductCardSkeleton />
+                </div>
               ))}
             </div>
           </div>

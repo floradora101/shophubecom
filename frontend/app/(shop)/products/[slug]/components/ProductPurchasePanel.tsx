@@ -1,12 +1,13 @@
 // Modern Purchase Panel - Clean 2026 Design
 "use client";
 
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, Truck, RotateCcw, ShieldCheck, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/lib/utils";
 import { VariantSelector } from "./VariantSelector";
 import type { Product, Category } from "@/features/products/types";
+import { useState, useEffect } from "react";
 
 interface ProductPurchasePanelProps {
   product: Product;
@@ -63,10 +64,38 @@ export function ProductPurchasePanel({
   onQuantityChange,
   onAddToCart,
 }: ProductPurchasePanelProps) {
+  const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0 });
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const now = new Date();
+      const endOfDay = new Date();
+      endOfDay.setHours(23, 59, 59, 999);
+
+      const diff = endOfDay.getTime() - now.getTime();
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+
+      setTimeLeft({ hours, minutes });
+    };
+
+    calculateTimeLeft();
+    const timer = setInterval(calculateTimeLeft, 60000);
+    return () => clearInterval(timer);
+  }, []);
+
   const safeQuantity = Math.min(
     quantity,
     effectiveStock > 0 ? effectiveStock : quantity
   );
+
+  const deliveryDate = new Date();
+  deliveryDate.setDate(deliveryDate.getDate() + 2);
+  const formattedDeliveryDate = deliveryDate.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "short",
+    day: "numeric",
+  });
 
   return (
     <div className="mx-auto w-full max-w-[420px] sm:max-w-[520px] space-y-4 sm:space-y-6">
@@ -91,10 +120,34 @@ export function ProductPurchasePanel({
             </>
           )}
         </div>
+
+        {/* Installments Badge */}
+        <div className="flex items-center gap-2 mt-2">
+          <div className="text-[10px] sm:text-xs font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1.5">
+            <span className="font-bold">Klarna.</span>
+            <span>4 interest-free payments of {formatPrice(effectivePrice / 4)}</span>
+          </div>
+        </div>
+
         <p className="text-xs sm:text-sm text-muted-fg leading-relaxed">
           VAT included. Shipping calculated at checkout.
         </p>
       </div>
+
+      {/* Delivery Countdown */}
+      {!isOutOfStock && !isUnavailable && (
+        <div className="bg-primary/5 border border-primary/10 rounded-lg p-3 sm:p-4 space-y-2">
+          <div className="flex items-center gap-2 text-primary-700">
+            <Clock className="h-4 w-4" />
+            <span className="text-xs sm:text-sm font-semibold">
+              Fast Delivery: Order within {timeLeft.hours}h {timeLeft.minutes}m
+            </span>
+          </div>
+          <p className="text-[11px] sm:text-xs text-primary-600/80 pl-6">
+            Receive it by <span className="font-bold">{formattedDeliveryDate}</span>
+          </p>
+        </div>
+      )}
 
       {/* Variant Selector */}
       <VariantSelector
@@ -154,35 +207,65 @@ export function ProductPurchasePanel({
       </div>
 
       {/* Add to Cart Button */}
-      <Button
-        onClick={
-          canAddToCart
-            ? onAddToCart
+      <div className="space-y-4">
+        <Button
+          onClick={
+            canAddToCart
+              ? onAddToCart
+              : optionKeys.length > 0 && !isUserSelectionComplete
+              ? () => onAddToCart()
+              : undefined
+          }
+          disabled={
+            !canAddToCart && !(optionKeys.length > 0 && !isUserSelectionComplete)
+          }
+          variant={
+            canAddToCart
+              ? "destructive"
+              : optionKeys.length > 0 && !isUserSelectionComplete
+              ? "destructive"
+              : "secondary"
+          }
+          className="w-full h-12 sm:h-14 text-base font-bold rounded-lg transition-all duration-300 shadow-lg shadow-primary/10 hover:shadow-primary/20 hover:-translate-y-0.5 active:translate-y-0"
+          size="default"
+        >
+          {isOutOfStock
+            ? "Notify me when available"
+            : isUnavailable
+            ? "Not Available"
             : optionKeys.length > 0 && !isUserSelectionComplete
-            ? () => onAddToCart()
-            : undefined
-        }
-        disabled={
-          !canAddToCart && !(optionKeys.length > 0 && !isUserSelectionComplete)
-        }
-        variant={
-          canAddToCart
-            ? "destructive"
-            : optionKeys.length > 0 && !isUserSelectionComplete
-            ? "destructive"
-            : "secondary"
-        }
-        className="w-auto h-10 sm:h-9 text-sm font-medium rounded-lg transition-all duration-200"
-        size="default"
-      >
-        {isOutOfStock
-          ? "Notify me"
-          : isUnavailable
-          ? "Not Available"
-          : optionKeys.length > 0 && !isUserSelectionComplete
-          ? "Select Options Above"
-          : "Add to Cart"}
-      </Button>
+            ? "Select Options"
+            : "Add to Cart"}
+        </Button>
+
+        {/* Trust Badges */}
+        <div className="grid grid-cols-3 gap-2 pt-2">
+          <div className="flex flex-col items-center text-center gap-1">
+            <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100">
+              <Truck className="h-4 w-4 text-slate-600" />
+            </div>
+            <span className="text-[10px] font-medium text-slate-500 uppercase tracking-tighter">
+              Free Shipping
+            </span>
+          </div>
+          <div className="flex flex-col items-center text-center gap-1">
+            <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100">
+              <RotateCcw className="h-4 w-4 text-slate-600" />
+            </div>
+            <span className="text-[10px] font-medium text-slate-500 uppercase tracking-tighter">
+              30-Day Returns
+            </span>
+          </div>
+          <div className="flex flex-col items-center text-center gap-1">
+            <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100">
+              <ShieldCheck className="h-4 w-4 text-slate-600" />
+            </div>
+            <span className="text-[10px] font-medium text-slate-500 uppercase tracking-tighter">
+              Secure Payment
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

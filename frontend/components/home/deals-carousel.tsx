@@ -47,7 +47,7 @@ export function LatestProductsCarousel({
             badge={{
               icon: Clock,
               text: "Just Arrived",
-              gradient: "from-blue-100 via-primary-100 to-blue-100",
+              gradient: "from-primary-50 via-primary-100 to-primary-50",
             }}
             title={{
               italic: "Latest",
@@ -122,7 +122,7 @@ export function LatestProductsCarouselSkeleton() {
           <div className="flex gap-6 overflow-x-auto pb-6">
             {Array.from({ length: 6 }, (_, i) => (
               <div key={i} className="shrink-0 w-[280px]">
-                <div className="bg-white rounded-2xl shadow-lg border border-warm-gray-200 overflow-hidden">
+                <div className="bg-white rounded-lg shadow-lg border border-warm-gray-200 overflow-hidden">
                   {/* Image */}
                   <SkeletonBlock className="aspect-square" />
 

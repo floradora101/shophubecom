@@ -18,58 +18,61 @@ const OVERLAY_VARIANTS = {
 // Landscape text styling configurations (without alignment)
 const TEXT_VARIANTS = {
   minimal: {
-    container: "",
+    container: "py-4",
     badge:
-      "inline-flex items-center px-3 py-1.5 text-xs font-bold tracking-wide uppercase mb-3 sm:px-4 sm:py-2 sm:text-sm sm:mb-4",
-    subtitle: "text-base font-medium text-white mb-2 sm:text-lg sm:mb-3",
+      "inline-flex items-center px-4 py-1.5 text-[10px] font-black tracking-[0.2em] uppercase mb-4 sm:px-5 sm:py-2 sm:text-xs sm:mb-6 rounded-full bg-white/5 border border-white/10 text-white/90 backdrop-blur-md",
+    subtitle:
+      "text-xs font-bold tracking-[0.3em] uppercase text-white/60 mb-3 sm:text-sm sm:mb-4",
     headline:
-      "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold italic text-white leading-tight mb-3 sm:mb-4",
+      "text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-display font-black tracking-tighter text-white leading-[0.9] mb-4 sm:mb-6",
     highlight:
-      "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-sans font-bold text-white leading-tight",
+      "text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-sans font-light tracking-tighter text-white/90 leading-[0.9]",
     description:
-      "text-sm sm:text-base lg:text-lg xl:text-xl text-white mt-4 sm:mt-6 max-w-xl leading-relaxed",
-    buttons: "mt-6 flex flex-col gap-3 sm:flex-row sm:gap-4 sm:mt-8",
+      "text-sm sm:text-base lg:text-lg text-white/50 mt-6 sm:mt-8 max-w-xl leading-relaxed font-light tracking-wide",
+    buttons: "mt-8 flex flex-col gap-4 sm:flex-row sm:gap-6 sm:mt-12",
   },
   glass: {
     container:
-      "backdrop-blur-sm bg-white/10 rounded-2xl p-4 sm:p-6 md:p-8 border border-white/20",
+      "backdrop-blur-xl bg-black/20 rounded-[2rem] p-6 sm:p-10 md:p-14 border border-white/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)]",
     badge:
-      "inline-flex items-center px-3 py-1.5 text-xs font-bold tracking-wide uppercase mb-3 sm:px-4 sm:py-2 sm:text-sm sm:mb-4",
-    subtitle: "text-base font-medium text-white mb-2 sm:text-lg sm:mb-3",
+      "inline-flex items-center px-4 py-1.5 text-[10px] font-black tracking-[0.2em] uppercase mb-4 sm:px-5 sm:py-2 sm:text-xs sm:mb-6 rounded-full bg-white/10 border border-white/20 text-white backdrop-blur-md",
+    subtitle:
+      "text-xs font-bold tracking-[0.3em] uppercase text-white/70 mb-3 sm:text-sm sm:mb-4",
     headline:
-      "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold italic text-white leading-tight mb-3 sm:mb-4",
+      "text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-black text-white leading-tight mb-4 sm:mb-6 drop-shadow-2xl",
     highlight:
-      "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-sans font-bold text-white leading-tight",
+      "text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-sans font-bold text-white/90 leading-tight drop-shadow-2xl",
     description:
-      "text-sm sm:text-base lg:text-lg xl:text-xl text-white mt-4 sm:mt-6 max-w-xl leading-relaxed",
-    buttons: "mt-6 flex flex-col gap-3 sm:flex-row sm:gap-4 sm:mt-10",
+      "text-sm sm:text-base lg:text-lg text-white/60 mt-6 sm:mt-8 max-w-xl leading-relaxed font-medium",
+    buttons: "mt-8 flex flex-col gap-4 sm:flex-row sm:gap-6 sm:mt-12",
   },
   editorial: {
-    container: "",
+    container: "relative",
     badge:
-      "inline-flex items-center px-3 py-1.5 text-xs font-bold tracking-wide uppercase mb-3 sm:px-4 sm:py-2 sm:text-sm sm:mb-4",
-    subtitle: "text-base font-medium text-white/80 mb-2 sm:text-lg sm:mb-3",
+      "inline-flex items-center px-4 py-1.5 text-[10px] font-black tracking-[0.2em] uppercase mb-4 sm:px-5 sm:py-2 sm:text-xs sm:mb-6 rounded-full bg-primary/20 border border-primary/30 text-primary-300 backdrop-blur-md",
+    subtitle:
+      "text-sm font-semibold italic text-white/80 mb-3 sm:text-lg sm:mb-4 font-serif",
     headline:
-      "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display font-bold italic text-white leading-tight mb-3 sm:mb-4",
+      "text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-display font-black italic text-white leading-[0.85] mb-4 sm:mb-6",
     highlight:
-      "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-sans font-bold text-white/90 leading-tight",
+      "text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-sans font-light text-white/70 leading-[0.85]",
     description:
-      "text-base sm:text-lg md:text-xl text-white/70 mt-4 sm:mt-6 max-w-xl leading-relaxed",
-    buttons: "mt-6 flex flex-col gap-3 sm:flex-row sm:gap-6 sm:mt-10",
+      "text-base sm:text-lg md:text-xl text-white/50 mt-6 sm:mt-8 max-w-2xl leading-relaxed font-serif italic",
+    buttons: "mt-8 flex flex-col gap-4 sm:flex-row sm:gap-6 sm:mt-12",
   },
   neon: {
-    container: "",
+    container: "py-4",
     badge:
-      "inline-flex items-center px-3 py-1.5 text-xs font-bold tracking-wide border-2 uppercase mb-3 sm:px-4 sm:py-2 sm:text-sm sm:mb-4",
+      "inline-flex items-center px-4 py-1.5 text-[10px] font-black tracking-[0.2em] border border-cyan-500/50 uppercase mb-4 sm:px-5 sm:py-2 sm:text-xs sm:mb-6 rounded-full bg-cyan-500/10 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)]",
     subtitle:
-      "text-base font-semibold text-cyan-300 mb-2 drop-shadow-lg sm:text-lg sm:mb-3",
+      "text-xs font-bold tracking-[0.4em] text-cyan-400 mb-3 drop-shadow-[0_0_8px_rgba(6,182,212,0.5)] sm:text-sm sm:mb-4 uppercase",
     headline:
-      "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-display italic font-bold text-white leading-tight mb-3 drop-shadow-xl sm:mb-4",
+      "text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-display italic font-black text-white leading-[0.9] mb-4 drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] sm:mb-6",
     highlight:
-      "text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-sans font-bold text-cyan-300 leading-tight drop-shadow-xl",
+      "text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-sans font-black text-cyan-400 leading-[0.9] drop-shadow-[0_0_30px_rgba(6,182,212,0.6)]",
     description:
-      "text-base sm:text-lg md:text-xl text-white mt-4 max-w-xl leading-relaxed drop-shadow-md sm:mt-6",
-    buttons: "mt-6 flex flex-col gap-3 sm:flex-row sm:gap-4 sm:mt-10",
+      "text-base sm:text-lg md:text-xl text-white/70 mt-6 max-w-xl leading-relaxed font-medium sm:mt-8",
+    buttons: "mt-8 flex flex-col gap-4 sm:flex-row sm:gap-6 sm:mt-12",
   },
 } as const;
 

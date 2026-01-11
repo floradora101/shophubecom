@@ -1,67 +1,127 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Text } from "@/components/ui/typography";
 import {
   LayoutDashboard,
-  FolderOpen,
   Package,
-  Image,
-  ShoppingCart,
-  Tag,
-  Gift,
-  Users,
-  FileText,
+  Layers,
+  Image as   ImageIcon,
+  LogOut,
+  ChevronRight,
+  Ticket
 } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
+import { Heading, Text } from "@/components/ui/typography";
+import { useSidebarStore } from "@/store/sidebar-store";
 
-const navigation = [
-  { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { name: "Categories", href: "/admin/categories", icon: FolderOpen },
-  { name: "Products", href: "/admin/products", icon: Package },
-  { name: "Hero Slides", href: "/admin/hero-slides", icon: Image },
-  { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
-  { name: "Promotions", href: "/admin/promotions", icon: Tag },
-  { name: "Coupons", href: "/admin/coupons", icon: Gift },
-  { name: "Users", href: "/admin/users", icon: Users },
-  { name: "Audit Logs", href: "/admin/audit-logs", icon: FileText },
+const menuItems = [
+  {
+    title: "Dashboard",
+    icon: LayoutDashboard,
+    href: "/admin",
+  },
+  {
+    title: "Categories",
+    icon: Layers,
+    href: "/admin/categories",
+  },
+  {
+    title: "Products",
+    icon: Package,
+    href: "/admin/products",
+  },
+  {
+    title: "Hero Slides",
+    icon: ImageIcon,
+    href: "/admin/hero-slides",
+  },
+  {
+    title: "Coupons",
+    icon: Ticket,
+    href: "/admin/coupons",
+  },
 ];
 
-export function AdminSidebar() {
+export function AdminSidebar({ isMobile = false }: { isMobile?: boolean }) {
   const pathname = usePathname();
+  const { closeMobile } = useSidebarStore();
 
-  return (
-    <div className="flex flex-col h-full">
-      {/* Logo/Brand */}
-      <div className="flex items-center h-16 px-6 border-b border-warm-gray-200">
-        <Text variant="body" weight="semibold" className="text-warm-gray-900">
-          ShopHub Admin
-        </Text>
+  const sidebarContent = (
+    <div className={cn(
+      "flex flex-col h-full bg-white",
+      !isMobile && "w-64 border-r border-warm-gray-200"
+    )}>
+      <div className="p-6 border-b border-warm-gray-100">
+        <Link href="/" className="flex items-center gap-2" onClick={closeMobile}>
+          <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-xl">S</span>
+          </div>
+          <Heading level="h4" className="text-warm-gray-900 tracking-tight">
+            ShopHub Admin
+          </Heading>
+        </Link>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 px-4 py-6 space-y-1">
-        {navigation.map((item) => {
-          const isActive = pathname === item.href;
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+        <div className="px-2 py-2">
+          <Text className="text-[10px] font-bold text-warm-gray-400 uppercase tracking-widest">
+            Management
+          </Text>
+        </div>
+        {menuItems.map((item) => {
+          // Dashboard is active only on exact match /admin
+          // Other items are active on prefix match /admin/categories...
+          const isActive = item.href === "/admin"
+            ? pathname === "/admin"
+            : pathname?.startsWith(item.href);
+
           return (
-            <Link key={item.name} href={item.href}>
-              <Button
-                variant={isActive ? "secondary" : "ghost"}
-                className={cn(
-                  "w-full justify-start gap-3 h-10",
-                  isActive &&
-                    "bg-primary-50 text-primary-700 hover:bg-primary-100"
-                )}
-              >
-                <item.icon className="h-4 w-4" />
-                <span className="font-medium">{item.name}</span>
-              </Button>
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={closeMobile}
+              className={cn(
+                "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group",
+                isActive
+                  ? "bg-primary-50 text-primary-700 shadow-sm"
+                  : "text-warm-gray-600 hover:bg-warm-gray-50 hover:text-warm-gray-900"
+              )}
+            >
+              <item.icon className={cn(
+                "w-5 h-5",
+                isActive ? "text-primary-600" : "text-warm-gray-400 group-hover:text-warm-gray-600"
+              )} />
+              <span className="font-medium text-sm">{item.title}</span>
+              {isActive && (
+                <ChevronRight className="w-4 h-4 ml-auto text-primary-400" />
+              )}
             </Link>
           );
         })}
       </nav>
+
+      <div className="p-4 border-t border-warm-gray-100 mt-auto">
+        <button
+          className="flex items-center gap-3 w-full px-3 py-2.5 text-warm-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 group"
+          onClick={() => {
+            console.log("Logging out...");
+            closeMobile();
+          }}
+        >
+          <LogOut className="w-5 h-5 text-warm-gray-400 group-hover:text-red-500" />
+          <span className="font-medium text-sm">Logout</span>
+        </button>
+      </div>
     </div>
+  );
+
+  if (isMobile) return sidebarContent;
+
+  return (
+    <aside className="hidden lg:flex flex-col h-screen sticky top-0 shrink-0">
+      {sidebarContent}
+    </aside>
   );
 }

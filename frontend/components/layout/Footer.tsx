@@ -270,6 +270,12 @@ export function Footer() {
               >
                 All Products
               </Link>
+              <Link
+                href="/categories"
+                className="flex items-center text-sm text-warm-gray-600 hover:text-primary-600 transition-colors focus:outline-none rounded-xl px-1 py-1 -my-1"
+              >
+                View All Categories
+              </Link>
               {mainCategories.map((category) => (
                 <Link
                   key={category.id}
@@ -418,6 +424,14 @@ export function Footer() {
                       className="flex items-center text-sm text-warm-gray-600 hover:text-primary-600 transition-colors focus:outline-none rounded-xl px-1 py-1 -my-1"
                     >
                       All Products
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/categories"
+                      className="flex items-center text-sm text-warm-gray-600 hover:text-primary-600 transition-colors focus:outline-none rounded-xl px-1 py-1 -my-1"
+                    >
+                      View All Categories
                     </Link>
                   </li>
                   {mainCategories.map((category) => (

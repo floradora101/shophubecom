@@ -104,7 +104,7 @@ export function HomePageContent({ data }: HomePageContentProps) {
         <HeroShell slides={data.heroSlides} productsBySlug={productsBySlug} />
 
         {/* Department Tabs - Lazy loaded when in viewport */}
-        <LazySection>
+        <LazySection fallback={<DepartmentTabsSkeleton />}>
           <DepartmentTabs
             categories={data.categories}
             productsByCategory={productsByCategory}
@@ -112,12 +112,12 @@ export function HomePageContent({ data }: HomePageContentProps) {
         </LazySection>
 
         {/* Service Showcase - Lazy loaded when in viewport */}
-        <LazySection>
+        <LazySection fallback={<ServiceShowcaseSkeleton />}>
           <ServiceShowcase />
         </LazySection>
 
         {/* Product Reveal - Lazy loaded when in viewport */}
-        <LazySection>
+        <LazySection fallback={<ProductRevealSectionSkeleton />}>
           <ProductRevealSection
             products={data.trendingProducts}
             categories={data.categories}
@@ -125,7 +125,7 @@ export function HomePageContent({ data }: HomePageContentProps) {
         </LazySection>
 
         {/* Trending Now - Lazy loaded when in viewport */}
-        <LazySection>
+        <LazySection fallback={<TrendingNowSkeleton />}>
           <TrendingNow
             trendingProducts={data.trendingProducts}
             categories={data.categories || []}
@@ -133,26 +133,27 @@ export function HomePageContent({ data }: HomePageContentProps) {
         </LazySection>
 
         {/* Category Spotlight - Lazy loaded when in viewport */}
-        <LazySection>
+        <LazySection fallback={<CategorySpotlightSkeleton />}>
           <CategorySpotlight
             spotlightCategory={{
               slug: "gaming-laptops",
               name: "Gaming Laptops",
-              description: "High-performance laptops built for gaming excellence",
+              description:
+                "High-performance laptops built for gaming excellence",
               products: productsByCategory["gaming-laptops"] || [],
-              accentColor: "#8b5cf6",
+              accentColor: "var(--primary-600)",
             }}
             categories={data.categories}
           />
         </LazySection>
 
         {/* Latest Products - Lazy loaded when in viewport */}
-        <LazySection>
+        <LazySection fallback={<LatestProductsCarouselSkeleton />}>
           <LatestProductsCarousel products={data.latestProducts} />
         </LazySection>
 
         {/* Brand Story - Lazy loaded when in viewport */}
-        <LazySection>
+        <LazySection fallback={<BrandStorySkeleton />}>
           <BrandStory />
         </LazySection>
       </main>

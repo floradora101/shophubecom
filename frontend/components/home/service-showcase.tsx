@@ -50,10 +50,10 @@ const services = [
       "Secure Payment",
     ],
     icon: CreditCard,
-    gradient: "from-emerald-500 via-emerald-600 to-emerald-700",
-    iconBg: "bg-gradient-to-br from-emerald-500/20 to-emerald-600/10",
-    accentColor: "text-emerald-400",
-    glowColor: "shadow-emerald-500/25",
+    gradient: "from-primary-600 via-primary-700 to-primary-800",
+    iconBg: "bg-gradient-to-br from-primary-600/20 to-primary-700/10",
+    accentColor: "text-primary-400",
+    glowColor: "shadow-primary-600/25",
     techElements: ["Digital Tokens", "Blockchain", "Instant Transfer"],
     stats: { rating: 4.8, completed: "25K+", turnaround: "<5min" },
   },
@@ -68,10 +68,10 @@ const services = [
       "Performance Boost",
     ],
     icon: Headphones,
-    gradient: "from-violet-500 via-violet-600 to-violet-700",
-    iconBg: "bg-gradient-to-br from-violet-500/20 to-violet-600/10",
-    accentColor: "text-violet-400",
-    glowColor: "shadow-violet-500/25",
+    gradient: "from-primary-500 via-primary-600 to-primary-700",
+    iconBg: "bg-gradient-to-br from-primary-500/20 to-primary-600/10",
+    accentColor: "text-primary-400",
+    glowColor: "shadow-primary-500/25",
     techElements: ["Sonic Waves", "Nano Cleaning", "AI Diagnostics"],
     stats: { rating: 4.9, completed: "8K+", turnaround: "<1h" },
   },
@@ -86,10 +86,10 @@ const services = [
       "Lifetime Warranty",
     ],
     icon: PenTool,
-    gradient: "from-orange-500 via-orange-600 to-orange-700",
-    iconBg: "bg-gradient-to-br from-orange-500/20 to-orange-600/10",
-    accentColor: "text-orange-400",
-    glowColor: "shadow-orange-500/25",
+    gradient: "from-primary-600 via-primary-700 to-primary-800",
+    iconBg: "bg-gradient-to-br from-primary-600/20 to-primary-700/10",
+    accentColor: "text-primary-400",
+    glowColor: "shadow-primary-600/25",
     techElements: ["Laser Tech", "3D Mapping", "Precision CNC"],
     stats: { rating: 5.0, completed: "12K+", turnaround: "<2h" },
   },
@@ -107,7 +107,7 @@ function ServiceCard({
 
   return (
     <div
-      className="group relative bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl rounded-3xl p-4 sm:p-6 lg:p-8 border border-gray-700/50 hover:border-gray-600/70 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-gray-900/50 overflow-hidden"
+      className="group relative bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl rounded-lg p-4 sm:p-6 lg:p-8 border border-gray-700/50 hover:border-gray-600/70 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-gray-900/50 overflow-hidden"
       style={{
         animationDelay: `${index * 150}ms`,
       }}
@@ -121,7 +121,7 @@ function ServiceCard({
 
       {/* Hover Glow Effect */}
       <div
-        className={`absolute inset-0 bg-gradient-to-br ${service.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500 rounded-3xl blur-xl`}
+        className={`absolute inset-0 bg-gradient-to-br ${service.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500 rounded-lg blur-xl`}
       />
 
       {/* Tech Icon Section */}
@@ -129,15 +129,15 @@ function ServiceCard({
         <div className="relative">
           {/* Multi-layer Glow Effects */}
           <div
-            className={`absolute inset-0 ${service.iconBg} rounded-2xl blur-2xl opacity-0 group-hover:opacity-80 transition-opacity duration-500 scale-125`}
+            className={`absolute inset-0 ${service.iconBg} rounded-lg blur-2xl opacity-0 group-hover:opacity-80 transition-opacity duration-500 scale-125`}
           />
           <div
-            className={`absolute inset-0 ${service.iconBg} rounded-2xl blur-xl opacity-0 group-hover:opacity-60 transition-opacity duration-500 scale-110`}
+            className={`absolute inset-0 ${service.iconBg} rounded-lg blur-xl opacity-0 group-hover:opacity-60 transition-opacity duration-500 scale-110`}
           />
 
           {/* Main Icon Container */}
           <div
-            className={`relative p-3 sm:p-4 lg:p-6 ${service.iconBg} rounded-2xl border border-gray-600/30 group-hover:border-gray-500/50 group-hover:scale-110 transition-all duration-500 ${service.glowColor} group-hover:shadow-2xl`}
+            className={`relative p-3 sm:p-4 lg:p-6 ${service.iconBg} rounded-lg border border-gray-600/30 group-hover:border-gray-500/50 group-hover:scale-110 transition-all duration-500 ${service.glowColor} group-hover:shadow-2xl`}
           >
             <Icon
               className={`h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 ${service.accentColor} drop-shadow-lg`}
@@ -145,11 +145,11 @@ function ServiceCard({
 
             {/* Animated Dots */}
             <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-blue-400 rounded-full animate-ping opacity-0 group-hover:opacity-100 transition-opacity delay-100" />
+            <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-primary-400 rounded-full animate-ping opacity-0 group-hover:opacity-100 transition-opacity delay-100" />
           </div>
 
           {/* Scanning Line Effect */}
-          <div className="absolute inset-0 rounded-2xl overflow-hidden">
+          <div className="absolute inset-0 rounded-lg overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-primary-400 to-transparent animate-pulse opacity-0 group-hover:opacity-80" />
           </div>
         </div>
@@ -178,7 +178,7 @@ function ServiceCard({
         {/* Stats Row */}
         <div className="flex justify-center gap-2 sm:gap-4 text-xs">
           <div className="flex items-center gap-1 text-gray-400">
-            <Clock className="h-3 w-3 text-blue-400" />
+            <Clock className="h-3 w-3 text-primary-400" />
             <span>{service.stats.turnaround}</span>
           </div>
         </div>
@@ -240,18 +240,18 @@ export function ServiceShowcase() {
       {/* Advanced Tech Background */}
       <div className="absolute inset-0 opacity-20">
         {/* Grid Pattern */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(59,130,246,0.1),transparent_50%),radial-gradient(circle_at_75%_75%,rgba(139,92,246,0.1),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(59,130,246,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(59,130,246,0.05)_1px,transparent_1px)] bg-[size:40px_40px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(250,6,3,0.1),transparent_50%),radial-gradient(circle_at_75%_75%,rgba(250,6,3,0.1),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(250,6,3,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(250,6,3,0.05)_1px,transparent_1px)] bg-[size:40px_40px]" />
 
         {/* Floating Tech Elements */}
         <div className="absolute top-20 left-20 w-32 h-32 border border-primary-400/20 rounded-lg rotate-12 animate-pulse" />
-        <div className="absolute top-40 right-32 w-24 h-24 border border-emerald-400/20 rounded-full animate-pulse delay-1000" />
-        <div className="absolute bottom-32 left-1/3 w-20 h-20 border border-violet-400/20 rounded-lg rotate-45 animate-pulse delay-500" />
-        <div className="absolute top-1/2 right-20 w-16 h-16 border border-orange-400/20 rounded-full animate-pulse delay-1500" />
+        <div className="absolute top-40 right-32 w-24 h-24 border border-primary-500/20 rounded-full animate-pulse delay-1000" />
+        <div className="absolute bottom-32 left-1/3 w-20 h-20 border border-primary-600/20 rounded-lg rotate-45 animate-pulse delay-500" />
+        <div className="absolute top-1/2 right-20 w-16 h-16 border border-primary-700/20 rounded-full animate-pulse delay-1500" />
 
         {/* Data Flow Lines */}
         <div className="absolute top-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary-400/30 to-transparent animate-pulse" />
-        <div className="absolute bottom-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-emerald-400/30 to-transparent animate-pulse delay-2000" />
+        <div className="absolute bottom-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary-500/30 to-transparent animate-pulse delay-2000" />
       </div>
 
       <Container className="relative z-10">
@@ -259,7 +259,7 @@ export function ServiceShowcase() {
           {/* Cyberpunk Header */}
           <div className="text-center space-y-4 sm:space-y-6">
             {/* Animated Badge */}
-            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-primary-500/20 via-emerald-500/15 to-violet-500/20 backdrop-blur-md border border-primary-400/30 shadow-xl shadow-primary-500/20">
+            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-primary-500/20 via-primary-600/15 to-primary-700/20 backdrop-blur-md border border-primary-400/30 shadow-xl shadow-primary-500/20">
               <div className="relative">
                 <Zap className="h-6 w-6 text-primary-400 animate-pulse" />
                 <div className="absolute inset-0 bg-primary-400/50 rounded-full blur-sm animate-ping" />
@@ -269,8 +269,8 @@ export function ServiceShowcase() {
               </span>
               <div className="flex gap-1">
                 <div className="w-1 h-1 bg-primary-400 rounded-full animate-pulse" />
-                <div className="w-1 h-1 bg-emerald-400 rounded-full animate-pulse delay-100" />
-                <div className="w-1 h-1 bg-violet-400 rounded-full animate-pulse delay-200" />
+                <div className="w-1 h-1 bg-primary-500 rounded-full animate-pulse delay-100" />
+                <div className="w-1 h-1 bg-primary-600 rounded-full animate-pulse delay-200" />
               </div>
             </div>
 
@@ -282,8 +282,8 @@ export function ServiceShowcase() {
                 className="text-white"
               />
               {/* Animated Circuit Border */}
-              <div className="absolute -inset-8 border border-primary-400/20 rounded-2xl animate-pulse" />
-              <div className="absolute -inset-4 border border-emerald-400/15 rounded-xl animate-pulse delay-500" />
+              <div className="absolute -inset-8 border border-primary-400/20 rounded-lg animate-pulse" />
+              <div className="absolute -inset-4 border border-primary-500/15 rounded-lg animate-pulse delay-500" />
             </div>
 
             {/* Enhanced Description */}
@@ -301,7 +301,7 @@ export function ServiceShowcase() {
                   <span className="text-gray-300">Certified Technicians</span>
                 </div>
                 <div className="flex items-center gap-1.5 sm:gap-2 bg-gray-800/50 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-full border border-gray-600/30 backdrop-blur-sm">
-                  <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-blue-400" />
+                  <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-primary-400" />
                   <span className="text-gray-300">90-Day Warranty</span>
                 </div>
                 <div className="flex items-center gap-1.5 sm:gap-2 bg-gray-800/50 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-full border border-gray-600/30 backdrop-blur-sm">
@@ -309,7 +309,7 @@ export function ServiceShowcase() {
                   <span className="text-gray-300">Same-Day Service</span>
                 </div>
                 <div className="flex items-center gap-1.5 sm:gap-2 bg-gray-800/50 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-full border border-gray-600/30 backdrop-blur-sm">
-                  <Star className="h-3 w-3 sm:h-4 sm:w-4 text-orange-400" />
+                  <Star className="h-3 w-3 sm:h-4 sm:w-4 text-primary-600" />
                   <span className="text-gray-300">AI Diagnostics</span>
                 </div>
               </div>
@@ -338,17 +338,17 @@ export function ServiceShowcase() {
             <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gray-800/50 to-gray-700/50 backdrop-blur-md rounded-full border border-gray-600/30">
               <div className="flex gap-1.5">
                 <div className="w-1.5 h-1.5 bg-primary-400 rounded-full animate-pulse" />
-                <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse delay-200" />
-                <div className="w-1.5 h-1.5 bg-violet-400 rounded-full animate-pulse delay-400" />
-                <div className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-pulse delay-600" />
+                <div className="w-1.5 h-1.5 bg-primary-500 rounded-full animate-pulse delay-200" />
+                <div className="w-1.5 h-1.5 bg-primary-600 rounded-full animate-pulse delay-400" />
+                <div className="w-1.5 h-1.5 bg-primary-700 rounded-full animate-pulse delay-600" />
               </div>
               <span className="text-gray-400 text-xs font-medium">
                 Premium Quality Assured
               </span>
               <div className="flex gap-1.5">
-                <div className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-pulse delay-600" />
-                <div className="w-1.5 h-1.5 bg-violet-400 rounded-full animate-pulse delay-400" />
-                <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse delay-200" />
+                <div className="w-1.5 h-1.5 bg-primary-700 rounded-full animate-pulse delay-600" />
+                <div className="w-1.5 h-1.5 bg-primary-600 rounded-full animate-pulse delay-400" />
+                <div className="w-1.5 h-1.5 bg-primary-500 rounded-full animate-pulse delay-200" />
                 <div className="w-1.5 h-1.5 bg-primary-400 rounded-full animate-pulse" />
               </div>
             </div>
@@ -390,7 +390,7 @@ export function ServiceShowcaseSkeleton() {
             {Array.from({ length: 4 }, (_, i) => (
               <div
                 key={i}
-                className="bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl rounded-3xl p-8 border border-gray-700/50 min-h-[420px] flex flex-col relative overflow-hidden"
+                className="bg-gradient-to-br from-gray-900/95 to-gray-800/95 backdrop-blur-xl rounded-lg p-8 border border-gray-700/50 min-h-[420px] flex flex-col relative overflow-hidden"
               >
                 {/* Tech pattern skeleton */}
                 <div className="absolute inset-0 opacity-10">
@@ -400,7 +400,7 @@ export function ServiceShowcaseSkeleton() {
 
                 {/* Icon placeholder */}
                 <div className="flex justify-center mb-6 relative z-10">
-                  <SkeletonBlock className="w-24 h-24 rounded-2xl" />
+                  <SkeletonBlock className="w-24 h-24 rounded-lg" />
                 </div>
 
                 {/* Content skeleton */}

@@ -95,9 +95,9 @@ export function HeroMediaFrame({
     <div className="relative h-full w-full">
       <div className="h-full w-full">
         <div
-          className="relative w-full h-full min-h-0 rounded-3xl overflow-hidden border ring-1 shadow-xl"
+          className="relative w-full h-full min-h-0 rounded-lg overflow-hidden border ring-1 shadow-xl"
           style={{
-            borderColor: "var(--hero-border)",
+            borderColor: "rgba(250, 6, 3, 0.18)",
             boxShadow:
               "0 20px 25px -5px rgb(0 0 0 / 0.08), 0 10px 10px -5px rgb(0 0 0 / 0.04)",
           }}
@@ -116,7 +116,7 @@ export function HeroMediaFrame({
             className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-60"
             style={{
               background:
-                "radial-gradient(circle, var(--hero-accent) 0%, transparent 70%)",
+                "radial-gradient(circle, #fa0603 0%, transparent 70%)",
               transform: "translate(50%, -50%)",
             }}
           />

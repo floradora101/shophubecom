@@ -143,7 +143,7 @@ export function ProfileAddresses() {
           {addresses.map((address: Address) => (
             <div
               key={address.id}
-              className={`group relative rounded-xl border-2 transition-all duration-200 hover:shadow-lg ${
+              className={`group relative rounded-lg border-2 transition-all duration-200 hover:shadow-lg ${
                 address.isDefault
                   ? "border-primary-500 bg-linear-to-br from-primary-50 to-white shadow-md"
                   : "border-gray-200 bg-white hover:border-gray-300"

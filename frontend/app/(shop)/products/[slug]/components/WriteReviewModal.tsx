@@ -263,7 +263,7 @@ export function WriteReviewModal({
                   </label>
 
                   <div className="flex justify-center">
-                    <div className="bg-warm-gray-50/50 rounded-2xl p-8 border border-warm-gray-200">
+                    <div className="bg-warm-gray-50/50 rounded-lg p-8 border border-warm-gray-200">
                       <InteractiveStarRating
                         value={rating}
                         onChange={setRating}

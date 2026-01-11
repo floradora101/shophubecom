@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import type { ComponentType } from "react";
+"use client";
+
+import React, { useEffect, useRef, useState } from "react";
 
 /**
  * LazySection - Component that lazy loads content when it enters the viewport
@@ -12,7 +13,7 @@ interface LazySectionProps {
   rootMargin?: string;
   threshold?: number;
   className?: string;
-  as?: keyof JSX.IntrinsicElements;
+  as?: React.ElementType;
 }
 
 export function LazySection({
@@ -61,8 +62,8 @@ export function LazySection({
  * createLazySection - Higher-order component for wrapping sections with lazy loading
  */
 export function createLazySection<T extends object>(
-  Component: ComponentType<T>,
-  LoadingComponent?: ComponentType<any>
+  Component: React.ComponentType<T>,
+  LoadingComponent?: React.ComponentType
 ) {
   return function LazyWrappedComponent(props: T) {
     return (

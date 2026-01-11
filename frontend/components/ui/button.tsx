@@ -14,8 +14,8 @@ const buttonVariants = cva(
           "bg-primary-600 text-white hover:bg-primary-500 active:bg-primary-500",
         secondary: "bg-surface-muted text-fg hover:bg-surface",
         outline:
-          "bg-surface border-2 border-border text-fg hover:bg-primary-500 hover:border-primary-500 hover:text-white shadow-sm hover:shadow-md",
-        ghost: "hover:bg-surface-muted",
+          "bg-white border border-warm-gray-200 text-warm-gray-700 hover:bg-warm-gray-50 hover:border-warm-gray-300 hover:text-warm-gray-900 shadow-sm transition-all duration-200",
+        ghost: "text-warm-gray-600 hover:bg-warm-gray-100 hover:text-warm-gray-900 transition-colors",
         destructive: "bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-700",
       },
       size: {

@@ -48,7 +48,7 @@ export function Tabs({
 
   const tabButtonClasses = cn(
     "relative font-medium transition-all duration-300 ease-out rounded-lg",
-    "focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:ring-offset-2",
+    "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2",
     "disabled:opacity-50 disabled:cursor-not-allowed",
     sizeClasses[size]
   );

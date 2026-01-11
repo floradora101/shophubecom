@@ -5,8 +5,7 @@ import { Star, Quote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { ThemedBadge } from "../../shared/themed-badge";
-import { ThemedSecondaryButton } from "../../shared/themed-secondary-button";
+import { Badge } from "@/components/ui/badge";
 import { HeroMediaFrame } from "../shared/hero-media-frame";
 import { SlideLayout, contentClamp } from "../shared/slide-layout";
 import { HeroItem } from "../shared/hero-item";
@@ -46,7 +45,7 @@ function StarRating({ rating }: { rating: number }) {
           key={i}
           className={`w-3 h-3 ${i < rating ? "fill-current" : ""}`}
           style={{
-            color: i < rating ? "var(--hero-accent)" : "var(--hero-muted)",
+            color: i < rating ? "#fa0603" : "#7a6b67",
           }}
         />
       ))}
@@ -59,17 +58,17 @@ function QuoteCard({ slide }: { slide: HeroSlide & { type: "TESTIMONIAL" } }) {
   const initials = getInitials(slide.authorName);
 
   return (
-    <div className="bg-surface border border-border rounded-2xl p-3 sm:p-4 md:p-6 relative max-w-full overflow-hidden">
+    <div className="bg-surface border border-border rounded-lg p-3 sm:p-4 md:p-6 relative max-w-full overflow-hidden">
       {/* Quote Mark */}
       <Quote
         className="absolute top-2 left-2 sm:top-3 sm:left-3 md:top-4 md:left-4 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 opacity-30"
-        style={{ color: "var(--hero-accent)" }}
+        style={{ color: "#fa0603" }}
       />
 
       {/* Quote */}
       <blockquote
         className="text-xs sm:text-sm md:text-base lg:text-lg font-medium leading-relaxed mb-4 pl-6 sm:pl-0"
-        style={{ color: "var(--hero-text)" }}
+        style={{ color: "#171717" }}
       >
         &ldquo;{sanitizedQuote}&rdquo;
       </blockquote>
@@ -80,7 +79,7 @@ function QuoteCard({ slide }: { slide: HeroSlide & { type: "TESTIMONIAL" } }) {
         <div
           className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
           style={{
-            backgroundColor: "var(--hero-accent-weak)",
+            backgroundColor: "rgba(250, 6, 3, 0.12)",
             color: "var(--hero-accent)",
           }}
         >
@@ -90,7 +89,7 @@ function QuoteCard({ slide }: { slide: HeroSlide & { type: "TESTIMONIAL" } }) {
         <div className="min-w-0 flex-1">
           <div
             className="text-xs sm:text-sm md:text-base font-semibold truncate"
-            style={{ color: "var(--hero-text)" }}
+            style={{ color: "#171717" }}
           >
             {slide.authorName}
           </div>
@@ -108,13 +107,13 @@ function QuoteCard({ slide }: { slide: HeroSlide & { type: "TESTIMONIAL" } }) {
             >
               <div
                 className="text-xs font-bold leading-tight"
-                style={{ color: "var(--hero-accent)" }}
+                style={{ color: "#fa0603" }}
               >
                 {stat.value}
               </div>
               <div
                 className="text-xs font-medium leading-tight"
-                style={{ color: "var(--hero-muted)" }}
+                style={{ color: "#7a6b67" }}
               >
                 {stat.label}
               </div>
@@ -143,9 +142,10 @@ export const TestimonialSlideBody = memo(function TestimonialSlideBody({
           {/* Row 1: Themed Badge */}
           <HeroItem run={run} animationKey={animationKey}>
             <div className="hero-item-enter hero-badge">
-              <ThemedBadge icon={Star}>
+              <Badge variant="primary" className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-2 sm:px-3 py-1 sm:py-1.5 mt-4 sm:mt-6 w-fit text-xs sm:text-sm font-semibold text-white border border-white/22 bg-linear-to-r from-red-600 via-red-700 to-red-800">
+                <Star className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                 {slide.badgeText || "Customer Stories"}
-              </ThemedBadge>
+              </Badge>
             </div>
           </HeroItem>
 
@@ -154,14 +154,14 @@ export const TestimonialSlideBody = memo(function TestimonialSlideBody({
             <div className={`space-y-3 hero-item-enter hero-headline`}>
               <h1
                 className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-display font-bold italic leading-tight underline decoration-2 underline-offset-4`}
-                style={{ color: "var(--hero-text)" }}
+                style={{ color: "#171717" }}
               >
                 {slide.headline}
               </h1>
               {slide.highlight && (
                 <h2
                   className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-sans font-bold overline decoration-1"
-                  style={{ color: "var(--hero-accent)" }}
+                  style={{ color: "#fa0603" }}
                 >
                   {slide.highlight}
                 </h2>
@@ -202,13 +202,13 @@ export const TestimonialSlideBody = memo(function TestimonialSlideBody({
                 </Button>
               </Link>
               {slide.ctaSecondary && (
-                <ThemedSecondaryButton
-                  label={slide.ctaSecondary.label}
-                  href={slide.ctaSecondary.href}
-                  className="px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 md:py-2 min-h-8 sm:min-h-9 md:min-h-10 text-xs sm:text-sm md:text-sm"
-                  onMouseEnter={onMouseEnter}
-                  onMouseLeave={onMouseLeave}
-                />
+                <Link href={slide.ctaSecondary.href} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+                  <button
+                    className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-1.5 sm:py-2 font-semibold rounded-lg shadow-sm hover:shadow-md transition-all duration-200 w-auto min-h-8 sm:min-h-10 text-xs sm:text-sm text-white border border-white/22 bg-linear-to-r from-red-600 via-red-700 to-red-800"
+                  >
+                    <span className="flex items-center gap-1.5 sm:gap-2">{slide.ctaSecondary.label}</span>
+                  </button>
+                </Link>
               )}
             </div>
           </HeroItem>

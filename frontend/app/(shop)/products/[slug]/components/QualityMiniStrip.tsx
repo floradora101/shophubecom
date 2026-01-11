@@ -43,7 +43,7 @@ export function QualityMiniStrip() {
     {
       icon: <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />,
       label: "Authentic products",
-      subtext: "Curated selection",
+      subtext: "Certified Tech",
     },
   ];
 

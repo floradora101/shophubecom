@@ -53,7 +53,7 @@ export const HeroTrustRow = memo(function HeroTrustRow({
           ) : item.useDot ? (
             <div
               className={`w-2 h-2 ${
-                variant === "overlay" ? "bg-white" : "bg-[var(--hero-accent)]"
+                variant === "overlay" ? "bg-white" : "bg-[#fa0603]"
               } rounded-full`}
             />
           ) : null}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import Image from "next/image";
 import { Upload, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -19,21 +19,42 @@ export function ImageUpload({
   className,
 }: ImageUploadProps) {
   const [dragActive, setDragActive] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const remainingSlots = useMemo(
+    () => Math.max(0, maxFiles - value.length),
+    [maxFiles, value.length]
+  );
+
+  const convertToDataUrl = useCallback((file: File) => {
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
+  }, []);
 
   const handleFiles = useCallback(
-    (files: FileList) => {
-      const newFiles = Array.from(files);
-      const imageFiles = newFiles.filter((file) =>
-        file.type.startsWith("image/")
-      );
+    async (files: FileList) => {
+      if (isProcessing || remainingSlots === 0) return;
 
-      // Create object URLs for preview
-      const newUrls = imageFiles.map((file) => URL.createObjectURL(file));
-      const updatedUrls = [...value, ...newUrls];
+      setIsProcessing(true);
+      try {
+        const imageFiles = Array.from(files)
+          .filter((file) => file.type.startsWith("image/"))
+          .slice(0, remainingSlots);
 
-      onChange?.(updatedUrls);
+        const dataUrls = await Promise.all(
+          imageFiles.map((file) => convertToDataUrl(file))
+        );
+
+        onChange?.([...value, ...dataUrls]);
+      } finally {
+        setIsProcessing(false);
+      }
     },
-    [value, onChange]
+    [convertToDataUrl, isProcessing, onChange, remainingSlots, value]
   );
 
   const handleDrop = useCallback(
@@ -43,7 +64,7 @@ export function ImageUpload({
       setDragActive(false);
 
       if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-        handleFiles(e.dataTransfer.files);
+        void handleFiles(e.dataTransfer.files);
       }
     },
     [handleFiles]
@@ -71,7 +92,7 @@ export function ImageUpload({
     (e: React.ChangeEvent<HTMLInputElement>) => {
       e.preventDefault();
       if (e.target.files && e.target.files[0]) {
-        handleFiles(e.target.files);
+        void handleFiles(e.target.files);
       }
     },
     [handleFiles]
@@ -107,6 +128,7 @@ export function ImageUpload({
           tabIndex={0}
           aria-label="Upload images - drag and drop or click to select files"
           aria-describedby="upload-instructions"
+          aria-busy={isProcessing}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();
@@ -131,7 +153,9 @@ export function ImageUpload({
               aria-hidden="true"
             />
             <p className="text-sm text-gray-600 mb-2" id="upload-instructions">
-              Drag and drop images here, or click to select files
+              {isProcessing
+                ? "Processing images..."
+                : "Drag and drop images here, or click to select files"}
             </p>
             <p className="text-xs text-gray-500">
               PNG, JPG, GIF up to 10MB each

@@ -41,7 +41,7 @@ function ProductGallerySkeleton() {
   return (
     <div className="w-full">
       {/* Main image area */}
-      <div className="relative aspect-square w-full rounded-2xl overflow-hidden border border-border shadow-lg bg-surface">
+      <div className="relative aspect-square w-full rounded-lg overflow-hidden border border-border shadow-lg bg-surface">
         <SkeletonBlock className="absolute inset-0 rounded-none" />
       </div>
 
@@ -578,6 +578,53 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
     setShowSelectionError,
   ]);
 
+  useEffect(() => {
+    // Small delay to ensure DOM is fully ready
+    const timer = setTimeout(() => {
+      // If IntersectionObserver is not supported, show everything
+      if (!("IntersectionObserver" in window)) {
+        document.querySelectorAll(".animate-on-scroll").forEach((el) => {
+          el.classList.remove("opacity-0");
+        });
+        return;
+      }
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("animate-fade-in-up");
+              // Remove the initial hidden state
+              entry.target.classList.remove("opacity-0");
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        {
+          threshold: 0.01, // Minimal threshold to trigger as soon as any part is visible
+          rootMargin: "100px", // Trigger well before it enters viewport
+        }
+      );
+
+      const animatedElements = document.querySelectorAll(".animate-on-scroll");
+      animatedElements.forEach((el) => observer.observe(el));
+
+      // Safety: If after 2 seconds nothing happened, force show
+      setTimeout(() => {
+        document.querySelectorAll(".animate-on-scroll").forEach((el) => {
+          if (el.classList.contains("opacity-0")) {
+            el.classList.remove("opacity-0");
+            el.classList.add("animate-fade-in");
+          }
+        });
+      }, 2000);
+
+      return () => observer.disconnect();
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [product]);
+
   // Product not found - clean error state
   if (!product) {
     return (
@@ -652,7 +699,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
           <div className="text-xs sm:text-sm text-muted-fg uppercase tracking-wide font-medium mb-2">
             ShopHub
           </div>
-          <h1 className="text-xl sm:text-2xl font-semibold text-fg leading-tight">
+          <h1 className="text-xl sm:text-2xl font-display font-bold text-fg leading-tight tracking-tight">
             {product.name}
           </h1>
         </div>
@@ -663,6 +710,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
           <div id="product-gallery" className="order-2 lg:order-1 min-w-0">
             <div className="lg:sticky lg:top-(--sticky-top,96px) lg:self-start">
               <ProductGallery
+                productId={product.id}
                 images={galleryImages}
                 productName={product.name}
                 isOutOfStock={!!isOutOfStock}
@@ -679,7 +727,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                 <div className="text-xs sm:text-sm text-muted-fg uppercase tracking-wide font-medium mb-2">
                   ShopHub
                 </div>
-                <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-semibold text-fg leading-tight">
+                <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-display font-bold text-fg leading-tight tracking-tight">
                   {product.name}
                 </h1>
               </div>
@@ -728,7 +776,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                     </div>
 
                     {/* Compact Specs Grid */}
-                    <div className="bg-surface rounded-xl border border-border/40 overflow-hidden">
+                    <div className="bg-surface rounded-lg border border-border/40 overflow-hidden">
                       <div className="divide-y divide-border/30">
                         {product.specs.map((spec, index) => (
                           <div
@@ -755,7 +803,9 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
               )}
 
               {/* Trust Module */}
-              <TrustModule />
+              <div>
+                <TrustModule />
+              </div>
             </div>
           </div>
         </div>
@@ -763,10 +813,26 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
         {/* Full-width sections below the grid */}
         <div className="mt-12 sm:mt-16 lg:mt-20 space-y-12 sm:space-y-16 lg:space-y-20">
           {/* Product Details Tabs */}
-          <ProductDetailsTabs product={product} />
+          <div className="space-y-8 sm:space-y-10">
+            <div className="w-full text-center">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-warm-gray-100 border border-warm-gray-200 text-warm-gray-600 text-[10px] font-bold uppercase tracking-widest mb-4">
+                <Settings className="h-3 w-3" />
+                <span>Deep Dive</span>
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-display font-bold text-warm-gray-900 tracking-tight">
+                Product{" "}
+                <span className="italic font-normal text-primary-600">
+                  Experience
+                </span>
+              </h2>
+            </div>
+            <ProductDetailsTabs product={product} />
+          </div>
 
           {/* You May Also Like Section */}
-          <YouMayAlsoLike currentProduct={product} />
+          <div>
+            <YouMayAlsoLike currentProduct={product} />
+          </div>
         </div>
       </Container>
 

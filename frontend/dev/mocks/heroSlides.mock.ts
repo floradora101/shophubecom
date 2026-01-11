@@ -900,7 +900,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     isActive: true,
 
     content: {
-      badgeText: "⚡ Electric",
+      badgeText: "Electric",
       subtitle: "Neon Style",
       headline: "Future",
       highlight: "Forward",
@@ -944,7 +944,7 @@ export const HERO_SLIDES: HeroSlide[] = [
 
     // New structured content (takes precedence over legacy fields)
     content: {
-      badgeText: "🌄 Landscape Hero",
+      badgeText: "Landscape Hero",
       subtitle: "Full-frame landscape image experience",
       headline: "Welcome to the",
       highlight: "Landscape Era",
@@ -1189,7 +1189,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     isActive: true,
 
     content: {
-      badgeText: "✨ New Features",
+      badgeText: "New Features",
       subtitle: "Refactored Layout System",
       headline: "Modern Hero",
       highlight: "Experience",
@@ -1245,7 +1245,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     isActive: true,
 
     content: {
-      badgeText: "🔴 NEON GLOW",
+      badgeText: "NEON GLOW",
       subtitle: "Dramatic Red Effect",
       headline: "Red Neon",
       highlight: "Glow",

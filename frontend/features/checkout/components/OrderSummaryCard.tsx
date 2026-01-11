@@ -282,7 +282,7 @@ export function OrderSummaryCard({
               type="submit"
               size="lg"
               variant="destructive"
-              className="w-full rounded-full py-3 text-base font-semibold shadow-sm transition-all hover:shadow-md"
+              className="w-full rounded-lg py-3 text-base font-semibold shadow-sm transition-all hover:shadow-md"
               loading={isSubmitting}
               loadingText="Placing order..."
             >

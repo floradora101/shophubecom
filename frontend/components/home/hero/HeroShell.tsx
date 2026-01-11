@@ -13,7 +13,6 @@ import { SlideIndicators } from "../shared/slide-indicators";
 import { SlideBodyRenderer } from "./SlideBodyRenderer";
 import { usePrefersReducedMotion } from "@/lib/hooks/usePrefersReducedMotion";
 import { useSwipe } from "@/lib/hooks/useSwipe";
-import { validateHeroTheme } from "@/lib/utils/hero-theme-resolver";
 import { useHeroSlideProcessor } from "@/lib/utils/hero-slide-hydrator";
 import type { HeroSlide } from "@/lib/types/heroSlides.types";
 import type { Product } from "@/features/products/types";
@@ -40,7 +39,7 @@ export function HeroShellSkeleton() {
       <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8 xl:max-w-none xl:px-0">
         <div className="relative">
           {/* Solid hero frame (no blur / no glass) */}
-          <div className="relative rounded-2xl border border-border shadow-2xl ring-1 ring-border w-full">
+          <div className="relative rounded-xl border border-border shadow-2xl ring-1 ring-border w-full">
             <div className="w-full h-full grid grid-cols-1 lg:grid-cols-2 items-center gap-8 lg:gap-12 xl:gap-20 px-5 py-6 lg:px-14 lg:py-8">
               {/* Left: Content */}
               <div className="flex flex-col justify-center space-y-5 min-w-0 text-center lg:text-left">
@@ -64,18 +63,18 @@ export function HeroShellSkeleton() {
                 </div>
 
                 {/* Pricing Area (generic card block) */}
-                <SkeletonBlock className="h-40 w-full max-w-sm mx-auto lg:mx-0 rounded-xl" />
+                <SkeletonBlock className="h-40 w-full max-w-sm mx-auto lg:mx-0 rounded-lg" />
 
                 {/* CTAs */}
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                  <SkeletonBlock className="h-12 w-full sm:w-40 rounded-xl" />
-                  <SkeletonBlock className="h-12 w-full sm:w-40 rounded-xl" />
+                  <SkeletonBlock className="h-12 w-full sm:w-40 rounded-lg" />
+                  <SkeletonBlock className="h-12 w-full sm:w-40 rounded-lg" />
                 </div>
 
                 {/* Trust pills */}
                 <div className="flex flex-wrap items-center gap-4 sm:gap-6 lg:gap-8 justify-center lg:justify-start">
-                  <SkeletonBlock className="h-10 w-36 rounded-lg" />
-                  <SkeletonBlock className="h-10 w-32 rounded-lg" />
+                  <SkeletonBlock className="h-10 w-36 rounded-md" />
+                  <SkeletonBlock className="h-10 w-32 rounded-md" />
                 </div>
               </div>
 
@@ -83,13 +82,13 @@ export function HeroShellSkeleton() {
               <div className="w-full h-full flex items-center justify-center min-w-0">
                 <div className="relative w-full h-full">
                   {/* Media frame */}
-                  <div className="absolute inset-0 rounded-2xl bg-background border border-border shadow-xl overflow-hidden">
+                  <div className="absolute inset-0 rounded-xl bg-background border border-border shadow-xl overflow-hidden">
                     <SkeletonBlock className="absolute inset-0 rounded-none" />
                   </div>
 
                   {/* Floating badge */}
                   <div className="absolute top-4 right-4 z-10">
-                    <SkeletonBlock className="h-9 w-28 rounded-xl" />
+                    <SkeletonBlock className="h-9 w-28 rounded-md" />
                   </div>
                 </div>
               </div>
@@ -387,15 +386,7 @@ export function HeroShell({
             {/* Slides Frame - Transparent, blends with global background */}
             <div
               ref={setElementRef}
-              className="relative overflow-hidden rounded-2xl w-full h-full"
-              data-theme={
-                currentSlideData && currentSlideData.type !== "LANDSCAPE_IMAGE"
-                  ? validateHeroTheme(
-                      currentSlideData.theme?.accentToken,
-                      currentSlideData.id
-                    )
-                  : undefined
-              }
+              className="relative overflow-hidden rounded-xl w-full h-full"
             >
               <div
                 ref={slideTrackRef}
