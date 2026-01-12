@@ -4,15 +4,16 @@ import { memo } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import type { LandscapeImageSlide } from "@/lib/types/heroSlides.types";
-import { getLandscapeTextClasses } from "@/lib/utils/landscape-style-resolver";
+import { getLandscapeTheme } from "@/lib/utils/landscape-style-resolver";
 import { HeroItem } from "../shared/hero-item";
 import { useHeroRunCounter } from "@/lib/hooks/use-hero-run-counter";
+import { cn } from "@/lib/utils";
 
 /**
- * Landscape Hero Slide Body
+ * Landscape Hero Slide Body (2026 Edition)
  *
- * Renders a full-frame landscape image with optional text content and overlay buttons.
- * Supports structured text styling variants and maintains backward compatibility.
+ * A professionally refactored landscape slide component focused on Red & White aesthetics,
+ * glassmorphism, and theme-based packages.
  */
 
 interface LandscapeHeroSlideBodyProps {
@@ -28,164 +29,108 @@ export const LandscapeHeroSlideBody = memo(function LandscapeHeroSlideBody({
   onMouseEnter,
   onMouseLeave,
 }: LandscapeHeroSlideBodyProps) {
-  // Get text classes from resolver
-  const textClasses = getLandscapeTextClasses(slide.textStyle);
-
-  // Animation run counter - increments when slide becomes active
+  const theme = getLandscapeTheme(slide.theme);
   const { run, animationKey } = useHeroRunCounter(isActive || false);
-
-  // Determine content to display (new structured content takes precedence, fallback to legacy fields)
-  const content = slide.content || {
-    badgeText: slide.badgeText,
-    subtitle: slide.subtitle,
-    headline: slide.headline,
-    highlight: slide.highlight,
-    description: slide.description,
-  };
-
-  // Check if we should render text content
-  const hasTextContent =
-    content.badgeText ||
-    content.subtitle ||
-    content.headline ||
-    content.highlight ||
-    content.description;
 
   // Determine object position for image
   const objectPosition = slide.media.position || "center";
 
   return (
-    <div
-      className="relative w-full h-full overflow-hidden"
-      style={
-        {
-          minHeight: "var(--hero-h, 600px)",
-          "--hero-landscape-accent": "var(--primary-600)",
-        } as React.CSSProperties
-      }
-    >
-      {/* Dark gray background */}
-      <div className="absolute inset-0 bg-gray-900" />
-
-      {/* Full-frame landscape background image */}
-      <Image
-        src={slide.media.imageUrl}
-        alt={slide.media.alt || ""}
-        fill
-        className="object-contain md:object-cover object-center md:object-top"
-        style={{
-          zIndex: 1,
-          objectPosition:
-            objectPosition !== "center" ? objectPosition : undefined,
-        }}
-        sizes="100vw"
-        priority={isActive}
-      />
-
-      {/* Optional text content overlay */}
-      {hasTextContent && (
+    <div className="relative w-full h-full overflow-hidden group">
+      {/* Background Layer */}
+      <div className="absolute inset-0 z-0 bg-gray-900">
+        <Image
+          src={slide.media.imageUrl}
+          alt={slide.media.alt || ""}
+          fill
+          className="object-cover transition-transform duration-[2000ms] group-hover:scale-110"
+          style={{
+            objectPosition:
+              objectPosition !== "center" ? objectPosition : undefined,
+          }}
+          sizes="100vw"
+          priority={isActive}
+        />
+        {/* Theme-defined Overlay */}
         <div
-          className="absolute inset-0 grid place-items-center px-4 py-8 sm:px-6 sm:py-12 md:px-12 md:py-16"
-          style={{ zIndex: 5 }}
-        >
-          <div className={textClasses.wrapper}>
-            <div className={textClasses.container}>
-              {/* Badge */}
-              {content.badgeText && (
-                <HeroItem run={run} animationKey={animationKey}>
-                  <div
-                    className={`${textClasses.badge} hero-item-enter hero-badge`}
-                  >
-                    {content.badgeText}
-                  </div>
-                </HeroItem>
-              )}
+          className={cn(
+            "absolute inset-0 z-10 transition-opacity duration-700",
+            theme.overlay
+          )}
+        />
+      </div>
 
-              {/* Subtitle */}
-              {content.subtitle && (
-                <HeroItem run={run} animationKey={animationKey}>
-                  <div
-                    className={`${textClasses.subtitle} hero-item-enter hero-subtitle`}
-                  >
-                    {content.subtitle}
-                  </div>
-                </HeroItem>
-              )}
+      {/* Content Layer */}
+      <div className="relative z-20 w-full h-full flex flex-col justify-center px-6 md:px-12 lg:px-24 xl:px-32">
+        <div className={cn("transition-all duration-500", theme.container)}>
+          {/* Badge */}
+          {slide.content.badge && (
+            <HeroItem run={run} animationKey={animationKey}>
+              <div
+                className={cn(
+                  "hero-item-enter hero-badge inline-block",
+                  theme.badge
+                )}
+              >
+                {slide.content.badge}
+              </div>
+            </HeroItem>
+          )}
 
-              {/* Headline and Highlight */}
-              {(content.headline || content.highlight) && (
-                <HeroItem run={run} animationKey={animationKey}>
-                  <h1 className="hero-item-enter hero-headline">
-                    {content.headline && (
-                      <span
-                        className={textClasses.headline}
-                        data-text={content.headline}
-                      >
-                        {content.headline}
-                      </span>
-                    )}
-                    {content.headline && content.highlight && " "}
-                    {content.highlight && (
-                      <span
-                        className={`${textClasses.highlight} ml-2`}
-                        data-text={content.highlight}
-                      >
-                        {content.highlight}
-                      </span>
-                    )}
-                  </h1>
-                </HeroItem>
-              )}
+          {/* Headline & Highlight */}
+          <HeroItem run={run} animationKey={animationKey}>
+            <h1 className="hero-item-enter hero-headline flex flex-col gap-1 md:gap-2 mb-4 md:mb-6">
+              <span className={cn("tracking-tighter", theme.headline)}>
+                {slide.content.headline}
+              </span>
+              <span className={cn("tracking-tight", theme.highlight)}>
+                {slide.content.highlight}
+              </span>
+            </h1>
+          </HeroItem>
 
-              {/* Description */}
-              {content.description && (
-                <HeroItem run={run} animationKey={animationKey}>
-                  <p
-                    className={`${textClasses.description} hero-item-enter hero-description`}
-                  >
-                    {content.description}
-                  </p>
-                </HeroItem>
-              )}
+          {/* Description */}
+          {slide.content.description && (
+            <HeroItem run={run} animationKey={animationKey}>
+              <p
+                className={cn(
+                  "hero-item-enter hero-description leading-relaxed",
+                  theme.description
+                )}
+              >
+                {slide.content.description}
+              </p>
+            </HeroItem>
+          )}
 
-              {/* CTA Buttons */}
-              <HeroItem run={run} animationKey={animationKey}>
-                <div
-                  className={`${textClasses.buttons} hero-item-enter hero-buttons`}
+          {/* Action Button */}
+          {slide.actionButton && (
+            <HeroItem run={run} animationKey={animationKey}>
+              <div className="hero-item-enter hero-buttons mt-4 sm:mt-8">
+                <Button
+                  asChild
+                  size="hero"
+                  className={cn(
+                    "transition-all duration-300 hover:scale-105 active:scale-95 shadow-xl",
+                    theme.button
+                  )}
+                  onMouseEnter={onMouseEnter}
+                  onMouseLeave={onMouseLeave}
                 >
-                  {slide.ctaPrimary && (
-                    <Button
-                      asChild
-                      size="lg"
-                      className="w-full min-h-[48px] px-6 py-3 text-base font-semibold transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-95 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
-                      onMouseEnter={onMouseEnter}
-                      onMouseLeave={onMouseLeave}
-                    >
-                      <a href={slide.ctaPrimary.href}>
-                        {slide.ctaPrimary.label}
-                      </a>
-                    </Button>
-                  )}
-                  {slide.ctaSecondary && (
-                    <Button
-                      asChild
-                      variant="outline"
-                      size="lg"
-                      className="w-full min-h-[48px] px-6 py-3 text-base font-semibold border-white text-white hover:bg-white hover:text-black transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-95 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
-                      onMouseEnter={onMouseEnter}
-                      onMouseLeave={onMouseLeave}
-                    >
-                      <a href={slide.ctaSecondary.href}>
-                        {slide.ctaSecondary.label}
-                      </a>
-                    </Button>
-                  )}
-                </div>
-              </HeroItem>
-            </div>
-          </div>
+                  <a href={slide.actionButton.href}>
+                    {slide.actionButton.label}
+                  </a>
+                </Button>
+              </div>
+            </HeroItem>
+          )}
         </div>
-      )}
+      </div>
+
+      {/* Bottom Glass Glow (Decorative) */}
+      <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-black/20 to-transparent z-15 pointer-events-none" />
     </div>
   );
 });
+
+export default LandscapeHeroSlideBody;

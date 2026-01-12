@@ -100,7 +100,7 @@ export const FormField = React.forwardRef<HTMLDivElement, FormFieldProps>(
       <div ref={ref} className={cn("w-full", className)}>
         <label
           htmlFor={htmlFor || fieldId}
-          className="block text-sm font-medium text-gray-700 mb-1.5"
+          className="block text-sm font-medium text-warm-gray-700 mb-1.5"
         >
           {label}
           {required && (
@@ -113,7 +113,7 @@ export const FormField = React.forwardRef<HTMLDivElement, FormFieldProps>(
         {childrenWithProps}
 
         {helpText && !error && (
-          <p id={helpId} className="mt-1.5 text-xs text-gray-500" role="note">
+          <p id={helpId} className="mt-1.5 text-xs text-warm-gray-500" role="note">
             {helpText}
           </p>
         )}

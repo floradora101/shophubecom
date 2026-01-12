@@ -1,4 +1,5 @@
 // Trust Module Component - Modern 2026 ecommerce trust badges
+import React from "react";
 import {
   Truck,
   RotateCcw,
@@ -8,7 +9,6 @@ import {
   Receipt,
 } from "lucide-react";
 import Link from "next/link";
-import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils/cn";
 
 interface TrustItemProps {
@@ -27,94 +27,74 @@ function TrustItem({
   className,
 }: TrustItemProps) {
   return (
-    <Card
-      variant="default"
-      padding="sm"
+    <div
       className={cn(
-        "group relative bg-muted/20 border-border/40 hover:bg-muted/30 hover:border-primary-200/60 transition-all duration-300 hover:shadow-sm hover:shadow-primary-500/5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none",
+        "group relative p-4 rounded-2xl border border-border/50 hover:border-primary-500/30 hover:bg-primary-500/5 transition-all duration-500",
         className
       )}
     >
-      {/* Subtle background gradient on hover */}
-      <div className="absolute inset-0 bg-linear-to-br from-primary-50/20 via-transparent to-primary-50/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg" />
-
       {/* Content */}
-      <div className="relative flex items-center gap-3">
-        {/* Icon */}
-        <div className="relative shrink-0">
-          <div className="w-8 h-8 bg-primary-50 rounded-lg flex items-center justify-center group-hover:bg-primary-100 group-hover:scale-105 transition-all duration-300 border border-primary-100/50">
-            <div className="text-primary-600">{icon}</div>
+      <div className="relative flex items-center gap-4">
+        {/* Icon with minimal container */}
+        <div className="relative shrink-0 flex items-center justify-center w-11 h-11 rounded-xl bg-surface border border-border/50 group-hover:border-primary-500/20 group-hover:shadow-sm transition-all duration-500">
+          <div className="text-primary-600/80 group-hover:text-primary-600 group-hover:scale-110 transition-all duration-500">
+            {icon}
           </div>
-          {/* Subtle shine effect */}
-          <div className="absolute inset-0 rounded-lg bg-linear-to-br from-white/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </div>
 
         {/* Text Content */}
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-semibold text-foreground group-hover:text-primary-600 transition-colors duration-300">
+          <h4 className="text-sm font-bold text-foreground group-hover:text-primary-600 transition-colors duration-300 tracking-tight leading-none mb-1.5">
             {title}
-          </h3>
-          <p className="text-xs text-muted-foreground leading-tight">
+          </h4>
+          <p className="text-xs text-muted-foreground leading-relaxed font-medium">
             {description}
           </p>
           {learnMore && (
             <Link
               href={learnMore}
-              className="text-xs text-primary-600 hover:text-primary-600 hover:underline transition-colors duration-200 inline-block"
+              className="text-[10px] font-bold text-primary-500 hover:text-primary-600 transition-colors duration-200 inline-block mt-1.5 uppercase tracking-widest"
             >
               Learn more
             </Link>
           )}
         </div>
       </div>
-    </Card>
+    </div>
   );
 }
 
 export function TrustModule() {
   return (
     <div className="w-full">
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Fast Delivery */}
         <TrustItem
-          icon={<Truck className="h-4 w-4" />}
+          icon={<Truck className="h-5 w-5" />}
           title="Fast Delivery"
           description="Same day in Beirut, 3-6 days Lebanon"
         />
 
         {/* Easy Returns */}
         <TrustItem
-          icon={<RotateCcw className="h-4 w-4" />}
+          icon={<RotateCcw className="h-5 w-5" />}
           title="Easy Returns"
           description="Within 3 days of purchase"
         />
 
         {/* Secure Checkout */}
         <TrustItem
-          icon={<Shield className="h-4 w-4" />}
+          icon={<Shield className="h-5 w-5" />}
           title="Secure Checkout"
           description="Bank-level SSL encryption"
         />
 
         {/* Duties & Taxes */}
         <TrustItem
-          icon={<Receipt className="h-4 w-4" />}
+          icon={<Receipt className="h-5 w-5" />}
           title="Duties & Taxes"
           description="Non-refundable, included in price"
         />
-      </div>
-
-      {/* Security indicators - compact horizontal layout */}
-      <div className="flex items-center justify-center gap-3 mt-4 pt-3 border-t border-border/20">
-        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-          <Lock className="h-3 w-3 text-success" />
-          <span className="font-medium">SSL Protected</span>
-        </div>
-        <div className="w-px h-3 bg-border" />
-        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-          <CreditCard className="h-3 w-3 text-primary-500" />
-          <span className="font-medium">All Cards</span>
-        </div>
       </div>
     </div>
   );

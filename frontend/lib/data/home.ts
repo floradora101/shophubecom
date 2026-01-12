@@ -131,16 +131,27 @@ export async function getHomePageData(): Promise<HomePageData> {
     };
 
     // Precompute mappings for client performance
-    const productsByCategory: Record<string, Product[]> = {
-      phones: result.phonesProducts,
-      tablets: result.tabletsProducts,
-      laptops: result.laptopsProducts,
-      wearables: result.wearablesProducts,
-      "smart-gadgets": result.smartGadgetsProducts,
-      "gaming-console": result.gamingConsoleProducts,
-      accessories: result.accessoriesProducts,
-      "gaming-laptops": result.gamingLaptopsProducts,
-    };
+    const productsByCategory: Record<string, Product[]> = {};
+
+    // Map all products to their respective categories
+    mockProducts.forEach((p) => {
+      const product = mockProductToProduct(p);
+      const categorySlug = p.categorySlug || "uncategorized";
+      if (!productsByCategory[categorySlug]) {
+        productsByCategory[categorySlug] = [];
+      }
+      productsByCategory[categorySlug].push(product);
+    });
+
+    // Ensure main categories also have their sliced products if they were precomputed
+    productsByCategory.phones = result.phonesProducts;
+    productsByCategory.tablets = result.tabletsProducts;
+    productsByCategory.laptops = result.laptopsProducts;
+    productsByCategory.wearables = result.wearablesProducts;
+    productsByCategory["smart-gadgets"] = result.smartGadgetsProducts;
+    productsByCategory["gaming-console"] = result.gamingConsoleProducts;
+    productsByCategory.accessories = result.accessoriesProducts;
+    productsByCategory["gaming-laptops"] = result.gamingLaptopsProducts;
 
     const productsBySlug: Record<string, Product> = [
       ...result.phonesProducts,
@@ -283,16 +294,27 @@ export async function getHomePageData(): Promise<HomePageData> {
 
   // Precompute mappings for client performance
   const data = result;
-  const productsByCategory: Record<string, Product[]> = {
-    phones: data.phonesProducts,
-    tablets: data.tabletsProducts,
-    laptops: data.laptopsProducts,
-    wearables: data.wearablesProducts,
-    "smart-gadgets": data.smartGadgetsProducts,
-    "gaming-console": data.gamingConsoleProducts,
-    accessories: data.accessoriesProducts,
-    "gaming-laptops": data.gamingLaptopsProducts,
-  };
+  const productsByCategory: Record<string, Product[]> = {};
+
+  // Map all products to their respective categories
+  mockProducts.forEach((p) => {
+    const product = mockProductToProduct(p);
+    const categorySlug = p.categorySlug || "uncategorized";
+    if (!productsByCategory[categorySlug]) {
+      productsByCategory[categorySlug] = [];
+    }
+    productsByCategory[categorySlug].push(product);
+  });
+
+  // Ensure main categories also have their sliced products if they were precomputed
+  productsByCategory.phones = data.phonesProducts;
+  productsByCategory.tablets = data.tabletsProducts;
+  productsByCategory.laptops = data.laptopsProducts;
+  productsByCategory.wearables = data.wearablesProducts;
+  productsByCategory["smart-gadgets"] = data.smartGadgetsProducts;
+  productsByCategory["gaming-console"] = data.gamingConsoleProducts;
+  productsByCategory.accessories = data.accessoriesProducts;
+  productsByCategory["gaming-laptops"] = data.gamingLaptopsProducts;
 
   const productsBySlug: Record<string, Product> = [
     ...data.phonesProducts,

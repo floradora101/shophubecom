@@ -57,12 +57,10 @@ export function Tabs({
     switch (variant) {
       case "pill":
         return cn(
-          "rounded-full border border-border/50 backdrop-blur-sm",
-          "hover:bg-surface/80 hover:shadow-sm hover:border-border-hover",
-          "transition-all duration-300",
+          "transition-all duration-500",
           isActive
-            ? "bg-surface/95 shadow-md border-border/40 text-primary-600"
-            : "bg-surface-muted/50 text-muted-fg hover:text-fg"
+            ? "text-primary-600"
+            : "text-muted-fg hover:text-fg hover:bg-surface-muted/30"
         );
 
       case "underline":
@@ -71,18 +69,16 @@ export function Tabs({
           "hover:bg-surface-muted/50",
           "transition-all duration-300",
           isActive
-            ? "border-primary-500 text-primary-600 bg-primary-50/30"
+            ? "border-primary-500 text-primary-600"
             : "border-transparent text-muted-fg hover:text-fg hover:border-border"
         );
 
       default:
         return cn(
-          "rounded-lg border border-border/60 backdrop-blur-sm",
-          "hover:bg-surface/80 hover:shadow-sm hover:border-border-hover hover:-translate-y-0.5",
-          "transition-all duration-300",
+          "transition-all duration-500",
           isActive
-            ? "bg-surface/95 shadow-md border-primary-200 text-primary-600 shadow-primary-500/10"
-            : "bg-surface-muted/50 text-muted-fg hover:text-fg"
+            ? "text-primary-600"
+            : "text-muted-fg hover:text-fg hover:bg-surface-muted/30"
         );
     }
   };
@@ -92,9 +88,9 @@ export function Tabs({
   return (
     <div className={cn("w-full", className)}>
       {/* Tab Navigation */}
-      <div className="relative mb-6 sm:mb-8">
+      <div className="relative mb-8 sm:mb-12">
         {/* Tab buttons container */}
-        <div className="flex justify-center gap-1 p-1 bg-surface rounded-xl border border-border/40 overflow-x-auto scrollbar-hide">
+        <div className="flex justify-center gap-2 sm:gap-4 overflow-x-auto scrollbar-hide pb-2">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -105,25 +101,28 @@ export function Tabs({
                 disabled={false}
               >
                 {/* Tab content */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                   {tab.icon && (
                     <span
                       className={cn(
-                        "transition-transform duration-300",
-                        isActive && "scale-110"
+                        "transition-all duration-500",
+                        isActive ? "scale-110 text-primary-600" : "text-muted-fg group-hover:text-fg"
                       )}
                     >
                       {tab.icon}
                     </span>
                   )}
-                  <span className="truncate">{tab.label}</span>
+                  <span className={cn(
+                    "truncate transition-colors duration-300",
+                    isActive ? "font-bold" : "font-medium"
+                  )}>{tab.label}</span>
                   {tab.badge && (
                     <span
                       className={cn(
-                        "px-1.5 py-0.5 text-xs font-medium rounded-full",
+                        "px-1.5 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md",
                         "transition-all duration-300",
                         isActive
-                          ? "bg-primary-100 text-primary-600"
+                          ? "bg-primary-600 text-white shadow-sm"
                           : "bg-surface-muted text-muted-fg"
                       )}
                     >
@@ -132,17 +131,15 @@ export function Tabs({
                   )}
                 </div>
 
-                {/* Active indicator animation */}
-                {isActive && (
-                  <div className="absolute inset-0 rounded-lg bg-primary-500/5 animate-pulse" />
-                )}
+                {/* Active indicator bar */}
+                <div className={cn(
+                  "absolute -bottom-1 left-1/2 -translate-x-1/2 h-0.5 rounded-full bg-primary-600 transition-all duration-500",
+                  isActive ? "w-1/2 opacity-100" : "w-0 opacity-0"
+                )} />
               </button>
             );
           })}
         </div>
-
-        {/* Premium accent line */}
-        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-linear-to-r from-primary-400 via-primary-500 to-primary-600 rounded-full opacity-60" />
       </div>
 
       {/* Tab Content */}

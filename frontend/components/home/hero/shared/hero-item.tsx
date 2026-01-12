@@ -24,7 +24,7 @@ export function HeroItem({
       key={animationKey} // Force re-mount to restart animation
       className={className}
       style={{ display: "contents" }}
-      data-run={run}
+      data-run={run > 0 ? run : undefined}
     >
       {children}
     </div>

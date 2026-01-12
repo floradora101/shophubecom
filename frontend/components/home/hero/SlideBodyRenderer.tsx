@@ -9,43 +9,20 @@ import { logger } from "@/lib/logger";
 
 // Code-split slide body components with next/dynamic
 const ProductSpotlightSlideBody = dynamic(
-  () =>
-    import("./slide-bodies/ProductSpotlightSlideBody").then((mod) => ({
-      default: mod.ProductSpotlightSlideBody,
-    })),
+  () => import("./slide-bodies/ProductSpotlightSlideBody"),
   {
     ssr: false,
     loading: () => <div className="w-full h-full" />,
   }
 );
 
-const CategorySpotlightSlideBody = dynamic(
-  () =>
-    import("./slide-bodies/CategorySpotlightSlideBody").then((mod) => ({
-      default: mod.CategorySpotlightSlideBody,
-    })),
-  {
-    ssr: false,
-    loading: () => <div className="w-full h-full" />,
-  }
-);
-
-const OfferSlideBody = dynamic(
-  () =>
-    import("./slide-bodies/OfferSlideBody").then((mod) => ({
-      default: mod.OfferSlideBody,
-    })),
-  {
-    ssr: false,
-    loading: () => <div className="w-full h-full" />,
-  }
-);
+const OfferSlideBody = dynamic(() => import("./slide-bodies/OfferSlideBody"), {
+  ssr: false,
+  loading: () => <div className="w-full h-full" />,
+});
 
 const TestimonialSlideBody = dynamic(
-  () =>
-    import("./slide-bodies/TestimonialSlideBody").then((mod) => ({
-      default: mod.TestimonialSlideBody,
-    })),
+  () => import("./slide-bodies/TestimonialSlideBody"),
   {
     ssr: false,
     loading: () => <div className="w-full h-full" />,
@@ -53,10 +30,7 @@ const TestimonialSlideBody = dynamic(
 );
 
 const LandscapeHeroSlideBody = dynamic(
-  () =>
-    import("./slide-bodies/LandscapeHeroSlideBody").then((mod) => ({
-      default: mod.LandscapeHeroSlideBody,
-    })),
+  () => import("./slide-bodies/LandscapeHeroSlideBody"),
   {
     ssr: false,
     loading: () => <div className="w-full h-full" />,
@@ -87,18 +61,6 @@ export const SlideBodyRenderer = memo(function SlideBodyRenderer({
           case "PRODUCT_SPOTLIGHT":
             return (
               <ProductSpotlightSlideBody
-                slide={slide}
-                product={product}
-                isActive={isActive}
-                index={index}
-                onMouseEnter={onMouseEnter}
-                onMouseLeave={onMouseLeave}
-              />
-            );
-
-          case "CATEGORY_SPOTLIGHT":
-            return (
-              <CategorySpotlightSlideBody
                 slide={slide}
                 product={product}
                 isActive={isActive}

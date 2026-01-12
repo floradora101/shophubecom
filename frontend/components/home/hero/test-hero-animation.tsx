@@ -31,7 +31,7 @@ function SlideItem({ slide, isActive }: SlideItemProps) {
         Active: {isActive ? "YES" : "NO"} | Run: {run}
       </p>
 
-      <div data-run={run} className="space-y-3">
+      <div data-run={run > 0 ? run : undefined} className="space-y-3">
         <HeroItem run={run} animationKey={animationKey}>
           <div className="hero-item-enter hero-badge bg-red-500 text-white px-3 py-1 rounded-full inline-block">
             {slide.badge}

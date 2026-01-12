@@ -377,7 +377,7 @@ export function ProductGallery({
 
             {/* Fullscreen Counter */}
             {images.length > 1 && (
-              <div className="absolute bottom-2 sm:bottom-4 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm text-white">
+              <div className="absolute bottom-2 sm:bottom-4 left-1/2 -translate-x-1/2 bg-black/50 backdrop-blur-sm px-2.5 py-1 rounded-lg text-xs sm:text-sm text-white border border-white/10">
                 {activeIndex + 1} / {images.length}
               </div>
             )}

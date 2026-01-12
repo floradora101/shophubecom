@@ -10,7 +10,7 @@ export const HeroSecurityBadgeAccent = memo(function HeroSecurityBadgeAccent({
 }: HeroSecurityBadgeAccentProps) {
   return (
     <div
-      className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold border ${
+      className={`inline-flex items-center gap-2 rounded-lg px-2.5 py-1 text-[10px] sm:text-xs font-black border uppercase tracking-[0.2em] shadow-sm ${
         className || ""
       }`}
       style={{

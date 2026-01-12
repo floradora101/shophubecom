@@ -1,9 +1,8 @@
 "use client";
 
 import { memo } from "react";
-import { Star, Quote } from "lucide-react";
+import { Star, Quote, ArrowRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { HeroMediaFrame } from "../shared/hero-media-frame";
@@ -43,10 +42,7 @@ function StarRating({ rating }: { rating: number }) {
       {Array.from({ length: 5 }, (_, i) => (
         <Star
           key={i}
-          className={`w-3 h-3 ${i < rating ? "fill-current" : ""}`}
-          style={{
-            color: i < rating ? "#fa0603" : "#7a6b67",
-          }}
+          className={`w-3 h-3 ${i < rating ? "fill-red-600 text-red-600" : "text-gray-300"}`}
         />
       ))}
     </div>
@@ -58,69 +54,61 @@ function QuoteCard({ slide }: { slide: HeroSlide & { type: "TESTIMONIAL" } }) {
   const initials = getInitials(slide.authorName);
 
   return (
-    <div className="bg-surface border border-border rounded-lg p-3 sm:p-4 md:p-6 relative max-w-full overflow-hidden">
+    <div className="bg-white/40 backdrop-blur-md border border-white/20 rounded-lg p-3 md:p-5 relative shadow-xl overflow-hidden group/quote">
+      {/* Decorative Gradient Glow */}
+      <div className="absolute -top-24 -right-24 w-48 h-48 bg-red-600/5 rounded-full blur-3xl group-hover/quote:bg-red-600/10 transition-colors" />
+
       {/* Quote Mark */}
       <Quote
-        className="absolute top-2 left-2 sm:top-3 sm:left-3 md:top-4 md:left-4 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 opacity-30"
-        style={{ color: "#fa0603" }}
+        className="absolute top-2 right-4 w-10 h-10 text-red-600/10 transition-transform duration-700 group-hover/quote:scale-110"
       />
 
-      {/* Quote */}
-      <blockquote
-        className="text-xs sm:text-sm md:text-base lg:text-lg font-medium leading-relaxed mb-4 pl-6 sm:pl-0"
-        style={{ color: "#171717" }}
-      >
-        &ldquo;{sanitizedQuote}&rdquo;
-      </blockquote>
+      <div className="relative z-10">
+        <StarRating rating={slide.rating} />
 
-      {/* Author Info */}
-      <div className="flex items-center gap-2 sm:gap-3 pl-6 sm:pl-0">
-        {/* Avatar */}
-        <div
-          className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-          style={{
-            backgroundColor: "rgba(250, 6, 3, 0.12)",
-            color: "var(--hero-accent)",
-          }}
+        <blockquote
+          className="text-base md:text-lg lg:text-xl font-medium leading-snug my-2 md:my-3 text-gray-900 italic tracking-tight"
         >
-          {initials}
-        </div>
-        {/* Name and Rating */}
-        <div className="min-w-0 flex-1">
-          <div
-            className="text-xs sm:text-sm md:text-base font-semibold truncate"
-            style={{ color: "#171717" }}
-          >
-            {slide.authorName}
-          </div>
-          <StarRating rating={slide.rating} />
-        </div>
-      </div>
+          &ldquo;{sanitizedQuote}&rdquo;
+        </blockquote>
 
-      {/* Stats Below Author Name */}
-      {slide.stats && slide.stats.length > 0 && (
-        <div className="flex gap-0.5 sm:gap-1 md:gap-1.5 lg:gap-2 mt-0.5 sm:mt-1 md:mt-1.5 lg:mt-2 xl:mt-3 pl-6 sm:pl-0 overflow-x-auto">
-          {slide.stats.slice(0, 3).map((stat, index) => (
-            <div
-              key={index}
-              className="text-center px-0.5 sm:px-1 md:px-1.5 lg:px-2 py-0.5 bg-surface-muted rounded-md border border-border shrink-0"
-            >
-              <div
-                className="text-xs font-bold leading-tight"
-                style={{ color: "#fa0603" }}
-              >
-                {stat.value}
-              </div>
-              <div
-                className="text-xs font-medium leading-tight"
-                style={{ color: "#7a6b67" }}
-              >
-                {stat.label}
-              </div>
+        <div className="flex items-center gap-3">
+          {/* Avatar */}
+          <div
+            className="w-10 h-10 rounded-lg bg-red-600 flex items-center justify-center text-xs font-black text-white shadow-lg"
+          >
+            {initials}
+          </div>
+          {/* Name and Label */}
+          <div>
+            <div className="text-sm font-black text-gray-900 tracking-tight">
+              {slide.authorName}
             </div>
-          ))}
+            <div className="text-[10px] font-bold uppercase tracking-widest text-red-600">
+              Verified Buyer
+            </div>
+          </div>
         </div>
-      )}
+
+        {/* Stats Grid - Tighter */}
+        {slide.stats && slide.stats.length > 0 && (
+          <div className="grid grid-cols-3 gap-1.5 mt-3 pt-3 border-t border-red-600/5">
+            {slide.stats.slice(0, 3).map((stat, index) => (
+              <div
+                key={index}
+                className="text-center p-1.5 rounded-lg bg-red-600/5 border border-red-600/5 transition-all group-hover/quote:bg-white"
+              >
+                <div className="text-xs font-black text-red-600 leading-none mb-0.5">
+                  {stat.value}
+                </div>
+                <div className="text-[8px] font-bold text-gray-500 uppercase tracking-tighter">
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -129,6 +117,7 @@ export const TestimonialSlideBody = memo(function TestimonialSlideBody({
   slide,
   product,
   isActive,
+  index,
   onMouseEnter,
   onMouseLeave,
 }: TestimonialSlideBodyProps) {
@@ -136,87 +125,94 @@ export const TestimonialSlideBody = memo(function TestimonialSlideBody({
   const { run, animationKey } = useHeroRunCounter(isActive);
 
   return (
-    <SlideLayout
-      textContent={
-        <>
-          {/* Row 1: Themed Badge */}
-          <HeroItem run={run} animationKey={animationKey}>
-            <div className="hero-item-enter hero-badge">
-              <Badge variant="primary" className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-2 sm:px-3 py-1 sm:py-1.5 mt-4 sm:mt-6 w-fit text-xs sm:text-sm font-semibold text-white border border-white/22 bg-linear-to-r from-red-600 via-red-700 to-red-800">
-                <Star className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                {slide.badgeText || "Customer Stories"}
-              </Badge>
-            </div>
-          </HeroItem>
+    <div className="group relative w-full h-full">
+      <SlideLayout
+        textContent={
+          <>
+            {/* Row 1: Themed Badge */}
+            <HeroItem run={run} animationKey={animationKey}>
+              <div className="hero-item-enter hero-badge">
+                <Badge variant="primary" size="default" className="mt-2 sm:mt-4">
+                  <Star className="h-3.5 w-3.5" />
+                  {slide.badgeText || "Customer Stories"}
+                </Badge>
+              </div>
+            </HeroItem>
 
-          {/* Row 2: Headline */}
-          <HeroItem run={run} animationKey={animationKey}>
-            <div className={`space-y-3 hero-item-enter hero-headline`}>
-              <h1
-                className={`text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-display font-bold italic leading-tight underline decoration-2 underline-offset-4`}
-                style={{ color: "#171717" }}
-              >
-                {slide.headline}
-              </h1>
-              {slide.highlight && (
-                <h2
-                  className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-sans font-bold overline decoration-1"
-                  style={{ color: "#fa0603" }}
+            {/* Row 2: Headline */}
+            <HeroItem run={run} animationKey={animationKey}>
+              <div className="hero-item-enter hero-headline mt-1.5 transition-transform duration-700 group-hover:translate-x-2">
+                <h1
+                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-[1.1] md:leading-none tracking-tighter text-gray-900 mb-0.5 md:mb-1"
                 >
-                  {slide.highlight}
-                </h2>
-              )}
-            </div>
-          </HeroItem>
-
-          {/* Row 3: Description */}
-          <HeroItem run={run} animationKey={animationKey}>
-            <p
-              className={`text-xs sm:text-sm md:text-base lg:text-lg leading-relaxed hero-item-enter hero-description ${contentClamp.description}`}
-              style={{ color: "var(--hero-muted)" }}
-            >
-              {slide.description}
-            </p>
-          </HeroItem>
-
-          {/* Row 4: Flexible middle space (Quote Card) */}
-          <HeroItem run={run} animationKey={animationKey}>
-            <div className="hero-item-enter hero-description">
-              <QuoteCard slide={slide} />
-            </div>
-          </HeroItem>
-
-          {/* Row 5: CTAs */}
-          <HeroItem run={run} animationKey={animationKey}>
-            <div className="flex flex-row gap-2 sm:gap-3 md:gap-4 justify-center lg:justify-start hero-item-enter hero-buttons">
-              <Link
-                href={slide.ctaPrimary.href}
-                onMouseEnter={onMouseEnter}
-                onMouseLeave={onMouseLeave}
-              >
-                <Button className="group w-auto px-3 sm:px-4 md:px-6 py-1.5 sm:py-2 md:py-3 text-xs sm:text-sm md:text-base">
-                  <span className="flex items-center gap-1 sm:gap-1.5 md:gap-2">
-                    {slide.ctaPrimary.label}
-                    <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 transition-transform group-hover:translate-x-1" />
-                  </span>
-                </Button>
-              </Link>
-              {slide.ctaSecondary && (
-                <Link href={slide.ctaSecondary.href} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
-                  <button
-                    className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-1.5 sm:py-2 font-semibold rounded-lg shadow-sm hover:shadow-md transition-all duration-200 w-auto min-h-8 sm:min-h-10 text-xs sm:text-sm text-white border border-white/22 bg-linear-to-r from-red-600 via-red-700 to-red-800"
+                  {slide.headline}
+                </h1>
+                {slide.highlight && (
+                  <h2
+                    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light leading-[1.1] md:leading-none tracking-tight italic text-red-600 mb-3 md:mb-4"
                   >
-                    <span className="flex items-center gap-1.5 sm:gap-2">{slide.ctaSecondary.label}</span>
-                  </button>
+                    {slide.highlight}
+                  </h2>
+                )}
+              </div>
+            </HeroItem>
+
+            {/* Row 3: Description */}
+            <HeroItem run={run} animationKey={animationKey}>
+              <p
+                className={`text-sm md:text-base lg:text-lg leading-relaxed font-medium mt-1 hero-item-enter hero-description ${contentClamp.description} text-warm-gray-500`}
+              >
+                {slide.description}
+              </p>
+            </HeroItem>
+
+            {/* Row 4: Premium Quote Card */}
+            <HeroItem run={run} animationKey={animationKey}>
+              <div className="hero-item-enter hero-description mt-2 md:mt-3">
+                <QuoteCard slide={slide} />
+              </div>
+            </HeroItem>
+
+            {/* Row 5: CTAs */}
+            <HeroItem run={run} animationKey={animationKey}>
+              <div className="flex flex-row gap-3 mt-3 md:mt-4 hero-item-enter hero-buttons">
+                <Link
+                  href={slide.ctaPrimary.href}
+                  onMouseEnter={onMouseEnter}
+                  onMouseLeave={onMouseLeave}
+                >
+                  <Button size="hero" className="bg-red-600 hover:bg-red-700 text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all px-6 h-11 md:h-12">
+                    <span className="flex items-center gap-2 font-black uppercase tracking-wider text-sm md:text-base">
+                      {slide.ctaPrimary.label}
+                      <ArrowRight className="h-4 w-4 md:h-5 md:w-5" />
+                    </span>
+                  </Button>
                 </Link>
-              )}
-            </div>
-          </HeroItem>
-        </>
-      }
-      mediaContent={
-        <HeroMediaFrame slide={slide} product={product} isActive={isActive} />
-      }
-    />
+                {slide.ctaSecondary && (
+                  <Link href={slide.ctaSecondary.href} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+                    <Button
+                      size="hero"
+                      className="bg-white text-red-600 hover:bg-red-600 hover:text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all duration-500 px-6 h-11 md:h-12 font-black uppercase tracking-wider text-sm md:text-base"
+                    >
+                      {slide.ctaSecondary.label}
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            </HeroItem>
+          </>
+        }
+        mediaContent={
+          <HeroMediaFrame slide={slide} product={product} isActive={isActive} badge={
+            <Badge variant="destructive" size="default">
+              <Sparkles className="w-3.5 h-3.5 text-red-500" />
+              COMMUNITY
+            </Badge>
+          } />
+        }
+      />
+    </div>
   );
 });
+
+export default TestimonialSlideBody;

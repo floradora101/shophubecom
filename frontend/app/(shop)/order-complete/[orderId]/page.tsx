@@ -70,7 +70,7 @@ export default function OrderCompletePage() {
               <Text>Unable to locate the requested order.</Text>
               <div className="pt-4">
                 <Link href="/products">
-                  <button className="rounded-full bg-red-600 px-8 py-3 text-sm font-medium text-white transition-colors hover:bg-red-700">
+                  <button className="rounded-lg bg-red-600 px-8 py-3 text-sm font-black uppercase tracking-widest text-white transition-all hover:bg-red-700 shadow-xl hover:scale-105 active:scale-95">
                     Continue shopping
                   </button>
                 </Link>
@@ -124,7 +124,7 @@ export default function OrderCompletePage() {
               )}
               <div className="pt-4">
                 <Link href="/products">
-                  <button className="rounded-full bg-red-600 px-8 py-3 text-sm font-medium text-white transition-colors hover:bg-red-700">
+                  <button className="rounded-lg bg-red-600 px-8 py-3 text-sm font-black uppercase tracking-widest text-white transition-all hover:bg-red-700 shadow-xl hover:scale-105 active:scale-95">
                     Continue shopping
                   </button>
                 </Link>
@@ -146,7 +146,7 @@ export default function OrderCompletePage() {
               <Text>The requested order could not be located.</Text>
               <div className="pt-4">
                 <Link href="/products">
-                  <button className="rounded-full bg-red-600 px-8 py-3 text-sm font-medium text-white transition-colors hover:bg-red-700">
+                  <button className="rounded-lg bg-red-600 px-8 py-3 text-sm font-black uppercase tracking-widest text-white transition-all hover:bg-red-700 shadow-xl hover:scale-105 active:scale-95">
                     Continue shopping
                   </button>
                 </Link>

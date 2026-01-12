@@ -93,7 +93,7 @@ export function CouponCodeInput({
                 variant="secondary"
                 className="bg-green-100 text-green-800 border-green-200"
               >
-                <Tag className="w-3 h-3 mr-1" />
+                <Tag className="w-3 h-3" />
                 {appliedCode}
               </Badge>
               {discountAmount > 0 && (
@@ -129,7 +129,7 @@ export function CouponCodeInput({
           className="w-full justify-start text-warm-gray-600 hover:text-warm-gray-900 hover:bg-warm-gray-50"
           disabled={disabled}
         >
-          <Tag className="w-4 h-4 mr-2" />
+          <Tag className="w-4 h-4" />
           Have a coupon code?
         </Button>
       )}

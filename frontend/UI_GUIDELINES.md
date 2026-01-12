@@ -29,14 +29,14 @@ All design tokens are defined in `app/globals.css` and `tailwind.config.ts`. The
 - `--radius-lg`: 0.5rem (8px) - Buttons, cards
 - `--radius-xl`: 0.5rem (8px) - Small interactive elements
 - `--radius-2xl`: 0.75rem (12px) - Hero sections
-- `--radius-full`: 9999px - Pills, badges
+- `--radius-full`: 9999px - Decorative circles, icons (no pills)
 
 **Usage:**
 
 - Buttons: `rounded-lg` (8px)
 - Cards: `rounded-lg` (8px)
 - Inputs: `rounded-lg` (8px)
-- Badges: `rounded-full`
+- Badges: `rounded-lg` (8px) - Modern tech-editorial style
 
 ### Shadow Scale
 

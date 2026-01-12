@@ -44,7 +44,7 @@ export function HeroShellSkeleton() {
               {/* Left: Content */}
               <div className="flex flex-col justify-center space-y-5 min-w-0 text-center lg:text-left">
                 {/* Badge */}
-                <div className="inline-flex w-fit gap-2 px-4 py-2 rounded-full mx-auto lg:mx-0 bg-gray-100">
+                <div className="inline-flex w-fit gap-2 px-2.5 py-1 rounded-lg mx-auto lg:mx-0 bg-red-600">
                   <SkeletonBlock className="w-4 h-4 rounded" />
                   <SkeletonBlock className="h-4 w-28 rounded" />
                 </div>
@@ -253,10 +253,16 @@ export function HeroShell({
   const [containerWidth, setContainerWidth] = useState(0);
 
   useLayoutEffect(() => {
-    if (slideTrackRef.current) {
-      const rect = slideTrackRef.current.getBoundingClientRect();
-      setContainerWidth(rect.width);
-    }
+    const updateWidth = () => {
+      if (slideTrackRef.current) {
+        const rect = slideTrackRef.current.getBoundingClientRect();
+        setContainerWidth(rect.width);
+      }
+    };
+
+    updateWidth();
+    window.addEventListener("resize", updateWidth);
+    return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
   const transformValue = `translate3d(-${
@@ -352,9 +358,9 @@ export function HeroShell({
     processedSlides.length > 0 ? processedSlides[currentSlide] : null;
 
   return (
-    <div className="relative overflow-hidden overflow-x-hidden ">
+    <div className="relative overflow-hidden overflow-x-hidden">
       {/* Transparent container - blends with global background */}
-      <div className="w-full h-[var(--hero-h)] relative">
+      <div className="w-full h-[75vh] sm:h-[80vh] md:h-[85vh] min-h-[500px] md:min-h-[650px] relative">
         {/* Subtle noise overlay */}
         <div className="absolute inset-0 opacity-[0.02] bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48ZmlsdGVyIGlkPSJub2lzZSI+PGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuOSIgbnVtT2N0YXZlcz0iNCIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNub2lzZSkiLz48L2RlZnM+PC9zdmc+')] mix-blend-mode-multiply" />
 

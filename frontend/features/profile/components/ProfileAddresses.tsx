@@ -152,7 +152,7 @@ export function ProfileAddresses() {
               {/* Default Badge */}
               {address.isDefault && (
                 <div className="absolute top-3 right-3">
-                  <span className="inline-flex items-center rounded-full bg-primary-500 px-3 py-1 text-xs font-semibold text-white shadow-sm">
+                  <span className="inline-flex items-center rounded-lg bg-red-600 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow-lg border border-white/20">
                     Default
                   </span>
                 </div>

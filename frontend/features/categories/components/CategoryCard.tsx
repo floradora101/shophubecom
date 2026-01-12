@@ -52,7 +52,7 @@ export function CategoryCard({ category, index }: CategoryCardProps) {
         )}
 
         <div className="mt-auto flex items-center justify-between">
-          <span className="text-xs font-semibold text-primary-600 bg-primary-50 px-2 py-1 rounded-full">
+          <span className="text-[10px] font-black uppercase tracking-widest text-red-600 bg-red-50 px-2 py-1 rounded-lg border border-red-100">
             View Collection
           </span>
           <div className="h-8 w-8 rounded-full bg-warm-gray-100 flex items-center justify-center text-warm-gray-600 group-hover:bg-primary-600 group-hover:text-white transition-all duration-300 transform group-hover:translate-x-1">

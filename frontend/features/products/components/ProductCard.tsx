@@ -31,6 +31,7 @@ interface ProductCardProps {
   compact?: boolean;
   layout?: "horizontal" | "vertical";
   hideDescription?: boolean;
+  className?: string;
 }
 
 export function ProductCard({
@@ -38,6 +39,7 @@ export function ProductCard({
   compact = false,
   layout = "horizontal",
   hideDescription = false,
+  className,
 }: ProductCardProps) {
   const { addItem, toggleCart } = useCart();
   const { toggleFavorite, isFavorite } = useFavorites();
@@ -126,9 +128,11 @@ export function ProductCard({
 
   return (
     <div
-      className={`group w-full ${
-        layout === "horizontal" ? "flex flex-row gap-4 items-start" : "flex flex-col"
-      }`}
+      className={cn(
+        "group w-full",
+        layout === "horizontal" ? "flex flex-row gap-4 items-start" : "flex flex-col",
+        className
+      )}
     >
       {/* Title Section - On left for horizontal layout */}
       {layout === "horizontal" && (
@@ -200,8 +204,8 @@ export function ProductCard({
               originalPrice &&
               !hasPriceRange && (
                 <span
-                  className={`text-primary-600 font-medium bg-primary-50 rounded-full ${
-                    compact ? "text-xs px-1 py-0.5" : "text-xs px-1.5 py-0.5"
+                  className={`text-red-600 font-black bg-red-50 rounded-lg uppercase tracking-wider ${
+                    compact ? "text-[8px] px-1 py-0.5" : "text-[10px] px-1.5 py-0.5"
                   }`}
                 >
                   Save {formatPrice(originalPrice - product.price)}
@@ -285,7 +289,7 @@ export function ProductCard({
               compact ? "text-[8px] px-1 py-0.5 rounded-md" : "text-[9px] sm:text-[10px] md:text-sm px-1 sm:px-1.5 md:px-3 py-0.5 md:py-1.5"
             )}>
               <Sparkles className={cn(
-                "inline-block mr-1 animate-pulse",
+                "inline-block mr-2 animate-pulse",
                 compact ? "h-2 w-2" : "h-2 w-2 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3"
               )} />
               <span>-{discountPercent}%</span>
@@ -321,8 +325,8 @@ export function ProductCard({
                 <span className="relative flex items-center gap-1">
                   <span>{compact ? `${effectiveStock} LEFT` : `ONLY ${effectiveStock} LEFT`}</span>
                   <span className="flex h-1.5 w-1.5 relative">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-lg bg-white opacity-75"></span>
+                    <span className="relative inline-flex rounded-lg h-1.5 w-1.5 bg-white"></span>
                   </span>
                 </span>
               </div>
@@ -479,8 +483,8 @@ export function ProductCard({
               originalPrice &&
               !hasPriceRange && (
                 <span
-                  className={`text-primary-600 font-medium bg-primary-50 rounded-full ${
-                    compact ? "text-xs px-1 py-0.5" : "text-sm px-1.5 py-0.5"
+                  className={`text-red-600 font-black bg-red-50 rounded-lg uppercase tracking-wider ${
+                    compact ? "text-[8px] px-1 py-0.5" : "text-[10px] px-1.5 py-0.5"
                   }`}
                 >
                   Save {formatPrice(originalPrice - product.price)}

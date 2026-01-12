@@ -514,7 +514,7 @@ function VariantOptionsFields({
             type="button"
             variant="outline"
             size="sm"
-            className="h-7 text-[10px] rounded-full px-3 py-0 border-warm-gray-200 hover:border-primary-300 hover:bg-primary-50/50"
+            className="h-7 text-[10px] rounded-lg px-3 py-0 border-warm-gray-200 hover:border-red-300 hover:bg-red-50/50 uppercase font-black tracking-widest"
             onClick={() => {
               const currentOptions = watch(`variants.${index}.options`) || [];
               if (!currentOptions.find((o: any) => o.name.toLowerCase() === example.name.toLowerCase())) {

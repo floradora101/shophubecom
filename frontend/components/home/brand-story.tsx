@@ -5,7 +5,7 @@ import { Section } from "@/components/ui/section";
 import { SkeletonBlock } from "@/components/ui/skeleton";
 import { Cpu, Zap, Shield } from "lucide-react";
 import Image from "next/image";
-import { SectionTitle } from "./shared/section-header";
+import { SectionHeader, SectionTitle } from "./shared/section-header";
 import { BackgroundGradients } from "./shared/background-gradients";
 
 const techValues = [
@@ -41,30 +41,17 @@ export function BrandStory() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           {/* Left Side - Brand Story */}
           <div className="space-y-6 lg:space-y-8 text-center lg:text-left">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-primary-50 to-primary-100/50 rounded-full border border-primary-200/50 backdrop-blur-sm mx-auto lg:mx-0">
-              <div
-                className="w-2 h-2 bg-primary-500 rounded-full shadow-sm shadow-primary-500/50"
-                style={{
-                  animation: "pulse 3s ease-in-out infinite",
-                }}
-              ></div>
-              <span className="text-sm font-[var(--font-inter)] font-semibold tracking-wide text-primary-600">
-                Tech Excellence
-              </span>
-            </div>
-
-            {/* Main Title - Exact same style as Department and Trending sections */}
-            <div className="space-y-4 sm:space-y-6">
-              <SectionTitle italic="Empowering" bold="Tomorrow's Tech" />
-
-              <p className="text-warm-gray-600 max-w-2xl text-base sm:text-lg font-[var(--font-inter)] font-light leading-relaxed">
-                We&apos;re not just selling gadgets—we&apos;re connecting
-                innovators with the tools that drive progress. Every device in
-                our collection represents the perfect fusion of cutting-edge
-                technology and practical utility.
-              </p>
-            </div>
+            <SectionHeader
+              badge={{
+                icon: Zap,
+                text: "Tech Excellence",
+              }}
+              title={{
+                italic: "Empowering",
+                bold: "Tomorrow's Tech",
+              }}
+              description="We're not just selling gadgets—we're connecting innovators with the tools that drive progress. Every device in our collection represents the perfect fusion of cutting-edge technology and practical utility."
+            />
 
             {/* Tech Values */}
             <div className="space-y-6">
@@ -157,9 +144,9 @@ export function BrandStorySkeleton() {
           {/* Hero Section */}
           <div className="text-center space-y-8 max-w-4xl mx-auto">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-50 border border-primary-100">
-              <SkeletonBlock className="w-4 h-4 rounded" />
-              <SkeletonBlock className="h-4 w-24 rounded" />
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-600">
+              <SkeletonBlock className="w-3 h-3 rounded" />
+              <SkeletonBlock className="h-3 w-24 rounded" />
             </div>
 
             {/* Title */}

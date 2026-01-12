@@ -171,11 +171,9 @@ export function ProductDetailsAccordion({
     <div className="w-full space-y-6">
       {/* Product Details Header - Premium styling */}
       <div className="w-full text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r from-primary-100 via-primary-50 to-primary-100 shadow-sm border border-primary-200/50 mb-4">
-          <FileText className="h-4 w-4 text-primary-600" />
-          <span className="text-sm font-semibold text-primary-600 font-inter tracking-wide">
-            Product Details
-          </span>
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-600 border border-white/20 shadow-lg text-white text-[10px] font-black uppercase tracking-[0.2em] mb-4">
+          <FileText className="h-3 w-3 text-white" />
+          <span>Product Details</span>
         </div>
         <h2 className="text-xl sm:text-2xl font-semibold text-warm-gray-900 mb-2">
           Learn More

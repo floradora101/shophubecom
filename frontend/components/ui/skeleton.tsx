@@ -25,6 +25,8 @@ export function SkeletonBlock({
   );
 }
 
+export { SkeletonBlock as Skeleton };
+
 /**
  * Skeleton circle wrapper around SkeletonBlock
  */

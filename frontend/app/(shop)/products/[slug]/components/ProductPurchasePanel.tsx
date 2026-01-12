@@ -237,34 +237,6 @@ export function ProductPurchasePanel({
             ? "Select Options"
             : "Add to Cart"}
         </Button>
-
-        {/* Trust Badges */}
-        <div className="grid grid-cols-3 gap-2 pt-2">
-          <div className="flex flex-col items-center text-center gap-1">
-            <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100">
-              <Truck className="h-4 w-4 text-slate-600" />
-            </div>
-            <span className="text-[10px] font-medium text-slate-500 uppercase tracking-tighter">
-              Free Shipping
-            </span>
-          </div>
-          <div className="flex flex-col items-center text-center gap-1">
-            <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100">
-              <RotateCcw className="h-4 w-4 text-slate-600" />
-            </div>
-            <span className="text-[10px] font-medium text-slate-500 uppercase tracking-tighter">
-              30-Day Returns
-            </span>
-          </div>
-          <div className="flex flex-col items-center text-center gap-1">
-            <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100">
-              <ShieldCheck className="h-4 w-4 text-slate-600" />
-            </div>
-            <span className="text-[10px] font-medium text-slate-500 uppercase tracking-tighter">
-              Secure Payment
-            </span>
-          </div>
-        </div>
       </div>
     </div>
   );

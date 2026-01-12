@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/auth-store";
 import { useCart } from "@/features/cart/hooks";
 import { CartSidebar } from "@/features/cart/components/CartSidebar";
-import { AuthModal } from "@/features/auth";
 import * as NavigationMenu from "@radix-ui/react-navigation-menu";
 import { getAllCategories } from "@/lib/data/categories";
 import type { Category } from "@/features/products/types";
@@ -156,10 +155,6 @@ export function Header() {
   const isAuthenticated = !!user;
   const { totalItems: cartCount, toggleCart } = useCart();
 
-  const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authModalTab, setAuthModalTab] = useState<"login" | "register">(
-    "login"
-  );
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Category data
@@ -402,24 +397,18 @@ export function Header() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => {
-                        setAuthModalTab("login");
-                        setAuthModalOpen(true);
-                      }}
+                      asChild
                       className="rounded-lg px-4 text-muted-fg hover:text-primary-600 hover:bg-primary-50 font-semibold"
                     >
-                      Login
+                      <Link href="/login">Login</Link>
                     </Button>
                     <Button
                       variant="default"
                       size="sm"
-                      onClick={() => {
-                        setAuthModalTab("register");
-                        setAuthModalOpen(true);
-                      }}
+                      asChild
                       className="hidden xl:flex rounded-lg bg-primary-600 hover:bg-primary-700 text-white font-semibold shadow-md hover:shadow-lg transition-all"
                     >
-                      Sign Up
+                      <Link href="/register">Sign Up</Link>
                     </Button>
                   </div>
                 )}
@@ -500,11 +489,6 @@ export function Header() {
       </div>
 
       <CartSidebar />
-      <AuthModal
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-        initialTab={authModalTab}
-      />
     </>
   );
 }

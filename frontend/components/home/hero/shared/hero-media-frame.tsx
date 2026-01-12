@@ -136,7 +136,7 @@ export function HeroMediaFrame({
                 width={400}
                 height={400}
                 className={cn(
-                  "relative z-10 object-contain scale-[1.06] group-hover:scale-[1.1] transition-transform duration-700 ease-out max-w-full max-h-full",
+                  "relative z-10 object-contain scale-[1.06] group-hover:scale-110 transition-transform duration-[2000ms] ease-out max-w-full max-h-full",
                   getObjectPositionClass(slide.media.position)
                 )}
                 priority={shouldPrioritize}
@@ -149,7 +149,7 @@ export function HeroMediaFrame({
               alt={slide.media.alt || ""}
               fill
               className={cn(
-                "relative z-10 object-cover transition-transform duration-700 ease-out hover:scale-[1.03]",
+                "relative z-10 object-cover transition-transform duration-[3000ms] ease-out group-hover:scale-110 group-hover:rotate-1",
                 getObjectPositionClass(slide.media.position)
               )}
               priority={shouldPrioritize}
@@ -162,7 +162,7 @@ export function HeroMediaFrame({
               ref={videoRef}
               src={slide.media.videoUrl}
               className={cn(
-                "relative z-10 w-full h-full object-cover transition-transform duration-700 ease-out hover:scale-[1.03]",
+                "relative z-10 w-full h-full object-cover transition-transform duration-[3000ms] ease-out group-hover:scale-110",
                 getObjectPositionClass(slide.media.position)
               )}
               muted

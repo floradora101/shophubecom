@@ -21,5 +21,9 @@ export const registerSchema = yup.object({
       "Password must contain at least 1 uppercase, 1 lowercase, 1 number, and 1 special character"
     )
     .required("Password is required"),
+  confirmPassword: yup
+    .string()
+    .oneOf([yup.ref("password")], "Passwords must match")
+    .required("Please confirm your password"),
 });
 

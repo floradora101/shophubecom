@@ -13,7 +13,7 @@ import { DepartmentTabsSkeleton } from "@/components/home/department-tabs";
 import { ServiceShowcaseSkeleton } from "@/components/home/service-showcase";
 import { ProductRevealSectionSkeleton } from "@/components/home/product-reveal-section";
 import { TrendingNowSkeleton } from "@/components/home/trending-now";
-import { CategorySpotlightSkeleton } from "@/components/home/category-spotlight";
+import { SubcategoryShowcaseSkeleton } from "@/components/home/subcategory-showcase";
 import { LatestProductsCarouselSkeleton } from "@/components/home/deals-carousel";
 import { BrandStorySkeleton } from "@/components/home/brand-story";
 
@@ -58,13 +58,13 @@ const TrendingNow = dynamic(
   }
 );
 
-const CategorySpotlight = dynamic(
+const SubcategoryShowcase = dynamic(
   () =>
-    import("@/components/home/category-spotlight").then((mod) => ({
-      default: mod.CategorySpotlight,
+    import("@/components/home/subcategory-showcase").then((mod) => ({
+      default: mod.SubcategoryShowcase,
     })),
   {
-    loading: () => <CategorySpotlightSkeleton />,
+    loading: () => <SubcategoryShowcaseSkeleton />,
   }
 );
 
@@ -132,18 +132,12 @@ export function HomePageContent({ data }: HomePageContentProps) {
           />
         </LazySection>
 
-        {/* Category Spotlight - Lazy loaded when in viewport */}
-        <LazySection fallback={<CategorySpotlightSkeleton />}>
-          <CategorySpotlight
-            spotlightCategory={{
-              slug: "gaming-laptops",
-              name: "Gaming Laptops",
-              description:
-                "High-performance laptops built for gaming excellence",
-              products: productsByCategory["gaming-laptops"] || [],
-              accentColor: "var(--primary-600)",
-            }}
+        {/* Subcategory Showcase - Specialized deep-dive into a specific category tree */}
+        <LazySection fallback={<SubcategoryShowcaseSkeleton />}>
+          <SubcategoryShowcase
             categories={data.categories}
+            productsByCategory={productsByCategory}
+            parentCategorySlug="laptops"
           />
         </LazySection>
 

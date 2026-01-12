@@ -35,9 +35,7 @@ export interface LoginFormData {
 export interface RegisterFormData {
   email: string;
   password: string;
-  confirmPassword?: string;
-  firstName?: string;
-  lastName?: string;
+  confirmPassword: string;
 }
 
 // Re-export ApiError from lib for backward compatibility

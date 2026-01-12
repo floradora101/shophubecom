@@ -292,13 +292,98 @@ const config: Config = {
         toast: "var(--z-index-toast)",
       },
       animation: {
+        "fade-in": "fade-in var(--duration-normal) var(--ease-out) forwards",
+        "fade-out": "fade-out var(--duration-normal) var(--ease-in) forwards",
+        "fade-in-up": "fade-in-up var(--duration-normal) var(--ease-out) forwards",
+        "fade-in-down": "fade-in-down var(--duration-normal) var(--ease-out) forwards",
+        "fade-in-left": "fade-in-left var(--duration-normal) var(--ease-out) forwards",
+        "fade-in-right": "fade-in-right var(--duration-normal) var(--ease-out) forwards",
+        "scale-in": "scale-in var(--duration-normal) var(--ease-out) forwards",
+        "scale-out": "scale-out var(--duration-normal) var(--ease-in) forwards",
+        "slide-in-right": "slide-in-right var(--duration-normal) var(--ease-out) forwards",
+        "slide-in-left": "slide-in-left var(--duration-normal) var(--ease-out) forwards",
         "bounce-slow": "bounce-slow 2s ease-in-out infinite",
-        "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "pulse-slow": "pulse-slow 3s ease-in-out infinite",
+        float: "float 3s ease-in-out infinite",
+        shimmer: "shimmer 1.5s ease-in-out infinite",
+        marquee: "marquee 35s linear infinite",
+        sparkle: "sparkle 2s ease-in-out infinite",
+        "hero-item-enter": "hero-item-enter 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards",
       },
       keyframes: {
+        "fade-in": {
+          from: { opacity: "0" },
+          to: { opacity: "1" },
+        },
+        "fade-out": {
+          from: { opacity: "1" },
+          to: { opacity: "0" },
+        },
+        "fade-in-up": {
+          from: { opacity: "0", transform: "translateY(10px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "fade-in-down": {
+          from: { opacity: "0", transform: "translateY(-10px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        "fade-in-left": {
+          from: { opacity: "0", transform: "translateX(-20px)" },
+          to: { opacity: "1", transform: "translateX(0)" },
+        },
+        "fade-in-right": {
+          from: { opacity: "0", transform: "translateX(20px)" },
+          to: { opacity: "1", transform: "translateX(0)" },
+        },
+        "scale-in": {
+          from: { opacity: "0", transform: "scale(0.95)" },
+          to: { opacity: "1", transform: "scale(1)" },
+        },
+        "scale-out": {
+          from: { opacity: "1", transform: "scale(1)" },
+          to: { opacity: "0", transform: "scale(0.95)" },
+        },
+        "slide-in-right": {
+          from: { transform: "translateX(100%)", opacity: "0" },
+          to: { transform: "translateX(0)", opacity: "1" },
+        },
+        "slide-in-left": {
+          from: { transform: "translateX(-100%)", opacity: "0" },
+          to: { transform: "translateX(0)", opacity: "1" },
+        },
         "bounce-slow": {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-8px)" },
+        },
+        "pulse-slow": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.8" },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
+        shimmer: {
+          "0%": { backgroundPosition: "-200px 0" },
+          "100%": { backgroundPosition: "calc(200px + 100%) 0" },
+        },
+        marquee: {
+          "0%": { transform: "translate3d(0, 0, 0)" },
+          "100%": { transform: "translate3d(-50%, 0, 0)" },
+        },
+        sparkle: {
+          "0%, 100%": {
+            opacity: "0.2",
+            transform: "scale(0.6) rotate(0deg) translate3d(0, 0, 0)",
+          },
+          "50%": {
+            opacity: "1",
+            transform: "scale(1.1) rotate(180deg) translate3d(0, -15px, 0)",
+          },
+        },
+        "hero-item-enter": {
+          "0%": { opacity: "0", transform: "translate3d(0, 12px, 0)" },
+          "100%": { opacity: "1", transform: "translate3d(0, 0, 0)" },
         },
       },
       transitionDuration: {

@@ -10,6 +10,7 @@ import { SectionTitle } from "@/components/home/shared/section-header";
 import { CategoryCard } from "@/features/categories/components/CategoryCard";
 import { getMainCategories } from "@/lib/data/categories";
 import { LoadingSpinner } from "@/components/ui/spinner";
+import { Badge } from "@/components/ui/badge";
 
 export const metadata = {
   title: "Shop by Category",
@@ -25,9 +26,9 @@ async function CategoriesContent() {
         <Stack spacing="xl">
           {/* Header */}
           <div className="space-y-4 text-center md:text-left animate-in fade-in slide-in-from-top-4 duration-700">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 border border-primary-100 text-primary-600 text-[10px] font-bold uppercase tracking-widest">
+            <Badge variant="primary" size="default">
               <span>Our Collections</span>
-            </div>
+            </Badge>
             <SectionTitle variant="large" italic="Shop by" bold="Category" />
             <p className="text-warm-gray-600 max-w-2xl text-lg font-light leading-relaxed">
               Explore our wide range of tech categories and find the perfect hardware for your needs.

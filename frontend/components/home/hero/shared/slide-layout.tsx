@@ -15,29 +15,29 @@ export function SlideLayout({
   mediaFirst = false,
 }: SlideLayoutProps) {
   return (
-    <div className={cn("w-full h-full min-h-0 overflow-hidden", className)}>
-      <div className="px-5 lg:px-14 h-full min-h-0">
+    <div className={cn("w-full h-full min-h-0 overflow-hidden group", className)}>
+      <div className="px-5 lg:px-14 h-full min-h-0 py-6 lg:py-0">
         <div
           data-scroll
           className={cn(
             "w-full h-full min-h-0 overflow-y-auto scrollbar-hide",
-            "lg:overflow-visible lg:h-auto" // desktop keeps normal layout
+            "lg:overflow-visible lg:h-full" // desktop keeps full height
           )}
           style={{
             WebkitOverflowScrolling: "touch",
             touchAction: "pan-y",
           }}
         >
-          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 min-h-full lg:min-h-0">
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 min-h-full lg:h-full">
             <div
               data-text
               className={cn(
-                "relative shrink-0",
+                "relative shrink-0 flex flex-col justify-center",
                 mediaFirst ? "lg:order-2" : "lg:order-1",
                 "lg:w-5/12"
               )}
             >
-              <div className="grid grid-rows-[auto_auto_auto_1fr_auto_auto] gap-3 lg:gap-3">
+              <div className="grid grid-rows-[auto_auto_auto_auto_auto_auto] gap-2 lg:gap-2">
                 {textContent}
               </div>
             </div>
@@ -45,12 +45,12 @@ export function SlideLayout({
             <div
               data-media
               className={cn(
-                "flex justify-center lg:justify-end items-start lg:items-stretch shrink-0",
+                "flex justify-center lg:justify-end items-center shrink-0 lg:h-full",
                 mediaFirst ? "lg:order-1" : "lg:order-2",
                 "lg:w-7/12"
               )}
             >
-              <div className="w-full max-w-[620px] h-64 sm:h-80 md:h-96 lg:min-h-[calc(var(--hero-h)-var(--hero-pad))] min-h-0">
+              <div className="w-full max-w-[620px] h-64 sm:h-80 md:h-96 lg:h-full min-h-0 flex items-center">
                 {mediaContent}
               </div>
             </div>

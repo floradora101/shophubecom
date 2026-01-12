@@ -39,8 +39,8 @@ export function YouMayAlsoLike({ currentProduct }: YouMayAlsoLikeProps) {
       <Stack spacing="lg" className="sm:space-y-8 mt-12 sm:mt-16">
         {/* Header - 2026 Trendy Style */}
         <div className="w-full text-center mb-10 sm:mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 border border-primary-100 text-primary-600 text-[10px] font-bold uppercase tracking-widest mb-4">
-            <Sparkles className="h-3 w-3" />
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-600 border border-white/20 shadow-lg text-white text-[10px] font-black uppercase tracking-[0.2em] mb-4">
+            <Sparkles className="h-3 w-3 text-white" />
             <span>Curated For You</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-display font-bold text-warm-gray-900 tracking-tight">

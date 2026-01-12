@@ -10,7 +10,7 @@ export const HeroSecurityBadge = memo(function HeroSecurityBadge({
 }: HeroSecurityBadgeProps) {
   return (
     <div
-      className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold text-white border border-white/22 ${
+      className={`inline-flex items-center gap-2 rounded-lg px-2.5 py-1 text-[10px] sm:text-xs font-black text-white border border-white/20 shadow-lg uppercase tracking-[0.2em] ${
         className || ""
       }`}
       style={{

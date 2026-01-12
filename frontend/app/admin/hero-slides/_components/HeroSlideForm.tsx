@@ -108,7 +108,6 @@ export function HeroSlideForm({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="PRODUCT_SPOTLIGHT">Product Spotlight</SelectItem>
-                        <SelectItem value="CATEGORY_SPOTLIGHT">Category Spotlight</SelectItem>
                         <SelectItem value="OFFER">Special Offer</SelectItem>
                         <SelectItem value="TESTIMONIAL">Testimonial</SelectItem>
                         <SelectItem value="LANDSCAPE_IMAGE">Landscape Image</SelectItem>
@@ -299,122 +298,29 @@ export function HeroSlideForm({
       icon: <Sparkles className="w-4 h-4" />,
       content: (
         <div className="space-y-6">
-          {formValues.type === "LANDSCAPE_IMAGE" ? (
-            <>
-              <FormSection title="Landscape Typography" description="Special styling for landscape hero slides.">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField label="Visual Variant">
-                    <Controller
-                      name="landscapeVariant"
-                      control={control}
-                      render={({ field }) => (
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="minimal">Minimal (Clean)</SelectItem>
-                            <SelectItem value="glass">Glass (Blurred)</SelectItem>
-                            <SelectItem value="editorial">Editorial (Bold)</SelectItem>
-                            <SelectItem value="neon">Neon (Vibrant)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                  </FormField>
-                  <FormField label="Headline Decoration">
-                    <Controller
-                      name="landscapeHeadlineDecoration"
-                      control={control}
-                      render={({ field }) => (
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">None</SelectItem>
-                            <SelectItem value="underline">Underline</SelectItem>
-                            <SelectItem value="doubleUnderline">Double Underline</SelectItem>
-                            <SelectItem value="wavyUnderline">Wavy Underline</SelectItem>
-                            <SelectItem value="gradient">Gradient Text</SelectItem>
-                            <SelectItem value="glow">Soft Glow</SelectItem>
-                            <SelectItem value="redNeonGlow">Red Neon Glow</SelectItem>
-                            <SelectItem value="outline">Outline</SelectItem>
-                            <SelectItem value="outlineFill">Outline Fill</SelectItem>
-                            <SelectItem value="boxed">Boxed</SelectItem>
-                            <SelectItem value="metallic">Metallic</SelectItem>
-                            <SelectItem value="chrome">Chrome</SelectItem>
-                            <SelectItem value="platinum">Platinum</SelectItem>
-                            <SelectItem value="glitch">Glitch</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                  </FormField>
-                  <FormField label="Highlight Effect">
-                    <Controller
-                      name="landscapeHighlightEffect"
-                      control={control}
-                      render={({ field }) => (
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">None</SelectItem>
-                            <SelectItem value="underlineGlow">Underline Glow</SelectItem>
-                            <SelectItem value="pulse">Pulse</SelectItem>
-                            <SelectItem value="shimmer">Shimmer</SelectItem>
-                            <SelectItem value="bounce">Bounce</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                  </FormField>
-                </div>
-              </FormSection>
-
-              <FormSection title="Layout & Overlay" description="Positioning and background control.">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField label="Content Placement">
-                    <Controller
-                      name="landscapePlacement"
-                      control={control}
-                      render={({ field }) => (
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="left">Left Aligned</SelectItem>
-                            <SelectItem value="center">Centered</SelectItem>
-                            <SelectItem value="right">Right Aligned</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                  </FormField>
-                  <div className="space-y-2">
-                    <Text variant="small" className="font-medium">Overlay Opacity ({Math.round(formValues.overlayOpacity * 100)}%)</Text>
-                    <Controller
-                      name="overlayOpacity"
-                      control={control}
-                      render={({ field }) => (
-                        <input
-                          type="range"
-                          min="0"
-                          max="1"
-                          step="0.05"
-                          value={field.value}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                          className="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-primary"
-                        />
-                      )}
-                    />
-                  </div>
-                </div>
-              </FormSection>
-            </>
+          {formValues.type === "LANDSCAPE_IMAGE" && (
+            <FormSection title="Landscape Theme" description="Choose a professional theme package for this slide.">
+              <FormField label="Theme Selection">
+                <Controller
+                  name="landscapeTheme"
+                  control={control}
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="glass-red">Glass Red (Glassmorphism & Red Accents)</SelectItem>
+                        <SelectItem value="minimal-white">Minimal White (Clean & Elegant)</SelectItem>
+                        <SelectItem value="bold-dark">Bold Dark (High Contrast & Professional)</SelectItem>
+                        <SelectItem value="centered-glass">Centered Glass (Wide Impact & Focused)</SelectItem>
+                        <SelectItem value="right-industrial">Right Industrial (Mono Spaced & Technical)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </FormField>
+            </FormSection>
           )}
         </div>
       )

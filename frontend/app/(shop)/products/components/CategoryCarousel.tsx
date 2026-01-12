@@ -239,8 +239,8 @@ export function CategoryCarousel({
           {/* Section Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 px-4 sm:px-0">
             <div className="space-y-2 animate-in fade-in slide-in-from-left-4 duration-700">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 border border-primary-100 text-primary-600 text-[10px] font-bold uppercase tracking-widest">
-                <Sparkles className="h-3 w-3" />
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-600 border border-white/20 shadow-lg text-white text-[10px] font-black uppercase tracking-[0.2em]">
+                <Sparkles className="h-3 w-3 text-white" />
                 <span>Explore Tech Ecosystem</span>
               </div>
               <h2 className="text-3xl sm:text-4xl font-display font-bold text-warm-gray-900 tracking-tight">

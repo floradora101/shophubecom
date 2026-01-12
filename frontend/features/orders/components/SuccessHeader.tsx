@@ -55,7 +55,7 @@ export function SuccessHeader({ order, isDemo }: SuccessHeaderProps) {
         {/* Continue Shopping Button */}
         <div className="pt-4">
           <Link href="/products">
-            <button className="rounded-full bg-primary-500 px-8 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-600">
+            <button className="rounded-lg bg-red-600 px-8 py-3 text-sm font-black uppercase tracking-widest text-white transition-all hover:bg-red-700 shadow-xl hover:scale-105 active:scale-95">
               Continue Shopping
             </button>
           </Link>

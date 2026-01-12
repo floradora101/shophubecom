@@ -82,7 +82,7 @@ export function AddressSelector({
                         {address.name}
                       </span>
                       {address.isDefault && (
-                        <span className="rounded-full bg-primary-500 px-2 py-0.5 text-xs font-medium text-white">
+                        <span className="rounded-lg bg-red-600 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow-lg border border-white/20">
                           Default
                         </span>
                       )}

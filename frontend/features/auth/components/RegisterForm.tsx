@@ -29,6 +29,7 @@
  */
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -41,6 +42,7 @@ import { FormErrorAlert } from "@/components/ui/form-error-alert";
 import { FormField } from "@/components/ui/form-field";
 import type { RegisterFormData } from "../types";
 import { useFormErrorHandler } from "@/lib/forms/useFormErrorHandler";
+import { Eye, EyeOff } from "lucide-react";
 
 interface RegisterFormProps {
   onSuccess?: () => void;
@@ -50,6 +52,7 @@ interface RegisterFormProps {
 export function RegisterForm({ onSuccess, redirectUrl }: RegisterFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [showPassword, setShowPassword] = useState(false);
   const { register: registerUser } = useAuthStore(
     useShallow((state) => ({
       register: state.register,
@@ -106,13 +109,14 @@ export function RegisterForm({ onSuccess, redirectUrl }: RegisterFormProps) {
           label="Email address"
           required
           error={errors.email?.message}
-          helpText="We'll use this to sign you in"
+          className="group"
         >
           <Input
             type="email"
-            placeholder="your@email.com"
+            placeholder="you@example.com"
             {...register("email")}
             error={!!errors.email}
+            className="h-12 px-4 rounded-lg border-warm-gray-200 group-hover:border-warm-gray-300 focus:border-primary-500 transition-all duration-200"
           />
         </FormField>
 
@@ -120,31 +124,66 @@ export function RegisterForm({ onSuccess, redirectUrl }: RegisterFormProps) {
           label="Password"
           required
           error={errors.password?.message}
-          helpText="Must contain uppercase, lowercase, number, and special character"
+          className="group"
+        >
+          <div className="relative">
+            <Input
+              type={showPassword ? "text" : "password"}
+              placeholder="••••••••"
+              {...register("password")}
+              error={!!errors.password}
+              className="h-12 px-4 pr-12 rounded-lg border-warm-gray-200 group-hover:border-warm-gray-300 focus:border-primary-500 transition-all duration-200"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-warm-gray-400 hover:text-warm-gray-600 transition-colors"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
+            </button>
+          </div>
+        </FormField>
+
+        <FormField
+          label="Confirm Password"
+          required
+          error={errors.confirmPassword?.message}
+          className="group"
         >
           <Input
             type="password"
-            placeholder="Create a strong password"
-            {...register("password")}
-            error={!!errors.password}
+            placeholder="••••••••"
+            {...register("confirmPassword")}
+            error={!!errors.confirmPassword}
+            className="h-12 px-4 rounded-lg border-warm-gray-200 group-hover:border-warm-gray-300 focus:border-primary-500 transition-all duration-200"
           />
         </FormField>
       </div>
 
-      <p className="text-xs text-gray-500" role="note">
-        Your personal data will be used to support your experience throughout
-        this website, to manage access to your account, and for other purposes
-        described in our privacy policy.
-      </p>
+      <div className="py-2">
+        <p
+          className="text-[10px] text-warm-gray-500 leading-relaxed italic border-l-2 border-primary-100 pl-4 py-1"
+          role="note"
+        >
+          By creating an account, you agree to our next-gen data processing
+          protocols and privacy ecosystem.
+        </p>
+      </div>
 
-      <Button
-        type="submit"
-        isLoading={isSubmitting}
-        className="w-full"
-        size="lg"
-      >
-        REGISTER
-      </Button>
+      <div className="space-y-4 pt-2">
+        <Button
+          type="submit"
+          isLoading={isSubmitting}
+          className="w-full h-12 bg-primary-600 hover:bg-primary-700 text-white font-bold tracking-[0.05em] uppercase rounded-lg shadow-sm hover:shadow-md transition-all duration-300"
+        >
+          Initialize Account
+        </Button>
+      </div>
     </form>
   );
 }

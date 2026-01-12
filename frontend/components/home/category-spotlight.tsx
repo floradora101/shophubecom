@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { SkeletonBlock } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { SectionHeader as TechSectionHeader } from "./shared/section-header";
 import { ProductCard } from "@/features/products/components/ProductCard";
 import type { Product, Category } from "@/features/products/types";
@@ -24,34 +25,35 @@ interface CategorySpotlightProps {
     accentColor?: string;
   };
   categories?: Category[];
+  productsByCategory?: Record<string, Product[]>;
 }
 
 /**
  * Skeleton loader for Category Spotlight component
- * Updated for the new 2026 Bento layout
+ * Updated for the new 2026 Hub layout
  */
 export function CategorySpotlightSkeleton() {
   return (
-    <Section className="bg-white relative overflow-hidden py-24">
+    <Section className="bg-white relative overflow-hidden py-24 sm:py-32">
       <Container>
         <div className="space-y-12">
-          <div className="flex flex-col md:flex-row justify-between items-end gap-6">
+          <div className="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-gray-100 pb-8">
             <div className="space-y-4">
-              <SkeletonBlock className="h-8 w-48 rounded-full" />
-              <SkeletonBlock className="h-12 w-96 rounded-xl" />
+              <SkeletonBlock className="h-6 w-32 rounded-lg" />
+              <SkeletonBlock className="h-14 w-[500px] rounded-lg" />
             </div>
-            <div className="flex gap-2">
-              {[1, 2, 3].map((i) => (
-                <SkeletonBlock key={i} className="h-10 w-28 rounded-full" />
+            <div className="flex gap-3">
+              {[1, 2, 3, 4].map((i) => (
+                <SkeletonBlock key={i} className="h-12 w-32 rounded-lg" />
               ))}
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-12 gap-8">
-            <SkeletonBlock className="lg:col-span-5 h-[600px] rounded-[32px]" />
-            <div className="lg:col-span-7 grid grid-cols-2 gap-6">
-              {[1, 2, 4].map((i) => (
-                <SkeletonBlock key={i} className="h-[280px] rounded-[32px]" />
+          <div className="grid lg:grid-cols-12 gap-10">
+            <SkeletonBlock className="lg:col-span-6 h-[700px] rounded-lg" />
+            <div className="lg:col-span-6 grid grid-cols-2 gap-8">
+              {[1, 2, 3, 4].map((i) => (
+                <SkeletonBlock key={i} className="h-[320px] rounded-lg" />
               ))}
             </div>
           </div>
@@ -64,110 +66,130 @@ export function CategorySpotlightSkeleton() {
 export function CategorySpotlight({
   spotlightCategory,
   categories = [],
+  productsByCategory = {},
 }: CategorySpotlightProps) {
-  // 1. Determine active category and its siblings/children for dynamic navigation
+  // 1. Data Processing
   const defaultSpotlight = useMemo(
     () => ({
       slug: "gaming-laptops",
       name: "Gaming Laptops",
-      description: "High-performance laptops built for gaming excellence",
+      description: "Elite performance hardware for the next generation of digital excellence.",
       products: [],
-      accentColor: "#dc2626", // Strict Red
+      accentColor: "#dc2626", // Strict Brand Red
     }),
     []
   );
 
   const initialCategory = spotlightCategory || defaultSpotlight;
   const [activeSlug, setActiveSlug] = useState(initialCategory.slug);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
-  // Find subcategories if the spotlighted one is a parent, or find siblings if it's a child
-  const dynamicNav = useMemo(() => {
+  // Find subcategories of the main spotlight category
+  const subCategories = useMemo(() => {
     if (!categories.length) return [];
 
-    const current = categories.find((c) => c.slug === activeSlug);
-    if (!current) return [];
+    // Find the parent category first
+    const parent = categories.find(c => c.slug === initialCategory.slug) ||
+                   categories.find(c => c.slug === "laptops"); // Fallback
 
-    // If it's a parent, show children. If it's a child, show siblings.
-    if (!current.parentId) {
-      return categories.filter((c) => c.parentId === current.id).slice(0, 5);
-    } else {
-      return categories
-        .filter((c) => c.parentId === current.parentId)
-        .slice(0, 5);
-    }
-  }, [categories, activeSlug]);
+    if (!parent) return [];
 
-  const category = useMemo(() => {
+    // Return children of this parent
+    return categories.filter(c => c.parentId === parent.id).slice(0, 6);
+  }, [categories, initialCategory.slug]);
+
+  // Handle category switch with animation feel
+  const handleCategorySwitch = (slug: string) => {
+    if (slug === activeSlug) return;
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setActiveSlug(slug);
+      setIsTransitioning(false);
+    }, 300);
+  };
+
+  const currentCategory = useMemo(() => {
     if (activeSlug === initialCategory.slug) return initialCategory;
     const found = categories.find((c) => c.slug === activeSlug);
-    return found
-      ? {
-          ...found,
-          products: [],
-          accentColor: "#dc2626",
-          description: found.description || "",
-        }
-      : initialCategory;
-  }, [activeSlug, initialCategory, categories]);
+    return found ? { ...found, name: found.name, slug: found.slug, description: found.description || "", products: productsByCategory[found.slug] || [] } : initialCategory;
+  }, [activeSlug, initialCategory, categories, productsByCategory]);
 
-  const categoryProducts = category.products || [];
+  const categoryProducts = currentCategory.products || [];
   const featuredProduct = categoryProducts[0];
-  const gridProducts = categoryProducts.slice(1, 7);
+  const gridProducts = categoryProducts.slice(1, 5);
 
-  const highlights = [
-    { icon: Zap, label: "Performance", value: "Next-Gen" },
-    { icon: TrendingUp, label: "Demand", value: "High" },
-    { icon: Award, label: "Quality", value: "Premium" },
+  const stats = [
+    { label: "Performance", value: "99th Percentile", icon: Zap },
+    { label: "Durability", value: "Mil-Spec Rated", icon: Award },
+    { label: "Design", value: "Aesthetic Core", icon: TrendingUp },
   ];
 
-  if (!featuredProduct && gridProducts.length === 0 && !dynamicNav.length) {
+  if (!featuredProduct && gridProducts.length === 0 && subCategories.length === 0) {
     return null;
   }
 
   return (
-    <Section className="bg-white relative overflow-hidden py-24 sm:py-32">
-      {/* 2026 High-Tech Background Elements (Strict Red/Gray) */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-red-50/30 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gray-50/50 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
-        {/* Subtle grid pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-size-[40px_40px]" />
+    <Section className="bg-white relative overflow-hidden py-16 sm:py-24">
+      {/* 2026 Minimalism: Depth & Light (Red/Gray only) */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* Subtle high-tech radial gradients */}
+        <div className="absolute top-[-10%] right-[-5%] w-[1000px] h-[1000px] bg-red-50/20 rounded-full blur-[160px]" />
+        <div className="absolute bottom-[-10%] left-[-5%] w-[800px] h-[800px] bg-gray-50/40 rounded-full blur-[140px]" />
+
+        {/* Procedural Grid Pattern */}
+        <div className="absolute inset-0 opacity-[0.03] grayscale invert" style={{
+          backgroundImage: `radial-gradient(circle at 2px 2px, #000 1px, transparent 0)`,
+          backgroundSize: '48px 48px'
+        }} />
+
+        {/* Floating tech lines */}
+        <div className="absolute top-1/4 left-0 w-full h-px bg-linear-to-r from-transparent via-gray-100 to-transparent" />
+        <div className="absolute bottom-1/3 left-0 w-full h-px bg-linear-to-r from-transparent via-gray-100 to-transparent" />
       </div>
 
       <Container className="relative z-10">
-        <div className="space-y-16">
-          {/* Dynamic Navigation & Header Cluster */}
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-10">
-            <div className="flex-1">
-              <TechSectionHeader
-                badge={{
-                  icon: Sparkles,
-                  text: "Exclusive Discovery",
-                  gradient: "from-red-50 via-red-100 to-red-50",
-                }}
-                title={{
-                  italic: "Spotlight",
-                  bold: category.name,
-                }}
-                description={
-                  category.description ||
-                  "Experience the pinnacle of modern technology with our curated selections."
-                }
-              />
+        <div className="space-y-12">
+          {/* THE HUB HEADER */}
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 border-b border-gray-100 pb-8">
+            <div className="max-w-2xl space-y-4">
+              <Badge variant="primary">
+                <span className="w-1.5 h-1.5 bg-white animate-pulse rounded-full mr-1.5" />
+                Tech Spotlight 2026
+              </Badge>
+
+              <h2 className="text-4xl sm:text-6xl font-black text-gray-900 tracking-[-0.04em] leading-[0.95]">
+                <span className="block opacity-20 text-gray-400">Premium</span>
+                <span className="block">{currentCategory.name}</span>
+              </h2>
+
+              <p className="text-lg text-gray-500 font-medium leading-relaxed max-w-lg">
+                {currentCategory.description || "The intersection of raw power and sophisticated industrial design."}
+              </p>
             </div>
 
-            {/* Dynamic Sub-Category Glass Pills */}
-            {dynamicNav.length > 0 && (
-              <div className="flex flex-wrap gap-2 p-2 bg-gray-50/80 backdrop-blur-xl border border-gray-100 rounded-[28px] shadow-sm">
-                {dynamicNav.map((nav) => (
+            {/* Sub-category Intelligent Selector */}
+            {subCategories.length > 0 && (
+              <div className="flex flex-wrap gap-2 p-1.5 bg-gray-50/50 backdrop-blur-2xl border border-gray-100 rounded-[32px]">
+                <button
+                  onClick={() => handleCategorySwitch(initialCategory.slug)}
+                  className={cn(
+                    "px-8 py-3.5 rounded-[24px] text-sm font-black transition-all duration-500 active:scale-95",
+                    activeSlug === initialCategory.slug
+                      ? "bg-red-600 text-white shadow-2xl shadow-red-200"
+                      : "text-gray-400 hover:text-gray-900 hover:bg-white"
+                  )}
+                >
+                  All Tech
+                </button>
+                {subCategories.map((nav) => (
                   <button
                     key={nav.id}
-                    onClick={() => setActiveSlug(nav.slug)}
+                    onClick={() => handleCategorySwitch(nav.slug)}
                     className={cn(
-                      "px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-300 active:scale-95",
+                      "px-8 py-3.5 rounded-[24px] text-sm font-black transition-all duration-500 active:scale-95",
                       activeSlug === nav.slug
-                        ? "bg-red-600 text-white shadow-lg shadow-red-200"
-                        : "text-gray-500 hover:text-gray-900 hover:bg-white"
+                        ? "bg-red-600 text-white shadow-2xl shadow-red-200"
+                        : "text-gray-400 hover:text-gray-900 hover:bg-white"
                     )}
                   >
                     {nav.name}
@@ -177,76 +199,72 @@ export function CategorySpotlight({
             )}
           </div>
 
-          {/* Bento Grid 2026 Layout */}
-          <div className="grid lg:grid-cols-12 gap-8">
-            {/* LARGE FEATURED CARD (5 Cols) */}
-            {featuredProduct && (
-              <div className="lg:col-span-5 h-full">
-                <div className="group relative h-full flex flex-col bg-white rounded-[40px] border border-gray-100 shadow-sm hover:shadow-2xl hover:shadow-gray-200/50 transition-all duration-700 overflow-hidden">
-                  {/* Decorative Red Accent */}
-                  <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-red-600 to-red-400" />
+          {/* BENTO HUB LAYOUT */}
+          <div className={cn(
+            "grid lg:grid-cols-12 gap-10 transition-all duration-500",
+            isTransitioning ? "opacity-0 translate-y-4 scale-[0.98]" : "opacity-100 translate-y-0 scale-100"
+          )}>
 
-                  <div className="relative aspect-square bg-gray-50/50 overflow-hidden flex items-center justify-center p-12">
+            {/* 01. THE MONOLITH (Featured Card) */}
+            {featuredProduct && (
+              <div className="lg:col-span-6 xl:col-span-5 h-full">
+                <div className="group relative h-full flex flex-col bg-gray-900 rounded-lg overflow-hidden transition-all duration-700 hover:shadow-[0_40px_80px_-15px_rgba(220,38,38,0.15)]">
+                  {/* High-tech overlay effects */}
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(220,38,38,0.15),transparent_70%)] opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+
+                  <div className="relative aspect-square flex items-center justify-center p-16">
+                    {/* Animated aura */}
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.05),transparent_60%)] group-hover:scale-150 transition-transform duration-1000" />
+
                     <Image
                       src={getProductImageWithPlaceholder(featuredProduct)}
                       alt={featuredProduct.name}
                       fill
-                      className="object-contain p-12 group-hover:scale-110 transition-transform duration-1000 ease-out"
+                      className="object-contain p-20 drop-shadow-[0_35px_35px_rgba(0,0,0,0.5)] group-hover:scale-110 group-hover:-rotate-2 transition-all duration-1000 ease-[cubic-bezier(0.23,1,0.32,1)]"
                       sizes="(max-width: 1024px) 100vw, 40vw"
                     />
-                    <div className="absolute top-8 left-8">
-                      <div className="flex items-center gap-2 bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl border border-gray-100 shadow-sm">
-                        <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-900">
-                          Primary Feature
-                        </span>
-                      </div>
+
+                    {/* Tech Data Points */}
+                    <div className="absolute top-12 right-12 text-right">
+                      <div className="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1">Status</div>
+                      <div className="text-sm font-bold text-white">In High Demand</div>
                     </div>
                   </div>
 
-                  <div className="p-10 flex flex-col flex-1">
-                    <div className="space-y-4 mb-10">
-                      <h3 className="text-3xl font-black text-gray-900 leading-tight tracking-tighter">
+                  <div className="p-12 xl:p-16 flex flex-col flex-1 relative z-10">
+                    <div className="space-y-4 mb-12">
+                      <h3 className="text-4xl xl:text-5xl font-black text-white leading-[0.9] tracking-tighter">
                         {featuredProduct.name}
                       </h3>
-                      <p className="text-gray-500 text-lg leading-relaxed line-clamp-2">
-                        {featuredProduct.description || category.description}
+                      <p className="text-gray-400 text-lg leading-relaxed max-w-md italic">
+                        &quot;{featuredProduct.description || currentCategory.description}&quot;
                       </p>
                     </div>
 
-                    {/* Integrated Specs Strip */}
-                    <div className="grid grid-cols-3 gap-1 bg-gray-50 p-1 rounded-3xl border border-gray-100 mb-10">
-                      {highlights.map((h, i) => (
-                        <div
-                          key={i}
-                          className="bg-white py-4 px-2 rounded-2xl text-center shadow-xs"
-                        >
-                          <h.icon className="h-4 w-4 text-red-600 mx-auto mb-2" />
-                          <div className="text-[9px] font-black text-gray-400 uppercase tracking-tighter">
-                            {h.label}
-                          </div>
-                          <div className="text-xs font-black text-gray-900">
-                            {h.value}
-                          </div>
+                    {/* Stats HUD */}
+                    <div className="grid grid-cols-3 gap-4 mb-12">
+                      {stats.map((s, i) => (
+                        <div key={i} className="space-y-2">
+                          <s.icon className="h-4 w-4 text-red-600" />
+                          <div className="text-[9px] font-black text-gray-500 uppercase tracking-widest">{s.label}</div>
+                          <div className="text-xs font-bold text-white">{s.value}</div>
                         </div>
                       ))}
                     </div>
 
-                    <div className="mt-auto flex items-center justify-between gap-6">
+                    <div className="mt-auto flex items-center justify-between gap-8 pt-10 border-t border-white/10">
                       <div className="space-y-1">
-                        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                          Starting From
-                        </span>
-                        <div className="text-4xl font-black text-gray-900 tracking-tighter">
+                        <div className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Acquisition Cost</div>
+                        <div className="text-4xl font-black text-white tracking-tighter">
                           {formatPrice(featuredProduct.price)}
                         </div>
                       </div>
                       <Button
                         asChild
-                        className="bg-red-600 hover:bg-red-700 text-white rounded-[24px] px-10 h-16 text-lg font-black shadow-xl shadow-red-200 transition-all hover:-translate-y-1 active:scale-95"
+                        className="bg-white hover:bg-red-600 text-gray-900 hover:text-white rounded-lg px-12 h-20 text-xl font-black transition-all duration-500 hover:scale-105 active:scale-95 shadow-2xl"
                       >
                         <Link href={`/products/${featuredProduct.slug}`}>
-                          Acquire Now
+                          Explore
                         </Link>
                       </Button>
                     </div>
@@ -255,41 +273,39 @@ export function CategorySpotlight({
               </div>
             )}
 
-            {/* PRODUCT CLUSTER (7 Cols) */}
-            <div className="lg:col-span-7 flex flex-col gap-8">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {gridProducts.slice(0, 4).map((product, index) => (
+            {/* 02. THE CLUSTER (Secondary Products) */}
+            <div className="lg:col-span-6 xl:col-span-7 flex flex-col gap-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {gridProducts.map((product, index) => (
                   <div
                     key={product.id}
                     className={cn(
-                      "bg-white rounded-[32px] border border-gray-100 p-6 hover:shadow-xl hover:border-red-100 transition-all duration-500 group",
-                      index === 0 && "sm:bg-gray-50/30"
+                      "group relative bg-white rounded-lg border border-gray-100 p-8 transition-all duration-500 hover:border-red-600/20 hover:shadow-2xl hover:shadow-gray-100",
+                      index % 2 === 1 ? "md:translate-y-12" : ""
                     )}
                   >
+                    <div className="absolute top-8 right-8 w-2 h-2 rounded-full bg-gray-100 group-hover:bg-red-600 transition-colors duration-500" />
                     <ProductCard product={product} layout="vertical" />
                   </div>
                 ))}
               </div>
 
-              {/* Browse All "Slide" - Trendy CTA */}
+              {/* 03. THE MASTER CTA */}
               <Link
-                href={`/products?category=${category.slug}`}
-                className="group relative h-48 rounded-[32px] bg-gray-900 overflow-hidden flex items-center p-10 transition-all duration-500 hover:scale-[1.01] active:scale-[0.99]"
+                href={`/products?category=${currentCategory.slug}`}
+                className="mt-auto group relative h-40 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden flex items-center px-12 transition-all duration-700 hover:bg-white hover:border-red-600/30 hover:scale-[1.02]"
               >
-                <div className="absolute inset-0 bg-linear-to-br from-red-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-110 transition-transform duration-1000" />
+                <div className="absolute top-0 left-0 w-1 h-full bg-red-600 scale-y-0 group-hover:scale-y-100 transition-transform duration-700 origin-top" />
 
                 <div className="relative z-10 flex-1">
-                  <h4 className="text-2xl font-black text-white mb-2 tracking-tight">
-                    Explore the Entire Catalog
+                  <div className="text-[10px] font-black text-red-600 uppercase tracking-[0.3em] mb-2">Full Collection</div>
+                  <h4 className="text-3xl font-black text-gray-900 tracking-tighter group-hover:translate-x-2 transition-transform duration-500">
+                    Discover All {currentCategory.name} &rarr;
                   </h4>
-                  <p className="text-gray-400 font-bold uppercase tracking-[0.2em] text-[10px]">
-                    {category.name} Collection &bull; 2026 Edition
-                  </p>
                 </div>
 
-                <div className="relative z-10 h-14 w-14 rounded-full bg-red-600 flex items-center justify-center text-white shadow-xl shadow-red-900/20 group-hover:translate-x-2 transition-all duration-500">
-                  <ArrowRight className="h-6 w-6" />
+                <div className="hidden sm:block text-gray-300 font-black text-7xl absolute right-12 opacity-10 group-hover:opacity-20 transition-opacity select-none">
+                  {currentCategory.name.split(' ')[0]}
                 </div>
               </Link>
             </div>

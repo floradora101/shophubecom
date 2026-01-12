@@ -25,7 +25,6 @@ import {
 import { getAllProductImages } from "@/features/products/utils/product-images";
 import { ProductGallery } from "./components/ProductGallery";
 import { ProductPurchasePanel } from "./components/ProductPurchasePanel";
-import { TrustModule } from "@/components/TrustModule";
 import { ProductDetailsTabs } from "./components/ProductDetailsTabs";
 import { YouMayAlsoLike } from "./components/YouMayAlsoLike";
 import { StickyPurchaseBar } from "./components/StickyPurchaseBar";
@@ -210,16 +209,6 @@ export function ProductDetailSkeleton() {
 
               <div id="purchase-section">
                 <ProductPurchasePanelSkeleton />
-              </div>
-
-              {/* Quality Strip */}
-              <div className="flex items-center justify-center gap-6 py-4">
-                {Array.from({ length: 3 }, (_, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <SkeletonBlock className="w-5 h-5 rounded" />
-                    <SkeletonBlock className="h-4 w-20" />
-                  </div>
-                ))}
               </div>
             </div>
           </div>
@@ -775,37 +764,30 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
                       </div>
                     </div>
 
-                    {/* Compact Specs Grid */}
-                    <div className="bg-surface rounded-lg border border-border/40 overflow-hidden">
-                      <div className="divide-y divide-border/30">
+                    {/* Compact Specs Grid - Enhanced design with no background */}
+                    <div className="overflow-hidden">
+                      <div className="divide-y divide-border/40">
                         {product.specs.map((spec, index) => (
                           <div
                             key={index}
-                            className="group px-4 py-3 hover:bg-surface-muted/50 transition-colors duration-200"
+                            className="group py-3.5 transition-colors duration-200"
                           >
                             <div className="flex items-center justify-between gap-4">
-                              <span className="text-sm font-medium text-muted-fg flex-1 min-w-0">
+                              <span className="text-sm font-medium text-muted-fg flex-1 min-w-0 flex items-center gap-2">
+                                <span className="w-1 h-1 rounded-full bg-primary/40 group-hover:bg-primary transition-colors" />
                                 {spec.label}
                               </span>
-                              <span className="text-sm font-semibold text-fg flex-1 min-w-0 text-right">
+                              <span className="text-sm font-bold text-fg flex-1 min-w-0 text-right tracking-tight">
                                 {spec.value}
                               </span>
                             </div>
                           </div>
                         ))}
                       </div>
-
-                      {/* Compact footer accent */}
-                      <div className="h-1 bg-linear-to-r from-primary/20 via-primary/40 to-primary/20" />
                     </div>
                   </div>
                 </div>
               )}
-
-              {/* Trust Module */}
-              <div>
-                <TrustModule />
-              </div>
             </div>
           </div>
         </div>
@@ -813,17 +795,10 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
         {/* Full-width sections below the grid */}
         <div className="mt-12 sm:mt-16 lg:mt-20 space-y-12 sm:space-y-16 lg:space-y-20">
           {/* Product Details Tabs */}
-          <div className="space-y-8 sm:space-y-10">
-            <div className="w-full text-center">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-warm-gray-100 border border-warm-gray-200 text-warm-gray-600 text-[10px] font-bold uppercase tracking-widest mb-4">
-                <Settings className="h-3 w-3" />
-                <span>Deep Dive</span>
-              </div>
-              <h2 className="text-3xl sm:text-4xl font-display font-bold text-warm-gray-900 tracking-tight">
-                Product{" "}
-                <span className="italic font-normal text-primary-600">
-                  Experience
-                </span>
+          <div className="space-y-8">
+            <div className="w-full">
+              <h2 className="text-2xl sm:text-3xl font-display font-bold text-fg tracking-tight">
+                Product Details
               </h2>
             </div>
             <ProductDetailsTabs product={product} />

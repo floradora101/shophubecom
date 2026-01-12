@@ -9,7 +9,6 @@ import {
   Calendar,
   ChevronDown,
   ChevronUp,
-  PenTool,
   Settings,
   Monitor,
   Cpu,
@@ -21,12 +20,10 @@ import {
   Package,
 } from "lucide-react";
 import { Tabs, TabItem } from "@/components/ui/tabs";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StarRating } from "@/components/ui/star-rating";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import type { Product } from "@/features/products/types";
 import {
   mockReviews,
@@ -81,14 +78,14 @@ function ReviewCard({ review }: { review: Review }) {
       : review.content.substring(0, 200) + "...";
 
   return (
-    <Card variant="default" padding="lg" className="shadow-sm bg-transparent">
-      <div className="space-y-4">
+    <div className="py-8 first:pt-0 border-b border-border/40 last:border-0 transition-all duration-300">
+      <div className="space-y-5">
         {/* Header with user info and rating */}
         <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10 ring-2 ring-primary-100">
+          <div className="flex items-center gap-4">
+            <Avatar className="h-11 w-11 ring-offset-2 ring-1 ring-border/50">
               <AvatarImage src={review.userAvatar} alt={review.userName} />
-              <AvatarFallback className="bg-primary-100 text-primary-600">
+              <AvatarFallback className="bg-surface-muted text-muted-fg font-bold">
                 {review.userName
                   .split(" ")
                   .map((n) => n[0])
@@ -97,23 +94,23 @@ function ReviewCard({ review }: { review: Review }) {
             </Avatar>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-foreground truncate">
+                <span className="font-bold text-fg tracking-tight">
                   {review.userName}
                 </span>
                 {review.verified && (
-                  <Badge variant="success" className="text-xs px-2 py-0.5">
+                  <Badge variant="success" className="bg-emerald-500/10 text-emerald-600 border-none text-[10px] px-2 py-0 font-bold">
                     <CheckCircle className="h-3 w-3 mr-1" />
                     Verified
                   </Badge>
                 )}
               </div>
-              <div className="flex items-center gap-2 mt-1">
+              <div className="flex items-center gap-3 mt-1">
                 <StarRating
                   rating={review.rating}
                   size="sm"
                   showCount={false}
                 />
-                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                <span className="text-[10px] font-bold text-muted-fg flex items-center gap-1 uppercase tracking-widest opacity-60">
                   <Calendar className="h-3 w-3" />
                   {formatDate(review.date)}
                 </span>
@@ -122,16 +119,12 @@ function ReviewCard({ review }: { review: Review }) {
           </div>
         </div>
 
-        {/* Review title */}
-        <div>
-          <h4 className="font-display font-bold text-foreground mb-2">
+        {/* Review title and content */}
+        <div className="space-y-3">
+          <h4 className="font-display font-bold text-fg text-lg tracking-tight leading-snug">
             {review.title}
           </h4>
-        </div>
-
-        {/* Review content */}
-        <div className="space-y-3">
-          <p className="text-foreground leading-relaxed text-sm">
+          <p className="text-muted-fg leading-relaxed text-sm sm:text-base font-medium max-w-3xl">
             {displayContent}
           </p>
 
@@ -140,7 +133,7 @@ function ReviewCard({ review }: { review: Review }) {
               variant="ghost"
               size="sm"
               onClick={() => setIsExpanded(!isExpanded)}
-              className="h-auto p-0 text-primary-600 hover:text-primary-600 hover:bg-primary-50"
+              className="h-auto p-0 text-primary hover:text-primary/80 hover:bg-transparent font-bold text-xs uppercase tracking-widest"
             >
               {isExpanded ? (
                 <>
@@ -158,47 +151,52 @@ function ReviewCard({ review }: { review: Review }) {
 
           {/* Product variant info */}
           {review.productVariant && (
-            <div className="text-xs text-muted-foreground bg-muted px-3 py-2 rounded-lg">
-              <span className="font-medium">Purchased:</span>{" "}
+            <div className="text-[10px] font-bold text-muted-fg bg-surface-muted px-2.5 py-1 rounded-md border border-border/40 inline-block uppercase tracking-widest">
+              <span className="opacity-50">Purchased:</span>{" "}
               {review.productVariant}
             </div>
           )}
         </div>
       </div>
-    </Card>
+    </div>
   );
 }
 
 // Reviews Summary Component
 function ReviewsSummary({ stats }: { stats: ReviewStats }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-      {/* Overall Rating Card */}
-      <Card padding="lg" className="bg-muted">
-        <div className="text-center space-y-4">
-          <div className="text-4xl font-bold text-foreground">
-            {stats.averageRating}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16 items-center">
+      {/* Overall Rating Section */}
+      <div className="flex flex-col items-center justify-center py-10">
+        <div className="text-center space-y-6">
+          <div className="relative inline-block">
+            <div className="text-7xl font-display font-black text-fg tracking-tighter">
+              {stats.averageRating}
+            </div>
+            <div className="absolute -top-1 -right-4 w-3 h-3 rounded-full bg-primary animate-pulse" />
           </div>
           <StarRating
             rating={stats.averageRating}
             size="lg"
             showCount={false}
           />
-          <div className="text-sm text-muted-foreground">
-            Based on {stats.totalReviews} reviews
-          </div>
-          <div className="text-xs text-muted-foreground">
-            {stats.verifiedReviews} verified purchases
+          <div className="space-y-2">
+            <div className="text-xs font-black text-fg uppercase tracking-[0.2em]">
+              Based on {stats.totalReviews} reviews
+            </div>
+            <div className="text-[10px] font-bold text-muted-fg uppercase tracking-[0.2em] opacity-60">
+              {stats.verifiedReviews} verified purchases
+            </div>
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Rating Distribution */}
-      <Card padding="lg" className="bg-transparent">
-        <h4 className="font-display font-bold text-foreground mb-4">
+      <div className="space-y-5 flex flex-col justify-center">
+        <h4 className="text-xs font-black text-fg uppercase tracking-[0.2em] mb-4 text-center md:text-left opacity-80">
           Rating Breakdown
         </h4>
-        <div className="space-y-3">
+        <div className="space-y-4">
           {[5, 4, 3, 2, 1].map((rating) => {
             const count =
               stats.ratingDistribution[
@@ -206,20 +204,25 @@ function ReviewsSummary({ stats }: { stats: ReviewStats }) {
               ];
             const percentage = (count / stats.totalReviews) * 100;
             return (
-              <div key={rating} className="flex items-center gap-3">
-                <div className="flex items-center gap-1 min-w-[60px]">
-                  <span className="text-sm font-medium">{rating}</span>
-                  <Star className="h-3 w-3 fill-current text-primary" />
+              <div key={rating} className="flex items-center gap-4 group">
+                <div className="flex items-center gap-1.5 min-w-[55px]">
+                  <span className="text-xs font-bold">{rating}</span>
+                  <Star className="h-3 w-3 fill-primary text-primary transition-transform group-hover:scale-125" />
                 </div>
-                <Progress value={percentage} className="flex-1 h-2" />
-                <span className="text-xs text-muted-foreground min-w-[30px]">
+                <div className="flex-1 h-1.5 bg-surface-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-primary rounded-full transition-all duration-1000"
+                    style={{ width: `${percentage}%` }}
+                  />
+                </div>
+                <span className="text-[10px] font-bold text-muted-fg min-w-[35px] text-right">
                   {count}
                 </span>
               </div>
             );
           })}
         </div>
-      </Card>
+      </div>
     </div>
   );
 }
@@ -309,7 +312,7 @@ function ReviewsTab({ product }: { product: Product }) {
               variant="outline"
               size="sm"
             >
-              <PenTool className="h-4 w-4 mr-2" />
+              <PenTool className="h-4 w-4" />
               Write Review
             </Button>
 
@@ -406,34 +409,36 @@ function ReviewsTab({ product }: { product: Product }) {
 function SpecificationsTab({ product }: { product: Product }) {
   if (!product.specs || product.specs.length === 0) {
     return (
-      <div className="text-center py-12">
-        <Settings className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-foreground mb-2">
+      <div className="text-center py-16">
+        <div className="w-16 h-16 rounded-full bg-surface-muted flex items-center justify-center mx-auto mb-6">
+          <Settings className="h-8 w-8 text-muted-foreground/40" />
+        </div>
+        <h3 className="text-xl font-display font-bold text-foreground mb-2">
           No Specifications Available
         </h3>
-        <p className="text-muted-foreground">
-          Specifications for this product are not currently available.
+        <p className="text-muted-foreground max-w-xs mx-auto text-sm">
+          Technical specifications for this product are not currently available.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-10 gap-x-12">
         {product.specs.map((spec, index) => (
           <div
             key={index}
-            className="flex items-center gap-4 p-4 rounded-lg border border-border/50 bg-surface/30 hover:bg-surface/50 transition-colors"
+            className="flex items-start gap-4 transition-all duration-300 group"
           >
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-surface-muted flex items-center justify-center text-muted-fg shrink-0 group-hover:bg-primary/10 group-hover:text-primary transition-colors duration-300">
               {getSpecIcon(spec.label)}
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-muted-fg uppercase tracking-wider">
+            <div className="flex-1 min-w-0 pt-0.5">
+              <p className="text-[10px] font-black text-muted-fg uppercase tracking-[0.2em] mb-1.5 opacity-50">
                 {spec.label}
               </p>
-              <p className="text-sm font-semibold text-fg truncate">
+              <p className="text-sm sm:text-base font-bold text-fg truncate">
                 {spec.value}
               </p>
             </div>
@@ -451,11 +456,11 @@ function DescriptionTab({ product }: { product: Product }) {
   if (!description) {
     return (
       <div className="text-center py-12">
-        <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-foreground mb-2">
+        <FileText className="h-12 w-12 text-muted-fg mx-auto mb-4" />
+        <h3 className="text-lg font-medium text-fg mb-2">
           No Description Available
         </h3>
-        <p className="text-muted-foreground">
+        <p className="text-muted-fg">
           A description for this product is not currently available.
         </p>
       </div>
@@ -464,48 +469,34 @@ function DescriptionTab({ product }: { product: Product }) {
 
   return (
     <div className="relative">
-      <div className="absolute -left-4 top-0 bottom-0 w-1 bg-linear-to-b from-primary-500/50 via-primary-500/20 to-transparent rounded-full hidden md:block" />
-      <Card
-        variant="default"
-        padding="xl"
-        className="bg-surface/40 backdrop-blur-xs border-border/40 overflow-hidden relative group"
-      >
-        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity duration-700 pointer-events-none">
-          <FileText className="h-32 w-32 rotate-12" />
+      <div className="space-y-10">
+        <div className="flex items-center gap-4 mb-2">
+          <h4 className="text-xl sm:text-2xl font-display font-bold text-fg tracking-tight">
+            Design & Features
+          </h4>
         </div>
 
-        <div className="relative space-y-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-              <PenTool className="h-4 w-4" />
-            </div>
-            <h4 className="text-lg font-display font-bold text-warm-gray-900 tracking-tight">
-              Design & Features
-            </h4>
-          </div>
+        <div className="prose prose-slate prose-sm md:prose-base max-w-none">
+          <p className="text-muted-fg leading-relaxed whitespace-pre-line text-sm sm:text-base">
+            {description}
+          </p>
+        </div>
 
-          <div className="prose prose-slate prose-sm md:prose-base max-w-none">
-            <div className="text-warm-gray-700 leading-relaxed whitespace-pre-line font-sans font-normal tracking-wide text-base md:text-lg italic border-l-4 border-primary-500/10 pl-6 py-2 bg-primary-50/5 rounded-r-xl">
-              {description}
-            </div>
+        <div className="flex flex-wrap gap-x-8 gap-y-4 pt-10 border-t border-border/40">
+          <div className="flex items-center gap-2 text-[11px] font-bold text-muted-fg uppercase tracking-widest">
+            <CheckCircle className="h-3.5 w-3.5 text-muted-fg opacity-60" />
+            <span>Premium Quality</span>
           </div>
-
-          <div className="flex flex-wrap gap-4 pt-4 border-t border-border/40">
-            <div className="flex items-center gap-2 text-xs font-semibold text-warm-gray-500 uppercase tracking-widest">
-              <CheckCircle className="h-4 w-4 text-success" />
-              <span>Premium Quality</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-warm-gray-500 uppercase tracking-widest">
-              <CheckCircle className="h-4 w-4 text-success" />
-              <span>Expertly Crafted</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-warm-gray-500 uppercase tracking-widest">
-              <CheckCircle className="h-4 w-4 text-success" />
-              <span>Modern Design</span>
-            </div>
+          <div className="flex items-center gap-2 text-[11px] font-bold text-muted-fg uppercase tracking-widest">
+            <CheckCircle className="h-3.5 w-3.5 text-muted-fg opacity-60" />
+            <span>Expertly Crafted</span>
+          </div>
+          <div className="flex items-center gap-2 text-[11px] font-bold text-muted-fg uppercase tracking-widest">
+            <CheckCircle className="h-3.5 w-3.5 text-muted-fg opacity-60" />
+            <span>Modern Design</span>
           </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

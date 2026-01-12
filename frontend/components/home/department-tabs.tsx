@@ -16,14 +16,17 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Container } from "@/components/ui/container";
+import { Badge } from "@/components/ui/badge";
 import { Section } from "@/components/ui/section";
 import { SkeletonBlock } from "@/components/ui/skeleton";
 import { NavigationButton } from "@/components/ui/navigation-button";
 import { ProductCard } from "@/features/products/components/ProductCard";
 import { ProductCardSkeleton } from "@/features/products/components/ProductCardSkeleton";
-import { SectionTitle } from "./shared/section-header";
+import { SectionHeader, SectionTitle } from "./shared/section-header";
 import type { Product, Category } from "@/features/products/types";
 import { getDiscountInfo } from "@/lib/utils/products";
+import { SparkleEffect } from "./hero/shared/SparkleEffect";
+import { useHeroRunCounter } from "@/lib/hooks/use-hero-run-counter";
 
 interface DepartmentTabsProps {
   categories: Category[];
@@ -104,10 +107,9 @@ export function DepartmentTabsSkeleton() {
     <Section spacing="md" className="relative overflow-hidden bg-transparent">
       <Container className="relative z-10">
         <div className="space-y-6">
-          {/* Header - Typography set once at container level */}
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="text-center md:text-left space-y-4 flex-1">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r from-primary-100 via-primary-100 to-primary-200 mb-2">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600/10 mb-2">
                 <SkeletonBlock className="h-4 w-4 rounded" />
                 <SkeletonBlock className="h-4 w-32 rounded" />
               </div>
@@ -165,6 +167,27 @@ export function DepartmentTabs({
   productsByCategory,
 }: DepartmentTabsProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  // Intersection Observer to trigger entrance animations
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
 
   const scroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
@@ -188,6 +211,10 @@ export function DepartmentTabs({
   const [activeTab, setActiveTab] = useState(() => {
     return mainCategories.length > 0 ? mainCategories[0].slug : "";
   });
+
+  // Track tab changes for animation re-triggering
+  const { run, animationKey } = useHeroRunCounter(isVisible);
+  const { run: tabRun, animationKey: tabAnimationKey } = useHeroRunCounter(!!activeTab);
 
   const activeConfig = departmentConfig[activeTab] || departmentConfig.phones;
 
@@ -282,43 +309,55 @@ export function DepartmentTabs({
   const skeletonCount = Math.max(0, COUNT - selectedProducts.length);
 
   return (
-    <Section spacing="md" className="relative overflow-hidden bg-transparent">
-      <Container className="relative z-10">
-        <div className="space-y-6">
-          {/* Header - Typography set once at container level */}
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="text-center md:text-left space-y-4 flex-1">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r from-primary-100 via-primary-100 to-primary-200 mb-2">
-                <Grid3X3 className="h-4 w-4 text-primary-600" />
-                <span className="text-sm font-semibold text-primary-600 font-[var(--font-inter)]">
-                  Explore Collections
-                </span>
-              </div>
-              <SectionTitle italic="Shop by" bold="Category" />
-              <p className="text-gray-600 max-w-2xl text-sm md:text-lg font-[var(--font-inter)] font-light leading-relaxed">
-                Discover curated collections tailored to your lifestyle
-              </p>
-            </div>
-            {/* Slider Navigation */}
-            <div className="hidden md:flex gap-2">
-              <NavigationButton
-                variant="primary"
-                direction="left"
-                onClick={() => scroll("left")}
-                aria-label="Scroll left"
-              />
-              <NavigationButton
-                variant="primary"
-                direction="right"
-                onClick={() => scroll("right")}
-                aria-label="Scroll right"
-              />
-            </div>
-          </div>
+    <Section
+      ref={sectionRef}
+      spacing="md"
+      className="relative overflow-hidden bg-transparent py-16 md:py-24"
+    >
+      {/* Background Enhancements to match Hero Slides */}
+      <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary-500/5 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-primary-600/5 rounded-full blur-[100px] animate-pulse delay-700" />
+        <SparkleEffect count={15} className="opacity-40" isActive={isVisible} />
+      </div>
 
-          {/* Enhanced Tabs with Icons */}
-          <div className="flex flex-wrap justify-center gap-2 pb-4">
-            {mainCategories.map((category) => {
+      <Container className="relative z-10">
+        <div
+          className="space-y-8"
+          data-run={run}
+          key={animationKey}
+        >
+          <SectionHeader
+            badge={{
+              icon: Grid3X3,
+              text: "Explore Collections",
+            }}
+            title={{
+              italic: "Shop by",
+              bold: "Category",
+            }}
+            description="Discover curated collections tailored to your lifestyle"
+            actions={
+              <div className="hidden md:flex gap-3">
+                <NavigationButton
+                  variant="primary"
+                  direction="left"
+                  onClick={() => scroll("left")}
+                  aria-label="Scroll left"
+                />
+                <NavigationButton
+                  variant="primary"
+                  direction="right"
+                  onClick={() => scroll("right")}
+                  aria-label="Scroll right"
+                />
+              </div>
+            }
+          />
+
+          {/* Enhanced Tabs with Staggered Entrance */}
+          <div className="flex flex-wrap justify-center gap-3 pb-6 hero-item-enter hero-headline">
+            {mainCategories.map((category, idx) => {
               const config =
                 departmentConfig[category.slug] || departmentConfig.phones;
               const Icon = config.icon;
@@ -328,27 +367,30 @@ export function DepartmentTabs({
                 <button
                   key={category.id}
                   onClick={() => setActiveTab(category.slug)}
-                  className={`group relative px-4 py-2 rounded-xl font-bold transition-all duration-500 ease-out transform hover:scale-[1.05] active:scale-95 ${
+                  className={`group relative px-6 py-3 rounded-lg font-black transition-all duration-500 ease-out transform hover:scale-[1.05] active:scale-95 ${
                     isActive
-                      ? "bg-linear-to-r from-red-600 via-red-700 to-red-800 text-white shadow-xl shadow-red-500/25 border border-white/20"
-                      : "bg-white/80 backdrop-blur-md text-gray-600 hover:text-red-600 border border-gray-200/50 hover:border-red-200 hover:bg-red-50/50 shadow-sm hover:shadow-md"
+                      ? "bg-linear-to-r from-red-600 via-red-700 to-red-800 text-white shadow-2xl shadow-red-500/30 border border-white/20"
+                      : "bg-white/90 backdrop-blur-md text-gray-600 hover:text-red-600 border border-gray-100 hover:border-red-200 hover:bg-red-50/80 shadow-sm hover:shadow-xl"
                   }`}
+                  style={{
+                    animationDelay: `${idx * 50}ms`,
+                  }}
                   aria-selected={isActive}
                   role="tab"
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     <Icon
-                      className={`h-4 w-4 transition-all duration-500 ${
+                      className={`h-5 w-5 transition-all duration-700 ${
                         isActive
-                          ? "scale-110 rotate-3"
-                          : "group-hover:scale-110 group-hover:-rotate-3"
+                          ? "scale-110 rotate-12"
+                          : "group-hover:scale-110 group-hover:-rotate-6"
                       }`}
                     />
-                    <span className="text-xs sm:text-sm tracking-tight">
+                    <span className="text-xs sm:text-sm tracking-widest uppercase">
                       {category.name}
                     </span>
                     {isActive && (
-                      <Sparkles className="h-3.5 w-3.5 animate-pulse text-white/80" />
+                      <Sparkles className="h-4 w-4 animate-pulse text-white/90" />
                     )}
                   </div>
                 </button>
@@ -356,53 +398,55 @@ export function DepartmentTabs({
             })}
           </div>
 
-          {/* Department Info Banner */}
+          {/* Department Info Banner - Staggered Entrance */}
           <div
-            className={`relative overflow-hidden rounded-lg p-5 bg-linear-to-r ${activeConfig.bgGradient} border border-white/20 transition-all duration-500 ease-in-out`}
+            className={`relative overflow-hidden rounded-lg p-8 bg-linear-to-r ${activeConfig.bgGradient} border border-white/20 transition-all duration-700 ease-in-out shadow-lg hero-item-enter hero-description`}
+            style={{ animationDelay: '300ms' }}
           >
-            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex items-center gap-5">
                 <div
-                  className={`p-2.5 rounded-lg bg-gradient-to-br ${activeConfig.gradient} shadow-md`}
+                  className={`p-4 rounded-lg bg-gradient-to-br ${activeConfig.gradient} shadow-2xl shadow-primary-500/20`}
                 >
-                  <activeConfig.icon className="h-5 w-5 text-white" />
+                  <activeConfig.icon className="h-8 w-8 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-0.5">
+                  <h3 className="text-xl md:text-2xl font-black text-gray-900 mb-1 tracking-tight">
                     {activeConfig.tagline}
                   </h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm md:text-base text-gray-600 font-medium opacity-80">
                     {activeConfig.description}
                   </p>
                 </div>
               </div>
               <Link
                 href={`/products/category/${activeTab}`}
-                className="group flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-lg text-sm font-medium text-gray-900 hover:bg-white hover:shadow-md transition-all duration-300 ease-in-out"
+                className="group flex items-center gap-3 px-6 py-3 bg-white/95 backdrop-blur-sm rounded-lg text-sm font-black uppercase tracking-widest text-gray-900 hover:bg-white hover:shadow-2xl transition-all duration-500 hover:-translate-y-1"
               >
                 <span>View All</span>
-                <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform duration-300" />
+                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform duration-500" />
               </Link>
             </div>
             {/* Subtle decorative elements */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
           </div>
 
-          {/* Content - Horizontal Scroll Slider */}
+          {/* Content - Horizontal Scroll Slider with Tab-based Stagger */}
           <div
             role="tabpanel"
-            className="min-h-[350px] transition-all duration-300 ease-in-out"
-            key={activeTab}
+            className="min-h-[400px] transition-all duration-500 ease-in-out"
+            key={tabAnimationKey}
+            data-run={tabRun}
           >
             <div
               ref={scrollRef}
-              className="flex gap-4 overflow-x-auto pb-6 scrollbar-hide scroll-smooth"
+              className="flex gap-6 overflow-x-auto pb-8 scrollbar-hide scroll-smooth"
             >
               {selectedProducts.map((product, index) => (
                 <div
-                  key={product.id}
-                  className="shrink-0 w-[280px] animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both"
+                  key={`${activeTab}-${product.id}`}
+                  className="shrink-0 w-[280px] hero-item-enter"
                   style={{
                     animationDelay: `${(index % 8) * 100}ms`,
                   }}
@@ -412,7 +456,7 @@ export function DepartmentTabs({
               ))}
               {/* Render skeleton placeholders to maintain layout */}
               {Array.from({ length: skeletonCount }).map((_, index) => (
-                <div key={`skeleton-${index}`} className="shrink-0 w-[280px]">
+                <div key={`skeleton-${index}`} className="shrink-0 w-[280px] opacity-40">
                   <ProductCardSkeleton />
                 </div>
               ))}

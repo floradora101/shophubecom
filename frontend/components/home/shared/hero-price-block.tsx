@@ -26,7 +26,7 @@ export const HeroPriceBlock = memo(function HeroPriceBlock({
     <div className={`flex items-center gap-2 sm:gap-3 ${className || ""}`}>
       {/* Main Price Pill */}
       <div
-        className="inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-bold text-white shadow-lg transition-transform hover:scale-105"
+        className="inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-black text-white shadow-xl transition-transform hover:scale-105 border border-white/20"
         style={{
           background: `linear-gradient(135deg, #fa0603 0%, rgba(250, 6, 3, 0.12) 100%)`,
           boxShadow: `

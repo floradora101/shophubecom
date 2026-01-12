@@ -4,6 +4,7 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { SparkleEffect } from "./hero/shared/SparkleEffect";
 import { getProductImageWithPlaceholder } from "@/lib/utils";
 import { ProductCard } from "@/features/products/components/ProductCard";
 import type { Product } from "@/features/products/types";
@@ -83,13 +84,13 @@ export function SwipeRevealCard({
     borderHover: "border-primary-500",
     bg: "bg-primary-600",
     text: "text-primary-600",
-    icon: "text-primary-600",
+    icon: "text-white",
   };
 
   return (
     <div
       ref={cardRef}
-      className={`relative w-full h-full min-h-[300px] md:min-h-[350px] rounded-xl overflow-hidden bg-white border border-gray-100 shadow-md hover:shadow-2xl hover:scale-[1.01] transition-all duration-500 ${
+      className={`relative w-full h-full min-h-[420px] sm:min-h-[480px] rounded-2xl overflow-hidden bg-white border border-gray-100 shadow-md hover:shadow-2xl hover:scale-[1.01] transition-all duration-500 ${
         isDragging ? "select-none scale-102 shadow-2xl" : ""
       }`}
       style={{
@@ -100,12 +101,13 @@ export function SwipeRevealCard({
     >
       {/* Reveal Layer - Use standard ProductCard component */}
       <div className="absolute inset-0 z-0 bg-white">
-        <div className="p-4 h-full flex items-center justify-center">
-          <div className="w-3/4 max-w-xs">
+        <div className="p-6 h-full flex flex-col items-center justify-center text-center">
+          <div className="w-full max-w-[280px] sm:max-w-xs mx-auto">
             <ProductCard
               product={product}
               layout="vertical"
               hideDescription={true}
+              className="items-center text-center"
             />
           </div>
         </div>
@@ -119,72 +121,52 @@ export function SwipeRevealCard({
           }`}
           style={{ clipPath: coverClipPath }}
         >
-          {/* Deep Charcoal background with Red Glows */}
-          <div className="absolute inset-0 bg-neutral-950 overflow-hidden">
-            {/* Dynamic Red Glows - 2026 Style */}
-            <div className="absolute -top-[20%] -left-[10%] w-[60%] h-[60%] bg-primary-600/20 blur-[100px] rounded-full animate-pulse-slow"></div>
-            <div className="absolute -bottom-[20%] -right-[10%] w-[50%] h-[50%] bg-primary-600/15 blur-[80px] rounded-full animate-pulse-slow" style={{ animationDelay: '1.5s' }}></div>
-
-            {/* Sophisticated Tech Grid overlay */}
-            <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: `linear-gradient(to right, #fa0603 1px, transparent 1px), linear-gradient(to bottom, #fa0603 1px, transparent 1px)`, backgroundSize: '32px 32px' }}></div>
-
-            {/* Micro-dot pattern for detail */}
-            <div className="absolute inset-0 opacity-[0.1]" style={{ backgroundImage: `radial-gradient(#fa0603 0.5px, transparent 0.5px)`, backgroundSize: '8px 8px' }}></div>
-          </div>
-
-          {/* Floating tech elements - Red Themed */}
-          <div className="absolute inset-0 overflow-hidden">
-            {/* Subtle light beams */}
-            <div className="absolute top-0 left-1/4 w-px h-full bg-linear-to-b from-transparent via-primary-500/20 to-transparent"></div>
-            <div className="absolute top-0 right-1/4 w-px h-full bg-linear-to-b from-transparent via-primary-500/10 to-transparent"></div>
-
-            {/* Animated particles */}
-            <div
-              className="absolute top-1/4 left-1/3 w-1 h-1 bg-primary-500/40 rounded-full animate-ping"
-              style={{ animationDuration: '3s' }}
-            ></div>
-            <div
-              className="absolute bottom-1/3 right-1/4 w-1.5 h-1.5 bg-primary-600/30 rounded-full animate-ping"
-              style={{ animationDuration: '4s', animationDelay: '1s' }}
-            ></div>
+          {/* Modern Background Effects matching Footer Subscription */}
+          <div className="absolute inset-0 overflow-hidden bg-gray-900">
+            <SparkleEffect count={15} className="opacity-30" />
+            <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary-600/20 blur-[100px] rounded-full animate-pulse-slow" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary-700/20 blur-[100px] rounded-full animate-pulse-slow" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(250,6,3,0.05)_0%,transparent_70%)]" />
           </div>
 
           {/* Product Image Overlay - Elegant Glassmorphism */}
-          <div className="absolute inset-0 opacity-40">
+          <div className="absolute inset-0 opacity-20">
             <Image
               src={productImage}
               alt={product.name}
               fill
-              className="object-cover blur-md scale-110"
+              className="object-cover blur-xl scale-110"
               sizes="(max-width: 768px) 100vw, 50vw"
             />
           </div>
-          <div className="absolute inset-0 bg-linear-to-b from-neutral-950/20 via-neutral-950/60 to-neutral-950/90"></div>
+          <div className="absolute inset-0 bg-gray-900/60" />
 
           {/* Content - Responsive sizing */}
-          <div className="relative z-10 h-full flex flex-col items-center justify-center text-center p-6 sm:p-8">
+          <div className="relative z-10 h-full w-full flex flex-col items-center justify-center text-center p-6 sm:p-8">
             {/* Premium badge - 2026 Style */}
-            <div className="hero-glass flex items-center gap-2.5 px-4 py-2 rounded-full border border-primary-500/30 shadow-lg mb-8 group">
+            <div className="hero-glass flex items-center gap-2.5 px-2.5 py-1 rounded-lg border border-primary-500/30 shadow-lg mb-6 group">
               <div className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-600"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-lg bg-primary-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-lg h-2 w-2 bg-primary-600"></span>
               </div>
-              <span className="text-[10px] sm:text-xs font-bold text-white uppercase tracking-[0.2em]">
+              <span className="text-[10px] sm:text-xs font-black text-white uppercase tracking-[0.2em]">
                 Exclusive Reveal
               </span>
             </div>
 
             {/* Enhanced product image display - Red Glow Frame */}
-            <div className="relative w-44 h-44 sm:w-52 sm:h-52 mx-auto mb-8 group">
+            <div className="relative w-[85%] max-w-[250px] sm:max-w-[300px] aspect-square mx-auto mb-8 group">
               <div className="absolute -inset-4 bg-primary-600/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-              <div className="relative w-full h-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl backdrop-blur-sm">
-                <Image
-                  src={productImage}
-                  alt={product.name}
-                  fill
-                  className="object-contain p-4 group-hover:scale-110 transition-transform duration-700"
-                  sizes="208px"
-                />
+              <div className="relative w-full h-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl backdrop-blur-md bg-gray-900/40 flex items-center justify-center">
+                <div className="relative w-full h-full p-6 sm:p-8">
+                  <Image
+                    src={productImage}
+                    alt={product.name}
+                    fill
+                    className="object-contain group-hover:scale-110 transition-transform duration-700"
+                    sizes="(max-width: 640px) 85vw, 300px"
+                  />
+                </div>
 
                 {/* 2026 Detail: Corner accents */}
                 <div className="absolute top-0 left-0 w-4 h-4 border-l border-t border-primary-500/40"></div>
@@ -194,8 +176,8 @@ export function SwipeRevealCard({
               </div>
             </div>
 
-            <div className="space-y-4 max-w-[200px] sm:max-w-xs">
-              <h3 className="text-base sm:text-lg font-display text-white drop-shadow-md line-clamp-2 leading-snug">
+            <div className="space-y-3 w-full max-w-[280px] sm:max-w-xs mx-auto">
+              <h3 className="text-xl sm:text-2xl font-display text-white drop-shadow-md line-clamp-2 leading-tight">
                 {product.name}
               </h3>
 
@@ -228,18 +210,33 @@ export function SwipeRevealCard({
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerCancel}
       >
-        {/* Divider Line */}
-        <div className={`absolute inset-y-0 w-px bg-linear-to-b from-transparent via-primary-500 to-transparent transition-opacity duration-300 ${isDragging ? 'opacity-100' : 'opacity-40'}`}></div>
+        {/* Divider Line with dynamic glow */}
+        <div className={`absolute inset-y-0 w-0.5 bg-linear-to-b from-transparent via-primary-500 to-transparent transition-all duration-300 ${isDragging ? "opacity-100 shadow-[0_0_15px_rgba(255,26,23,0.8)]" : "opacity-40"}`}></div>
 
-        {/* Handle Button */}
-        <div className="relative group">
-          {/* Outer Ring Glow */}
-          <div className={`absolute -inset-3 bg-primary-600/30 blur-md rounded-full transition-transform duration-300 ${isDragging ? 'scale-125 opacity-100' : 'scale-75 opacity-0 group-hover:opacity-100'}`}></div>
+        {/* Handle Button - Primary Red Style consistent with design system */}
+        <div className="relative group/handle-btn">
+          {/* Outer Ring Glow - Persistent but subtle, expands on drag */}
+          <div className={`absolute -inset-4 bg-primary-600/25 blur-lg rounded-full transition-all duration-500 ${isDragging ? "scale-150 opacity-100" : "scale-90 opacity-40 group-hover/handle-btn:opacity-100 group-hover/handle-btn:scale-110"}`}></div>
 
-          <div className={`relative flex items-center justify-center w-10 h-10 rounded-full bg-neutral-900 border border-primary-500/50 shadow-2xl transition-all duration-300 ${isDragging ? 'scale-110 border-primary-400' : 'hover:scale-105'} cursor-grab active:cursor-grabbing`}>
-            <div className="flex items-center gap-0.5">
-              <ArrowLeft className="h-3.5 w-3.5 text-primary-500" strokeWidth={3} />
-              <ArrowRight className="h-3.5 w-3.5 text-primary-500" strokeWidth={3} />
+          <div className={`relative flex items-center justify-center w-12 h-12 rounded-full shadow-2xl transition-all duration-500 cursor-grab active:cursor-grabbing
+            ${isDragging
+              ? "scale-115 bg-primary-700 border-2 border-primary-400 ring-8 ring-primary-500/15"
+              : "bg-primary-600 border-2 border-primary-500 hover:scale-110 hover:bg-primary-500 hover:shadow-primary-600/40"}
+          `}>
+            {/* Animated Arrows to reflect sliding mechanism */}
+            <div className="flex items-center justify-center relative w-full h-full">
+              <ArrowLeft
+                className={`h-4 w-4 ${colors.icon} absolute transition-all duration-300
+                  ${isDragging ? "-translate-x-3 opacity-100" : "-translate-x-1.5 opacity-90 group-hover/handle-btn:-translate-x-2.5 group-hover/handle-btn:opacity-100 animate-slide-arrows-reverse"}
+                `}
+                strokeWidth={3}
+              />
+              <ArrowRight
+                className={`h-4 w-4 ${colors.icon} absolute transition-all duration-300
+                  ${isDragging ? "translate-x-3 opacity-100" : "translate-x-1.5 opacity-90 group-hover/handle-btn:translate-x-2.5 group-hover/handle-btn:opacity-100 animate-slide-arrows"}
+                `}
+                strokeWidth={3}
+              />
             </div>
           </div>
         </div>

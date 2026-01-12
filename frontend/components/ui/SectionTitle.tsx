@@ -28,6 +28,7 @@
 
 import React from "react";
 import { Zap, LucideIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface SectionTitleProps {
   // Main badge text (what appears in the rounded badge)
@@ -64,28 +65,26 @@ export function SectionTitle({
   return (
     <div className={`text-center space-y-4 ${className}`}>
       {/* Badge with optional hearts */}
-      <div
-        className={`inline-flex items-center gap-3 px-6 py-3 bg-linear-to-r from-primary-50 to-primary-100/50 rounded-full border border-primary-200/50 ${badgeClassName}`}
+      <Badge
+        variant="primary"
+        size="default"
+        className={`mb-4 ${badgeClassName}`}
       >
         {/* Left Icon - conditionally rendered */}
         {(icon || showHearts) && (
-          <div className="relative mr-2">
+          <div className="relative">
             {icon ? (
               React.createElement(icon, {
-                className: "w-4 h-4 text-primary-500 fill-primary-500",
+                className: "w-3.5 h-3.5",
               })
             ) : (
-              <Zap className="w-4 h-4 text-primary-500 fill-primary-500" />
+              <Zap className="w-3.5 h-3.5 fill-current" />
             )}
-            <div className="absolute -top-1 -left-1 w-2 h-2 bg-primary-400 rounded-full opacity-75" />
           </div>
         )}
 
-        {/* Badge Text */}
-        <span className="text-sm font-medium text-primary-600 uppercase tracking-wide">
-          {badgeText}
-        </span>
-      </div>
+        {badgeText}
+      </Badge>
 
       {/* Main Title */}
       <h2

@@ -8,7 +8,7 @@ import { Section } from "@/components/ui/section";
 import { SkeletonBlock } from "@/components/ui/skeleton";
 import { SlotStageCarousel } from "@/components/ui/slot-stage-carousel";
 import { Text } from "@/components/ui/typography";
-import { SectionTitle } from "./shared/section-header";
+import { SectionHeader, SectionTitle } from "./shared/section-header";
 import { ui } from "@/lib/ui-tokens";
 import { cn } from "@/lib/utils/cn";
 import Image from "next/image";
@@ -35,9 +35,11 @@ export function TrendingNowSkeleton() {
       <Container size="full" className="px-4 md:px-6 lg:px-8">
         {/* Header skeleton */}
         <div className="text-center mb-12">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <SkeletonBlock className="w-6 h-6 rounded" />
-            <SkeletonBlock className="h-8 w-48 rounded" />
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-600">
+              <SkeletonBlock className="w-3 h-3 rounded" />
+              <SkeletonBlock className="h-3 w-32 rounded" />
+            </div>
           </div>
           <SkeletonBlock className="h-5 w-64 mx-auto rounded" />
         </div>
@@ -59,7 +61,7 @@ export function TrendingNowSkeleton() {
                   i === 2 ? "scale-110 opacity-100 z-10" : "scale-90 opacity-60"
                 }`}
               >
-                <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 w-64">
+                <div className="bg-white rounded-lg shadow-lg border border-gray-100 p-4 w-64">
                   {/* Category badge */}
                   <div className="flex justify-between items-start mb-3">
                     <SkeletonBlock className="w-16 h-6 rounded-full" />
@@ -205,7 +207,7 @@ const TrendingProductCard = memo(
                   "discount"
                 )}`}
               >
-                <Sparkles className="h-3 w-3 inline-block mr-1 transition-transform duration-500 hover:rotate-12" />
+                <Sparkles className="h-3 w-3 inline-block mr-2 transition-transform duration-500 hover:rotate-12" />
                 <span>-{discountPercent}% OFF</span>
               </div>
             </div>
@@ -249,7 +251,7 @@ const TrendingProductCard = memo(
               </span>
             )}
             {hasDiscount && discountPercent > 0 && originalPrice && (
-              <span className="text-xs text-primary-600 font-medium bg-primary-50 px-1.5 py-0.5 rounded-full">
+              <span className="text-[10px] md:text-xs text-red-600 font-black bg-red-50 px-2 py-1 rounded-lg uppercase tracking-wider">
                 Save {formatPrice(originalPrice - product.price)}
               </span>
             )}
@@ -260,7 +262,7 @@ const TrendingProductCard = memo(
         {!isOutOfStock && (
           <div className="mt-4 flex justify-center">
             <button
-              className="inline-flex items-center gap-2 bg-red-600 text-white px-5 py-2.5 md:px-6 md:py-3 rounded-xl text-xs md:text-sm font-semibold hover:bg-red-700 active:bg-red-700 transition-all duration-300 shadow-xl"
+              className="inline-flex items-center gap-2 bg-red-600 text-white px-5 py-2.5 md:px-6 md:py-3 rounded-lg text-xs md:text-sm font-semibold hover:bg-red-700 active:bg-red-700 transition-all duration-300 shadow-xl"
               aria-label={
                 requiresSelection
                   ? `Select options for ${product.name}`
@@ -349,31 +351,17 @@ export function TrendingNow({ trendingProducts }: TrendingNowProps) {
     >
       <Container className="relative z-10">
         <div className="space-y-8">
-          {/* Enhanced Header */}
-          <div
-            className={cn(
-              "flex flex-col md:flex-row items-start md:items-center justify-between",
-              ui.gap.sm
-            )}
-          >
-            <div className="text-center md:text-left space-y-4 flex-1">
-              <div
-                className={cn(
-                  "inline-flex items-center px-4 py-2 rounded-full bg-linear-to-r from-primary-50 via-primary-100 to-primary-50 mb-2",
-                  ui.gap.xs
-                )}
-              >
-                <Text className="text-sm font-semibold text-primary-600 font-card">
-                  Hot Right Now
-                </Text>
-              </div>
-              <SectionTitle italic="Trending" bold="Now" />
-              <Text className="text-gray-600 max-w-2xl text-sm md:text-lg font-body font-light leading-relaxed">
-                Discover what everyone&apos;s buying right now. These products
-                are flying off the shelves!
-              </Text>
-            </div>
-          </div>
+          <SectionHeader
+            badge={{
+              icon: Sparkles,
+              text: "Hot Right Now",
+            }}
+            title={{
+              italic: "Trending",
+              bold: "Now",
+            }}
+            description="Discover what everyone's buying right now. These products are flying off the shelves!"
+          />
 
           {/* Slot Stage Carousel with Auto-play */}
           <div

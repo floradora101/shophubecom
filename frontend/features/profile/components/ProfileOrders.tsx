@@ -19,11 +19,11 @@ const formatDate = (dateString: string) => {
 };
 
 const statusColors: Record<string, string> = {
-  PENDING: "bg-yellow-100 text-yellow-800",
-  PROCESSING: "bg-blue-100 text-blue-800",
-  SHIPPED: "bg-purple-100 text-purple-800",
-  DELIVERED: "bg-green-100 text-green-800",
-  CANCELLED: "bg-red-100 text-red-800",
+  PENDING: "bg-yellow-50 text-yellow-700 border-yellow-200",
+  PROCESSING: "bg-blue-50 text-blue-700 border-blue-200",
+  SHIPPED: "bg-purple-50 text-purple-700 border-purple-200",
+  DELIVERED: "bg-green-50 text-green-700 border-green-200",
+  CANCELLED: "bg-red-50 text-red-700 border-red-200",
 };
 
 export function ProfileOrders() {
@@ -94,7 +94,7 @@ export function ProfileOrders() {
             </div>
             <div className="flex items-center gap-4">
               <span
-                className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
+                className={`inline-flex items-center rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-widest border ${
                   statusColors[order.status] || statusColors.PENDING
                 }`}
               >

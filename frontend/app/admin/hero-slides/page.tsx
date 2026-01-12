@@ -148,7 +148,6 @@ export default function HeroSlidesAdminPage() {
                 <DropdownMenuRadioGroup value={selectedType} onValueChange={setSelectedType}>
                   <DropdownMenuRadioItem value="all" className="rounded-lg cursor-pointer py-2.5">All Types</DropdownMenuRadioItem>
                   <DropdownMenuRadioItem value="PRODUCT_SPOTLIGHT" className="rounded-lg cursor-pointer py-2.5">Product Spotlight</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="CATEGORY_SPOTLIGHT" className="rounded-lg cursor-pointer py-2.5">Category Spotlight</DropdownMenuRadioItem>
                   <DropdownMenuRadioItem value="OFFER" className="rounded-lg cursor-pointer py-2.5">Offer</DropdownMenuRadioItem>
                   <DropdownMenuRadioItem value="TESTIMONIAL" className="rounded-lg cursor-pointer py-2.5">Testimonial</DropdownMenuRadioItem>
                   <DropdownMenuRadioItem value="LANDSCAPE_IMAGE" className="rounded-lg cursor-pointer py-2.5">Landscape Image</DropdownMenuRadioItem>

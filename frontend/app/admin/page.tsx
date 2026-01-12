@@ -65,8 +65,8 @@ export default function AdminDashboard() {
               <div className={stat.color + " p-3 rounded-lg text-white shadow-lg shadow-current/20"}>
                 <stat.icon className="w-6 h-6" />
               </div>
-              <div className="flex items-center text-emerald-600 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-lg">
-                <ArrowUpRight className="w-3 h-3 mr-1" />
+              <div className="flex items-center gap-1 text-emerald-600 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-lg">
+                <ArrowUpRight className="w-3 h-3" />
                 7.2%
               </div>
             </div>

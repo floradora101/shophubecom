@@ -28,6 +28,7 @@
  */
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -41,6 +42,7 @@ import { FormErrorAlert } from "@/components/ui/form-error-alert";
 import { FormField } from "@/components/ui/form-field";
 import type { LoginFormData } from "../types";
 import { useFormErrorHandler } from "@/lib/forms/useFormErrorHandler";
+import { Eye, EyeOff } from "lucide-react";
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -50,6 +52,7 @@ interface LoginFormProps {
 export function LoginForm({ onSuccess, redirectUrl }: LoginFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuthStore(
     useShallow((state) => ({
       login: state.login,
@@ -106,49 +109,70 @@ export function LoginForm({ onSuccess, redirectUrl }: LoginFormProps) {
           label="Username or email address"
           required
           error={errors.email?.message}
+          className="group"
         >
           <Input
             type="email"
-            placeholder="Enter your email"
+            placeholder="name@company.com"
             {...register("email")}
             error={!!errors.email}
+            className="h-12 px-4 rounded-lg border-warm-gray-200 group-hover:border-warm-gray-300 focus:border-primary-500 transition-all duration-200"
           />
         </FormField>
 
-        <FormField label="Password" required error={errors.password?.message}>
-          <Input
-            type="password"
-            placeholder="Enter your password"
-            {...register("password")}
-            error={!!errors.password}
-          />
+        <FormField
+          label="Password"
+          required
+          error={errors.password?.message}
+          className="group"
+        >
+          <div className="relative">
+            <Input
+              type={showPassword ? "text" : "password"}
+              placeholder="••••••••"
+              {...register("password")}
+              error={!!errors.password}
+              className="h-12 px-4 pr-12 rounded-lg border-warm-gray-200 group-hover:border-warm-gray-300 focus:border-primary-500 transition-all duration-200"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-warm-gray-400 hover:text-warm-gray-600 transition-colors"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
+            </button>
+          </div>
         </FormField>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between py-2">
         <Checkbox
           id="remember-me"
-          label="Remember me"
+          label="Keep me signed in"
           {...register("rememberMe")}
+          className="text-warm-gray-500 font-bold text-[10px] uppercase tracking-widest"
         />
-      </div>
-
-      <Button
-        type="submit"
-        isLoading={isSubmitting}
-        className="w-full"
-        size="lg"
-      >
-        LOG IN
-      </Button>
-
-      <div className="text-center">
         <a
           href="/forgot-password"
-          className="text-sm text-primary-500 hover:text-primary-600 font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded"
+          className="text-[10px] text-primary-600 hover:text-primary-700 font-black uppercase tracking-widest transition-all"
         >
-          Lost your password?
+          Forgot Password?
         </a>
+      </div>
+
+      <div className="space-y-4 pt-2">
+        <Button
+          type="submit"
+          isLoading={isSubmitting}
+          className="w-full h-12 bg-primary-600 hover:bg-primary-700 text-white font-bold tracking-[0.05em] uppercase rounded-lg shadow-sm hover:shadow-md transition-all duration-300"
+        >
+          Initialize Session
+        </Button>
       </div>
     </form>
   );

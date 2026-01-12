@@ -27,6 +27,8 @@ import { ui } from "@/lib/ui-tokens";
 import { cn } from "@/lib/utils/cn";
 import { getMainCategories } from "@/lib/data/categories";
 import { getSubcategories } from "@/lib/mock-data/mock-data";
+import { SparkleEffect } from "@/components/home/hero/shared/SparkleEffect";
+import type { Category } from "@/features/products/types";
 
 export function Footer() {
   const [email, setEmail] = useState("");
@@ -67,122 +69,111 @@ export function Footer() {
   return (
     <footer className="relative border-t border-gray-200" role="contentinfo">
       {/* CTA Section */}
-      <div className="relative border-b border-gray-200 bg-primary-600">
-        <div className="container mx-auto px-4 md:px-6 lg:px-8 py-12 md:py-16">
+      <div className="relative overflow-hidden border-b border-gray-200 bg-gray-900">
+        <SparkleEffect count={20} className="opacity-40" />
+        {/* Modern Background Effects */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary-600/20 blur-[120px] rounded-full animate-pulse-slow" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary-700/20 blur-[120px] rounded-full animate-pulse-slow" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(circle_at_center,rgba(250,6,3,0.05)_0%,transparent_70%)]" />
+        </div>
+
+        <div className="container relative mx-auto px-4 md:px-6 lg:px-8 py-16 md:py-24">
           <div className="max-w-4xl mx-auto">
-            <div className="text-center space-y-6">
-              {/* Icon with animation */}
+            <div className="text-center space-y-8">
+              {/* Icon with premium treatment */}
               <div className="flex justify-center">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gray-900/10 rounded-full blur-xl animate-pulse-slow" />
-                  <div className="relative bg-gray-100/20 backdrop-blur-sm rounded-full p-4 border-2 border-gray-300/50">
-                    <Mail className="h-8 w-8 text-gray-900" />
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-primary-600/40 rounded-3xl blur-2xl group-hover:bg-primary-600/60 transition-all duration-500 animate-pulse-slow" />
+                  <div className="relative bg-gray-800/50 backdrop-blur-xl rounded-3xl p-5 border border-white/10 shadow-2xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+                    <Mail className="h-10 w-10 text-primary-500" />
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <Heading
                   level="h2"
-                  className="text-3xl md:text-4xl lg:text-5xl font-bold text-white font-display"
+                  className="text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight font-display"
                 >
-                  Stay in the Loop
+                  Join the <span className="text-primary-500 italic">Exclusive</span> List
                 </Heading>
-                <Text className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto font-body">
-                  Get exclusive deals, new arrivals, and shopping tips delivered
-                  straight to your inbox. Join{" "}
-                  <span className="font-semibold text-gray-900">10,000+</span>{" "}
-                  happy shoppers!
+                <Text className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto font-body leading-relaxed">
+                  Get early access to drops, member-only deals, and shopping tips.
+                  Join <span className="text-white font-semibold">10,000+</span> luxury shoppers worldwide.
                 </Text>
               </div>
 
-              {/* Newsletter Form */}
-              <form
-                onSubmit={handleNewsletterSubmit}
-                className={cn(
-                  "flex flex-col sm:flex-row max-w-lg mx-auto mt-8",
-                  ui.gap.xs
-                )}
-              >
-                <div className="flex-1">
-                  <Input
-                    type="email"
-                    placeholder="Enter your email address"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="bg-white/95 backdrop-blur-sm border-white/30 focus:border-white focus:ring-white/20 h-12 text-warm-gray-900 placeholder:text-warm-gray-500"
-                    disabled={isSubmitting || submitted}
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  size="lg"
-                  disabled={isSubmitting || submitted}
-                  className="bg-white text-primary-600 hover:bg-primary-50/50 border-2 border-white/30 shadow-lg transition-all duration-300 ease-out font-semibold h-12 px-8 whitespace-nowrap"
+              {/* Newsletter Form - Ultra Modern Design */}
+              <div className="max-w-xl mx-auto mt-10">
+                <form
+                  onSubmit={handleNewsletterSubmit}
+                  className="relative group"
                 >
-                  {submitted ? (
-                    <>
-                      <CheckCircle2 className="h-5 w-5 mr-2" />
-                      Subscribed!
-                    </>
-                  ) : isSubmitting ? (
-                    "Subscribing..."
-                  ) : (
-                    <>
-                      Subscribe
-                      <ArrowRight className="h-4 w-4 ml-2" />
-                    </>
-                  )}
-                </Button>
-              </form>
+                  <div className="absolute -inset-1 bg-linear-to-r from-primary-600/50 to-primary-800/50 rounded-2xl blur opacity-25 group-focus-within:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                  <div className="relative flex flex-col sm:flex-row gap-3 p-2 bg-gray-800/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl">
+                    <div className="flex-1 relative">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
+                        <Mail className="h-5 w-5" />
+                      </div>
+                      <Input
+                        type="email"
+                        placeholder="your@email.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 h-14 pl-12 text-white placeholder:text-gray-500 text-lg"
+                        disabled={isSubmitting || submitted}
+                      />
+                    </div>
+                    <Button
+                      type="submit"
+                      size="lg"
+                      disabled={isSubmitting || submitted}
+                      className="bg-primary-600 hover:bg-primary-700 text-white shadow-xl transition-all duration-300 ease-out font-bold h-14 px-10 rounded-xl group"
+                    >
+                      {submitted ? (
+                        <div className="flex items-center">
+                          <CheckCircle2 className="h-5 w-5 mr-2" />
+                          <span>Subscribed</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center">
+                          <span>{isSubmitting ? "Wait..." : "Subscribe"}</span>
+                          {!isSubmitting && <ArrowRight className="h-5 w-5 ml-2 transition-transform group-hover:translate-x-1" />}
+                        </div>
+                      )}
+                    </Button>
+                  </div>
+                </form>
 
-              {submitted && (
-                <p className="text-white/80 text-sm mt-2 animate-fade-in-up">
-                  Welcome! Check your inbox for a special welcome offer.
-                </p>
-              )}
-
-              {/* Trust Badges */}
-              <div
-                className={cn(
-                  "flex flex-wrap justify-center mt-10 pt-8 border-t border-white/20",
-                  ui.gap.md,
-                  "md:" + ui.gap.lg
+                {submitted && (
+                  <p className="text-primary-400 text-sm mt-4 font-medium animate-fade-in-up">
+                    Welcome to the club! Check your inbox for your welcome gift.
+                  </p>
                 )}
-              >
-                <div
-                  className={cn("flex items-center text-white/90", ui.gap.xs)}
-                >
-                  <div className="bg-white/20 rounded-full p-1.5">
-                    <Truck className="h-4 w-4" />
+              </div>
+
+              {/* Trust Badges - Modern Row */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 pt-10 border-t border-white/5">
+                {[
+                  { icon: Truck, label: "Fast Shipping" },
+                  { icon: Shield, label: "Secure Payments" },
+                  { icon: Headphones, label: "Expert Support" },
+                  { icon: CheckCircle2, label: "Quality Assured" },
+                ].map((item, i) => (
+                  <div
+                    key={i}
+                    className="flex flex-col items-center gap-3 group cursor-default"
+                  >
+                    <div className="bg-gray-800/50 p-3 rounded-2xl border border-white/5 transition-all duration-300 group-hover:border-primary-600/50 group-hover:bg-primary-600/5">
+                      <item.icon className="h-6 w-6 text-gray-400 group-hover:text-primary-500 transition-colors" />
+                    </div>
+                    <span className="text-sm font-semibold text-gray-400 group-hover:text-white transition-colors uppercase tracking-wider">
+                      {item.label}
+                    </span>
                   </div>
-                  <span className="text-sm font-medium">Free Shipping</span>
-                </div>
-                <div
-                  className={cn("flex items-center text-white/90", ui.gap.xs)}
-                >
-                  <div className="bg-white/20 rounded-full p-1.5">
-                    <Shield className="h-4 w-4" />
-                  </div>
-                  <span className="text-sm font-medium">Secure Payment</span>
-                </div>
-                <div
-                  className={cn("flex items-center text-white/90", ui.gap.xs)}
-                >
-                  <div className="bg-white/20 rounded-full p-1.5">
-                    <Headphones className="h-4 w-4" />
-                  </div>
-                  <span className="text-sm font-medium">24/7 Support</span>
-                </div>
-                <div
-                  className={cn("flex items-center text-white/90", ui.gap.xs)}
-                >
-                  <div className="bg-white/20 rounded-full p-1.5">
-                    <CheckCircle2 className="h-4 w-4" />
-                  </div>
-                  <span className="text-sm font-medium">Easy Returns</span>
-                </div>
+                ))}
               </div>
             </div>
           </div>

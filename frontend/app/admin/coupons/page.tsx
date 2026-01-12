@@ -284,10 +284,10 @@ export default function CouponsAdminPage() {
                   <div className="w-1/12 text-center">
                     <Badge
                       className={cn(
-                        "rounded-full px-2.5 py-0.5 text-[10px] font-bold border-none",
+                        "rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-widest border shadow-sm",
                         coupon.isActive
-                          ? "bg-green-100 text-green-700 hover:bg-green-100"
-                          : "bg-red-50 text-red-600 hover:bg-red-50"
+                          ? "bg-green-50 text-green-700 border-green-200 hover:bg-green-100"
+                          : "bg-red-50 text-red-600 border-red-200 hover:bg-red-100"
                       )}
                     >
                       {coupon.isActive ? (
