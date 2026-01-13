@@ -98,7 +98,7 @@ function FeaturedProductDisplay({ product }: { product: Product }) {
               "p-4 rounded-lg backdrop-blur-md transition-all duration-500 hover:scale-110 active:scale-90 pointer-events-auto",
               isFavorite(product.id)
                 ? "bg-red-50 text-red-600"
-                : "bg-white/80 border border-gray-100 text-gray-400 hover:text-red-500 hover:bg-white"
+                : "bg-white/80 border border-gray-100 text-gray-400 hover:bg-red-600 hover:text-white"
             )}
           >
             <Heart className={cn("h-6 w-6", isFavorite(product.id) && "fill-current")} />
@@ -125,50 +125,50 @@ function FeaturedProductDisplay({ product }: { product: Product }) {
         </Link>
 
         {/* Info Content Block */}
-        <div className="p-10 pt-0 space-y-8">
-          <div className="space-y-4">
+        <div className="p-6 xs:p-8 sm:p-10 pt-0 space-y-6 sm:space-y-8">
+          <div className="space-y-3 sm:space-y-4">
             <div className="flex items-center gap-2 text-red-600">
-              <Star className="h-4 w-4 fill-current" />
-              <span className="text-xs font-black tracking-widest uppercase">Best in Class</span>
+              <Star className="h-3.5 w-3.5 sm:h-4 sm:w-4 fill-current" />
+              <span className="text-[10px] font-black tracking-widest uppercase">Best in Class</span>
             </div>
 
             <Link href={`/products/${product.slug}`}>
-              <h3 className="text-2xl md:text-3xl font-black text-gray-900 tracking-tight leading-tight hover:text-red-600 transition-colors">
+              <h3 className="text-xl xs:text-2xl md:text-3xl font-black text-gray-900 tracking-tight leading-tight hover:text-red-600 transition-colors">
                 {product.name}
               </h3>
             </Link>
 
             {/* Premium Specs Display */}
-            <div className="flex flex-wrap gap-2 pt-2">
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-100 rounded-lg text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                <Zap className="h-3 w-3 text-red-500" />
+            <div className="flex flex-wrap gap-2 pt-1 sm:pt-2">
+              <div className="flex items-center gap-1 sm:gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 bg-gray-50 border border-gray-100 rounded-lg text-[9px] sm:text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                <Zap className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-red-500" />
                 Performance
               </div>
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 border border-gray-100 rounded-lg text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                <ShieldCheck className="h-3 w-3 text-red-500" />
+              <div className="flex items-center gap-1 sm:gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 bg-gray-50 border border-gray-100 rounded-lg text-[9px] sm:text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                <ShieldCheck className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-red-500" />
                 Quality
               </div>
             </div>
           </div>
 
-          <div className="flex items-center justify-between gap-6 pt-4 border-t border-gray-50">
+          <div className="flex items-center justify-between gap-4 sm:gap-6 pt-4 border-t border-gray-50">
             <div className="flex flex-col">
               {hasDiscount && (
-                <span className="text-sm text-gray-400 line-through font-bold mb-1 opacity-60">
+                <span className="text-xs sm:text-sm text-gray-400 line-through font-bold mb-0.5 sm:mb-1 opacity-60">
                   {formatPrice(originalPrice!)}
                 </span>
               )}
-              <span className="text-3xl font-black text-gray-900 tracking-tighter">
+              <span className="text-2xl xs:text-3xl font-black text-gray-900 tracking-tighter">
                 {formatPrice(product.price)}
               </span>
             </div>
 
             <button
               onClick={handleAddToCart}
-              className="flex items-center gap-3 px-8 py-5 bg-red-600 text-white rounded-lg font-black uppercase tracking-[0.15em] text-xs shadow-2xl shadow-red-600/30 hover:bg-red-700 hover:shadow-red-600/50 hover:-translate-y-1 transition-all duration-500 group/btn"
+              className="flex items-center gap-2.5 sm:gap-3 px-5 py-3 sm:px-8 sm:py-5 bg-red-600 text-white rounded-lg font-black uppercase tracking-[0.15em] text-[10px] sm:text-xs shadow-2xl shadow-red-600/30 hover:bg-red-700 hover:shadow-red-600/50 hover:-translate-y-1 transition-all duration-500 group/btn"
             >
-              <span>Quick Shop</span>
-              <ShoppingCart className="h-4 w-4 group-hover/btn:rotate-12 transition-transform" />
+              <span className="whitespace-nowrap">Quick Shop</span>
+              <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4 group-hover/btn:rotate-12 transition-transform" />
             </button>
           </div>
         </div>
@@ -261,31 +261,26 @@ export function SubcategoryShowcase({
       <Container>
         <div className="space-y-12">
           {/* Header Section */}
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-            <div className="max-w-3xl">
-              <SectionHeader
-                badge={{
-                  icon: LayoutGrid,
-                  text: "Department Spotlight",
-                }}
-                title={{
-                  italic: "Discover",
-                  bold: `The ${parentCategory.name} Series`,
-                }}
-                description={`A curated deep-dive into our premium ${parentCategory.name.toLowerCase()} collections. Switch between series below to explore specialized performance and design.`}
-              />
-            </div>
-
-            <div className="flex items-center gap-4">
+          <SectionHeader
+            badge={{
+              icon: LayoutGrid,
+              text: "Department Spotlight",
+            }}
+            title={{
+              italic: "Discover",
+              bold: `The ${parentCategory.name} Series`,
+            }}
+            description={`A curated deep-dive into our premium ${parentCategory.name.toLowerCase()} collections. Switch between series below to explore specialized performance and design.`}
+            actions={
               <Link
                 href={`/products/category/${parentCategorySlug}`}
-                className="group flex items-center gap-4 px-6 py-3 bg-white/95 backdrop-blur-md border border-gray-100 rounded-lg text-[10px] font-black uppercase tracking-[0.25em] text-gray-900 hover:border-red-600 shadow-sm hover:shadow-2xl hover:shadow-red-500/10 transition-all duration-500 group/link"
+                className="group flex items-center gap-4 px-6 py-3 bg-white/95 backdrop-blur-md border border-gray-100 rounded-lg text-[10px] font-black uppercase tracking-[0.25em] text-gray-900 hover:border-red-600 shadow-sm hover:shadow-2xl hover:shadow-red-500/10 transition-all duration-500"
               >
                 <span>Full Experience</span>
-                <ArrowUpRight className="h-4 w-4 text-red-600 group-hover/link:translate-x-1 group-hover/link:-translate-y-1 transition-transform" />
+                <ArrowUpRight className="h-4 w-4 text-red-600 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
               </Link>
-            </div>
-          </div>
+            }
+          />
 
           {/* Subcategory Navigation - 2026 Modern Pill style */}
           <div className="relative">
@@ -300,7 +295,7 @@ export function SubcategoryShowcase({
                       "group relative shrink-0 px-8 py-4 rounded-lg font-black transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] transform active:scale-95 overflow-hidden",
                       isActive
                         ? "bg-gray-900 text-white shadow-2xl shadow-gray-900/20"
-                        : "bg-white text-gray-400 hover:text-gray-900 border border-gray-100 hover:border-gray-200 shadow-sm"
+                        : "bg-white text-gray-400 hover:bg-red-600 hover:text-white border border-gray-100 hover:border-red-600 shadow-sm"
                     )}
                     style={{
                       animationDelay: `${idx * 100}ms`,
@@ -393,13 +388,16 @@ export function SubcategoryShowcaseSkeleton() {
     <Section spacing="lg" className="py-24">
       <Container>
         <div className="space-y-16">
-          <div className="flex flex-col lg:flex-row justify-between gap-8">
-            <div className="space-y-4 flex-1">
-              <div className="h-6 w-32 bg-gray-100 rounded-lg animate-pulse" />
-              <div className="h-12 w-64 bg-gray-200 rounded-lg animate-pulse" />
-              <div className="h-20 w-full max-w-2xl bg-gray-50 rounded-lg animate-pulse" />
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+            <div className="space-y-4 flex-1 text-center md:text-left">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-600/10 mb-2 mx-auto md:mx-0">
+                <div className="h-4 w-4 bg-red-600/20 rounded animate-pulse" />
+                <div className="h-4 w-32 bg-gray-100 rounded animate-pulse" />
+              </div>
+              <div className="h-12 w-64 xs:w-80 md:w-96 bg-gray-200 rounded-lg animate-pulse mx-auto md:mx-0" />
+              <div className="h-20 w-full max-w-2xl bg-gray-50 rounded-lg animate-pulse mx-auto md:mx-0" />
             </div>
-            <div className="h-12 w-48 bg-gray-100 rounded-lg animate-pulse self-end" />
+            <div className="h-12 w-48 bg-gray-100 rounded-lg animate-pulse hidden md:block" />
           </div>
 
           <div className="flex gap-3 overflow-hidden">

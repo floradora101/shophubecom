@@ -151,9 +151,8 @@ export function CartSidebar() {
                 Looks like you haven&apos;t added anything to your cart yet.
               </p>
               <Link href="/products" onClick={() => toggleCart(false)}>
-                <Button className="rounded-lg px-8 h-12 shadow-lg shadow-red-600/20 group bg-red-600 hover:bg-red-700 font-black uppercase tracking-widest text-sm">
+                <Button className="w-full h-12 bg-primary-600 hover:bg-primary-700 text-white font-bold tracking-[0.05em] uppercase rounded-lg shadow-sm hover:shadow-md transition-all duration-300">
                   Start Shopping
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
 
@@ -225,7 +224,7 @@ export function CartSidebar() {
                         <button
                           type="button"
                           onClick={() => updateQuantity(item.key, item.quantity - 1)}
-                          className="flex items-center justify-center w-7 h-7 rounded-md text-gray-500 hover:bg-white hover:text-primary-600 hover:shadow-sm transition-all disabled:opacity-40"
+                          className="flex items-center justify-center w-7 h-7 rounded-md text-gray-500 hover:bg-red-600 hover:text-white hover:shadow-sm transition-all disabled:opacity-40"
                           disabled={item.quantity <= 1}
                           aria-label="Decrease quantity"
                         >
@@ -237,7 +236,7 @@ export function CartSidebar() {
                         <button
                           type="button"
                           onClick={() => updateQuantity(item.key, item.quantity + 1)}
-                          className="flex items-center justify-center w-7 h-7 rounded-md text-gray-500 hover:bg-white hover:text-primary-600 hover:shadow-sm transition-all"
+                          className="flex items-center justify-center w-7 h-7 rounded-md text-gray-500 hover:bg-red-600 hover:text-white hover:shadow-sm transition-all"
                           aria-label="Increase quantity"
                         >
                           <Plus className="h-3.5 w-3.5" />
@@ -278,12 +277,21 @@ export function CartSidebar() {
             </div>
 
             <div className="grid gap-3">
-              <Link href="/checkout" onClick={() => toggleCart(false)} className="w-full">
-                <Button className="w-full rounded-lg h-14 text-base font-bold shadow-xl shadow-primary-600/20 group bg-primary-600 hover:bg-primary-700 hover:scale-[1.02] active:scale-[0.98] transition-all">
-                  Checkout Now
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Link href="/cart" onClick={() => toggleCart(false)} className="w-full">
+                  <Button
+                    variant="secondary"
+                    className="w-full h-12 rounded-lg bg-white text-primary-600 hover:bg-primary-600 hover:text-white border border-warm-gray-200 hover:border-primary-600 font-bold tracking-[0.05em] uppercase shadow-sm hover:shadow-md transition-all duration-300"
+                  >
+                    View Cart
+                  </Button>
+                </Link>
+                <Link href="/checkout" onClick={() => toggleCart(false)} className="w-full">
+                  <Button className="w-full h-12 bg-primary-600 hover:bg-primary-700 text-white font-bold tracking-[0.05em] uppercase rounded-lg shadow-sm hover:shadow-md transition-all duration-300">
+                    Checkout Now
+                  </Button>
+                </Link>
+              </div>
               <div className="flex items-center justify-center gap-4 mt-2">
                 <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">
                   <ShieldCheck className="h-3.5 w-3.5" />

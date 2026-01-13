@@ -132,7 +132,7 @@ function SearchIconButton() {
       type="button"
       onClick={handleClick}
       className={cn(
-        "p-2 sm:p-2.5 text-muted-fg hover:text-primary-600 transition-all duration-200 focus:outline-none rounded-full hover:bg-primary-50",
+        "p-2 sm:p-2.5 text-muted-fg hover:text-primary-600 transition-all duration-200 focus:outline-none rounded-lg hover:bg-primary-50",
         pathname === "/search" && "text-primary-600 bg-primary-50"
       )}
       aria-label="Search"
@@ -235,7 +235,7 @@ export function Header() {
                   <NavigationMenu.Item>
                     <NavigationMenu.Trigger
                       className={cn(
-                        "flex h-10 items-center gap-2 px-5 text-[13px] font-bold tracking-wider text-primary-600 transition-all duration-300 rounded-full hover:bg-primary-50 data-[state=open]:bg-primary-50",
+                        "flex h-10 items-center gap-2 px-5 text-[13px] font-bold tracking-wider text-primary-600 transition-all duration-300 rounded-lg hover:bg-primary-50 data-[state=open]:bg-primary-50",
                         isActive("/products") && "bg-primary-50"
                       )}
                     >
@@ -260,7 +260,7 @@ export function Header() {
                         <>
                           <NavigationMenu.Trigger
                             className={cn(
-                              "flex h-10 items-center gap-1.5 px-4 text-[13px] font-semibold text-muted-fg transition-all duration-300 rounded-full hover:bg-gray-50 hover:text-fg data-[state=open]:bg-gray-50 data-[state=open]:text-primary-600",
+                              "flex h-10 items-center gap-1.5 px-4 text-[13px] font-semibold text-muted-fg transition-all duration-300 rounded-lg hover:bg-gray-50 hover:text-fg data-[state=open]:bg-gray-50 data-[state=open]:text-primary-600",
                               isCategoryActive(category.slug) &&
                                 "text-primary-600 bg-primary-50"
                             )}
@@ -310,7 +310,7 @@ export function Header() {
                           <Link
                             href={`/products/category/${category.slug}`}
                             className={cn(
-                              "flex h-10 items-center px-4 text-[13px] font-semibold text-muted-fg transition-all duration-300 rounded-full hover:bg-gray-50 hover:text-fg",
+                              "flex h-10 items-center px-4 text-[13px] font-semibold text-muted-fg transition-all duration-300 rounded-lg hover:bg-gray-50 hover:text-fg",
                               isCategoryActive(category.slug) &&
                                 "text-primary-600 bg-primary-50"
                             )}
@@ -329,7 +329,7 @@ export function Header() {
                         <Link
                           href="/categories"
                           className={cn(
-                            "flex h-10 items-center px-5 text-[13px] font-semibold text-muted-fg transition-all duration-300 rounded-full hover:bg-gray-50 hover:text-fg",
+                            "flex h-10 items-center px-5 text-[13px] font-semibold text-muted-fg transition-all duration-300 rounded-lg hover:bg-gray-50 hover:text-fg",
                             pathname === "/categories" &&
                               "text-primary-600 bg-primary-50"
                           )}
@@ -351,7 +351,7 @@ export function Header() {
                 <button
                   type="button"
                   onClick={() => toggleCart(true)}
-                  className="group relative p-2 sm:p-2.5 text-muted-fg hover:text-primary-600 transition-all duration-200 focus:outline-none rounded-full hover:bg-primary-50"
+                  className="group relative p-2 sm:p-2.5 text-muted-fg hover:text-primary-600 transition-all duration-200 focus:outline-none rounded-lg hover:bg-primary-50"
                   aria-label="Open cart"
                   suppressHydrationWarning
                 >
@@ -374,7 +374,7 @@ export function Header() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="rounded-full px-3 text-muted-fg hover:text-primary-600 hover:bg-primary-50 font-medium transition-all"
+                      className="rounded-lg px-3 text-muted-fg hover:text-primary-600 hover:bg-primary-50 font-medium transition-all"
                       onClick={() => router.push("/profile?tab=dashboard")}
                     >
                       <User className="h-4 w-4 sm:mr-2" />
@@ -387,7 +387,7 @@ export function Header() {
                         await logout();
                         router.push("/login");
                       }}
-                      className="hidden xl:flex rounded-full text-muted-fg hover:text-primary-600 hover:bg-primary-50"
+                      className="hidden xl:flex rounded-lg text-muted-fg hover:text-primary-600 hover:bg-primary-50"
                     >
                       Logout
                     </Button>
@@ -416,7 +416,7 @@ export function Header() {
                 {/* Mobile Menu Toggle */}
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="lg:hidden p-2 text-muted-fg hover:text-primary-600 transition-all rounded-full hover:bg-primary-50"
+                  className="lg:hidden p-2 text-muted-fg hover:text-primary-600 transition-all rounded-lg hover:bg-primary-50"
                   aria-label="Toggle mobile menu"
                 >
                   {isMobileMenuOpen ? (
@@ -436,7 +436,7 @@ export function Header() {
                   <Link
                     href="/products"
                     className={cn(
-                      "block px-4 py-3 text-sm font-bold tracking-wider text-primary-600 hover:bg-primary-50 rounded-xl transition-all",
+                      "block px-4 py-3 text-sm font-bold tracking-wider text-primary-600 hover:bg-primary-50 rounded-lg transition-all",
                       isActive("/products") && "bg-primary-50"
                     )}
                     onClick={() => setIsMobileMenuOpen(false)}

@@ -43,7 +43,7 @@ export const LandscapeHeroSlideBody = memo(function LandscapeHeroSlideBody({
           src={slide.media.imageUrl}
           alt={slide.media.alt || ""}
           fill
-          className="object-cover transition-transform duration-[2000ms] group-hover:scale-110"
+          className="object-cover transition-transform duration-2000 group-hover:scale-110"
           style={{
             objectPosition:
               objectPosition !== "center" ? objectPosition : undefined,
@@ -61,7 +61,7 @@ export const LandscapeHeroSlideBody = memo(function LandscapeHeroSlideBody({
       </div>
 
       {/* Content Layer */}
-      <div className="relative z-20 w-full h-full flex flex-col justify-center px-6 md:px-12 lg:px-24 xl:px-32">
+      <div className="relative z-20 w-full h-full flex flex-col justify-center px-4 sm:px-12 lg:px-24 xl:px-32">
         <div className={cn("transition-all duration-500", theme.container)}>
           {/* Badge */}
           {slide.content.badge && (
@@ -128,7 +128,7 @@ export const LandscapeHeroSlideBody = memo(function LandscapeHeroSlideBody({
       </div>
 
       {/* Bottom Glass Glow (Decorative) */}
-      <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-black/20 to-transparent z-15 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-full h-32 bg-linear-to-t from-black/20 to-transparent z-15 pointer-events-none" />
     </div>
   );
 });

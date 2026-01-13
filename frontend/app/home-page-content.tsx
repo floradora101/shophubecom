@@ -101,7 +101,12 @@ export function HomePageContent({ data }: HomePageContentProps) {
       <Header />
       <main id="main-content" className="flex-1 relative z-0" role="main">
         {/* Hero */}
-        <HeroShell slides={data.heroSlides} productsBySlug={productsBySlug} />
+        <HeroShell
+          slides={data.heroSlides}
+          productsBySlug={productsBySlug}
+          categories={data.categories}
+          productsByCategory={productsByCategory}
+        />
 
         {/* Department Tabs - Lazy loaded when in viewport */}
         <LazySection fallback={<DepartmentTabsSkeleton />}>

@@ -315,6 +315,7 @@ export function HeroSlideForm({
                         <SelectItem value="bold-dark">Bold Dark (High Contrast & Professional)</SelectItem>
                         <SelectItem value="centered-glass">Centered Glass (Wide Impact & Focused)</SelectItem>
                         <SelectItem value="right-industrial">Right Industrial (Mono Spaced & Technical)</SelectItem>
+                        <SelectItem value="clean-modern">Clean Modern (Ultra-high Quality & Minimal)</SelectItem>
                       </SelectContent>
                     </Select>
                   )}

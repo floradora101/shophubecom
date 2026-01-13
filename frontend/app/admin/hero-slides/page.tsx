@@ -365,7 +365,7 @@ export default function HeroSlidesAdminPage() {
 
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                         <Link href={`/admin/hero-slides/${slide.id}/edit`}>
-                          <Button size="sm" className="rounded-lg bg-white text-warm-gray-900 hover:bg-warm-gray-100 border-none h-8">
+                          <Button size="sm" className="rounded-lg bg-white text-warm-gray-900 hover:bg-red-600 hover:text-white border-none h-8">
                             <Edit2 className="w-3 h-3 mr-2" />
                             Edit
                           </Button>

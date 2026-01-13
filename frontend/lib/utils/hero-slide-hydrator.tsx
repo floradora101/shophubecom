@@ -1,11 +1,15 @@
 import { useMemo, useCallback } from "react";
-import type { HeroSlide } from "@/lib/types/heroSlides.types";
+import type {
+  HeroSlide,
+  CategorySpotlightSlide,
+} from "@/lib/types/heroSlides.types";
 import type { Product, Category } from "@/features/products/types";
 import { logger } from "@/lib/logger";
 
 interface HeroSlideHydrationOptions {
   slides: HeroSlide[];
   productsBySlug?: Record<string, Product> | Map<string, Product>;
+  categories?: Category[];
 }
 
 /**
@@ -15,6 +19,7 @@ interface HeroSlideHydrationOptions {
 export function useHeroSlideProcessor({
   slides,
   productsBySlug,
+  categories = [],
 }: HeroSlideHydrationOptions): {
   slides: HeroSlide[];
   getResolvedData: (slide: HeroSlide) => {
@@ -59,11 +64,14 @@ export function useHeroSlideProcessor({
 
       // Resolve category data if needed
       let category: Category | undefined;
-      // TODO: Add category resolution logic when category slides are implemented
+      if (slide.type === "CATEGORY_SPOTLIGHT") {
+        const categorySlide = slide as CategorySpotlightSlide;
+        category = categories.find((c) => c.slug === categorySlide.categorySlug);
+      }
 
       return { product, category };
     },
-    [productsBySlug]
+    [productsBySlug, categories]
   );
 
   return { slides: processedSlides, getResolvedData };
@@ -90,7 +98,13 @@ export function resolveSlideProduct(
 /**
  * Helper to resolve category from slide
  */
-export function resolveSlideCategory(): Category | undefined {
-  // TODO: Implement when category slides are added
+export function resolveSlideCategory(
+  slide: HeroSlide,
+  categories: Category[] = []
+): Category | undefined {
+  if (slide.type === "CATEGORY_SPOTLIGHT") {
+    const categorySlide = slide as CategorySpotlightSlide;
+    return categories.find((c) => c.slug === categorySlide.categorySlug);
+  }
   return undefined;
 }

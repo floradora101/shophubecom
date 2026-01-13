@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils/cn";
 interface StarRatingProps {
   rating: number; // Rating out of 5
   reviewCount?: number;
-  size?: "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg";
   showCount?: boolean;
   className?: string;
 }
@@ -13,7 +13,7 @@ interface StarRatingProps {
 interface InteractiveStarRatingProps {
   value: number;
   onChange: (rating: number) => void;
-  size?: "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg";
   className?: string;
 }
 
@@ -25,12 +25,14 @@ export function StarRating({
   className,
 }: StarRatingProps) {
   const sizeClasses = {
+    xs: "h-3 w-3",
     sm: "h-3.5 w-3.5",
     md: "h-4 w-4",
     lg: "h-5 w-5",
   };
 
   const textSizeClasses = {
+    xs: "text-[10px]",
     sm: "text-xs",
     md: "text-sm",
     lg: "text-base",
@@ -112,6 +114,7 @@ export function InteractiveStarRating({
   className,
 }: InteractiveStarRatingProps) {
   const sizeClasses = {
+    xs: "h-3.5 w-3.5",
     sm: "h-4 w-4",
     md: "h-5 w-5",
     lg: "h-6 w-6",

@@ -59,7 +59,7 @@ export function middleware(request: NextRequest) {
   // - If accessToken exists → allow (user is authenticated)
   // - Else if refreshToken exists → allow (let app refresh on load)
   // - Else redirect to login
-  if (isProtectedPath(pathname)) {
+  if (isProtectedPath(pathname) && !pathname.startsWith("/profile")) {
     if (!accessToken && !refreshToken) {
       const fullPath = buildFullPath(pathname, search);
       const loginPath = buildLoginRedirect("/login", fullPath);

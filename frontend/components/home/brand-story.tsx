@@ -40,7 +40,7 @@ export function BrandStory() {
       <Container className="relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
           {/* Left Side - Brand Story */}
-          <div className="space-y-6 lg:space-y-8 text-center lg:text-left">
+          <div className="space-y-6 lg:space-y-8 text-center md:text-left">
             <SectionHeader
               badge={{
                 icon: Zap,
@@ -166,13 +166,17 @@ export function BrandStorySkeleton() {
           {/* Content Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             {/* Left side - Content */}
-            <div className="space-y-6 lg:space-y-8 text-center lg:text-left">
+            <div className="space-y-6 lg:space-y-8 text-center md:text-left">
               <div className="space-y-4">
-                <SkeletonBlock className="h-8 w-48 rounded" />
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-600/10 mb-2 mx-auto md:mx-0">
+                  <div className="h-4 w-4 bg-red-600/20 rounded animate-pulse" />
+                  <SkeletonBlock className="h-6 w-32 rounded-lg" />
+                </div>
+                <SkeletonBlock className="h-12 w-64 xs:w-80 md:w-96 rounded mx-auto md:mx-0" />
                 <div className="space-y-3">
                   <SkeletonBlock className="h-4 w-full rounded" />
-                  <SkeletonBlock className="h-4 w-5/6 rounded" />
-                  <SkeletonBlock className="h-4 w-4/5 rounded" />
+                  <SkeletonBlock className="h-4 w-5/6 rounded mx-auto md:mx-0" />
+                  <SkeletonBlock className="h-4 w-4/5 rounded mx-auto md:mx-0" />
                 </div>
               </div>
 

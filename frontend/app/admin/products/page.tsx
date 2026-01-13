@@ -359,7 +359,7 @@ export default function ProductsAdminPage() {
 
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                       <Link href={`/admin/products/${product.id}/edit`}>
-                        <Button size="sm" className="rounded-lg bg-white text-warm-gray-900 hover:bg-warm-gray-100 border-none">
+                        <Button size="sm" className="rounded-lg bg-white text-warm-gray-900 hover:bg-red-600 hover:text-white border-none">
                           <Edit2 className="w-4 h-4 mr-2" />
                           Edit
                         </Button>

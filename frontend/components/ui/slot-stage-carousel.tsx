@@ -289,7 +289,7 @@ export function SlotStageCarousel<T>({
             direction="left"
             onMouseDown={(e) => e.stopPropagation()}
             onClick={goToPrev}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-10"
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-red-600 text-white border-red-500 hover:bg-red-700 shadow-xl"
           />
 
           <NavigationButton
@@ -297,7 +297,7 @@ export function SlotStageCarousel<T>({
             direction="right"
             onMouseDown={(e) => e.stopPropagation()}
             onClick={goToNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-10"
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-red-600 text-white border-red-500 hover:bg-red-700 shadow-xl"
           />
         </>
       )}

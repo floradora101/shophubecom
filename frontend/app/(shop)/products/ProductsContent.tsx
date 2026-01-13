@@ -14,7 +14,7 @@ import {
   ReadonlyURLSearchParams,
 } from "next/navigation";
 import Link from "next/link";
-import { Filter, ChevronRight, ChevronDown } from "lucide-react";
+import { Filter, ChevronRight, ChevronDown, List, LayoutGrid, Grid3X3 } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { SectionTitle } from "@/components/ui/SectionTitle";
@@ -201,7 +201,9 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
   // Simulate loading states for demonstration
   const [productsLoading, setProductsLoading] = useState(false);
   const [productsError] = useState(false);
-  const [gridLayout, setGridLayout] = useState<"cozy" | "compact">("cozy");
+  const [gridLayout, setGridLayout] = useState<"cozy" | "compact" | "list">(
+    "cozy"
+  );
 
   // Set loading to false immediately when filters change
   useEffect(() => {
@@ -529,19 +531,7 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
                   )}
                   title="Cozy View"
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
-                    />
-                  </svg>
+                  <LayoutGrid className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setGridLayout("compact")}
@@ -553,19 +543,19 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
                   )}
                   title="Compact View"
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 5a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM11 5a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1V5zM18 5a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1V5zM4 12a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2zM11 12a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2zM18 12a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2zM4 19a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2zM11 19a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2zM18 19a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2z"
-                    />
-                  </svg>
+                  <Grid3X3 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setGridLayout("list")}
+                  className={cn(
+                    "p-1.5 rounded-md transition-all duration-200",
+                    gridLayout === "list"
+                      ? "bg-white shadow-sm text-primary-600"
+                      : "text-warm-gray-500 hover:text-warm-gray-900"
+                  )}
+                  title="List View"
+                >
+                  <List className="w-4 h-4" />
                 </button>
               </div>
 
@@ -753,6 +743,8 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
         selectedBrands={filters.brands}
         onBrandsChange={updateFilters.setBrands}
         availableBrands={getAvailableBrands}
+        onClearAll={handleClearAll}
+        resultsCount={products.length}
       />
     </div>
   );

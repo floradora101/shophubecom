@@ -1,6 +1,6 @@
 "use client";
 
-import React, { memo } from "react";
+import React, { memo, ComponentType } from "react";
 import {
   Sparkles,
   Zap,
@@ -25,7 +25,7 @@ import type { HeroSlide } from "@/lib/types/heroSlides.types";
 import type { Product } from "@/features/products/types";
 
 // Icon mapping for dynamic features
-const FEATURE_ICONS: Record<string, any> = {
+const FEATURE_ICONS: Record<string, ComponentType<{ className?: string }>> = {
   Zap,
   Shield,
   Battery,
@@ -49,7 +49,6 @@ export const ProductSpotlightSlideBody = memo(
     slide,
     product,
     isActive,
-    index,
     onMouseEnter,
     onMouseLeave,
   }: ProductSpotlightSlideBodyProps) {
@@ -63,30 +62,28 @@ export const ProductSpotlightSlideBody = memo(
             <>
               {/* Row 1: Themed Badge */}
               <HeroItem run={run} animationKey={animationKey}>
-                <div className="hero-item-enter hero-badge">
+                <div className="hero-item-enter hero-badge w-fit max-w-full">
                   <Badge
                     variant="primary"
                     size="default"
-                    className="mt-2 sm:mt-4"
+                    className="mt-1 sm:mt-4 px-2 py-0 h-5 sm:h-auto"
                   >
-                    <Sparkles className="h-3.5 w-3.5" />
-                    {slide.badgeText || "Premium Product"}
+                    <Sparkles className="h-3 w-3 shrink-0" />
+                    <span className="truncate text-[10px] sm:text-xs">
+                      {slide.badgeText || "Premium Product"}
+                    </span>
                   </Badge>
                 </div>
               </HeroItem>
 
               {/* Row 2: Headline */}
               <HeroItem run={run} animationKey={animationKey}>
-                <div className="hero-item-enter hero-headline mt-1.5 transition-transform duration-700 group-hover:translate-x-2">
-                  <h1
-                    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-[1.1] md:leading-none tracking-tighter text-gray-900 mb-0.5 md:mb-1"
-                  >
+                <div className="hero-item-enter hero-headline mt-0.5 transition-transform duration-700 group-hover:translate-x-2 w-full max-w-full min-w-0">
+                  <h1 className="text-lg xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tighter text-gray-900 wrap-break-word">
                     {slide.headline}
                   </h1>
                   {slide.highlight && (
-                    <h2
-                      className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light leading-[1.1] md:leading-none tracking-tight italic text-red-600 mb-3 md:mb-4"
-                    >
+                    <h2 className="text-lg xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-light leading-tight tracking-tight italic text-red-600 wrap-break-word">
                       {slide.highlight}
                     </h2>
                   )}
@@ -96,7 +93,7 @@ export const ProductSpotlightSlideBody = memo(
               {/* Row 3: Description */}
               <HeroItem run={run} animationKey={animationKey}>
                 <p
-                  className={`text-sm md:text-base lg:text-lg leading-relaxed font-medium mt-1 hero-item-enter hero-description ${contentClamp.description} text-warm-gray-500`}
+                  className={`text-[10px] sm:text-sm md:text-base lg:text-lg leading-snug font-medium mt-0.5 hero-item-enter hero-description ${contentClamp.description} text-warm-gray-500 line-clamp-2 sm:line-clamp-none w-full max-w-full`}
                 >
                   {slide.description}
                 </p>
@@ -104,16 +101,14 @@ export const ProductSpotlightSlideBody = memo(
 
               {/* Row 4: Enhanced Product Details */}
               <HeroItem run={run} animationKey={animationKey}>
-                <div className="space-y-3 mt-2 md:mt-3 hero-item-enter hero-description bg-white/40 backdrop-blur-md p-3 md:p-4 rounded-lg border border-red-600/5 shadow-sm transition-all duration-500 group-hover:bg-white/60 group-hover:shadow-md">
-                  <div className="space-y-1">
+                <div className="w-[calc(100%-4px)] mx-auto lg:mx-0 lg:w-full max-w-full min-w-0 space-y-1 mt-1 md:mt-3 hero-item-enter hero-description bg-white/40 backdrop-blur-md p-1.5 md:p-4 rounded-lg border border-red-600/5 shadow-sm transition-all duration-500 group-hover:bg-white/60 group-hover:shadow-md">
+                  <div className="space-y-0.5 min-w-0">
                     {product && (
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                        <h3
-                          className="text-lg sm:text-xl md:text-2xl font-display font-black tracking-tight uppercase text-gray-900"
-                        >
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-4 min-w-0">
+                        <h3 className="text-xs sm:text-lg md:text-2xl font-display font-black tracking-tight uppercase text-gray-900 truncate">
                           {product.name}
                         </h3>
-                        <div className="flex items-center gap-2 bg-red-50 px-2 py-0.5 rounded-md text-red-600">
+                        <div className="flex items-center gap-1 bg-red-50/50 px-1 py-0 rounded-md text-red-600 w-fit shrink-0 scale-[0.85] sm:scale-100 origin-left">
                           <StarRating
                             rating={4.8}
                             reviewCount={124}
@@ -123,80 +118,87 @@ export const ProductSpotlightSlideBody = memo(
                       </div>
                     )}
                     {product && (
-                      <div className="flex items-center gap-4">
-                        <HeroPriceBlock product={product} />
-                        <div className="h-6 w-[1px] bg-gray-200 hidden sm:block" />
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-red-600 animate-pulse">
-                          Available Now
+                      <div className="flex items-center gap-1.5 sm:gap-4">
+                        <div className="scale-90 sm:scale-100 origin-left shrink-0">
+                          <HeroPriceBlock product={product} />
+                        </div>
+                        <div className="h-3 w-px bg-gray-200 hidden sm:block" />
+                        <span className="text-[7px] sm:text-[10px] font-bold uppercase tracking-widest text-red-600 animate-pulse shrink-0">
+                          Available
                         </span>
                       </div>
                     )}
                   </div>
 
-                  {/* Dynamic Features List */}
-                  <div className="flex flex-wrap gap-2 pt-2 border-t border-red-600/5">
+                  {/* Dynamic Features List - Hidden on very small screens, compact on others */}
+                  <div className="hidden xs:flex flex-wrap gap-1 pt-1.5 border-t border-red-600/5">
                     {(slide.features && slide.features.length > 0
                       ? slide.features
                       : [
                           { iconName: "Zap", text: "Pro Performance" },
                           { iconName: "Shield", text: "2Y Warranty" },
                         ]
-                    ).map((feature, i) => {
-                      const Icon =
-                        FEATURE_ICONS[
-                          feature.iconName as keyof typeof FEATURE_ICONS
-                        ] || Zap;
-                      return (
-                        <div
-                          key={i}
-                          className="group/feature flex items-center gap-1.5 px-3 py-1 rounded-lg border border-red-600/10 bg-white hover:bg-red-600 hover:text-white transition-all duration-300 cursor-default shadow-sm"
-                        >
-                          <Icon className="w-3 h-3 text-red-600 group-hover/feature:text-white transition-colors" />
-                          <span className="text-[9px] md:text-[10px] font-black tracking-widest uppercase text-gray-900 opacity-80 group-hover/feature:text-white group-hover/feature:opacity-100 transition-colors">
-                            {feature.text}
-                          </span>
-                        </div>
-                      );
-                    })}
+                    )
+                      .slice(0, 2)
+                      .map((feature, i) => {
+                        const Icon =
+                          FEATURE_ICONS[
+                            feature.iconName as keyof typeof FEATURE_ICONS
+                          ] || Zap;
+                        return (
+                          <div
+                            key={i}
+                            className="group/feature flex items-center gap-1 px-1.5 py-0.5 rounded-md border border-red-600/10 bg-white/80 hover:bg-red-600 hover:text-white transition-all duration-300 cursor-default shadow-sm"
+                          >
+                            <Icon className="w-1.5 h-1.5 sm:w-2 sm:h-2 text-red-600 group-hover/feature:text-white transition-colors" />
+                            <span className="text-[7px] md:text-[10px] font-black tracking-widest uppercase text-gray-900 opacity-80 group-hover/feature:text-white group-hover/feature:opacity-100 transition-colors">
+                              {feature.text}
+                            </span>
+                          </div>
+                        );
+                      })}
                   </div>
                 </div>
               </HeroItem>
 
               {/* Row 5: CTAs */}
               <HeroItem run={run} animationKey={animationKey}>
-                <div className="flex flex-row gap-3 mt-3 md:mt-4 justify-center lg:justify-start hero-item-enter hero-buttons text-gray-900">
+                <div className="flex flex-row gap-1.5 mt-1.5 md:mt-4 justify-center lg:justify-start hero-item-enter hero-buttons text-gray-900">
                   <Link
                     href={slide.ctaPrimary.href}
                     onMouseEnter={onMouseEnter}
                     onMouseLeave={onMouseLeave}
                   >
-                    <Button size="hero" className="bg-red-600 hover:bg-red-700 text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all px-6 h-11 md:h-12">
-                      <span className="flex items-center gap-2 font-black uppercase tracking-wider text-sm md:text-base">
+                    <Button
+                      size="hero"
+                      className="bg-red-600 hover:bg-red-700 text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all px-2.5 sm:px-6 h-7 sm:h-12"
+                    >
+                      <span className="flex items-center gap-1 font-black uppercase tracking-wider text-[9px] sm:text-sm md:text-base">
                         {slide.ctaPrimary.label}
-                        <ArrowRight className="h-4 w-4 md:h-5 md:w-5 transition-transform group-hover:translate-x-1" />
+                        <ArrowRight className="h-2.5 w-2.5 md:h-5 md:w-5 transition-transform group-hover:translate-x-1" />
                       </span>
                     </Button>
                   </Link>
-                {slide.ctaSecondary && (
-                  <Link
-                    href={slide.ctaSecondary.href}
-                    onMouseEnter={onMouseEnter}
-                    onMouseLeave={onMouseLeave}
-                  >
-                    <Button
-                      size="hero"
-                      className="bg-white text-red-600 hover:bg-red-600 hover:text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all duration-500 px-6 h-11 md:h-12 font-black uppercase tracking-wider text-sm md:text-base"
+                  {slide.ctaSecondary && (
+                    <Link
+                      href={slide.ctaSecondary.href}
+                      onMouseEnter={onMouseEnter}
+                      onMouseLeave={onMouseLeave}
                     >
-                      {slide.ctaSecondary.label}
-                    </Button>
-                  </Link>
-                )}
+                      <Button
+                        size="hero"
+                        className="bg-white text-red-600 hover:bg-red-600 hover:text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all duration-500 px-2.5 sm:px-6 h-7 sm:h-12 font-black uppercase tracking-wider text-[9px] sm:text-sm md:text-base"
+                      >
+                        {slide.ctaSecondary.label}
+                      </Button>
+                    </Link>
+                  )}
                 </div>
               </HeroItem>
 
-              {/* Row 6: Enhanced Trust Row */}
+              {/* Row 6: Enhanced Trust Row - Hidden on mobile to save vertical space */}
               <HeroItem run={run} animationKey={animationKey}>
-                <div className="hero-item-enter hero-description pt-1.5 mt-1.5 border-t border-red-600/5">
+                <div className="hidden sm:block hero-item-enter hero-description pt-1.5 mt-1.5 border-t border-red-600/5">
                   <div className="flex flex-nowrap items-center gap-4 overflow-x-auto">
                     {[
                       { icon: Shield, text: "Protection" },

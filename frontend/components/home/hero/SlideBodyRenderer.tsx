@@ -3,8 +3,9 @@ import dynamic from "next/dynamic";
 import type {
   HeroSlide,
   LandscapeImageSlide,
+  EditorsPickSlide,
 } from "@/lib/types/heroSlides.types";
-import type { Product } from "@/features/products/types";
+import type { Product, Category } from "@/features/products/types";
 import { logger } from "@/lib/logger";
 
 // Code-split slide body components with next/dynamic
@@ -37,9 +38,29 @@ const LandscapeHeroSlideBody = dynamic(
   }
 );
 
+const CategorySpotlightSlideBody = dynamic(
+  () => import("./slide-bodies/CategorySpotlightSlideBody"),
+  {
+    ssr: false,
+    loading: () => <div className="w-full h-full" />,
+  }
+);
+
+const EditorsPickSlideBody = dynamic(
+  () => import("./slide-bodies/EditorsPickSlideBody"),
+  {
+    ssr: false,
+    loading: () => <div className="w-full h-full" />,
+  }
+);
+
 interface SlideBodyRendererProps {
   slide: HeroSlide;
   product?: Product;
+  productsBySlug?: Record<string, Product> | Map<string, Product>;
+  category?: Category;
+  categories?: Category[];
+  productsByCategory?: Record<string, Product[]>;
   isActive?: boolean;
   index?: number;
   onMouseEnter?: () => void;
@@ -49,6 +70,10 @@ interface SlideBodyRendererProps {
 export const SlideBodyRenderer = memo(function SlideBodyRenderer({
   slide,
   product,
+  productsBySlug,
+  category,
+  categories = [],
+  productsByCategory = {},
   isActive = false,
   index = 0,
   onMouseEnter,
@@ -99,6 +124,32 @@ export const SlideBodyRenderer = memo(function SlideBodyRenderer({
               <LandscapeHeroSlideBody
                 slide={slide as LandscapeImageSlide}
                 isActive={isActive}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
+              />
+            );
+
+          case "CATEGORY_SPOTLIGHT":
+            return (
+              <CategorySpotlightSlideBody
+                slide={slide}
+                category={category}
+                categories={categories}
+                productsByCategory={productsByCategory}
+                isActive={isActive}
+                index={index}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
+              />
+            );
+
+          case "EDITORS_PICK":
+            return (
+              <EditorsPickSlideBody
+                slide={slide as EditorsPickSlide}
+                productsBySlug={productsBySlug}
+                isActive={isActive}
+                index={index}
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={onMouseLeave}
               />

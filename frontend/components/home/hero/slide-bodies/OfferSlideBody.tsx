@@ -27,7 +27,6 @@ export const OfferSlideBody = memo(function OfferSlideBody({
   slide,
   product,
   isActive,
-  index,
   onMouseEnter,
   onMouseLeave,
 }: OfferSlideBodyProps) {
@@ -53,26 +52,27 @@ export const OfferSlideBody = memo(function OfferSlideBody({
     <>
       {/* Row 1: Themed Badge */}
       <HeroItem run={run} animationKey={animationKey}>
-        <div className="hero-item-enter hero-badge">
-          <Badge variant="primary" className="mt-2 sm:mt-4">
-            <Percent className="h-3 w-3" />
-            {slide.badgeText || "Limited Time Offer"}
+        <div className="hero-item-enter hero-badge w-fit max-w-full">
+          <Badge
+            variant="primary"
+            className="mt-1 sm:mt-4 px-2 py-0 h-5 sm:h-auto"
+          >
+            <Percent className="h-3 w-3 shrink-0" />
+            <span className="truncate text-[10px] sm:text-xs">
+              {slide.badgeText || "Limited Time Offer"}
+            </span>
           </Badge>
         </div>
       </HeroItem>
 
       {/* Row 2: Headline */}
       <HeroItem run={run} animationKey={animationKey}>
-        <div className="hero-item-enter hero-headline mt-2 transition-transform duration-700 group-hover:translate-x-2">
-          <h1
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-[1.1] md:leading-none tracking-tighter text-gray-900 mb-1 md:mb-2"
-          >
+        <div className="hero-item-enter hero-headline mt-0.5 transition-transform duration-700 group-hover:translate-x-2 w-full max-w-full min-w-0">
+          <h1 className="text-lg xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tighter text-gray-900 wrap-break-word">
             {slide.headline}
           </h1>
           {slide.highlight && (
-            <h2
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light leading-[1.1] md:leading-none tracking-tight italic text-red-600 mb-4 md:mb-6"
-            >
+            <h2 className="text-lg xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-light leading-tight tracking-tight italic text-red-600 wrap-break-word">
               {slide.highlight}
             </h2>
           )}
@@ -82,7 +82,7 @@ export const OfferSlideBody = memo(function OfferSlideBody({
       {/* Row 3: Description */}
       <HeroItem run={run} animationKey={animationKey}>
         <p
-          className={`text-sm md:text-base lg:text-lg leading-relaxed font-medium mt-2 hero-item-enter hero-description ${contentClamp.description} text-warm-gray-500`}
+          className={`text-[10px] sm:text-sm md:text-base lg:text-lg leading-snug font-medium mt-0.5 hero-item-enter hero-description ${contentClamp.description} text-warm-gray-500 line-clamp-2 sm:line-clamp-none w-full max-w-full`}
         >
           {slide.description}
         </p>
@@ -90,33 +90,41 @@ export const OfferSlideBody = memo(function OfferSlideBody({
 
       {/* Row 4: Professional Countdown & Coupon */}
       <HeroItem run={run} animationKey={animationKey}>
-        <div className="relative flex flex-col sm:flex-row items-center justify-center lg:justify-start hero-item-enter hero-description mt-3 md:mt-4 bg-white/40 backdrop-blur-md p-4 md:p-5 rounded-lg border border-red-600/5 shadow-sm transition-all duration-500 group-hover:bg-white/60 group-hover:shadow-md gap-4">
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="w-10 h-10 rounded-lg bg-red-600 flex items-center justify-center shrink-0 shadow-lg group-hover:rotate-12 transition-transform duration-500">
-              <Percent className="w-5 h-5 text-white" />
+        <div className="w-[calc(100%-4px)] mx-auto lg:mx-0 lg:w-full max-w-full min-w-0 relative flex flex-col sm:flex-row items-center justify-center lg:justify-start hero-item-enter hero-description mt-1 md:mt-3 bg-white/40 backdrop-blur-md p-1.5 md:p-4 rounded-lg border border-red-600/5 shadow-sm transition-all duration-500 group-hover:bg-white/60 group-hover:shadow-md gap-1.5 sm:gap-4">
+          <div className="flex items-center gap-1.5 shrink-0 min-w-0">
+            <div className="w-6 h-6 sm:w-10 sm:h-10 rounded-lg bg-red-600 flex items-center justify-center shrink-0 shadow-lg group-hover:rotate-12 transition-transform duration-500">
+              <Percent className="w-3 h-3 sm:w-5 sm:h-5 text-white" />
             </div>
             <div className="min-w-0">
-              <div className="font-black text-lg sm:text-xl md:text-2xl tracking-tighter text-gray-900 truncate">
+              <div className="font-black text-[11px] sm:text-xl md:text-2xl tracking-tighter text-gray-900 truncate">
                 {slide.offerLabel}
               </div>
-              <div className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-red-600 leading-none">
+              <div className="text-[6px] sm:text-xs font-bold uppercase tracking-widest text-red-600 leading-none">
                 Flash Deal
               </div>
             </div>
           </div>
 
-          <div className="flex flex-row gap-2 items-center">
+          <div className="flex flex-row gap-1 items-center min-w-0 scale-[0.8] sm:scale-100 origin-center sm:origin-left">
             {/* Digital Countdown */}
-            <div className="bg-gray-900 text-white p-2 rounded-lg flex flex-col items-center justify-center min-w-[100px] shadow-xl">
-              <div className="flex items-center gap-1.5 text-[9px] font-black tracking-widest text-red-500 mb-0.5">
-                <Clock className="w-2.5 h-2.5" />
+            <div className="bg-gray-900 text-white p-1 sm:p-2 rounded-lg flex flex-col items-center justify-center min-w-[60px] sm:min-w-[100px] shadow-xl shrink-0">
+              <div className="flex items-center gap-1 text-[5px] sm:text-[8px] font-black tracking-widest text-red-500 mb-0">
+                <Clock className="w-1.5 h-1.5" />
                 ENDS
               </div>
               <div className="flex items-baseline gap-0.5 font-mono">
-                <span className="text-xl font-black">{detailedCountdown.hours.toString().padStart(2, "0")}</span>
-                <span className="text-[9px] font-bold opacity-50">H</span>
-                <span className="text-xl font-black ml-1">{detailedCountdown.minutes.toString().padStart(2, "0")}</span>
-                <span className="text-[9px] font-bold opacity-50">M</span>
+                <span className="text-xs sm:text-xl font-black">
+                  {detailedCountdown.hours.toString().padStart(2, "0")}
+                </span>
+                <span className="text-[6px] sm:text-[8px] font-bold opacity-50">
+                  H
+                </span>
+                <span className="text-xs sm:text-xl font-black ml-0.5">
+                  {detailedCountdown.minutes.toString().padStart(2, "0")}
+                </span>
+                <span className="text-[6px] sm:text-[8px] font-bold opacity-50">
+                  M
+                </span>
               </div>
             </div>
 
@@ -124,14 +132,20 @@ export const OfferSlideBody = memo(function OfferSlideBody({
             {slide.promoCode && (
               <button
                 onClick={handleCopyCode}
-                className="flex flex-col items-center justify-center p-2 rounded-lg border-2 border-dashed border-red-200 bg-red-50/50 hover:bg-white transition-all duration-300 group/coupon min-w-[110px]"
+                className="flex flex-col items-center justify-center p-1 sm:p-2 rounded-lg border-2 border-dashed border-red-200 bg-red-50/50 hover:bg-white transition-all duration-300 group/coupon min-w-[70px] sm:min-w-[110px] overflow-hidden"
               >
-                <div className="text-[9px] font-black tracking-widest text-red-600 mb-0.5">
+                <div className="text-[5px] sm:text-[8px] font-black tracking-widest text-red-600 mb-0">
                   {copied ? "COPIED" : "CODE"}
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <code className="text-lg font-black tracking-tight text-gray-900 font-mono leading-none">{promoCode}</code>
-                  {copied ? <Check className="w-3 h-3 text-green-600" /> : <Copy className="w-3 h-3 text-red-400 group-hover/coupon:text-red-600" />}
+                <div className="flex items-center gap-1 min-w-0">
+                  <code className="text-xs sm:text-lg font-black tracking-tight text-gray-900 font-mono leading-none truncate">
+                    {promoCode}
+                  </code>
+                  {copied ? (
+                    <Check className="w-1.5 h-1.5 sm:w-2.5 sm:h-2.5 text-green-600 shrink-0" />
+                  ) : (
+                    <Copy className="w-1.5 h-1.5 sm:w-2.5 sm:h-2.5 text-red-400 group-hover/coupon:text-red-600 shrink-0" />
+                  )}
                 </div>
               </button>
             )}
@@ -141,20 +155,31 @@ export const OfferSlideBody = memo(function OfferSlideBody({
 
       {/* Row 5: CTAs */}
       <HeroItem run={run} animationKey={animationKey}>
-        <div className="flex flex-row gap-3 mt-4 md:mt-6 justify-center lg:justify-start hero-item-enter hero-buttons">
-          <Link href={slide.ctaPrimary.href} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
-            <Button size="hero" className="bg-red-600 hover:bg-red-700 text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all px-6 h-12 md:h-14">
-              <span className="flex items-center gap-2 font-black uppercase tracking-wider text-sm md:text-base">
+        <div className="flex flex-row gap-1.5 mt-1.5 md:mt-4 justify-center lg:justify-start hero-item-enter hero-buttons">
+          <Link
+            href={slide.ctaPrimary.href}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+          >
+            <Button
+              size="hero"
+              className="bg-red-600 hover:bg-red-700 text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all px-2.5 sm:px-6 h-7 sm:h-12"
+            >
+              <span className="flex items-center gap-1 font-black uppercase tracking-wider text-[9px] sm:text-sm md:text-base">
                 {slide.ctaPrimary.label}
-                <Sparkles className="h-4 w-4 md:h-5 md:w-5" />
+                <Sparkles className="h-2.5 w-2.5 md:h-5 md:w-5" />
               </span>
             </Button>
           </Link>
           {slide.ctaSecondary && (
-            <Link href={slide.ctaSecondary.href} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+            <Link
+              href={slide.ctaSecondary.href}
+              onMouseEnter={onMouseEnter}
+              onMouseLeave={onMouseLeave}
+            >
               <Button
                 size="hero"
-                className="bg-white text-red-600 hover:bg-red-600 hover:text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all duration-500 px-6 h-12 md:h-14 font-black uppercase tracking-wider text-sm md:text-base"
+                className="bg-white text-red-600 hover:bg-red-600 hover:text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all duration-500 px-2.5 sm:px-6 h-7 sm:h-12 font-black uppercase tracking-wider text-[9px] sm:text-sm md:text-base"
               >
                 {slide.ctaSecondary.label}
               </Button>
@@ -163,9 +188,9 @@ export const OfferSlideBody = memo(function OfferSlideBody({
         </div>
       </HeroItem>
 
-      {/* Row 6: Enhanced Trust Row */}
+      {/* Row 6: Enhanced Trust Row - Hidden on mobile to save vertical space */}
       <HeroItem run={run} animationKey={animationKey}>
-        <div className="hero-item-enter hero-description pt-2 mt-2 border-t border-red-600/5">
+        <div className="hidden sm:block hero-item-enter hero-description pt-2 mt-2 border-t border-red-600/5">
           <div className="flex flex-nowrap items-center justify-center lg:justify-start gap-4">
             {[
               { icon: Percent, text: "Verified Deal" },

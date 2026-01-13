@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { LucideIcon, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ui } from "@/lib/ui-tokens";
+import { cn } from "@/lib/utils/cn";
 
 interface SectionHeaderProps {
   badge?: {
@@ -15,6 +16,7 @@ interface SectionHeaderProps {
   };
   description?: string;
   actions?: ReactNode;
+  centered?: boolean;
 }
 
 /**
@@ -25,6 +27,7 @@ interface SectionTitleProps {
   italic: string;
   bold: string;
   className?: string;
+  centered?: boolean;
 }
 
 export function SectionTitle({
@@ -32,6 +35,7 @@ export function SectionTitle({
   italic,
   bold,
   className = "",
+  centered = false,
 }: SectionTitleProps) {
   const baseClasses = "leading-tight font-display";
 
@@ -73,15 +77,31 @@ export function SectionHeader({
   title,
   description,
   actions,
+  centered = false,
 }: SectionHeaderProps) {
   return (
-    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-      <div className="text-center md:text-left space-y-4 flex-1">
+    <div
+      className={cn(
+        "flex flex-col gap-4",
+        centered
+          ? "items-center text-center"
+          : "md:flex-row items-start md:items-center justify-between"
+      )}
+    >
+      <div
+        className={cn(
+          "space-y-4 flex-1",
+          centered ? "text-center" : "text-center md:text-left"
+        )}
+      >
         {badge && (
           <Badge
             variant="primary"
             size="default"
-            className="mb-2 animate-in fade-in slide-in-from-left-4 duration-700"
+            className={cn(
+              "mb-2 animate-in fade-in slide-in-from-left-4 duration-700",
+              centered && "mx-auto"
+            )}
           >
             <badge.icon className="h-3 w-3" />
             <span>{badge.text}</span>
@@ -91,13 +111,23 @@ export function SectionHeader({
           <SectionTitle italic={title.italic} bold={title.bold} />
         </div>
         {description && (
-          <p className="text-warm-gray-600 max-w-2xl text-sm md:text-lg font-body font-light leading-relaxed animate-in fade-in slide-in-from-left-4 duration-700 delay-200">
+          <p
+            className={cn(
+              "text-warm-gray-600 max-w-2xl text-sm md:text-lg font-body font-light leading-relaxed animate-in fade-in slide-in-from-left-4 duration-700 delay-200",
+              centered && "mx-auto"
+            )}
+          >
             {description}
           </p>
         )}
       </div>
       {actions && (
-        <div className="flex gap-2 animate-in fade-in slide-in-from-right-4 duration-700 delay-300">
+        <div
+          className={cn(
+            "flex gap-2 animate-in fade-in duration-700 delay-300",
+            centered ? "justify-center" : "slide-in-from-right-4"
+          )}
+        >
           {actions}
         </div>
       )}

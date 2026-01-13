@@ -42,7 +42,9 @@ function StarRating({ rating }: { rating: number }) {
       {Array.from({ length: 5 }, (_, i) => (
         <Star
           key={i}
-          className={`w-3 h-3 ${i < rating ? "fill-red-600 text-red-600" : "text-gray-300"}`}
+          className={`w-3 h-3 ${
+            i < rating ? "fill-red-600 text-red-600" : "text-gray-300"
+          }`}
         />
       ))}
     </div>
@@ -54,54 +56,50 @@ function QuoteCard({ slide }: { slide: HeroSlide & { type: "TESTIMONIAL" } }) {
   const initials = getInitials(slide.authorName);
 
   return (
-    <div className="bg-white/40 backdrop-blur-md border border-white/20 rounded-lg p-3 md:p-5 relative shadow-xl overflow-hidden group/quote">
+    <div className="w-[calc(100%-4px)] mx-auto lg:mx-0 lg:w-full max-w-full min-w-0 bg-white/40 backdrop-blur-md border border-white/20 rounded-lg p-1.5 md:p-4 relative shadow-xl overflow-hidden group/quote">
       {/* Decorative Gradient Glow */}
       <div className="absolute -top-24 -right-24 w-48 h-48 bg-red-600/5 rounded-full blur-3xl group-hover/quote:bg-red-600/10 transition-colors" />
 
       {/* Quote Mark */}
-      <Quote
-        className="absolute top-2 right-4 w-10 h-10 text-red-600/10 transition-transform duration-700 group-hover/quote:scale-110"
-      />
+      <Quote className="absolute top-1 right-2 w-4 h-4 sm:w-10 sm:h-10 text-red-600/10 transition-transform duration-700 group-hover/quote:scale-110" />
 
-      <div className="relative z-10">
-        <StarRating rating={slide.rating} />
+      <div className="relative z-10 min-w-0 space-y-1">
+        <div className="scale-85 sm:scale-100 origin-left shrink-0">
+          <StarRating rating={slide.rating} />
+        </div>
 
-        <blockquote
-          className="text-base md:text-lg lg:text-xl font-medium leading-snug my-2 md:my-3 text-gray-900 italic tracking-tight"
-        >
+        <blockquote className="text-[11px] xs:text-[13px] sm:text-lg lg:text-xl font-medium leading-tight my-1 sm:my-3 text-gray-900 italic tracking-tight line-clamp-3 sm:line-clamp-none">
           &ldquo;{sanitizedQuote}&rdquo;
         </blockquote>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 mt-1">
           {/* Avatar */}
-          <div
-            className="w-10 h-10 rounded-lg bg-red-600 flex items-center justify-center text-xs font-black text-white shadow-lg"
-          >
+          <div className="w-6 h-6 sm:w-10 sm:h-10 rounded-lg bg-red-600 flex items-center justify-center text-[8px] sm:text-xs font-black text-white shadow-lg shrink-0">
             {initials}
           </div>
           {/* Name and Label */}
-          <div>
-            <div className="text-sm font-black text-gray-900 tracking-tight">
+          <div className="min-w-0">
+            <div className="text-[9px] sm:text-sm font-black text-gray-900 tracking-tight truncate">
               {slide.authorName}
             </div>
-            <div className="text-[10px] font-bold uppercase tracking-widest text-red-600">
+            <div className="text-[7px] sm:text-[10px] font-bold uppercase tracking-widest text-red-600 truncate">
               Verified Buyer
             </div>
           </div>
         </div>
 
-        {/* Stats Grid - Tighter */}
+        {/* Stats Grid - Hidden on mobile, compact on others */}
         {slide.stats && slide.stats.length > 0 && (
-          <div className="grid grid-cols-3 gap-1.5 mt-3 pt-3 border-t border-red-600/5">
+          <div className="hidden xs:grid grid-cols-3 gap-1 mt-2 pt-2 border-t border-red-600/5">
             {slide.stats.slice(0, 3).map((stat, index) => (
               <div
                 key={index}
-                className="text-center p-1.5 rounded-lg bg-red-600/5 border border-red-600/5 transition-all group-hover/quote:bg-white"
+                className="text-center p-1 rounded-lg bg-red-600/5 border border-red-600/5 transition-all group-hover/quote:bg-white min-w-0"
               >
-                <div className="text-xs font-black text-red-600 leading-none mb-0.5">
+                <div className="text-[9px] sm:text-xs font-black text-red-600 leading-none mb-0.5 truncate">
                   {stat.value}
                 </div>
-                <div className="text-[8px] font-bold text-gray-500 uppercase tracking-tighter">
+                <div className="text-[6px] sm:text-[8px] font-bold text-gray-500 uppercase tracking-tighter truncate">
                   {stat.label}
                 </div>
               </div>
@@ -117,7 +115,6 @@ export const TestimonialSlideBody = memo(function TestimonialSlideBody({
   slide,
   product,
   isActive,
-  index,
   onMouseEnter,
   onMouseLeave,
 }: TestimonialSlideBodyProps) {
@@ -131,26 +128,28 @@ export const TestimonialSlideBody = memo(function TestimonialSlideBody({
           <>
             {/* Row 1: Themed Badge */}
             <HeroItem run={run} animationKey={animationKey}>
-              <div className="hero-item-enter hero-badge">
-                <Badge variant="primary" size="default" className="mt-2 sm:mt-4">
-                  <Star className="h-3.5 w-3.5" />
-                  {slide.badgeText || "Customer Stories"}
+              <div className="hero-item-enter hero-badge w-fit max-w-full">
+                <Badge
+                  variant="primary"
+                  size="default"
+                  className="mt-1 sm:mt-4 px-2 py-0 h-5 sm:h-auto"
+                >
+                  <Star className="h-3 w-3 shrink-0" />
+                  <span className="truncate text-[10px] sm:text-xs">
+                    {slide.badgeText || "Customer Stories"}
+                  </span>
                 </Badge>
               </div>
             </HeroItem>
 
             {/* Row 2: Headline */}
             <HeroItem run={run} animationKey={animationKey}>
-              <div className="hero-item-enter hero-headline mt-1.5 transition-transform duration-700 group-hover:translate-x-2">
-                <h1
-                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-[1.1] md:leading-none tracking-tighter text-gray-900 mb-0.5 md:mb-1"
-                >
+              <div className="hero-item-enter hero-headline mt-0.5 transition-transform duration-700 group-hover:translate-x-2 w-full max-w-full min-w-0">
+                <h1 className="text-lg xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tighter text-gray-900 wrap-break-word">
                   {slide.headline}
                 </h1>
                 {slide.highlight && (
-                  <h2
-                    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light leading-[1.1] md:leading-none tracking-tight italic text-red-600 mb-3 md:mb-4"
-                  >
+                  <h2 className="text-lg xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-light leading-tight tracking-tight italic text-red-600 wrap-break-word">
                     {slide.highlight}
                   </h2>
                 )}
@@ -160,7 +159,7 @@ export const TestimonialSlideBody = memo(function TestimonialSlideBody({
             {/* Row 3: Description */}
             <HeroItem run={run} animationKey={animationKey}>
               <p
-                className={`text-sm md:text-base lg:text-lg leading-relaxed font-medium mt-1 hero-item-enter hero-description ${contentClamp.description} text-warm-gray-500`}
+                className={`text-[10px] sm:text-sm md:text-base lg:text-lg leading-snug font-medium mt-0.5 hero-item-enter hero-description ${contentClamp.description} text-warm-gray-500 line-clamp-2 sm:line-clamp-none w-full max-w-full`}
               >
                 {slide.description}
               </p>
@@ -168,31 +167,38 @@ export const TestimonialSlideBody = memo(function TestimonialSlideBody({
 
             {/* Row 4: Premium Quote Card */}
             <HeroItem run={run} animationKey={animationKey}>
-              <div className="hero-item-enter hero-description mt-2 md:mt-3">
+              <div className="hero-item-enter hero-description mt-1 md:mt-3">
                 <QuoteCard slide={slide} />
               </div>
             </HeroItem>
 
             {/* Row 5: CTAs */}
             <HeroItem run={run} animationKey={animationKey}>
-              <div className="flex flex-row gap-3 mt-3 md:mt-4 hero-item-enter hero-buttons">
+              <div className="flex flex-row gap-1.5 mt-1.5 md:mt-4 hero-item-enter hero-buttons">
                 <Link
                   href={slide.ctaPrimary.href}
                   onMouseEnter={onMouseEnter}
                   onMouseLeave={onMouseLeave}
                 >
-                  <Button size="hero" className="bg-red-600 hover:bg-red-700 text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all px-6 h-11 md:h-12">
-                    <span className="flex items-center gap-2 font-black uppercase tracking-wider text-sm md:text-base">
+                  <Button
+                    size="hero"
+                    className="bg-red-600 hover:bg-red-700 text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all px-2.5 sm:px-6 h-7 sm:h-12"
+                  >
+                    <span className="flex items-center gap-1 font-black uppercase tracking-wider text-[9px] sm:text-sm md:text-base">
                       {slide.ctaPrimary.label}
-                      <ArrowRight className="h-4 w-4 md:h-5 md:w-5" />
+                      <ArrowRight className="h-2.5 w-2.5 md:h-5 md:w-5" />
                     </span>
                   </Button>
                 </Link>
                 {slide.ctaSecondary && (
-                  <Link href={slide.ctaSecondary.href} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+                  <Link
+                    href={slide.ctaSecondary.href}
+                    onMouseEnter={onMouseEnter}
+                    onMouseLeave={onMouseLeave}
+                  >
                     <Button
                       size="hero"
-                      className="bg-white text-red-600 hover:bg-red-600 hover:text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all duration-500 px-6 h-11 md:h-12 font-black uppercase tracking-wider text-sm md:text-base"
+                      className="bg-white text-red-600 hover:bg-red-600 hover:text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all duration-500 px-2.5 sm:px-6 h-7 sm:h-12 font-black uppercase tracking-wider text-[9px] sm:text-sm md:text-base"
                     >
                       {slide.ctaSecondary.label}
                     </Button>
@@ -203,12 +209,17 @@ export const TestimonialSlideBody = memo(function TestimonialSlideBody({
           </>
         }
         mediaContent={
-          <HeroMediaFrame slide={slide} product={product} isActive={isActive} badge={
-            <Badge variant="destructive" size="default">
-              <Sparkles className="w-3.5 h-3.5 text-red-500" />
-              COMMUNITY
-            </Badge>
-          } />
+          <HeroMediaFrame
+            slide={slide}
+            product={product}
+            isActive={isActive}
+            badge={
+              <Badge variant="destructive" size="default">
+                <Sparkles className="w-3.5 h-3.5 text-red-500" />
+                COMMUNITY
+              </Badge>
+            }
+          />
         }
       />
     </div>

@@ -6,7 +6,7 @@
  */
 "use client";
 
-import { X } from "lucide-react";
+import { X, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils/cn";
@@ -119,34 +119,33 @@ export function ActiveFilterChips({
   }
 
   return (
-    <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide py-4 animate-in fade-in slide-in-from-left-4 duration-700 delay-300">
-      <div className="flex items-center gap-2 flex-1 min-w-0">
-        <span className="text-xs font-bold text-warm-gray-400 uppercase tracking-widest mr-2 shrink-0">
-          Active:
-        </span>
+    <div className="flex flex-wrap items-center gap-2 py-2 sm:py-4 animate-in fade-in slide-in-from-left-4 duration-700 delay-300">
+      <div className="flex flex-wrap items-center gap-2 flex-1">
+        <div className="flex items-center text-xs font-bold text-warm-gray-400 uppercase tracking-widest mr-1 shrink-0 bg-warm-gray-50 px-2 py-1 rounded-md border border-warm-gray-100/50">
+          <Filter className="w-3 h-3 mr-1.5 text-warm-gray-400" />
+          <span>Active</span>
+        </div>
         {activeFilters.map((filter) => (
           <Badge
             key={filter.key}
             variant="secondary"
             className={cn(
-              "flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 group hover:border-primary-200 hover:bg-primary-50 hover:shadow-md",
+              "flex items-center gap-0 px-0 py-0 rounded-full transition-all duration-300 group hover:border-primary-200 hover:bg-primary-50 hover:shadow-sm",
               "bg-white border border-warm-gray-200",
-              "text-xs font-semibold whitespace-nowrap"
+              "text-[10px] sm:text-xs font-semibold overflow-hidden"
             )}
           >
-            <span className="text-warm-gray-400 font-medium">
+            <span className="text-warm-gray-500 font-medium px-2.5 py-1.5 bg-warm-gray-50/50 border-r border-warm-gray-100">
               {filter.label}
             </span>
-            <span className="text-warm-gray-900 border-l border-warm-gray-200 pl-2 ml-1">
+            <span className="text-warm-gray-900 px-2.5 py-1.5 max-w-[120px] truncate">
               {filter.value}
             </span>
             <button
               onClick={() => onRemoveFilter(filter.key)}
               className={cn(
-                "ml-2 rounded-full p-1 bg-warm-gray-100",
-                "hover:bg-primary-600 hover:text-white group-hover:scale-110",
-                "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2",
-                "transition-all duration-300"
+                "p-1.5 text-warm-gray-400 hover:text-primary-600 hover:bg-primary-50 transition-colors border-l border-warm-gray-100",
+                "focus:outline-none"
               )}
               aria-label={`Remove ${filter.label} filter`}
             >
@@ -154,18 +153,19 @@ export function ActiveFilterChips({
             </button>
           </Badge>
         ))}
-      </div>
 
-      {/* Clear All Button */}
-      {activeFilters.length > 0 && (
-        <button
-          onClick={onClearAll}
-          className="shrink-0 text-xs font-bold text-primary-600 hover:text-primary-700 underline underline-offset-4 decoration-primary-600/30 hover:decoration-primary-600 transition-all px-2"
-          aria-label="Clear all filters"
-        >
-          Clear Selection
-        </button>
-      )}
+        {/* Clear All Button integrated into the flow */}
+        {activeFilters.length > 0 && (
+          <button
+            onClick={onClearAll}
+            className="text-[10px] sm:text-xs font-bold text-primary-600 hover:text-primary-700 transition-all px-3 py-1.5 rounded-full hover:bg-primary-50 border border-transparent hover:border-primary-100 active:scale-95 flex items-center gap-1.5"
+            aria-label="Clear all filters"
+          >
+            <span>Clear Selection</span>
+            <X className="h-3 w-3" />
+          </button>
+        )}
+      </div>
     </div>
   );
 }

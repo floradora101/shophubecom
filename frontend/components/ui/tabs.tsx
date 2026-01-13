@@ -41,13 +41,13 @@ export function Tabs({
   );
 
   const sizeClasses = {
-    sm: "h-9 px-3 text-xs",
+    sm: "h-8 px-2.5 text-[11px] sm:h-9 sm:px-3 sm:text-xs",
     md: "h-10 px-4 text-sm",
     lg: "h-11 px-6 text-base",
   };
 
   const tabButtonClasses = cn(
-    "relative font-medium transition-all duration-300 ease-out rounded-lg",
+    "relative font-medium transition-all duration-300 ease-out rounded-lg shrink-0",
     "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2",
     "disabled:opacity-50 disabled:cursor-not-allowed",
     sizeClasses[size]
@@ -88,9 +88,9 @@ export function Tabs({
   return (
     <div className={cn("w-full", className)}>
       {/* Tab Navigation */}
-      <div className="relative mb-8 sm:mb-12">
+      <div className="relative mb-6 sm:mb-8 lg:mb-12">
         {/* Tab buttons container */}
-        <div className="flex justify-center gap-2 sm:gap-4 overflow-x-auto scrollbar-hide pb-2">
+        <div className="flex items-center justify-start sm:justify-center gap-1.5 sm:gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -101,7 +101,7 @@ export function Tabs({
                 disabled={false}
               >
                 {/* Tab content */}
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-1.5 sm:gap-2.5">
                   {tab.icon && (
                     <span
                       className={cn(

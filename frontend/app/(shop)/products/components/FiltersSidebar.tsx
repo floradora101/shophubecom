@@ -83,11 +83,11 @@ export function FiltersSidebar({
         : ""
     );
   }, [priceRange.min, priceRange.max]);
-  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const [isPriceOpen, setIsPriceOpen] = useState(false);
-  const [isAvailabilityOpen, setIsAvailabilityOpen] = useState(false);
-  const [isRatingOpen, setIsRatingOpen] = useState(false);
-  const [isBrandsOpen, setIsBrandsOpen] = useState(false);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(true);
+  const [isPriceOpen, setIsPriceOpen] = useState(true);
+  const [isAvailabilityOpen, setIsAvailabilityOpen] = useState(true);
+  const [isRatingOpen, setIsRatingOpen] = useState(true);
+  const [isBrandsOpen, setIsBrandsOpen] = useState(true);
 
   const categoryTree = (() => {
     const nodeMap = new Map<string, Category & { children: Category[] }>();
@@ -204,203 +204,245 @@ export function FiltersSidebar({
 
         {/* Category Filter */}
         <div className="space-y-4">
-          <div className="flex items-center gap-3 px-1">
-            <Layers className="w-4 h-4 text-primary-600" />
-            <span className="text-sm font-bold text-warm-gray-900 uppercase tracking-wider">
-              Departments
-            </span>
-          </div>
+          <button
+            onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+            className="flex items-center justify-between w-full px-1 group"
+          >
+            <div className="flex items-center gap-3">
+              <Layers className={cn("w-4 h-4 transition-colors", isCategoryOpen ? "text-primary-600" : "text-warm-gray-400")} />
+              <span className="text-sm font-bold text-warm-gray-900 uppercase tracking-wider">
+                Departments
+              </span>
+            </div>
+            <ChevronDown className={cn("w-4 h-4 text-warm-gray-400 transition-transform duration-300", isCategoryOpen && "rotate-180")} />
+          </button>
 
-          <div className="space-y-1">
-            <button
-              onClick={() => onCategoryChange(null)}
-              className={cn(
-                "w-full text-left px-4 py-2.5 rounded-lg transition-all duration-300 text-sm",
-                !selectedCategory
-                  ? "bg-primary-600 text-white shadow-lg shadow-primary-600/20 font-bold"
-                  : "text-warm-gray-600 hover:bg-warm-gray-100 hover:text-warm-gray-900"
-              )}
-            >
-              All Collections
-            </button>
-            <ul className="space-y-1 mt-2">
-              {categoryTree.map((category) => renderCategory(category, 0))}
-            </ul>
-          </div>
+          {isCategoryOpen && (
+            <div className="space-y-1 animate-in fade-in slide-in-from-top-2 duration-300">
+              <button
+                onClick={() => onCategoryChange(null)}
+                className={cn(
+                  "w-full text-left px-4 py-2.5 rounded-lg transition-all duration-300 text-sm",
+                  !selectedCategory
+                    ? "bg-primary-600 text-white shadow-lg shadow-primary-600/20 font-bold"
+                    : "text-warm-gray-600 hover:bg-warm-gray-100 hover:text-warm-gray-900"
+                )}
+              >
+                All Collections
+              </button>
+              <ul className="space-y-1 mt-2">
+                {categoryTree.map((category) => renderCategory(category, 0))}
+              </ul>
+            </div>
+          )}
         </div>
 
         {/* Price Filter */}
         <div className="space-y-4 pt-4 border-t border-warm-gray-100">
-          <div className="flex items-center gap-3 px-1">
-            <DollarSign className="w-4 h-4 text-emerald-600" />
-            <span className="text-sm font-bold text-warm-gray-900 uppercase tracking-wider">
-              Price Range
-            </span>
-          </div>
-
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 gap-2">
-              {PRICE_RANGES.map((preset) => (
-                <button
-                  key={preset.label}
-                  onClick={() =>
-                    onPriceRangeChange({
-                      min: preset.min,
-                      max: preset.max,
-                    })
-                  }
-                  className={cn(
-                    "w-full text-left px-4 py-2 rounded-lg border transition-all duration-300 text-xs font-medium",
-                    priceRange.min === preset.min && priceRange.max === preset.max
-                      ? "bg-emerald-50 border-emerald-200 text-emerald-700 shadow-sm"
-                      : "bg-white border-warm-gray-200 text-warm-gray-600 hover:border-emerald-200 hover:text-emerald-600"
-                  )}
-                >
-                  {preset.label}
-                </button>
-              ))}
+          <button
+            onClick={() => setIsPriceOpen(!isPriceOpen)}
+            className="flex items-center justify-between w-full px-1 group"
+          >
+            <div className="flex items-center gap-3">
+              <DollarSign className={cn("w-4 h-4 transition-colors", isPriceOpen ? "text-primary-600" : "text-warm-gray-400")} />
+              <span className="text-sm font-bold text-warm-gray-900 uppercase tracking-wider">
+                Price Range
+              </span>
             </div>
+            <ChevronDown className={cn("w-4 h-4 text-warm-gray-400 transition-transform duration-300", isPriceOpen && "rotate-180")} />
+          </button>
 
-            <div className="space-y-3 pt-2">
-              <div className="grid grid-cols-2 gap-2">
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-gray-400 text-xs">$</span>
-                  <input
-                    type="number"
-                    placeholder="Min"
-                    value={localMin}
-                    onChange={(e) => setLocalMin(e.target.value)}
-                    className="w-full pl-7 pr-3 py-2 text-xs border border-warm-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all placeholder:text-warm-gray-300"
-                  />
-                </div>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-gray-400 text-xs">$</span>
-                  <input
-                    type="number"
-                    placeholder="Max"
-                    value={localMax}
-                    onChange={(e) => setLocalMax(e.target.value)}
-                    className="w-full pl-7 pr-3 py-2 text-xs border border-warm-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all placeholder:text-warm-gray-300"
-                  />
-                </div>
+          {isPriceOpen && (
+            <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="grid grid-cols-1 gap-2">
+                {PRICE_RANGES.map((preset) => (
+                  <button
+                    key={preset.label}
+                    onClick={() =>
+                      onPriceRangeChange({
+                        min: preset.min,
+                        max: preset.max,
+                      })
+                    }
+                    className={cn(
+                      "w-full text-left px-4 py-2 rounded-lg border transition-all duration-300 text-xs font-medium",
+                      priceRange.min === preset.min && priceRange.max === preset.max
+                        ? "bg-primary-50 border-primary-200 text-primary-700 shadow-sm"
+                        : "bg-white border-warm-gray-200 text-warm-gray-600 hover:border-primary-200 hover:text-primary-600"
+                    )}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
               </div>
-              <Button
-                onClick={handlePriceFilter}
-                size="sm"
-                className="w-full bg-warm-gray-900 hover:bg-black text-white rounded-lg text-xs font-bold py-5 transition-all active:scale-95"
-                disabled={!localMin && !localMax}
-              >
-                Apply Range
-              </Button>
+
+              <div className="space-y-3 pt-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-gray-400 text-xs">$</span>
+                    <input
+                      type="number"
+                      placeholder="Min"
+                      value={localMin}
+                      onChange={(e) => setLocalMin(e.target.value)}
+                      className="w-full pl-7 pr-3 py-2 text-xs border border-warm-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all placeholder:text-warm-gray-300"
+                    />
+                  </div>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-warm-gray-400 text-xs">$</span>
+                    <input
+                      type="number"
+                      placeholder="Max"
+                      value={localMax}
+                      onChange={(e) => setLocalMax(e.target.value)}
+                      className="w-full pl-7 pr-3 py-2 text-xs border border-warm-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all placeholder:text-warm-gray-300"
+                    />
+                  </div>
+                </div>
+                <Button
+                  onClick={handlePriceFilter}
+                  size="sm"
+                  className="w-full bg-primary-600 hover:bg-primary-700 text-white rounded-xl shadow-lg shadow-primary-600/20 text-xs font-bold py-5 transition-all active:scale-95"
+                  disabled={!localMin && !localMax}
+                >
+                  Apply Range
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Availability Filter */}
         <div className="space-y-4 pt-4 border-t border-warm-gray-100">
-          <div className="flex items-center gap-3 px-1">
-            <Zap className="w-4 h-4 text-orange-500" />
-            <span className="text-sm font-bold text-warm-gray-900 uppercase tracking-wider">
-              Status
-            </span>
-          </div>
-
-          <label className="flex items-center gap-3 cursor-pointer group px-1">
-            <div className="relative flex items-center">
-              <input
-                type="checkbox"
-                checked={inStockOnly}
-                onChange={(e) => onInStockChange(e.target.checked)}
-                className="peer sr-only"
-              />
-              <div className="w-5 h-5 border-2 border-warm-gray-300 rounded-md bg-white peer-checked:bg-orange-500 peer-checked:border-orange-500 transition-all duration-300" />
-              <CheckCircle className="absolute inset-0 w-5 h-5 text-white opacity-0 peer-checked:opacity-100 transition-opacity scale-75" />
+          <button
+            onClick={() => setIsAvailabilityOpen(!isAvailabilityOpen)}
+            className="flex items-center justify-between w-full px-1 group"
+          >
+            <div className="flex items-center gap-3">
+              <Zap className={cn("w-4 h-4 transition-colors", isAvailabilityOpen ? "text-primary-600" : "text-warm-gray-400")} />
+              <span className="text-sm font-bold text-warm-gray-900 uppercase tracking-wider">
+                Status
+              </span>
             </div>
-            <span className="text-sm text-warm-gray-600 font-medium group-hover:text-warm-gray-900 transition-colors">
-              In Stock Only
-            </span>
-          </label>
+            <ChevronDown className={cn("w-4 h-4 text-warm-gray-400 transition-transform duration-300", isAvailabilityOpen && "rotate-180")} />
+          </button>
+
+          {isAvailabilityOpen && (
+            <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+              <label className="flex items-center gap-3 cursor-pointer group px-1">
+                <div className="relative flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={inStockOnly}
+                    onChange={(e) => onInStockChange(e.target.checked)}
+                    className="peer sr-only"
+                  />
+                  <div className="w-5 h-5 border-2 border-warm-gray-300 rounded-md bg-white peer-checked:bg-primary-600 peer-checked:border-primary-600 transition-all duration-300" />
+                  <CheckCircle className="absolute inset-0 w-5 h-5 text-white opacity-0 peer-checked:opacity-100 transition-opacity scale-75" />
+                </div>
+                <span className="text-sm text-warm-gray-600 font-medium group-hover:text-warm-gray-900 transition-colors">
+                  In Stock Only
+                </span>
+              </label>
+            </div>
+          )}
         </div>
 
         {/* Rating Filter */}
         <div className="space-y-4 pt-4 border-t border-warm-gray-100">
-          <div className="flex items-center gap-3 px-1">
-            <Star className="w-4 h-4 text-amber-500" />
-            <span className="text-sm font-bold text-warm-gray-900 uppercase tracking-wider">
-              Rating
-            </span>
-          </div>
+          <button
+            onClick={() => setIsRatingOpen(!isRatingOpen)}
+            className="flex items-center justify-between w-full px-1 group"
+          >
+            <div className="flex items-center gap-3">
+              <Star className={cn("w-4 h-4 transition-colors", isRatingOpen ? "text-primary-600" : "text-warm-gray-400")} />
+              <span className="text-sm font-bold text-warm-gray-900 uppercase tracking-wider">
+                Rating
+              </span>
+            </div>
+            <ChevronDown className={cn("w-4 h-4 text-warm-gray-400 transition-transform duration-300", isRatingOpen && "rotate-180")} />
+          </button>
 
-          <div className="grid grid-cols-2 gap-2">
-            {[4, 3, 2, 1].map((rating) => (
-              <button
-                key={rating}
-                onClick={() =>
-                  onMinRatingChange(minRating === rating ? null : rating)
-                }
-                className={cn(
-                  "flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border transition-all duration-300 text-xs font-bold",
-                  minRating === rating
-                    ? "bg-amber-50 border-amber-200 text-amber-700 shadow-sm"
-                    : "bg-white border-warm-gray-200 text-warm-gray-500 hover:border-amber-200 hover:text-amber-600"
-                )}
-              >
-                <Star className={cn("w-3 h-3", minRating === rating ? "fill-current" : "")} />
-                {rating}+
-              </button>
-            ))}
-          </div>
+          {isRatingOpen && (
+            <div className="grid grid-cols-2 gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
+              {[4, 3, 2, 1].map((rating) => (
+                <button
+                  key={rating}
+                  onClick={() =>
+                    onMinRatingChange(minRating === rating ? null : rating)
+                  }
+                  className={cn(
+                    "flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border transition-all duration-300 text-xs font-bold",
+                    minRating === rating
+                      ? "bg-primary-50 border-primary-200 text-primary-700 shadow-sm"
+                      : "bg-white border-warm-gray-200 text-warm-gray-500 hover:border-primary-200 hover:text-primary-600"
+                  )}
+                >
+                  <Star className={cn("w-3 h-3", minRating === rating ? "fill-current" : "")} />
+                  {rating}+
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Brands Filter */}
         {availableBrands && availableBrands.length > 0 && (
           <div className="space-y-4 pt-4 border-t border-warm-gray-100">
-            <div className="flex items-center gap-3 px-1">
-              <Shield className="w-4 h-4 text-indigo-600" />
-              <span className="text-sm font-bold text-warm-gray-900 uppercase tracking-wider">
-                Brands
-              </span>
-            </div>
+            <button
+              onClick={() => setIsBrandsOpen(!isBrandsOpen)}
+              className="flex items-center justify-between w-full px-1 group"
+            >
+              <div className="flex items-center gap-3">
+                <Shield className={cn("w-4 h-4 transition-colors", isBrandsOpen ? "text-primary-600" : "text-warm-gray-400")} />
+                <span className="text-sm font-bold text-warm-gray-900 uppercase tracking-wider">
+                  Brands
+                </span>
+              </div>
+              <ChevronDown className={cn("w-4 h-4 text-warm-gray-400 transition-transform duration-300", isBrandsOpen && "rotate-180")} />
+            </button>
 
-            <div className="space-y-2 max-h-48 overflow-y-auto scrollbar-hide pr-2">
-              {availableBrands.map((brand) => {
-                const isSelected = selectedBrands?.includes(brand) || false;
-                return (
-                  <label
-                    key={brand}
-                    className="flex items-center gap-3 cursor-pointer group"
-                  >
-                    <div className="relative flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={isSelected}
-                        onChange={(e) => {
-                          const newBrands = e.target.checked
-                            ? [...(selectedBrands || []), brand]
-                            : (selectedBrands || []).filter(
-                                (b) => b !== brand
-                              );
-                          onBrandsChange(
-                            newBrands.length > 0 ? newBrands : null
-                          );
-                        }}
-                        className="peer sr-only"
-                      />
-                      <div className="w-4 h-4 border-2 border-warm-gray-300 rounded peer-checked:bg-indigo-600 peer-checked:border-indigo-600 transition-all duration-300" />
-                      <CheckCircle className="absolute inset-0 w-4 h-4 text-white opacity-0 peer-checked:opacity-100 transition-opacity scale-75" />
-                    </div>
-                    <span
-                      className={cn(
-                        "text-sm font-medium transition-colors",
-                        isSelected ? "text-indigo-700" : "text-warm-gray-600 group-hover:text-warm-gray-900"
-                      )}
+            {isBrandsOpen && (
+              <div className="space-y-2 max-h-48 overflow-y-auto scrollbar-hide pr-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                {availableBrands.map((brand) => {
+                  const isSelected = selectedBrands?.includes(brand) || false;
+                  return (
+                    <label
+                      key={brand}
+                      className="flex items-center gap-3 cursor-pointer group"
                     >
-                      {brand}
-                    </span>
-                  </label>
-                );
-              })}
-            </div>
+                      <div className="relative flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) => {
+                            const newBrands = e.target.checked
+                              ? [...(selectedBrands || []), brand]
+                              : (selectedBrands || []).filter(
+                                  (b) => b !== brand
+                                );
+                            onBrandsChange(
+                              newBrands.length > 0 ? newBrands : null
+                            );
+                          }}
+                          className="peer sr-only"
+                        />
+                        <div className="w-4 h-4 border-2 border-warm-gray-300 rounded peer-checked:bg-primary-600 peer-checked:border-primary-600 transition-all duration-300" />
+                        <CheckCircle className="absolute inset-0 w-4 h-4 text-white opacity-0 peer-checked:opacity-100 transition-opacity scale-75" />
+                      </div>
+                      <span
+                        className={cn(
+                          "text-sm font-medium transition-colors",
+                          isSelected ? "text-primary-700" : "text-warm-gray-600 group-hover:text-warm-gray-900"
+                        )}
+                      >
+                        {brand}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
       </div>

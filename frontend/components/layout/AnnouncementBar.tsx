@@ -62,7 +62,7 @@ export function AnnouncementBar() {
         {/* Navigation Arrows - Hidden on mobile, show on hover on desktop */}
         <button
           onClick={prevSlide}
-          className="absolute left-4 z-20 p-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/20 rounded-full hidden md:flex items-center justify-center cursor-pointer active:scale-95"
+          className="absolute left-4 z-20 p-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/20 rounded-lg hidden md:flex items-center justify-center cursor-pointer active:scale-95"
           aria-label="Previous announcement"
         >
           <ChevronLeft className="w-4 h-4" />
@@ -89,12 +89,12 @@ export function AnnouncementBar() {
                 }}
               >
                 <div className="flex items-center gap-2 sm:gap-4 text-center">
-                  <div className="hidden sm:flex items-center justify-center w-6 h-6 rounded-full bg-white/10 backdrop-blur-sm">
+                  <div className="hidden sm:flex items-center justify-center w-6 h-6 rounded-lg bg-white/10 backdrop-blur-sm">
                     <Icon className="w-3.5 h-3.5 text-white" />
                   </div>
                   <p className="text-[11px] sm:text-xs md:text-sm font-medium tracking-wider uppercase leading-none select-none">
                     <span className="text-white/90">{announcement.text.split(announcement.highlight)[0]}</span>
-                    <span className="font-extrabold text-white bg-white/10 px-1.5 py-0.5 rounded mx-0.5">{announcement.highlight}</span>
+                    <span className="font-extrabold text-white bg-white/10 px-1.5 py-0.5 rounded-sm mx-0.5">{announcement.highlight}</span>
                     <span className="text-white/90">{announcement.text.split(announcement.highlight)[1]}</span>
                   </p>
                 </div>
@@ -105,7 +105,7 @@ export function AnnouncementBar() {
 
         <button
           onClick={nextSlide}
-          className="absolute right-4 z-20 p-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/20 rounded-full hidden md:flex items-center justify-center cursor-pointer active:scale-95"
+          className="absolute right-4 z-20 p-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white/20 rounded-lg hidden md:flex items-center justify-center cursor-pointer active:scale-95"
           aria-label="Next announcement"
         >
           <ChevronRight className="w-4 h-4" />
@@ -117,7 +117,7 @@ export function AnnouncementBar() {
             <div
               key={index}
               className={cn(
-                "h-0.5 rounded-full transition-all duration-500",
+                "h-0.5 rounded-sm transition-all duration-500",
                 index === currentIndex ? "bg-white w-4" : "bg-white/30 w-2"
               )}
             />

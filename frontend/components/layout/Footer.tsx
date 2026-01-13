@@ -213,7 +213,7 @@ export function Footer() {
                   href="https://facebook.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex h-10 w-10 items-center justify-center rounded-lg bg-white border-2 border-warm-gray-200 text-warm-gray-600 hover:text-primary-600 transition-all duration-300 ease-out focus:outline-none"
+                  className="group flex h-10 w-10 items-center justify-center rounded-lg bg-white border-2 border-warm-gray-200 text-warm-gray-600 hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-300 ease-out focus:outline-none"
                   aria-label="Facebook"
                 >
                   <Facebook className="h-5 w-5" />
@@ -222,7 +222,7 @@ export function Footer() {
                   href="https://twitter.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex h-10 w-10 items-center justify-center rounded-lg bg-white border-2 border-warm-gray-200 text-warm-gray-600 hover:text-primary-600 transition-all duration-300 ease-out focus:outline-none"
+                  className="group flex h-10 w-10 items-center justify-center rounded-lg bg-white border-2 border-warm-gray-200 text-warm-gray-600 hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-300 ease-out focus:outline-none"
                   aria-label="Twitter"
                 >
                   <Twitter className="h-5 w-5" />
@@ -231,7 +231,7 @@ export function Footer() {
                   href="https://instagram.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex h-10 w-10 items-center justify-center rounded-lg bg-white border-2 border-warm-gray-200 text-warm-gray-600 hover:text-primary-600 transition-all duration-300 ease-out focus:outline-none"
+                  className="group flex h-10 w-10 items-center justify-center rounded-lg bg-white border-2 border-warm-gray-200 text-warm-gray-600 hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-300 ease-out focus:outline-none"
                   aria-label="Instagram"
                 >
                   <Instagram className="h-5 w-5" />
@@ -240,7 +240,7 @@ export function Footer() {
                   href="https://youtube.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group flex h-10 w-10 items-center justify-center rounded-lg bg-white border-2 border-warm-gray-200 text-warm-gray-600 hover:text-primary-600 transition-all duration-300 ease-out focus:outline-none"
+                  className="group flex h-10 w-10 items-center justify-center rounded-lg bg-white border-2 border-warm-gray-200 text-warm-gray-600 hover:bg-red-600 hover:text-white hover:border-red-600 transition-all duration-300 ease-out focus:outline-none"
                   aria-label="YouTube"
                 >
                   <Youtube className="h-5 w-5" />

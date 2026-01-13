@@ -66,7 +66,7 @@ const baseHeroSlideSchema = z.object({
     .optional(),
 
   // LANDSCAPE_IMAGE (New structure)
-  landscapeTheme: z.enum(["glass-red", "minimal-white", "bold-dark", "centered-glass", "right-industrial"]).default("glass-red"),
+  landscapeTheme: z.enum(["glass-red", "minimal-white", "bold-dark", "centered-glass", "right-industrial", "clean-modern"]).default("glass-red"),
 });
 
 export const HeroSlideFormSchema = baseHeroSlideSchema;

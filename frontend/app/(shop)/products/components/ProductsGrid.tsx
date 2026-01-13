@@ -20,7 +20,7 @@ interface ProductsGridProps {
   onClearFilters?: () => void;
   searchTerm?: string | null;
   hasActiveFilters?: boolean;
-  layout?: "cozy" | "compact";
+  layout?: "cozy" | "compact" | "list";
 }
 
 /**
@@ -97,8 +97,8 @@ export function ProductsEmptyState({
     // Filters applied but no results
     return (
       <div className="text-center py-16 px-4">
-        <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
-          <Filter className="h-10 w-10 text-orange-500" />
+        <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
+          <Filter className="h-10 w-10 text-primary-600" />
         </div>
         <h3 className="text-xl font-bold text-warm-gray-900 mb-3">
           No products match your filters
@@ -164,13 +164,18 @@ export function ProductsGrid({
       <div
         className={cn(
           "grid w-full gap-4 md:gap-6",
-          layout === "compact"
+          layout === "list"
+            ? "grid-cols-1"
+            : layout === "compact"
             ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-5"
             : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
         )}
       >
         {Array.from({ length: skeletonCount }, (_, index) => (
-          <ProductCardSkeleton key={`skeleton-${index}`} />
+          <ProductCardSkeleton
+            key={`skeleton-${index}`}
+            layout={layout === "list" ? "horizontal" : "vertical"}
+          />
         ))}
       </div>
     );
@@ -191,7 +196,9 @@ export function ProductsGrid({
       <div
         className={cn(
           "grid w-full gap-4 md:gap-6 transition-all duration-500 ease-in-out",
-          layout === "compact"
+          layout === "list"
+            ? "grid-cols-1"
+            : layout === "compact"
             ? "grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
             : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
           isUpdating && "opacity-60 pointer-events-none"
@@ -214,7 +221,7 @@ export function ProductsGrid({
             >
               <ProductCard
                 product={product}
-                layout="vertical"
+                layout={layout === "list" ? "horizontal" : "vertical"}
                 compact={layout === "compact"}
               />
               {isFeatured && (

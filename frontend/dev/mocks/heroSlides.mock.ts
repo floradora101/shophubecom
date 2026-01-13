@@ -2,6 +2,30 @@ import type { HeroSlide } from "@/lib/types/heroSlides.types";
 
 export const HERO_SLIDES: HeroSlide[] = [
   {
+    id: "landscape-clean-modern",
+    type: "LANDSCAPE_IMAGE",
+    priority: 110,
+    isActive: true,
+    theme: "clean-modern",
+    content: {
+      badge: "The Future of Retail",
+      headline: "Absolute",
+      highlight: "Minimalism",
+      description:
+        "Experience a new standard of digital shopping. Clean lines, lightning speed, and a curated selection of world-class tech.",
+    },
+    media: {
+      kind: "image",
+      imageUrl:
+        "https://images.unsplash.com/photo-1510511459019-5dee995d3ff4?w=1600&h=900&fit=crop",
+      alt: "Clean high-tech aesthetic workspace",
+    },
+    actionButton: {
+      label: "Shop Collection",
+      href: "/collections/modern",
+    },
+  },
+  {
     id: "landscape-glass-red",
     type: "LANDSCAPE_IMAGE",
     priority: 100,
@@ -206,6 +230,54 @@ export const HERO_SLIDES: HeroSlide[] = [
       imageUrl:
         "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
       alt: "Happy customer",
+    },
+  },
+  {
+    id: "category-spotlight-laptops",
+    type: "CATEGORY_SPOTLIGHT",
+    priority: 75,
+    isActive: true,
+    badgeText: "Tech Spotlight 2026",
+    headline: "Premium Laptops",
+    description:
+      "Elite performance hardware for the next generation of digital excellence. Discover our curated collection of gaming and business laptops.",
+    ctaPrimary: {
+      label: "Explore Laptops",
+      href: "/products?category=laptops",
+    },
+    ctaSecondary: {
+      label: "View All Categories",
+      href: "/categories",
+    },
+    categorySlug: "laptops",
+    media: {
+      kind: "none",
+    },
+  },
+  {
+    id: "editors-pick-2026",
+    type: "EDITORS_PICK",
+    priority: 70,
+    isActive: true,
+    badgeText: "Staff Favorites",
+    headline: "The Best of",
+    highlight: "2026 Selection",
+    description:
+      "Our team has tested hundreds of products. These are the ones we personally use and love.",
+    editorNote:
+      "This selection focuses on durability and minimalist design. Each piece represents the best value in its category.",
+    productSlugs: [
+      "iphone-15-pro-max",
+      "ipad-pro-12-9-m4",
+      "macbook-pro-16-m3-max",
+      "sony-wf-1000xm5-premium",
+    ],
+    ctaPrimary: {
+      label: "View All Picks",
+      href: "/collections/editors-picks",
+    },
+    media: {
+      kind: "none",
     },
   },
 ];

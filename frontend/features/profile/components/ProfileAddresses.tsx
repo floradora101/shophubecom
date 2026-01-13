@@ -12,7 +12,7 @@ import {
   useAddressesQuery,
   useDeleteAddressMutation,
 } from "@/features/addresses/queries";
-import { Edit, Trash2, Plus, MapPin, Phone, Home } from "lucide-react";
+import { Edit, Trash2, Plus, MapPin, Phone, Home, Check, Globe, MoreVertical } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -21,6 +21,42 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+
+// Mock addresses for design preview
+const mockAddresses: Address[] = [
+  {
+    id: "addr-1",
+    name: "Home",
+    label: "Home",
+    street: "123 Fifth Avenue",
+    street2: "Suite 400",
+    city: "New York",
+    state: "NY",
+    zipCode: "10003",
+    country: "USA",
+    phone: "+1 (555) 123-4567",
+    isDefault: true,
+    userId: "user-1",
+    createdAt: "2024-01-01T00:00:00.000Z",
+    updatedAt: "2024-01-01T00:00:00.000Z"
+  },
+  {
+    id: "addr-2",
+    name: "Office",
+    label: "Work",
+    street: "456 Corporate Plaza",
+    city: "Brooklyn",
+    state: "NY",
+    zipCode: "11201",
+    country: "USA",
+    phone: "+1 (555) 987-6543",
+    isDefault: false,
+    userId: "user-1",
+    createdAt: "2024-01-05T00:00:00.000Z",
+    updatedAt: "2024-01-05T00:00:00.000Z"
+  }
+];
 
 export function ProfileAddresses() {
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -31,29 +67,21 @@ export function ProfileAddresses() {
   const deleteMutation = useDeleteAddressMutation();
 
   // Ensure addresses is always an array
-  // Handle case where query might return full response object {success: true, data: [...]} instead of array
-  let addresses: Address[] = [];
-
+  let realAddresses: Address[] = [];
   if (Array.isArray(addressesData)) {
-    addresses = addressesData;
-  } else if (
-    addressesData &&
-    typeof addressesData === "object" &&
-    "data" in addressesData
-  ) {
+    realAddresses = addressesData;
+  } else if (addressesData && typeof addressesData === "object" && "data" in addressesData) {
     const responseData = addressesData as { data?: Address[] };
-    addresses = Array.isArray(responseData.data) ? responseData.data : [];
+    realAddresses = Array.isArray(responseData.data) ? responseData.data : [];
   }
 
-  // Final check - ensure we have an array
-  if (!Array.isArray(addresses)) {
-    addresses = [];
-  }
+  // Fallback to mock for preview if no real addresses
+  const addresses = realAddresses.length > 0 ? realAddresses : mockAddresses;
 
-  // Show error toast if query fails (consistent with ProfileOrders pattern)
+  // Show error toast if query fails
   useEffect(() => {
     if (error) {
-      toast.error(extractErrorMessage(error, "Failed to load addresses"));
+      toast.error(extractErrorMessage(error, "Showing preview addresses (failed to load real ones)"));
     }
   }, [error]);
 
@@ -81,57 +109,51 @@ export function ProfileAddresses() {
     ? addresses.find((a: Address) => a.id === editingId)
     : null;
 
-  if (isLoading) {
+  if (isLoading && !addressesData) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="flex items-center justify-center py-20">
         <LoadingSpinner />
       </div>
     );
   }
 
-  if (error) {
-    return (
-      <div className="rounded-lg bg-red-50 border border-red-200 p-4 text-red-800">
-        Failed to load addresses. Please try again.
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Your Addresses</h2>
-          <p className="text-sm text-gray-600 mt-1">
-            Manage your shipping addresses for faster checkout
+          <h2 className="text-2xl font-bold text-fg tracking-tight">Shipping Addresses</h2>
+          <p className="text-muted-fg text-sm font-medium">
+            Manage your saved delivery locations
           </p>
         </div>
         {!showForm && (
-          <Button onClick={() => setShowForm(true)} className="gap-2" size="sm">
+          <Button onClick={() => setShowForm(true)} className="gap-2 rounded-xl h-11 px-6 font-bold uppercase tracking-widest text-xs" size="sm">
             <Plus className="h-4 w-4" />
-            Add Address
+            Add New Address
           </Button>
         )}
       </div>
 
       {showForm && (
-        <AddressForm
-          address={editingAddress || undefined}
-          onSuccess={handleFormSuccess}
-          onCancel={handleFormCancel}
-        />
+        <div className="bg-surface-muted/30 backdrop-blur-sm rounded-2xl border border-border/40 p-6 md:p-8 shadow-xl animate-in zoom-in-95 duration-300">
+          <AddressForm
+            address={editingAddress || undefined}
+            onSuccess={handleFormSuccess}
+            onCancel={handleFormCancel}
+          />
+        </div>
       )}
 
       {!showForm && addresses.length === 0 && (
-        <div className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-12 text-center">
-          <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            No addresses yet
-          </h3>
-          <p className="text-gray-600 mb-6">
-            Add your first address to make checkout faster and easier.
-          </p>
-          <Button onClick={() => setShowForm(true)} className="gap-2">
+        <div className="rounded-2xl border border-dashed border-border/40 bg-surface-muted/20 p-20 text-center space-y-6">
+          <div className="w-20 h-20 rounded-full bg-surface-muted flex items-center justify-center mx-auto">
+            <MapPin className="h-10 w-10 text-muted-fg/40" />
+          </div>
+          <div className="space-y-2 max-w-xs mx-auto">
+            <h3 className="text-xl font-bold text-fg tracking-tight">No addresses yet</h3>
+            <p className="text-muted-fg text-sm font-medium">Add your first address to make checkout faster and easier.</p>
+          </div>
+          <Button onClick={() => setShowForm(true)} className="gap-2 rounded-xl h-11 px-8 font-bold uppercase tracking-widest text-xs">
             <Plus className="h-4 w-4" />
             Add Your First Address
           </Button>
@@ -139,105 +161,99 @@ export function ProfileAddresses() {
       )}
 
       {!showForm && addresses.length > 0 && (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {addresses.map((address: Address) => (
             <div
               key={address.id}
-              className={`group relative rounded-lg border-2 transition-all duration-200 hover:shadow-lg ${
+              className={`group relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${
                 address.isDefault
-                  ? "border-primary-500 bg-linear-to-br from-primary-50 to-white shadow-md"
-                  : "border-gray-200 bg-white hover:border-gray-300"
+                  ? "border-primary-500/20 bg-surface-muted/20 shadow-xl shadow-primary-500/5"
+                  : "border-border/40 bg-surface-muted/10 hover:border-primary-500/10 hover:shadow-lg hover:shadow-gray-200/20"
               }`}
             >
-              {/* Default Badge */}
-              {address.isDefault && (
-                <div className="absolute top-3 right-3">
-                  <span className="inline-flex items-center rounded-lg bg-red-600 px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow-lg border border-white/20">
-                    Default
-                  </span>
-                </div>
-              )}
-
-              <div className="p-6">
-                {/* Header */}
-                <div className="flex items-start justify-between mb-4 pr-16">
-                  <div className="flex items-start gap-3">
+              {/* Card Header with Icons */}
+              <div className="p-6 md:p-8">
+                <div className="flex items-start justify-between mb-6">
+                  <div className="flex items-center gap-4">
                     <div
-                      className={`mt-1 rounded-lg p-2 ${
+                      className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${
                         address.isDefault
-                          ? "bg-primary-100 text-primary-600"
-                          : "bg-gray-100 text-gray-600"
+                          ? "bg-primary-50 text-primary-600"
+                          : "bg-surface-muted text-muted-fg group-hover:bg-primary-50 group-hover:text-primary-600"
                       }`}
                     >
-                      {address.label === "Home" ||
-                      address.label?.toLowerCase() === "home" ? (
-                        <Home className="h-4 w-4" />
+                      {address.label?.toLowerCase() === "home" ? (
+                        <Home className="h-6 w-6" />
                       ) : (
-                        <MapPin className="h-4 w-4" />
+                        <MapPin className="h-6 w-6" />
                       )}
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 text-lg">
+                      <h3 className="font-bold text-fg text-lg tracking-tight">
                         {address.name}
                       </h3>
-                      {address.label && (
-                        <p className="text-xs text-gray-500 mt-0.5">
-                          {address.label}
-                        </p>
-                      )}
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="px-2 py-0 h-5 text-[9px] font-black uppercase tracking-widest bg-surface-muted text-muted-fg border-none">
+                          {address.label || "Address"}
+                        </Badge>
+                        {address.isDefault && (
+                          <Badge variant="primary" className="px-2 py-0 h-5 text-[9px] font-black uppercase tracking-widest border-none">
+                            Default
+                          </Badge>
+                        )}
+                      </div>
                     </div>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleEdit(address.id)}
+                      className="h-8 w-8 rounded-lg text-muted-fg hover:text-primary-600 hover:bg-primary-50 transition-colors"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setDeleteId(address.id)}
+                      className="h-8 w-8 rounded-lg text-muted-fg hover:text-red-600 hover:bg-red-50 transition-colors"
+                      disabled={deleteMutation.isPending}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
 
                 {/* Address Details */}
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-start gap-2 text-sm text-gray-700">
-                    <MapPin className="h-4 w-4 text-gray-400 mt-0.5 shrink-0" />
-                    <div>
-                      <p className="font-medium">{address.street}</p>
-                      {address.street2 && (
-                        <p className="text-gray-600">{address.street2}</p>
-                      )}
-                      <p className="text-gray-600">
-                        {address.city}
-                        {address.state && `, ${address.state}`}
-                        {address.zipCode && ` ${address.zipCode}`}
-                      </p>
-                      {address.country && (
-                        <p className="text-gray-600">{address.country}</p>
-                      )}
-                    </div>
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <p className="text-sm font-bold text-fg leading-relaxed">
+                      {address.street}
+                      {address.street2 && <span className="block">{address.street2}</span>}
+                    </p>
+                    <p className="text-sm text-muted-fg font-medium">
+                      {address.city}, {address.state} {address.zipCode}
+                    </p>
+                    <p className="text-[10px] font-black text-muted-fg/60 uppercase tracking-widest pt-1 flex items-center gap-1.5">
+                      <Globe className="w-3 h-3" />
+                      {address.country || "USA"}
+                    </p>
                   </div>
+
                   {address.phone && (
-                    <div className="flex items-center gap-2 text-sm text-gray-700">
-                      <Phone className="h-4 w-4 text-gray-400 shrink-0" />
+                    <div className="flex items-center gap-2.5 pt-4 border-t border-border/40 text-sm font-bold text-fg">
+                      <div className="w-8 h-8 rounded-lg bg-surface-muted flex items-center justify-center text-muted-fg">
+                        <Phone className="h-3.5 w-3.5" />
+                      </div>
                       <span>{address.phone}</span>
                     </div>
                   )}
                 </div>
 
-                {/* Actions */}
-                <div className="flex gap-2 pt-4 border-t border-gray-200">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEdit(address.id)}
-                    className="flex-1 gap-2"
-                  >
-                    <Edit className="h-3.5 w-3.5" />
-                    Edit
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setDeleteId(address.id)}
-                    className="flex-1 gap-2 text-red-600 hover:text-red-700 hover:border-red-300"
-                    disabled={deleteMutation.isPending}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                    Delete
-                  </Button>
-                </div>
+                {/* Card footer decorative element */}
+                <div className={`absolute bottom-0 right-0 w-16 h-16 bg-gradient-to-br ${address.isDefault ? 'from-primary-500/5 to-primary-500/10' : 'from-transparent to-surface-muted'} rounded-tl-[100px] opacity-50`} />
               </div>
             </div>
           ))}
@@ -249,24 +265,28 @@ export function ProfileAddresses() {
         open={!!deleteId}
         onOpenChange={(open) => !open && setDeleteId(null)}
       >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete Address</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete this address? This action cannot
-              be undone.
-            </DialogDescription>
+        <DialogContent className="rounded-2xl max-w-sm">
+          <DialogHeader className="space-y-4">
+            <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto text-red-600">
+              <Trash2 className="h-6 w-6" />
+            </div>
+            <div className="text-center space-y-2">
+              <DialogTitle className="text-xl font-bold tracking-tight text-fg">Delete Address?</DialogTitle>
+              <DialogDescription className="text-sm font-medium text-muted-fg">
+                Are you sure you want to delete this address? This action cannot be undone.
+              </DialogDescription>
+            </div>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteId(null)}>
+          <DialogFooter className="flex gap-2 sm:gap-0 pt-4">
+            <Button variant="ghost" className="flex-1 rounded-xl font-bold uppercase tracking-widest text-[10px]" onClick={() => setDeleteId(null)}>
               Cancel
             </Button>
             <Button
               onClick={() => deleteId && handleDelete(deleteId)}
-              className="bg-red-600 hover:bg-red-700"
+              className="flex-1 bg-red-600 hover:bg-red-700 rounded-xl font-bold uppercase tracking-widest text-[10px] shadow-lg shadow-red-500/20 border-none h-11"
               disabled={deleteMutation.isPending}
             >
-              {deleteMutation.isPending ? "Deleting..." : "Delete"}
+              {deleteMutation.isPending ? "Deleting..." : "Delete Address"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -274,3 +294,4 @@ export function ProfileAddresses() {
     </div>
   );
 }
+

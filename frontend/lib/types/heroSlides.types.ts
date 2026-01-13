@@ -1,9 +1,10 @@
-
 export type HeroSlideType =
   | "PRODUCT_SPOTLIGHT"
   | "OFFER"
   | "TESTIMONIAL"
-  | "LANDSCAPE_IMAGE";
+  | "LANDSCAPE_IMAGE"
+  | "CATEGORY_SPOTLIGHT"
+  | "EDITORS_PICK";
 
 export interface BaseHeroSlide {
   id: string;
@@ -73,7 +74,8 @@ export type LandscapeTheme =
   | "minimal-white"
   | "bold-dark"
   | "centered-glass"
-  | "right-industrial";
+  | "right-industrial"
+  | "clean-modern";
 
 export interface LandscapeImageSlide
   extends Omit<
@@ -106,8 +108,27 @@ export interface LandscapeImageSlide
   };
 }
 
+export interface CategorySpotlightSlide extends Omit<BaseHeroSlide, "media"> {
+  type: "CATEGORY_SPOTLIGHT";
+  categorySlug: string;
+  media: {
+    kind: "none";
+  };
+}
+
+export interface EditorsPickSlide extends Omit<BaseHeroSlide, "media"> {
+  type: "EDITORS_PICK";
+  productSlugs: string[];
+  editorNote?: string;
+  media: {
+    kind: "none";
+  };
+}
+
 export type HeroSlide =
   | ProductSpotlightSlide
   | OfferSlide
   | TestimonialSlide
-  | LandscapeImageSlide;
+  | LandscapeImageSlide
+  | CategorySpotlightSlide
+  | EditorsPickSlide;

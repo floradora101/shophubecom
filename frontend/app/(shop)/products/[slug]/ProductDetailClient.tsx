@@ -40,16 +40,16 @@ function ProductGallerySkeleton() {
   return (
     <div className="w-full">
       {/* Main image area */}
-      <div className="relative aspect-square w-full rounded-lg overflow-hidden border border-border shadow-lg bg-surface">
+      <div className="relative aspect-[4/5] w-full rounded-[2rem] overflow-hidden bg-surface-muted/30">
         <SkeletonBlock className="absolute inset-0 rounded-none" />
       </div>
 
       {/* Thumbnails */}
-      <div className="flex gap-3 mt-4 overflow-x-auto pb-2">
+      <div className="flex gap-4 mt-6 overflow-x-auto pb-2">
         {Array.from({ length: 4 }, (_, i) => (
           <div
             key={i}
-            className="shrink-0 w-16 h-16 rounded-lg overflow-hidden border border-border"
+            className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-surface-muted/30"
           >
             <SkeletonBlock className="w-full h-full rounded-none" />
           </div>

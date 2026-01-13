@@ -120,8 +120,8 @@ export function ProductGallery({
 
   if (images.length === 0) {
     return (
-      <div className="aspect-4/5 rounded-lg bg-surface-muted flex items-center justify-center">
-        <span className="text-muted-fg text-sm">No image available</span>
+      <div className="aspect-[4/5] rounded-[2rem] bg-surface-muted/30 flex items-center justify-center border border-dashed border-border">
+        <span className="text-muted-fg text-sm font-medium">No image available</span>
       </div>
     );
   }
@@ -136,10 +136,10 @@ export function ProductGallery({
               <button
                 key={`${image}-${index}`}
                 onClick={() => handleThumbnailClick(index)}
-                className={`relative w-16 h-16 xl:w-20 xl:h-20 rounded-lg xl:rounded-lg border-2 overflow-hidden transition-all duration-200 ${
+                className={`relative w-16 h-16 xl:w-20 xl:h-20 rounded-xl border-2 overflow-hidden transition-all duration-300 ${
                   index === activeIndex
-                    ? "border-fg ring-2 ring-surface-muted shadow-sm"
-                    : "border-border hover:border-border-hover"
+                    ? "border-primary ring-2 ring-primary/10 shadow-md scale-105 z-10"
+                    : "border-transparent hover:border-border-hover bg-surface-muted/50"
                 }`}
                 aria-label={`View image ${index + 1} of ${images.length}`}
               >
@@ -161,7 +161,7 @@ export function ProductGallery({
           {/* Sliding Image Carousel */}
           <div
             ref={containerRef}
-            className="relative w-full aspect-square sm:aspect-4/5 lg:aspect-4/5 max-w-[520px] mx-auto sm:max-w-none max-h-none sm:max-h-[600px] lg:max-h-[650px] xl:max-h-[700px] rounded-lg overflow-hidden ring-1 ring-black/5 group cursor-grab active:cursor-grabbing"
+            className="relative w-full aspect-[4/5] max-w-[520px] mx-auto sm:max-w-none max-h-none sm:max-h-[750px] lg:max-h-[800px] xl:max-h-[850px] rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden group cursor-grab active:cursor-grabbing transition-all duration-500"
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
@@ -175,14 +175,9 @@ export function ProductGallery({
               }}
             >
               {images.map((image, index) => (
-                <div key={index} className="shrink-0 w-full h-full relative overflow-hidden">
-                  <Image
-                    src={image}
-                    alt={`${productName} - Image ${index + 1} of ${
-                      images.length
-                    }`}
-                    fill
-                    className={`object-contain transition-transform duration-200 ease-out ${
+                <div key={index} className="shrink-0 w-full h-full relative overflow-hidden flex items-center justify-center">
+                  <div
+                    className={`relative w-full h-full p-6 sm:p-10 md:p-14 transition-transform duration-500 ease-out ${
                       index === activeIndex && zoomState.show ? "scale-150 sm:scale-[2.5]" : "scale-100"
                     }`}
                     style={
@@ -190,10 +185,19 @@ export function ProductGallery({
                         ? { transformOrigin: `${zoomState.x}% ${zoomState.y}%` }
                         : undefined
                     }
-                    sizes="(min-width: 1024px) 560px, 100vw"
-                    priority={index === 0}
-                    unoptimized={image.startsWith("data:")}
-                  />
+                  >
+                    <Image
+                      src={image}
+                      alt={`${productName} - Image ${index + 1} of ${
+                        images.length
+                      }`}
+                      fill
+                      className="object-contain"
+                      sizes="(min-width: 1024px) 800px, 100vw"
+                      priority={index === 0}
+                      unoptimized={image.startsWith("data:")}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
@@ -282,15 +286,15 @@ export function ProductGallery({
 
           {/* Mobile Thumbnails */}
           {images.length > 1 && (
-            <div className="mx-auto w-full max-w-[420px] sm:max-w-[520px] lg:hidden flex gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-hide px-1 justify-center max-w-full">
+            <div className="mx-auto w-full max-w-[420px] sm:max-w-[520px] lg:hidden flex gap-3 overflow-x-auto pb-4 pt-2 scrollbar-hide px-4 justify-center">
               {images.map((image, index) => (
                 <button
                   key={`${image}-${index}`}
                   onClick={() => handleThumbnailClick(index)}
-                  className={`relative shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-lg border-2 overflow-hidden transition-all duration-200 ${
+                  className={`relative shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-2 overflow-hidden transition-all duration-300 ${
                     index === activeIndex
-                      ? "border-fg ring-2 ring-slate-100 shadow-sm scale-105"
-                      : "border-border hover:border-border-hover active:scale-95"
+                      ? "border-primary ring-2 ring-primary/10 shadow-md scale-110 z-10"
+                      : "border-transparent bg-surface-muted/50 hover:border-border-hover"
                   }`}
                   aria-label={`View image ${index + 1} of ${images.length}`}
                 >
@@ -298,8 +302,8 @@ export function ProductGallery({
                     src={image}
                     alt={`${productName} thumbnail ${index + 1}`}
                     fill
-                    className="object-cover"
-                    sizes="64px"
+                    className="object-cover p-1"
+                    sizes="80px"
                     unoptimized={image.startsWith("data:")}
                   />
                 </button>

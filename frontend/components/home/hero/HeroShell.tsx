@@ -15,7 +15,7 @@ import { usePrefersReducedMotion } from "@/lib/hooks/usePrefersReducedMotion";
 import { useSwipe } from "@/lib/hooks/useSwipe";
 import { useHeroSlideProcessor } from "@/lib/utils/hero-slide-hydrator";
 import type { HeroSlide } from "@/lib/types/heroSlides.types";
-import type { Product } from "@/features/products/types";
+import type { Product, Category } from "@/features/products/types";
 
 // Predefined floating element positions (avoid Math.random in render)
 const floatingPositions = [
@@ -116,6 +116,8 @@ export function HeroShellSkeleton() {
 interface HeroShellProps {
   slides: HeroSlide[];
   productsBySlug?: Record<string, Product> | Map<string, Product>;
+  categories?: Category[];
+  productsByCategory?: Record<string, Product[]>;
   autoplay?: boolean;
   intervalMs?: number;
   onSlideChange?: (index: number) => void;
@@ -124,6 +126,8 @@ interface HeroShellProps {
 export function HeroShell({
   slides: rawSlides,
   productsBySlug,
+  categories = [],
+  productsByCategory = {},
   autoplay = true,
   intervalMs = 5000,
   onSlideChange,
@@ -143,6 +147,7 @@ export function HeroShell({
   const { slides: processedSlides, getResolvedData } = useHeroSlideProcessor({
     slides: rawSlides,
     productsBySlug,
+    categories,
   });
 
   // Explicit transition classes for production-grade hero carousel animations
@@ -414,6 +419,9 @@ export function HeroShell({
                           <SlideBodyRenderer
                             slide={slide}
                             {...getResolvedData(slide)}
+                            productsBySlug={productsBySlug}
+                            categories={categories}
+                            productsByCategory={productsByCategory}
                             isActive={isCurrentSlide}
                             index={index}
                             onMouseEnter={handleMouseEnter}

@@ -129,27 +129,26 @@ export function HeroMediaFrame({
 
           {/* image */}
           {slide.media.kind === "product" && product ? (
-            <div className="absolute inset-2 sm:inset-4 md:inset-6 lg:inset-8 xl:inset-10 flex items-center justify-center">
-              <Image
-                src={getProductImageWithPlaceholder(product)}
-                alt={slide.media.alt || product.name}
-                width={400}
-                height={400}
-                className={cn(
-                  "relative z-10 object-contain scale-[1.06] group-hover:scale-110 transition-transform duration-[2000ms] ease-out max-w-full max-h-full",
-                  getObjectPositionClass(slide.media.position)
-                )}
-                priority={shouldPrioritize}
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
-            </div>
+            <Image
+              src={getProductImageWithPlaceholder(product)}
+              alt={slide.media.alt || product.name}
+              fill
+              className={cn(
+                "relative z-10 object-contain transition-transform duration-[2000ms] ease-out p-4 sm:p-8",
+                "sm:scale-[1.06] sm:group-hover:scale-110 scale-100 group-hover:scale-100",
+                getObjectPositionClass(slide.media.position)
+              )}
+              priority={shouldPrioritize}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
           ) : slide.media.kind === "image" && slide.media.imageUrl ? (
             <Image
               src={slide.media.imageUrl}
               alt={slide.media.alt || ""}
               fill
               className={cn(
-                "relative z-10 object-cover transition-transform duration-[3000ms] ease-out group-hover:scale-110 group-hover:rotate-1",
+                "relative z-10 object-cover transition-transform duration-[3000ms] ease-out",
+                "sm:group-hover:scale-110 sm:group-hover:rotate-1 scale-100 group-hover:scale-100 group-hover:rotate-0",
                 getObjectPositionClass(slide.media.position)
               )}
               priority={shouldPrioritize}
@@ -162,7 +161,8 @@ export function HeroMediaFrame({
               ref={videoRef}
               src={slide.media.videoUrl}
               className={cn(
-                "relative z-10 w-full h-full object-cover transition-transform duration-[3000ms] ease-out group-hover:scale-110",
+                "relative z-10 w-full h-full object-cover transition-transform duration-[3000ms] ease-out",
+                "sm:group-hover:scale-110 scale-100 group-hover:scale-100",
                 getObjectPositionClass(slide.media.position)
               )}
               muted

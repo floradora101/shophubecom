@@ -18,6 +18,8 @@ import { FormSection } from "@/components/ui/form-section";
 import { Stepper } from "@/components/ui/stepper";
 import { CardRadio } from "@/components/ui/card-radio";
 import { Heading, Text } from "@/components/ui/typography";
+import { SectionTitle } from "@/components/ui/SectionTitle";
+import { CreditCard, Truck, ShoppingBag, ShieldCheck } from "lucide-react";
 import { AddressSelector, OrderSummaryCard } from "@/features/checkout";
 import { useCart } from "@/features/cart/hooks";
 import { apiClient } from "@/lib/api/client";
@@ -30,6 +32,7 @@ import { createDemoOrder } from "@/features/orders/demo/demoOrders";
 import { logger } from "@/lib/logger";
 import type { Address } from "@/features/addresses/api";
 import { SkeletonBlock, SkeletonText } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils/cn";
 
 const steps = [
   { label: "Shopping Cart", href: "/cart", state: "done" as const },
@@ -57,22 +60,37 @@ function CheckoutCardSection({
   description,
   children,
   tone,
+  icon: Icon,
 }: {
   title: string;
   description?: string;
   children: React.ReactNode;
   tone?: "default" | "subtle";
+  icon?: any;
 }) {
   return (
     <Card
       variant={tone === "subtle" ? "default" : "bordered"}
-      className={
+      className={cn(
+        "transition-all duration-300",
         tone === "subtle"
           ? "border-warm-gray-200 bg-warm-gray-50/30"
-          : undefined
-      }
+          : "hover:border-primary-200 hover:shadow-md"
+      )}
     >
-      <FormSection title={title} description={description} className="p-6">
+      <FormSection
+        title={title}
+        description={description}
+        className="p-6 sm:p-8"
+        headerClassName="mb-2"
+        actions={
+          Icon && (
+            <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600 shrink-0">
+              <Icon className="w-5 h-5" />
+            </div>
+          )
+        }
+      >
         {children}
       </FormSection>
     </Card>
@@ -423,16 +441,14 @@ export default function CheckoutPage() {
       <Section spacing="lg">
         <Container size="lg">
           <Stack spacing="xl" align="stretch">
-            {/* Header */}
-            <div className="text-center space-y-2">
+            {/* Header & Stepper */}
+            <Stack spacing="md" align="center">
               <SkeletonBlock className="h-8 w-48 mx-auto" />
               <SkeletonBlock className="h-4 w-64 mx-auto" />
-            </div>
-
-            {/* Stepper */}
-            <div className="hidden sm:block py-4">
-              <SkeletonBlock className="h-12 w-full max-w-md mx-auto" />
-            </div>
+              <div className="w-full max-w-md pt-4">
+                <SkeletonBlock className="h-12 w-full" />
+              </div>
+            </Stack>
 
             <form className="grid gap-12 lg:grid-cols-[2fr_1fr]">
               {/* Main form content */}
@@ -492,18 +508,18 @@ export default function CheckoutPage() {
     <Section spacing="lg">
       <Container size="lg">
         <Stack spacing="xl" align="stretch">
-          {/* Header */}
-          <div className="text-center space-y-2">
-            <Heading level="h2">Checkout</Heading>
-            <Text className="text-warm-gray-600 max-w-md mx-auto">
-              Complete your order by filling in the details below
-            </Text>
-          </div>
-
-          {/* Stepper - hidden on mobile for cleaner layout */}
-          <div className="hidden sm:block py-4">
-            <Stepper steps={steps} />
-          </div>
+          {/* Header & Stepper */}
+          <Stack spacing="md" align="center">
+            <SectionTitle
+              badgeText="Final Step"
+              title="Checkout"
+              subtitle="Complete your order by filling in the details below"
+              icon={CreditCard}
+            />
+            <div className="w-full max-w-2xl pt-4">
+              <Stepper steps={steps} showLabelsOnMobile />
+            </div>
+          </Stack>
 
           {isEmpty ? (
             <Card className="p-12 text-center">
@@ -540,6 +556,7 @@ export default function CheckoutPage() {
                 <CheckoutCardSection
                   title="Contact Information"
                   description="We'll use this to send you updates about your order"
+                  icon={ShoppingBag}
                 >
                   <div className="grid gap-6 md:grid-cols-2">
                     <Input
@@ -548,6 +565,7 @@ export default function CheckoutPage() {
                       autoComplete="given-name"
                       {...register("firstName", { required: true })}
                       required
+                      className="rounded-xl"
                     />
                     <Input
                       type="text"
@@ -555,6 +573,7 @@ export default function CheckoutPage() {
                       autoComplete="family-name"
                       {...register("lastName", { required: true })}
                       required
+                      className="rounded-xl"
                     />
                     <div className="md:col-span-2">
                       <Input
@@ -562,6 +581,7 @@ export default function CheckoutPage() {
                         label="Email address"
                         autoComplete="email"
                         {...register("email")}
+                        className="rounded-xl"
                       />
                     </div>
                     <div className="md:col-span-2">
@@ -571,6 +591,7 @@ export default function CheckoutPage() {
                         autoComplete="tel"
                         {...register("phone", { required: true })}
                         required
+                        className="rounded-xl"
                       />
                     </div>
                   </div>
@@ -580,10 +601,11 @@ export default function CheckoutPage() {
                 <CheckoutCardSection
                   title="Shipping Address"
                   description="Where should we deliver your order?"
+                  icon={Truck}
                 >
                   {/* Address Selector - Show saved addresses if available */}
                   {addresses.length > 0 && (
-                    <div className="mb-6">
+                    <div className="mb-8">
                       <AddressSelector
                         selectedAddressId={selectedAddress?.id || null}
                         onSelectAddress={handleSelectAddress}
@@ -602,6 +624,7 @@ export default function CheckoutPage() {
                         autoComplete="country-name"
                         {...register("country", { required: true })}
                         required
+                        className="rounded-xl"
                       />
                       <Input
                         type="text"
@@ -609,6 +632,7 @@ export default function CheckoutPage() {
                         autoComplete="address-level2"
                         {...register("city", { required: true })}
                         required
+                        className="rounded-xl"
                       />
                     </div>
 
@@ -619,6 +643,7 @@ export default function CheckoutPage() {
                       autoComplete="address-level1"
                       placeholder="e.g., Beirut, Mount Lebanon"
                       {...register("state")}
+                      className="rounded-xl"
                     />
 
                     {/* Street Address */}
@@ -629,6 +654,7 @@ export default function CheckoutPage() {
                       placeholder="House number and street name"
                       {...register("street1", { required: true })}
                       required
+                      className="rounded-xl"
                     />
 
                     {/* Postal Code */}
@@ -639,6 +665,7 @@ export default function CheckoutPage() {
                         autoComplete="postal-code"
                         placeholder="Optional"
                         {...register("postalCode")}
+                        className="rounded-xl"
                       />
                     </div>
                   </div>
@@ -649,10 +676,12 @@ export default function CheckoutPage() {
                   title="Order Notes"
                   description="Any special instructions for delivery?"
                   tone="subtle"
+                  icon={ShieldCheck}
                 >
                   <Textarea
                     {...register("notes")}
                     placeholder="Special delivery instructions, gate codes, or other notes..."
+                    className="rounded-xl min-h-[120px] bg-white"
                   />
                 </CheckoutCardSection>
 
@@ -660,6 +689,7 @@ export default function CheckoutPage() {
                 <CheckoutCardSection
                   title="Shipping Method"
                   description="Choose how you'd like to receive your order"
+                  icon={Truck}
                 >
                   <CardRadio
                     name="shippingOption"

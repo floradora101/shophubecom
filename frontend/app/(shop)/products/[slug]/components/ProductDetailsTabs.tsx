@@ -18,6 +18,7 @@ import {
   Maximize2,
   Zap,
   Package,
+  PenTool,
 } from "lucide-react";
 import { Tabs, TabItem } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -78,14 +79,14 @@ function ReviewCard({ review }: { review: Review }) {
       : review.content.substring(0, 200) + "...";
 
   return (
-    <div className="py-8 first:pt-0 border-b border-border/40 last:border-0 transition-all duration-300">
-      <div className="space-y-5">
+    <div className="py-5 sm:py-8 first:pt-0 border-b border-border/40 last:border-0 transition-all duration-300">
+      <div className="space-y-4 sm:space-y-5">
         {/* Header with user info and rating */}
         <div className="flex items-start justify-between">
-          <div className="flex items-center gap-4">
-            <Avatar className="h-11 w-11 ring-offset-2 ring-1 ring-border/50">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <Avatar className="h-9 w-9 sm:h-11 sm:w-11 ring-offset-2 ring-1 ring-border/50 shrink-0">
               <AvatarImage src={review.userAvatar} alt={review.userName} />
-              <AvatarFallback className="bg-surface-muted text-muted-fg font-bold">
+              <AvatarFallback className="bg-surface-muted text-muted-fg font-bold text-xs sm:text-base">
                 {review.userName
                   .split(" ")
                   .map((n) => n[0])
@@ -93,25 +94,25 @@ function ReviewCard({ review }: { review: Review }) {
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-fg tracking-tight">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span className="font-bold text-fg tracking-tight text-sm sm:text-base">
                   {review.userName}
                 </span>
                 {review.verified && (
-                  <Badge variant="success" className="bg-emerald-500/10 text-emerald-600 border-none text-[10px] px-2 py-0 font-bold">
-                    <CheckCircle className="h-3 w-3 mr-1" />
+                  <Badge variant="success" className="bg-emerald-500/10 text-emerald-600 border-none text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0 font-bold">
+                    <CheckCircle className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-1" />
                     Verified
                   </Badge>
                 )}
               </div>
-              <div className="flex items-center gap-3 mt-1">
+              <div className="flex items-center gap-2 sm:gap-3 mt-0.5 sm:mt-1">
                 <StarRating
                   rating={review.rating}
-                  size="sm"
+                  size="xs"
                   showCount={false}
                 />
-                <span className="text-[10px] font-bold text-muted-fg flex items-center gap-1 uppercase tracking-widest opacity-60">
-                  <Calendar className="h-3 w-3" />
+                <span className="text-[9px] sm:text-[10px] font-bold text-muted-fg flex items-center gap-1 uppercase tracking-widest opacity-60">
+                  <Calendar className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                   {formatDate(review.date)}
                 </span>
               </div>
@@ -120,11 +121,11 @@ function ReviewCard({ review }: { review: Review }) {
         </div>
 
         {/* Review title and content */}
-        <div className="space-y-3">
-          <h4 className="font-display font-bold text-fg text-lg tracking-tight leading-snug">
+        <div className="space-y-2 sm:space-y-3">
+          <h4 className="font-display font-bold text-fg text-base sm:text-lg tracking-tight leading-snug">
             {review.title}
           </h4>
-          <p className="text-muted-fg leading-relaxed text-sm sm:text-base font-medium max-w-3xl">
+          <p className="text-muted-fg leading-relaxed text-xs sm:text-base font-medium max-w-3xl">
             {displayContent}
           </p>
 
@@ -133,7 +134,7 @@ function ReviewCard({ review }: { review: Review }) {
               variant="ghost"
               size="sm"
               onClick={() => setIsExpanded(!isExpanded)}
-              className="h-auto p-0 text-primary hover:text-primary/80 hover:bg-transparent font-bold text-xs uppercase tracking-widest"
+              className="h-auto p-0 text-primary-600 hover:text-primary-600/80 hover:bg-transparent font-bold text-xs uppercase tracking-widest"
             >
               {isExpanded ? (
                 <>
@@ -165,26 +166,26 @@ function ReviewCard({ review }: { review: Review }) {
 // Reviews Summary Component
 function ReviewsSummary({ stats }: { stats: ReviewStats }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16 items-center">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-12 mb-10 sm:mb-16 items-center bg-surface-muted/30 rounded-2xl p-6 sm:p-0 sm:bg-transparent">
       {/* Overall Rating Section */}
-      <div className="flex flex-col items-center justify-center py-10">
-        <div className="text-center space-y-6">
+      <div className="flex flex-col items-center justify-center py-4 sm:py-10">
+        <div className="text-center space-y-4 sm:space-y-6">
           <div className="relative inline-block">
-            <div className="text-7xl font-display font-black text-fg tracking-tighter">
+            <div className="text-5xl sm:text-7xl font-display font-black text-fg tracking-tighter">
               {stats.averageRating}
             </div>
-            <div className="absolute -top-1 -right-4 w-3 h-3 rounded-full bg-primary animate-pulse" />
+            <div className="absolute -top-1 -right-3 sm:-right-4 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-primary-500 animate-pulse" />
           </div>
           <StarRating
             rating={stats.averageRating}
-            size="lg"
+            size="md"
             showCount={false}
           />
-          <div className="space-y-2">
-            <div className="text-xs font-black text-fg uppercase tracking-[0.2em]">
+          <div className="space-y-1 sm:space-y-2">
+            <div className="text-[10px] sm:text-xs font-black text-fg uppercase tracking-[0.2em]">
               Based on {stats.totalReviews} reviews
             </div>
-            <div className="text-[10px] font-bold text-muted-fg uppercase tracking-[0.2em] opacity-60">
+            <div className="text-[9px] sm:text-[10px] font-bold text-muted-fg uppercase tracking-[0.2em] opacity-60">
               {stats.verifiedReviews} verified purchases
             </div>
           </div>
@@ -192,11 +193,11 @@ function ReviewsSummary({ stats }: { stats: ReviewStats }) {
       </div>
 
       {/* Rating Distribution */}
-      <div className="space-y-5 flex flex-col justify-center">
-        <h4 className="text-xs font-black text-fg uppercase tracking-[0.2em] mb-4 text-center md:text-left opacity-80">
+      <div className="space-y-3 sm:space-y-5 flex flex-col justify-center">
+        <h4 className="text-[10px] sm:text-xs font-black text-fg uppercase tracking-[0.2em] mb-2 sm:mb-4 text-center md:text-left opacity-80">
           Rating Breakdown
         </h4>
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {[5, 4, 3, 2, 1].map((rating) => {
             const count =
               stats.ratingDistribution[
@@ -204,18 +205,18 @@ function ReviewsSummary({ stats }: { stats: ReviewStats }) {
               ];
             const percentage = (count / stats.totalReviews) * 100;
             return (
-              <div key={rating} className="flex items-center gap-4 group">
-                <div className="flex items-center gap-1.5 min-w-[55px]">
-                  <span className="text-xs font-bold">{rating}</span>
-                  <Star className="h-3 w-3 fill-primary text-primary transition-transform group-hover:scale-125" />
+              <div key={rating} className="flex items-center gap-3 sm:gap-4 group">
+                <div className="flex items-center gap-1 min-w-[45px] sm:min-w-[55px]">
+                  <span className="text-[10px] sm:text-xs font-bold">{rating}</span>
+                  <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3 fill-primary-500 text-primary-500 transition-transform group-hover:scale-125" />
                 </div>
-                <div className="flex-1 h-1.5 bg-surface-muted rounded-full overflow-hidden">
+                <div className="flex-1 h-1 sm:h-1.5 bg-surface-muted sm:bg-border/20 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-primary rounded-full transition-all duration-1000"
+                    className="h-full bg-primary-500 rounded-full transition-all duration-1000"
                     style={{ width: `${percentage}%` }}
                   />
                 </div>
-                <span className="text-[10px] font-bold text-muted-fg min-w-[35px] text-right">
+                <span className="text-[9px] sm:text-[10px] font-bold text-muted-fg min-w-[30px] sm:min-w-[35px] text-right">
                   {count}
                 </span>
               </div>
@@ -302,39 +303,40 @@ function ReviewsTab({ product }: { product: Product }) {
         <ReviewsSummary stats={stats} />
 
         {/* Reviews Header */}
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-display font-bold text-foreground">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <h3 className="text-base sm:text-lg font-display font-bold text-foreground">
             Customer Reviews ({stats.totalReviews})
           </h3>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Button
               onClick={() => setShowWriteReviewModal(true)}
               variant="outline"
               size="sm"
+              className="flex-1 sm:flex-none h-8 sm:h-9 text-[11px] sm:text-xs"
             >
-              <PenTool className="h-4 w-4" />
+              <PenTool className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
               Write Review
             </Button>
 
             {/* Sort Dropdown - Consistent with products page */}
-            <div className="relative" ref={sortRef}>
+            <div className="relative flex-1 sm:flex-none" ref={sortRef}>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setIsSortOpen(!isSortOpen)}
-                className="gap-2"
+                className="w-full sm:w-auto gap-1.5 sm:gap-2 h-8 sm:h-9 text-[11px] sm:text-xs"
                 aria-expanded={isSortOpen}
                 aria-haspopup="true"
               >
-                <span>
-                  {sortBy === "newest" && "Newest First"}
-                  {sortBy === "oldest" && "Oldest First"}
-                  {sortBy === "highest" && "Highest Rated"}
-                  {sortBy === "lowest" && "Lowest Rated"}
+                <span className="truncate">
+                  {sortBy === "newest" && "Newest"}
+                  {sortBy === "oldest" && "Oldest"}
+                  {sortBy === "highest" && "Highest"}
+                  {sortBy === "lowest" && "Lowest"}
                 </span>
                 <ChevronDown
                   className={cn(
-                    "h-4 w-4 transition-transform",
+                    "h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform shrink-0",
                     isSortOpen && "rotate-180 text-primary-600"
                   )}
                 />
@@ -380,14 +382,14 @@ function ReviewsTab({ product }: { product: Product }) {
 
         {/* Show More/Less Button */}
         {reviews.length > 3 && (
-          <div className="text-center pt-4">
+          <div className="text-center pt-2 sm:pt-4">
             <Button
               variant="outline"
               onClick={() => setShowAllReviews(!showAllReviews)}
-              className="px-6"
+              className="w-full sm:w-auto px-6 h-10 sm:h-11 text-xs sm:text-sm font-bold uppercase tracking-widest"
             >
               {showAllReviews
-                ? "Show Less Reviews"
+                ? "Show Less"
                 : `Show All ${reviews.length} Reviews`}
             </Button>
           </div>
@@ -431,7 +433,7 @@ function SpecificationsTab({ product }: { product: Product }) {
             key={index}
             className="flex items-start gap-4 transition-all duration-300 group"
           >
-            <div className="w-10 h-10 rounded-lg bg-surface-muted flex items-center justify-center text-muted-fg shrink-0 group-hover:bg-primary/10 group-hover:text-primary transition-colors duration-300">
+            <div className="w-10 h-10 rounded-lg bg-surface-muted flex items-center justify-center text-muted-fg shrink-0 group-hover:bg-primary-500/10 group-hover:text-primary-600 transition-colors duration-300">
               {getSpecIcon(spec.label)}
             </div>
             <div className="flex-1 min-w-0 pt-0.5">
@@ -502,13 +504,19 @@ function DescriptionTab({ product }: { product: Product }) {
 }
 
 export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
-  const [isLargeScreen, setIsLargeScreen] = useState(false);
+  const [screenSize, setScreenSize] = useState({
+    isMobile: false,
+    isLarge: false,
+  });
 
   useEffect(() => {
     // Check screen size immediately and on resize
     const checkScreenSize = () => {
       const width = window.innerWidth;
-      setIsLargeScreen(width >= 1280); // xl breakpoint
+      setScreenSize({
+        isMobile: width < 640,
+        isLarge: width >= 1280, // xl breakpoint
+      });
     };
 
     // Use requestAnimationFrame for better performance
@@ -524,6 +532,8 @@ export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const { isMobile, isLarge: isLargeScreen } = screenSize;
+
   const tabs: TabItem[] = useMemo(() => {
     const tabItems: TabItem[] = [];
 
@@ -532,8 +542,8 @@ export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
     if (product.specs && product.specs.length > 0 && !isLargeScreen) {
       tabItems.push({
         id: "specifications",
-        label: "Specifications",
-        icon: <Settings className="h-4 w-4" />,
+        label: isMobile ? "Specs" : "Specifications",
+        icon: isMobile ? null : <Settings className="h-4 w-4" />,
         content: <SpecificationsTab product={product} />,
       });
     }
@@ -542,8 +552,8 @@ export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
     if (product.description) {
       tabItems.push({
         id: "description",
-        label: "Description",
-        icon: <FileText className="h-4 w-4" />,
+        label: isMobile ? "Info" : "Description",
+        icon: isMobile ? null : <FileText className="h-4 w-4" />,
         content: <DescriptionTab product={product} />,
       });
     }
@@ -552,13 +562,13 @@ export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
     tabItems.push({
       id: "reviews",
       label: "Reviews",
-      icon: <Star className="h-4 w-4" />,
+      icon: isMobile ? null : <Star className="h-4 w-4" />,
       badge: mockReviewStats.totalReviews,
       content: <ReviewsTab product={product} />,
     });
 
     return tabItems;
-  }, [product, isLargeScreen]);
+  }, [product, isLargeScreen, isMobile]);
 
   if (tabs.length === 0) {
     return (
@@ -577,20 +587,12 @@ export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
   return (
     <div className="w-full">
       {/* Responsive tab sizing: smaller on mobile, larger on big screens */}
-      {/* Additional CSS safeguard: hide specs tab on xl+ screens */}
-      <div className="sm:hidden">
-        <Tabs tabs={tabs} variant="pill" size="sm" />
-      </div>
-      <div className="hidden sm:block xl:hidden">
-        <Tabs tabs={tabs} variant="pill" size="md" />
-      </div>
-      <div className="hidden xl:block">
-        <Tabs
-          tabs={tabs.filter((tab) => tab.id !== "specifications")} // Never show specs on xl+
-          variant="pill"
-          size="lg"
-        />
-      </div>
+      <Tabs
+        tabs={tabs}
+        variant="pill"
+        size={isLargeScreen ? "lg" : isMobile ? "sm" : "md"}
+        className="transition-all duration-300"
+      />
     </div>
   );
 }
