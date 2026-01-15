@@ -76,15 +76,15 @@ export const ProductSpotlightSlideBody = memo(
 
               {/* Row 2: Headline */}
               <HeroItem run={run} animationKey={animationKey}>
-                <div className="hero-item-enter hero-headline mt-1.5 transition-transform duration-700 group-hover:translate-x-2">
+                <div className="hero-item-enter hero-headline mt-0.5 transition-transform duration-700 group-hover:translate-x-2 w-full max-w-full min-w-0">
                   <h1
-                    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-[1.1] md:leading-none tracking-tighter text-gray-900 mb-0.5 md:mb-1"
+                    className="text-lg xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-[1.1] md:leading-none tracking-tighter text-gray-900 mb-0.5 md:mb-1 wrap-break-word"
                   >
                     {slide.headline}
                   </h1>
                   {slide.highlight && (
                     <h2
-                      className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light leading-[1.1] md:leading-none tracking-tight italic text-red-600 mb-3 md:mb-4"
+                      className="text-lg xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-light leading-[1.1] md:leading-none tracking-tight italic text-red-600 mb-3 md:mb-4 wrap-break-word"
                     >
                       {slide.highlight}
                     </h2>
@@ -95,7 +95,7 @@ export const ProductSpotlightSlideBody = memo(
               {/* Row 3: Description */}
               <HeroItem run={run} animationKey={animationKey}>
                 <p
-                  className={`text-sm md:text-base lg:text-lg leading-relaxed font-medium mt-1 hero-item-enter hero-description ${contentClamp.description} text-warm-gray-500`}
+                  className={`text-[10px] sm:text-sm md:text-base lg:text-lg leading-snug font-medium mt-0.5 hero-item-enter hero-description ${contentClamp.description} text-warm-gray-500 line-clamp-2 sm:line-clamp-none w-full max-w-full`}
                 >
                   {slide.description}
                 </p>
@@ -103,16 +103,14 @@ export const ProductSpotlightSlideBody = memo(
 
               {/* Row 4: Enhanced Product Details */}
               <HeroItem run={run} animationKey={animationKey}>
-                <div className="space-y-3 mt-2 md:mt-3 hero-item-enter hero-description bg-white/40 backdrop-blur-md p-3 md:p-4 rounded-lg border border-red-600/5 shadow-sm transition-all duration-500 group-hover:bg-white/60 group-hover:shadow-md">
-                  <div className="space-y-1">
+                <div className="w-[calc(100%-4px)] mx-auto lg:mx-0 lg:w-full max-w-full min-w-0 space-y-1 mt-1 md:mt-3 hero-item-enter hero-description bg-white/40 backdrop-blur-md p-1.5 md:p-4 rounded-lg border border-red-600/5 shadow-sm transition-all duration-500 group-hover:bg-white/60 group-hover:shadow-md">
+                  <div className="space-y-0.5 min-w-0">
                     {product && (
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                        <h3
-                          className="text-lg sm:text-xl md:text-2xl font-display font-black tracking-tight uppercase text-gray-900"
-                        >
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-4 min-w-0">
+                        <h3 className="text-xs sm:text-lg md:text-2xl font-display font-black tracking-tight uppercase text-gray-900 truncate">
                           {product.name}
                         </h3>
-                        <div className="flex items-center gap-2 bg-red-50 px-2 py-0.5 rounded-md text-red-600">
+                        <div className="flex items-center gap-1 bg-red-50/50 px-1 py-0 rounded-md text-red-600 w-fit shrink-0 scale-[0.85] sm:scale-100 origin-left">
                           <StarRating
                             rating={4.8}
                             reviewCount={124}
@@ -122,11 +120,13 @@ export const ProductSpotlightSlideBody = memo(
                       </div>
                     )}
                     {product && (
-                      <div className="flex items-center gap-4">
-                        <HeroPriceBlock product={product} />
-                        <div className="h-6 w-[1px] bg-gray-200 hidden sm:block" />
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-red-600 animate-pulse">
-                          Available Now
+                      <div className="flex items-center gap-1.5 sm:gap-4">
+                        <div className="scale-90 sm:scale-100 origin-left shrink-0">
+                          <HeroPriceBlock product={product} />
+                        </div>
+                        <div className="h-3 w-px bg-gray-200 hidden sm:block" />
+                        <span className="text-[7px] sm:text-[10px] font-bold uppercase tracking-widest text-red-600 animate-pulse shrink-0">
+                          Available
                         </span>
                       </div>
                     )}
@@ -163,16 +163,16 @@ export const ProductSpotlightSlideBody = memo(
 
               {/* Row 5: CTAs */}
               <HeroItem run={run} animationKey={animationKey}>
-                <div className="flex flex-row gap-3 mt-3 md:mt-4 justify-center lg:justify-start hero-item-enter hero-buttons text-gray-900">
+                <div className="flex flex-row gap-1.5 mt-1.5 md:mt-4 justify-center lg:justify-start hero-item-enter hero-buttons text-gray-900">
                   <Link
                     href={slide.ctaPrimary.href}
                     onMouseEnter={onMouseEnter}
                     onMouseLeave={onMouseLeave}
                   >
-                    <Button size="hero" className="bg-red-600 hover:bg-red-700 text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all px-6 h-11 md:h-12">
-                      <span className="flex items-center gap-2 font-black uppercase tracking-wider text-sm md:text-base">
+                    <Button size="hero" className="bg-red-600 hover:bg-red-700 text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all px-2.5 sm:px-6 h-7 sm:h-12">
+                      <span className="flex items-center gap-1 font-black uppercase tracking-wider text-[9px] sm:text-sm md:text-base">
                         {slide.ctaPrimary.label}
-                        <ArrowRight className="h-4 w-4 md:h-5 md:w-5 transition-transform group-hover:translate-x-1" />
+                        <ArrowRight className="h-2.5 w-2.5 md:h-5 md:w-5 transition-transform group-hover:translate-x-1" />
                       </span>
                     </Button>
                   </Link>
@@ -184,7 +184,7 @@ export const ProductSpotlightSlideBody = memo(
                   >
                     <Button
                       size="hero"
-                      className="bg-white text-red-600 hover:bg-red-600 hover:text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all duration-500 px-6 h-11 md:h-12 font-black uppercase tracking-wider text-sm md:text-base"
+                      className="bg-white text-red-600 hover:bg-red-600 hover:text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all duration-500 px-2.5 sm:px-6 h-7 sm:h-12 font-black uppercase tracking-wider text-[9px] sm:text-sm md:text-base"
                     >
                       {slide.ctaSecondary.label}
                     </Button>

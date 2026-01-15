@@ -6,12 +6,7 @@ import { SkeletonBlock } from "@/components/ui/skeleton";
  */
 export function LandscapeSlideSkeleton() {
   return (
-    <div
-      className="relative w-full h-full overflow-hidden"
-      role="img"
-      aria-label="Loading landscape hero slide"
-      aria-busy="true"
-    >
+    <div className="relative w-full h-full overflow-hidden">
       {/* Background skeleton */}
       <div className="absolute inset-0 z-0 bg-gray-900">
         <SkeletonBlock className="w-full h-full rounded-none" />
@@ -53,12 +48,7 @@ export function LandscapeSlideSkeleton() {
  */
 export function ProductSlideSkeleton() {
   return (
-    <div
-      className="w-full h-full grid grid-cols-1 lg:grid-cols-2 items-center gap-8 lg:gap-12 xl:gap-20 px-5 py-6 lg:px-14 lg:py-8"
-      role="img"
-      aria-label="Loading product showcase slide"
-      aria-busy="true"
-    >
+    <div className="w-full h-full grid grid-cols-1 lg:grid-cols-2 items-center gap-8 lg:gap-12 xl:gap-20 px-5 py-6 lg:px-14 lg:py-8">
       {/* Left: Content */}
       <div className="flex flex-col justify-center space-y-5 min-w-0 text-center lg:text-left">
         {/* Badge */}
@@ -113,12 +103,7 @@ export function ProductSlideSkeleton() {
  */
 export function TestimonialSlideSkeleton() {
   return (
-    <div
-      className="w-full h-full flex items-center justify-center px-8 py-12"
-      role="img"
-      aria-label="Loading customer testimonial slide"
-      aria-busy="true"
-    >
+    <div className="w-full h-full flex items-center justify-center px-8 py-12">
       <div className="max-w-4xl w-full space-y-6 text-center">
         <SkeletonBlock className="h-6 w-32 mx-auto rounded-lg" />
         <SkeletonBlock className="h-16 w-3/4 mx-auto rounded-lg" />
@@ -141,12 +126,7 @@ export function TestimonialSlideSkeleton() {
  */
 export function ComparisonBattleSlideSkeleton() {
   return (
-    <div
-      className="relative w-full h-full flex overflow-hidden group/battle select-none"
-      role="img"
-      aria-label="Loading product comparison battle slide"
-      aria-busy="true"
-    >
+    <div className="relative w-full h-full flex overflow-hidden group/battle select-none">
       {/* 1. High-Tech Fluid Background */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         {/* Dynamic Background Split with VS Divider */}
@@ -263,12 +243,7 @@ export function ComparisonBattleSlideSkeleton() {
  */
 export function GenericSlideSkeleton() {
   return (
-    <div
-      className="w-full h-full flex items-center justify-center"
-      role="img"
-      aria-label="Loading slide content"
-      aria-busy="true"
-    >
+    <div className="w-full h-full flex items-center justify-center">
       <SkeletonBlock className="w-full h-full rounded-lg" />
     </div>
   );

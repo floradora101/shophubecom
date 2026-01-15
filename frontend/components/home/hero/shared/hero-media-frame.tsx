@@ -127,63 +127,59 @@ export function HeroMediaFrame({
             style={{ backgroundColor: "rgba(255, 255, 255, 0.18)" }}
           />
 
-          {/* image container with rounded corners matching frame */}
-          <div className="absolute inset-0 rounded-lg overflow-hidden">
-            {slide.media.kind === "product" && product ? (
-              <div className="relative w-full h-full rounded-lg overflow-hidden">
-                <div className="absolute inset-0 p-4 sm:p-8 rounded-lg overflow-hidden">
-                  <Image
-                    src={getProductImageWithPlaceholder(product)}
-                    alt={slide.media.alt || product.name}
-                    fill
-                    className={cn(
-                      "relative z-10 object-contain transition-transform duration-2000 ease-out",
-                      "sm:scale-[1.06] sm:group-hover:scale-110 scale-100 group-hover:scale-100",
-                      getObjectPositionClass(slide.media.position || "center")
-                    )}
-                    priority={shouldPrioritize}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                </div>
-              </div>
-            ) : slide.media.kind === "image" && slide.media.imageUrl ? (
-              <div className="relative w-full h-full rounded-lg overflow-hidden">
-                <Image
-                  key={slide.media.imageUrl}
-                  src={slide.media.imageUrl}
-                  alt={slide.media.alt || "Hero image"}
-                  fill
-                  className={cn(
-                    "relative z-10 object-cover transition-transform duration-3000 ease-out rounded-lg",
-                    "sm:group-hover:scale-110 sm:group-hover:rotate-1 scale-100 group-hover:scale-100 group-hover:rotate-0",
-                    getObjectPositionClass(slide.media.position)
-                  )}
-                  priority={shouldPrioritize}
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                />
-              </div>
-            ) : slide.media.kind === "video" &&
-              "videoUrl" in slide.media &&
-              slide.media.videoUrl ? (
-              <div className="relative w-full h-full rounded-lg overflow-hidden">
-                <video
-                  ref={videoRef}
-                  src={slide.media.videoUrl}
-                  className={cn(
-                    "relative z-10 w-full h-full object-cover transition-transform duration-3000 ease-out rounded-lg",
-                    "sm:group-hover:scale-110 scale-100 group-hover:scale-100",
-                    getObjectPositionClass(slide.media.position)
-                  )}
-                  muted
-                  playsInline
-                  loop
-                  preload={shouldPrioritize ? "metadata" : "none"}
-                  poster={slide.media.imageUrl}
-                  aria-label={slide.media.alt || "Hero video background"}
-                />
-              </div>
-            ) : null}
-          </div>
+          {/* image */}
+          {slide.media.kind === "product" && product ? (
+            <div className="absolute inset-0 p-4 sm:p-8">
+              <Image
+                src={getProductImageWithPlaceholder(product)}
+                alt={slide.media.alt || product.name}
+                fill
+                className={cn(
+                  "relative z-10 object-contain transition-transform duration-2000 ease-out",
+                  "sm:scale-[1.06] sm:group-hover:scale-110 scale-100 group-hover:scale-100",
+                  getObjectPositionClass(slide.media.position || "center")
+                )}
+                priority={shouldPrioritize}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+            </div>
+          ) : slide.media.kind === "image" && slide.media.imageUrl ? (
+            <div className="absolute inset-0">
+              <Image
+                key={slide.media.imageUrl}
+                src={slide.media.imageUrl}
+                alt={slide.media.alt || "Hero image"}
+                fill
+                className={cn(
+                  "relative z-10 object-cover transition-transform duration-3000 ease-out",
+                  "sm:group-hover:scale-110 sm:group-hover:rotate-1 scale-100 group-hover:scale-100 group-hover:rotate-0",
+                  getObjectPositionClass(slide.media.position)
+                )}
+                priority={shouldPrioritize}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+            </div>
+          ) : slide.media.kind === "video" &&
+            "videoUrl" in slide.media &&
+            slide.media.videoUrl ? (
+            <div className="absolute inset-0">
+              <video
+                ref={videoRef}
+                src={slide.media.videoUrl}
+                className={cn(
+                  "relative z-10 w-full h-full object-cover transition-transform duration-3000 ease-out",
+                  "sm:group-hover:scale-110 scale-100 group-hover:scale-100",
+                  getObjectPositionClass(slide.media.position)
+                )}
+                muted
+                playsInline
+                loop
+                preload={shouldPrioritize ? "metadata" : "none"}
+                poster={slide.media.imageUrl}
+                aria-label={slide.media.alt || "Hero video background"}
+              />
+            </div>
+          ) : null}
         </div>
       </div>
 

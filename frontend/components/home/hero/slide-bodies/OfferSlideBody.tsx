@@ -63,11 +63,11 @@ export const OfferSlideBody = memo(function OfferSlideBody({
       {/* Row 2: Headline */}
       <HeroItem run={run} animationKey={animationKey}>
         <div className="hero-item-enter hero-headline mt-1.5 transition-transform duration-700 group-hover:translate-x-2">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-[1.1] md:leading-none tracking-tighter text-gray-900 mb-0.5 md:mb-1">
+          <h1 className="text-lg xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-[1.1] md:leading-none tracking-tighter text-gray-900 mb-0.5 md:mb-1 wrap-break-word">
             {slide.headline}
           </h1>
           {slide.highlight && (
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light leading-[1.1] md:leading-none tracking-tight italic text-red-600 mb-3 md:mb-4">
+            <h2 className="text-lg xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-light leading-[1.1] md:leading-none tracking-tight italic text-red-600 mb-3 md:mb-4 wrap-break-word">
               {slide.highlight}
             </h2>
           )}
@@ -77,7 +77,7 @@ export const OfferSlideBody = memo(function OfferSlideBody({
       {/* Row 3: Description */}
       <HeroItem run={run} animationKey={animationKey}>
         <p
-          className={`text-sm md:text-base lg:text-lg leading-relaxed font-medium mt-1 hero-item-enter hero-description ${contentClamp.description} text-warm-gray-500`}
+          className={`text-[10px] sm:text-sm md:text-base lg:text-lg leading-snug font-medium mt-0.5 hero-item-enter hero-description ${contentClamp.description} text-warm-gray-500 line-clamp-2 sm:line-clamp-none w-full max-w-full`}
         >
           {slide.description}
         </p>
@@ -146,7 +146,7 @@ export const OfferSlideBody = memo(function OfferSlideBody({
 
       {/* Row 5: CTAs */}
       <HeroItem run={run} animationKey={animationKey}>
-        <div className="flex flex-row gap-3 mt-4 md:mt-6 justify-center lg:justify-start hero-item-enter hero-buttons">
+        <div className="flex flex-row gap-1.5 mt-1.5 md:mt-6 justify-center lg:justify-start hero-item-enter hero-buttons">
           <Link
             href={slide.ctaPrimary.href}
             onMouseEnter={onMouseEnter}
@@ -154,7 +154,7 @@ export const OfferSlideBody = memo(function OfferSlideBody({
           >
             <Button
               size="hero"
-              className="bg-red-600 hover:bg-red-700 text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all px-6 h-11 md:h-12"
+              className="bg-red-600 hover:bg-red-700 text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all px-2.5 sm:px-6 h-7 md:h-14"
             >
               <span className="flex items-center gap-2 font-black uppercase tracking-wider text-sm md:text-base">
                 {slide.ctaPrimary.label}
@@ -170,7 +170,7 @@ export const OfferSlideBody = memo(function OfferSlideBody({
             >
               <Button
                 size="hero"
-                className="bg-white text-red-600 hover:bg-red-600 hover:text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all duration-500 px-6 h-11 md:h-12 font-black uppercase tracking-wider text-sm md:text-base"
+                className="bg-white text-red-600 hover:bg-red-600 hover:text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all duration-500 px-2.5 sm:px-6 h-7 md:h-14 font-black uppercase tracking-wider text-[9px] sm:text-sm md:text-base"
               >
                 {slide.ctaSecondary.label}
               </Button>

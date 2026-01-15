@@ -105,22 +105,23 @@ export const ComparisonBattleSlideBody = memo(
         </div>
 
         {/* 2. Unified Header Overlay */}
-        <div className="absolute top-6 lg:top-10 left-0 w-full z-50 pointer-events-none px-6 lg:px-14">
+        <div className="absolute top-4 sm:top-6 lg:top-10 left-0 w-full z-50 pointer-events-none px-3 sm:px-6 lg:px-14">
           <HeroItem run={run} animationKey={animationKey}>
-            <div className="hero-item-enter flex flex-col items-center text-center max-w-2xl mx-auto gap-2">
+            <div className="hero-item-enter flex flex-col items-center text-center max-w-2xl mx-auto gap-1.5 sm:gap-2">
               <Badge
                 variant="primary"
-                className="px-2.5 py-0.5 rounded-lg bg-red-600/10 text-red-600 border border-red-600/20 backdrop-blur-sm"
+                size="default"
+                className="mt-1 sm:mt-4 px-2 py-0 h-5 sm:h-auto"
               >
-                <Trophy className="h-3 w-3 mr-1.5" />
-                <span className="text-[10px] font-bold uppercase tracking-wider">
+                <Trophy className="h-3 w-3 shrink-0" />
+                <span className="truncate text-[10px] sm:text-xs">
                   {slide.badgeText || "Performance Face-Off"}
                 </span>
               </Badge>
-              <h1 className="text-2xl lg:text-4xl font-black text-gray-900 tracking-tighter uppercase leading-none drop-shadow-sm">
+              <h1 className="text-lg xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 tracking-tighter uppercase leading-none drop-shadow-sm wrap-break-word">
                 {slide.headline}
               </h1>
-              <p className="hidden md:block text-xs lg:text-sm font-medium text-warm-gray-500 max-w-lg leading-relaxed">
+              <p className="hidden md:block text-[10px] sm:text-sm md:text-base lg:text-lg font-medium text-warm-gray-500 max-w-lg leading-relaxed line-clamp-2">
                 {slide.description}
               </p>
             </div>
@@ -128,11 +129,11 @@ export const ComparisonBattleSlideBody = memo(
         </div>
 
         {/* 3. The Arena - Compact & Impactful */}
-        <div className="relative z-10 w-full h-full flex flex-col lg:flex-row pt-28 lg:pt-36 pb-6 lg:pb-10">
+        <div className="relative z-10 w-full h-full flex flex-col lg:flex-row pt-20 sm:pt-28 lg:pt-36 pb-4 sm:pb-6 lg:pb-10">
           {/* LEFT GLADIATOR */}
           <div
             className={cn(
-              "relative flex-1 flex flex-col transition-all duration-1000 ease-[cubic-bezier(0.23,1,0.32,1)] px-6 lg:px-14",
+              "relative flex-1 flex flex-col transition-all duration-1000 ease-[cubic-bezier(0.23,1,0.32,1)] px-3 sm:px-6 lg:px-14",
               hoveredSide === "left" ? "lg:flex-[1.2]" : "lg:flex-1",
               hoveredSide === "right"
                 ? "opacity-20 blur-sm scale-[0.98]"
@@ -150,15 +151,15 @@ export const ComparisonBattleSlideBody = memo(
                 </>
               ) : leftProduct ? (
                 <>
-                  <span className="text-[8px] font-black text-red-600 uppercase tracking-[0.4em] block mb-1">
+                  <span className="text-[7px] sm:text-[8px] font-black text-red-600 uppercase tracking-[0.4em] block mb-0.5 sm:mb-1">
                     Origin: Challenger A
                   </span>
-                  <h2 className="text-2xl lg:text-4xl font-black text-gray-900 tracking-tighter leading-none mb-3">
+                  <h2 className="text-lg xs:text-xl sm:text-2xl lg:text-4xl font-black text-gray-900 tracking-tighter leading-none mb-2 sm:mb-3 wrap-break-word">
                     {leftProduct.name}
                   </h2>
                   <HeroPriceBlock
                     product={leftProduct}
-                    className="scale-90 origin-left"
+                    className="scale-[0.85] sm:scale-90 origin-left"
                   />
                 </>
               ) : null}
@@ -170,11 +171,11 @@ export const ComparisonBattleSlideBody = memo(
               <div className="absolute bottom-4 lg:bottom-8 w-3/4 h-6 bg-red-600/5 blur-3xl rounded-full scale-x-150 transition-opacity duration-700" />
 
               {isLeftLoading ? (
-                <SkeletonBlock className="w-full h-[350px] lg:h-[200px]" />
+                <SkeletonBlock className="w-full h-[200px] sm:h-[250px] lg:h-[200px]" />
               ) : leftProduct ? (
                 <div
                   className={cn(
-                    "relative w-full h-[350px] lg:h-[200px] transition-all duration-1000",
+                    "relative w-full h-[200px] sm:h-[250px] lg:h-[200px] transition-all duration-1000",
                     hoveredSide === "left"
                       ? "scale-115 -rotate-2 drop-shadow-[0_40px_80px_rgba(250,6,3,0.15)]"
                       : "scale-100 drop-shadow-2xl grayscale-[0.2]"
@@ -193,29 +194,29 @@ export const ComparisonBattleSlideBody = memo(
             </div>
 
             {/* Matrix Data Layer */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-1.5 mt-auto">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-1 sm:gap-1.5 mt-auto">
               {isLeftLoading
                 ? Array.from({ length: 4 }).map((_, i) => (
-                    <SkeletonBlock key={i} className="h-16 rounded-lg" />
+                    <SkeletonBlock key={i} className="h-12 sm:h-16 rounded-lg" />
                   ))
                 : leftProduct
                 ? slide.comparisonPoints.slice(0, 4).map((point, i) => (
                     <div
                       key={i}
                       className={cn(
-                        "p-2 rounded-lg border transition-all duration-500 backdrop-blur-xl",
+                        "p-1.5 sm:p-2 rounded-lg border transition-all duration-500 backdrop-blur-xl",
                         hoveredSide === "left"
                           ? "bg-white/80 border-red-600/30 shadow-lg"
                           : "bg-white/20 border-white/40"
                       )}
                     >
-                      <div className="flex items-center gap-1.5 mb-0.5">
-                        <div className="w-1 h-1 rounded-full bg-red-600" />
-                        <span className="text-[7px] font-black text-gray-400 uppercase tracking-widest truncate">
+                      <div className="flex items-center gap-1 sm:gap-1.5 mb-0.5">
+                        <div className="w-1 h-1 rounded-full bg-red-600 shrink-0" />
+                        <span className="text-[6px] sm:text-[7px] font-black text-gray-400 uppercase tracking-widest truncate">
                           {point.label}
                         </span>
                       </div>
-                      <div className="text-[9px] lg:text-[11px] font-bold text-gray-900 truncate">
+                      <div className="text-[8px] sm:text-[9px] lg:text-[11px] font-bold text-gray-900 truncate">
                         {point.leftValue}
                       </div>
                     </div>
@@ -224,9 +225,9 @@ export const ComparisonBattleSlideBody = memo(
             </div>
 
             {/* Professional Hero Action */}
-            <div className="mt-6 flex justify-center lg:justify-start">
+            <div className="mt-3 sm:mt-4 lg:mt-6 flex justify-center lg:justify-start">
               {isLeftLoading ? (
-                <SkeletonBlock className="h-12 lg:h-14 w-full sm:w-40 rounded-xl" />
+                <SkeletonBlock className="h-7 sm:h-12 lg:h-14 w-full sm:w-40 rounded-xl" />
               ) : leftProduct ? (
                 <Link
                   href={`/products/${leftProduct.slug}`}
@@ -234,12 +235,12 @@ export const ComparisonBattleSlideBody = memo(
                 >
                   <Button
                     size="hero"
-                    className="w-full bg-gray-900 hover:bg-black text-white rounded-xl shadow-2xl shadow-gray-900/20 transition-all hover:scale-[1.05] active:scale-[0.95] h-12 lg:h-14 px-8"
+                    className="w-full bg-gray-900 hover:bg-black text-white rounded-xl shadow-2xl shadow-gray-900/20 transition-all hover:scale-[1.05] active:scale-[0.95] h-7 sm:h-12 lg:h-14 px-2.5 sm:px-6 lg:px-8"
                   >
-                    <span className="font-black uppercase tracking-widest text-[10px] lg:text-xs">
+                    <span className="font-black uppercase tracking-widest text-[9px] sm:text-sm md:text-base">
                       View Prototype
                     </span>
-                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="h-2.5 w-2.5 sm:h-4 sm:w-4 ml-1 sm:ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
               ) : null}
@@ -249,7 +250,7 @@ export const ComparisonBattleSlideBody = memo(
           {/* RIGHT GLADIATOR */}
           <div
             className={cn(
-              "relative flex-1 flex flex-col transition-all duration-1000 ease-[cubic-bezier(0.23,1,0.32,1)] px-6 lg:px-14 lg:text-right",
+              "relative flex-1 flex flex-col transition-all duration-1000 ease-[cubic-bezier(0.23,1,0.32,1)] px-3 sm:px-6 lg:px-14 lg:text-right",
               hoveredSide === "right" ? "lg:flex-[1.2]" : "lg:flex-1",
               hoveredSide === "left"
                 ? "opacity-20 blur-sm scale-[0.98]"
@@ -269,16 +270,16 @@ export const ComparisonBattleSlideBody = memo(
                 </>
               ) : rightProduct ? (
                 <>
-                  <span className="text-[8px] font-black text-red-600 uppercase tracking-[0.4em] block mb-1">
+                  <span className="text-[7px] sm:text-[8px] font-black text-red-600 uppercase tracking-[0.4em] block mb-0.5 sm:mb-1">
                     Origin: Challenger B
                   </span>
-                  <h2 className="text-2xl lg:text-4xl font-black text-gray-900 tracking-tighter leading-none mb-3">
+                  <h2 className="text-lg xs:text-xl sm:text-2xl lg:text-4xl font-black text-gray-900 tracking-tighter leading-none mb-2 sm:mb-3 wrap-break-word">
                     {rightProduct.name}
                   </h2>
                   <div className="flex lg:justify-end">
                     <HeroPriceBlock
                       product={rightProduct}
-                      className="scale-90 origin-right"
+                      className="scale-[0.85] sm:scale-90 origin-right"
                     />
                   </div>
                 </>
@@ -291,11 +292,11 @@ export const ComparisonBattleSlideBody = memo(
               <div className="absolute bottom-4 lg:bottom-8 w-3/4 h-6 bg-red-600/5 blur-3xl rounded-full scale-x-150 transition-opacity duration-700" />
 
               {isRightLoading ? (
-                <SkeletonBlock className="w-full h-[350px] lg:h-[200px]" />
+                <SkeletonBlock className="w-full h-[200px] sm:h-[250px] lg:h-[200px]" />
               ) : rightProduct ? (
                 <div
                   className={cn(
-                    "relative w-full h-[350px] lg:h-[200px] transition-all duration-1000",
+                    "relative w-full h-[200px] sm:h-[250px] lg:h-[200px] transition-all duration-1000",
                     hoveredSide === "right"
                       ? "scale-115 rotate-2 drop-shadow-[0_40px_80px_rgba(250,6,3,0.15)]"
                       : "scale-100 drop-shadow-2xl grayscale-[0.2]"
@@ -314,29 +315,29 @@ export const ComparisonBattleSlideBody = memo(
             </div>
 
             {/* Matrix Data Layer */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-1.5 mt-auto">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-1 sm:gap-1.5 mt-auto">
               {isRightLoading
                 ? Array.from({ length: 4 }).map((_, i) => (
-                    <SkeletonBlock key={i} className="h-16 rounded-lg" />
+                    <SkeletonBlock key={i} className="h-12 sm:h-16 rounded-lg" />
                   ))
                 : rightProduct
                 ? slide.comparisonPoints.slice(0, 4).map((point, i) => (
                     <div
                       key={i}
                       className={cn(
-                        "p-2 rounded-lg border transition-all duration-500 backdrop-blur-xl lg:text-right",
+                        "p-1.5 sm:p-2 rounded-lg border transition-all duration-500 backdrop-blur-xl lg:text-right",
                         hoveredSide === "right"
                           ? "bg-white/80 border-red-600/30 shadow-lg"
                           : "bg-white/20 border-white/40"
                       )}
                     >
-                      <div className="flex items-center lg:justify-end gap-1.5 mb-0.5">
-                        <span className="text-[7px] font-black text-gray-400 uppercase tracking-widest truncate">
+                      <div className="flex items-center lg:justify-end gap-1 sm:gap-1.5 mb-0.5">
+                        <span className="text-[6px] sm:text-[7px] font-black text-gray-400 uppercase tracking-widest truncate">
                           {point.label}
                         </span>
-                        <div className="w-1 h-1 rounded-full bg-red-600" />
+                        <div className="w-1 h-1 rounded-full bg-red-600 shrink-0" />
                       </div>
-                      <div className="text-[9px] lg:text-[11px] font-bold text-gray-900 truncate">
+                      <div className="text-[8px] sm:text-[9px] lg:text-[11px] font-bold text-gray-900 truncate">
                         {point.rightValue}
                       </div>
                     </div>
@@ -345,9 +346,9 @@ export const ComparisonBattleSlideBody = memo(
             </div>
 
             {/* Professional Hero Action */}
-            <div className="mt-6 flex justify-center lg:justify-end">
+            <div className="mt-3 sm:mt-4 lg:mt-6 flex justify-center lg:justify-end">
               {isRightLoading ? (
-                <SkeletonBlock className="h-12 lg:h-14 w-full sm:w-40 rounded-xl" />
+                <SkeletonBlock className="h-7 sm:h-12 lg:h-14 w-full sm:w-40 rounded-xl" />
               ) : rightProduct ? (
                 <Link
                   href={`/products/${rightProduct.slug}`}
@@ -355,12 +356,12 @@ export const ComparisonBattleSlideBody = memo(
                 >
                   <Button
                     size="hero"
-                    className="w-full bg-red-600 hover:bg-red-700 text-white rounded-xl shadow-2xl shadow-red-600/20 transition-all hover:scale-[1.05] active:scale-[0.95] h-12 lg:h-14 px-8"
+                    className="w-full bg-red-600 hover:bg-red-700 text-white rounded-xl shadow-2xl shadow-red-600/20 transition-all hover:scale-[1.05] active:scale-[0.95] h-7 sm:h-12 lg:h-14 px-2.5 sm:px-6 lg:px-8"
                   >
-                    <span className="font-black uppercase tracking-widest text-[10px] lg:text-xs">
+                    <span className="font-black uppercase tracking-widest text-[9px] sm:text-sm md:text-base">
                       Secure Territory
                     </span>
-                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="h-2.5 w-2.5 sm:h-4 sm:w-4 ml-1 sm:ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
               ) : null}

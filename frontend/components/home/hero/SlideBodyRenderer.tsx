@@ -130,19 +130,7 @@ export const SlideBodyRenderer = memo(function SlideBodyRenderer({
   rightProduct,
 }: SlideBodyRendererProps) {
   return (
-    <div
-      role="region"
-      aria-label={`Slide ${index + 1} of ${Math.max(1, index + 1)}`}
-      aria-live="polite"
-      aria-busy={isActive ? "false" : "true"}
-      aria-describedby={`slide-status-${slide.id}`}
-    >
-      {/* Screen reader status announcement */}
-      <div id={`slide-status-${slide.id}`} className="sr-only">
-        {isActive
-          ? `${slide.type} slide content loaded and active`
-          : `${slide.type} slide content loading`}
-      </div>
+    <>
       <SlideErrorBoundary fallback={<GenericSlideSkeleton />}>
         {(() => {
           switch (slide.type) {
@@ -254,6 +242,6 @@ export const SlideBodyRenderer = memo(function SlideBodyRenderer({
           }
         })()}
       </SlideErrorBoundary>
-    </div>
+    </>
   );
 });

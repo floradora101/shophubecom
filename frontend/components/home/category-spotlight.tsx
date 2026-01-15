@@ -160,7 +160,7 @@ export function CategorySpotlight({
         <div
           className="absolute inset-0 opacity-[0.03] grayscale invert"
           style={{
-            backgroundImage: `radial-gradient(circle at 2px 2px, #000 1px, transparent 0)`,
+          backgroundImage: `radial-gradient(circle at 2px 2px, #000 1px, transparent 0)`,
             backgroundSize: "48px 48px",
           }}
         />
