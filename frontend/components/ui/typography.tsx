@@ -42,10 +42,9 @@ const textVariants = cva("text-warm-gray-700 leading-normal", {
 });
 
 export interface HeadingProps
-  extends React.HTMLAttributes<HTMLHeadingElement>,
-    VariantProps<typeof headingVariants> {
+  extends React.HTMLAttributes<HTMLHeadingElement> {
   as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
-  level?: VariantProps<typeof headingVariants>["level"] | 1 | 2 | 3 | 4 | 5 | 6;
+  level?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | 1 | 2 | 3 | 4 | 5 | 6;
 }
 
 function getHeadingTag(level: VariantProps<typeof headingVariants>["level"] | 1 | 2 | 3 | 4 | 5 | 6): "h1" | "h2" | "h3" | "h4" | "h5" | "h6" {

@@ -4,9 +4,10 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ChevronRight, AlertTriangle, Settings } from "lucide-react";
+import { ChevronRight, AlertTriangle, Settings, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/ui/container";
 import { SkeletonBlock } from "@/components/ui/skeleton";
 import {
@@ -40,7 +41,7 @@ function ProductGallerySkeleton() {
   return (
     <div className="w-full">
       {/* Main image area */}
-      <div className="relative aspect-[4/5] w-full rounded-[2rem] overflow-hidden bg-surface-muted/30">
+      <div className="relative aspect-[4/5] w-full rounded-lg overflow-hidden bg-surface-muted/30">
         <SkeletonBlock className="absolute inset-0 rounded-none" />
       </div>
 
@@ -49,7 +50,7 @@ function ProductGallerySkeleton() {
         {Array.from({ length: 4 }, (_, i) => (
           <div
             key={i}
-            className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-surface-muted/30"
+            className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden bg-surface-muted/30"
           >
             <SkeletonBlock className="w-full h-full rounded-none" />
           </div>
@@ -199,7 +200,7 @@ export function ProductDetailSkeleton() {
           {/* Right Column - Sticky Sidebar */}
           <div className="order-2 lg:order-2 min-w-0 lg:sticky lg:top-(--sticky-top) self-start">
             <div className="space-y-6 sm:space-y-8 lg:h-[calc(100vh-var(--sticky-top)-16px)] lg:overflow-y-auto scrollbar-hide">
-              {/* ShopHub Brand & Title - Inside scrollable container */}
+              {/* MegaStore Brand & Title - Inside scrollable container */}
               <div className="w-full mb-6 sm:mb-8 lg:mb-10 text-left">
                 <div className="text-xs sm:text-sm text-gray-500 uppercase tracking-wide font-medium mb-2">
                   <SkeletonBlock className="h-4 w-16" />
@@ -685,9 +686,9 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
       <Container className="py-6 sm:py-8 lg:py-12 pb-24 lg:pb-0">
         {/* Product Title - Show first on small screens */}
         <div className="w-full mb-6 sm:mb-8 lg:hidden text-left">
-          <div className="text-xs sm:text-sm text-muted-fg uppercase tracking-wide font-medium mb-2">
-            ShopHub
-          </div>
+          <Badge variant="primary" size="default" className="mb-3">
+            MegaStore
+          </Badge>
           <h1 className="text-xl sm:text-2xl font-display font-bold text-fg leading-tight tracking-tight">
             {product.name}
           </h1>
@@ -711,11 +712,11 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
           {/* Right Column - Details */}
           <div className="order-3 lg:order-2 min-w-0">
             <div className="space-y-6 sm:space-y-8">
-              {/* ShopHub Brand & Title - Inside scrollable container (hidden on lg+) */}
+              {/* MegaStore Brand & Title - Inside scrollable container (hidden on lg+) */}
               <div className="w-full mb-6 sm:mb-8 lg:mb-10 text-left hidden lg:block">
-                <div className="text-xs sm:text-sm text-muted-fg uppercase tracking-wide font-medium mb-2">
-                  ShopHub
-                </div>
+                <Badge variant="primary" size="default" className="mb-3">
+                  MegaStore
+                </Badge>
                 <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-display font-bold text-fg leading-tight tracking-tight">
                   {product.name}
                 </h1>
@@ -796,9 +797,16 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
         <div className="mt-12 sm:mt-16 lg:mt-20 space-y-12 sm:space-y-16 lg:space-y-20">
           {/* Product Details Tabs */}
           <div className="space-y-8">
-            <div className="w-full">
-              <h2 className="text-2xl sm:text-3xl font-display font-bold text-fg tracking-tight">
+            <div className="w-full text-center mb-10 sm:mb-12">
+              <Badge variant="primary" size="default" className="mb-4">
+                <FileText className="h-3 w-3 shrink-0" />
                 Product Details
+              </Badge>
+              <h2 className="text-3xl sm:text-4xl font-display font-bold text-warm-gray-900 tracking-tight">
+                Design &{" "}
+                <span className="italic font-normal text-primary-600">
+                  Features
+                </span>
               </h2>
             </div>
             <ProductDetailsTabs product={product} />

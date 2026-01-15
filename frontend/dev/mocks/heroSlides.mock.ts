@@ -1,6 +1,42 @@
-import type { HeroSlide } from "@/lib/types/heroSlides.types";
+import type {
+  HeroSlide,
+  ComparisonBattleSlide,
+} from "@/lib/types/heroSlides.types";
 
 export const HERO_SLIDES: HeroSlide[] = [
+  {
+    id: "battle-2026-laptops",
+    type: "COMPARISON_BATTLE",
+    priority: 120, // Highest priority to show first
+    isActive: true,
+    headline: "The 2026 Flagship Battle",
+    description:
+      "Witness the clash of engineering titans. Raw power meets architectural elegance in our most anticipated comparison yet.",
+    badgeText: "ULTIMATE FACE-OFF",
+    leftProductSlug: "iphone-15-pro-max",
+    rightProductSlug: "samsung-galaxy-s24-ultra",
+    comparisonPoints: [
+      {
+        label: "Processor",
+        leftValue: "A17 Pro Chip",
+        rightValue: "Snapdragon 8 Gen 3",
+      },
+      {
+        label: "Display",
+        leftValue: "ProMotion OLED",
+        rightValue: "120Hz AMOLED",
+      },
+      { label: "Battery", leftValue: "29 Hours", rightValue: "30 Hours" },
+      { label: "Design", leftValue: "Titanium", rightValue: "Titanium/Glass" },
+    ],
+    ctaPrimary: {
+      label: "Select Challenger",
+      href: "/products",
+    },
+    media: {
+      kind: "none",
+    },
+  },
   {
     id: "landscape-clean-modern",
     type: "LANDSCAPE_IMAGE",
@@ -250,6 +286,11 @@ export const HERO_SLIDES: HeroSlide[] = [
       href: "/categories",
     },
     categorySlug: "laptops",
+    categoryBullets: [
+      "MacBook Pro M3 Max",
+      "ASUS ROG Zephyrus G14",
+      "Dell XPS 15 OLED",
+    ],
     media: {
       kind: "none",
     },

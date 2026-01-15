@@ -2,6 +2,7 @@ import { useMemo, useCallback } from "react";
 import type {
   HeroSlide,
   CategorySpotlightSlide,
+  ComparisonBattleSlide,
 } from "@/lib/types/heroSlides.types";
 import type { Product, Category } from "@/features/products/types";
 import { logger } from "@/lib/logger";
@@ -25,6 +26,8 @@ export function useHeroSlideProcessor({
   getResolvedData: (slide: HeroSlide) => {
     product?: Product;
     category?: Category;
+    leftProduct?: Product;
+    rightProduct?: Product;
   };
 } {
   const processedSlides = useMemo(() => {
@@ -34,7 +37,9 @@ export function useHeroSlideProcessor({
         if (!slide.isActive) {
           logger.debug(
             `Slide filtered out (isActive=false): ${slide.id} - ${
-              slide.headline || "no headline"
+              slide.type === "LANDSCAPE_IMAGE"
+                ? slide.content.headline
+                : slide.headline || "no headline"
             }`
           );
           return false;
@@ -54,6 +59,9 @@ export function useHeroSlideProcessor({
     (slide: HeroSlide) => {
       // Resolve product data if needed
       let product: Product | undefined;
+      let leftProduct: Product | undefined;
+      let rightProduct: Product | undefined;
+
       if (slide.media.kind === "product" && slide.media.productSlug) {
         if (productsBySlug instanceof Map) {
           product = productsBySlug.get(slide.media.productSlug);
@@ -62,14 +70,28 @@ export function useHeroSlideProcessor({
         }
       }
 
+      // Resolve comparison products
+      if (slide.type === "COMPARISON_BATTLE") {
+        const compSlide = slide as ComparisonBattleSlide;
+        if (productsBySlug instanceof Map) {
+          leftProduct = productsBySlug.get(compSlide.leftProductSlug);
+          rightProduct = productsBySlug.get(compSlide.rightProductSlug);
+        } else {
+          leftProduct = productsBySlug?.[compSlide.leftProductSlug];
+          rightProduct = productsBySlug?.[compSlide.rightProductSlug];
+        }
+      }
+
       // Resolve category data if needed
       let category: Category | undefined;
       if (slide.type === "CATEGORY_SPOTLIGHT") {
         const categorySlide = slide as CategorySpotlightSlide;
-        category = categories.find((c) => c.slug === categorySlide.categorySlug);
+        category = categories.find(
+          (c) => c.slug === categorySlide.categorySlug
+        );
       }
 
-      return { product, category };
+      return { product, category, leftProduct, rightProduct };
     },
     [productsBySlug, categories]
   );

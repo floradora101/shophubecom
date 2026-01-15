@@ -6,7 +6,7 @@ import { Check, ChevronDown, ChevronUp } from "lucide-react";
 
 import { cn } from "@/lib/utils/cn";
 
-const Select = SelectPrimitive.Root;
+const Select = SelectPrimitive.Root as React.FC<React.ComponentProps<typeof SelectPrimitive.Root>>;
 
 const SelectGroup = SelectPrimitive.Group;
 
@@ -162,7 +162,7 @@ interface SelectWithOptionsProps {
 }
 
 const SelectWithOptions = React.forwardRef<
-  React.ElementRef<typeof Select>,
+  React.ElementRef<typeof SelectTrigger>,
   SelectWithOptionsProps
 >(
   (

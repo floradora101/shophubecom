@@ -217,18 +217,18 @@ export default function CartPage() {
 
                               <div className="flex flex-wrap gap-2 mt-2">
                                 {(() => {
-                                  const options =
+                                  const options: Array<[string, string]> =
                                     item.selectedOptions &&
                                     Object.keys(item.selectedOptions).length > 0
-                                      ? Object.entries(item.selectedOptions)
+                                      ? Object.entries(item.selectedOptions) as Array<[string, string]>
                                       : [
                                           item.color
-                                            ? ["Color", item.color]
+                                            ? (["Color", item.color] as [string, string])
                                             : null,
                                           item.storage
-                                            ? ["Storage", item.storage]
+                                            ? (["Storage", item.storage] as [string, string])
                                             : null,
-                                        ].filter(Boolean);
+                                        ].filter((item): item is [string, string] => item !== null);
 
                                   return options.map(([key, value]) => (
                                     <Badge

@@ -54,7 +54,7 @@ export default function AdminDashboard() {
       <div>
         <Heading level="h2">Dashboard Overview</Heading>
         <Text className="text-warm-gray-500">
-          Welcome back to your ShopHub management console.
+          Welcome back to your management console.
         </Text>
       </div>
 

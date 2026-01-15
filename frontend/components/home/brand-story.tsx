@@ -56,7 +56,7 @@ export function BrandStory() {
             {/* Tech Values */}
             <div className="space-y-6">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 font-[var(--font-inter)]">
-                Why Choose ShopHub Tech
+                Why Choose Us
               </h3>
               <div className="space-y-4 lg:space-y-6">
                 {techValues.map((value) => {
@@ -96,7 +96,7 @@ export function BrandStory() {
                 <div className="relative bg-white/80 backdrop-blur-sm rounded-lg p-6 sm:p-8 shadow-xl border border-white/30">
                   <Image
                     src="/logo.png"
-                    alt="ShopHub Logo"
+                    alt="Logo"
                     width={120}
                     height={120}
                     className="relative object-contain drop-shadow-sm"

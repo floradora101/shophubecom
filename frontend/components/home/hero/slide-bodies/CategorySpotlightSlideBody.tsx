@@ -1,17 +1,22 @@
 "use client";
 
-import { memo, useMemo } from "react";
-import { ArrowRight, Sparkles, Zap, TrendingUp, Award, Grid3x3 } from "lucide-react";
+import React, { memo, useMemo } from "react";
+import {
+  ArrowRight,
+  Sparkles,
+  Zap,
+  TrendingUp,
+  Award,
+  Grid3x3,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { SlideLayout, contentClamp } from "../shared/slide-layout";
 import { HeroItem } from "../shared/hero-item";
 import { useHeroRunCounter } from "@/lib/hooks/use-hero-run-counter";
-import { ProductCard } from "@/features/products/components/ProductCard";
 import { formatPrice } from "@/lib/utils";
 import Image from "next/image";
-import { cn } from "@/lib/utils/cn";
 import type { CategorySpotlightSlide } from "@/lib/types/heroSlides.types";
 import type { Category, Product } from "@/features/products/types";
 import { getProductImageWithPlaceholder } from "@/lib/utils/products";
@@ -34,7 +39,6 @@ export const CategorySpotlightSlideBody = memo(
     categories = [],
     productsByCategory = {},
     isActive = false,
-    index = 0,
     onMouseEnter,
     onMouseLeave,
   }: CategorySpotlightSlideBodyProps) {
@@ -83,7 +87,7 @@ export const CategorySpotlightSlideBody = memo(
                       src={getProductImageWithPlaceholder(featuredProduct)}
                       alt={featuredProduct.name}
                       fill
-                      className="object-contain p-4 sm:p-8 drop-shadow-2xl group-hover/product:scale-110 transition-transform duration-1000"
+                      className="object-contain object-center p-4 sm:p-8 drop-shadow-2xl group-hover/product:scale-110 transition-transform duration-1000"
                       sizes="(max-width: 1024px) 100vw, 40vw"
                     />
                   </div>
@@ -97,7 +101,7 @@ export const CategorySpotlightSlideBody = memo(
                       <div className="text-lg sm:text-2xl font-black text-white">
                         {formatPrice(featuredProduct.price)}
                       </div>
-                      {featuredProduct.image && (
+                      {featuredProduct.images?.[0] && (
                         <Badge variant="destructive" size="default" className="text-[8px] sm:text-xs">
                           Featured
                         </Badge>
@@ -109,7 +113,7 @@ export const CategorySpotlightSlideBody = memo(
             </div>
           ) : gridProducts.length > 0 ? (
             <div className="relative h-full w-full p-2 sm:p-4 grid grid-cols-2 gap-2 sm:gap-4">
-              {gridProducts.slice(0, 4).map((product, idx) => (
+              {gridProducts.slice(0, 4).map((product) => (
                 <div
                   key={product.id}
                   className="relative rounded-lg overflow-hidden bg-white border border-gray-200 group/product-card"

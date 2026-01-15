@@ -153,18 +153,8 @@ export async function getHomePageData(): Promise<HomePageData> {
     productsByCategory.accessories = result.accessoriesProducts;
     productsByCategory["gaming-laptops"] = result.gamingLaptopsProducts;
 
-    const productsBySlug: Record<string, Product> = [
-      ...result.phonesProducts,
-      ...result.tabletsProducts,
-      ...result.laptopsProducts,
-      ...result.wearablesProducts,
-      ...result.smartGadgetsProducts,
-      ...result.gamingConsoleProducts,
-      ...result.accessoriesProducts,
-      ...result.gamingLaptopsProducts,
-      ...result.featuredProducts,
-      ...result.trendingProducts,
-    ].reduce((acc, product) => {
+    const productsBySlug: Record<string, Product> = mockProducts.reduce((acc, p) => {
+      const product = mockProductToProduct(p);
       acc[product.slug] = product;
       return acc;
     }, {} as Record<string, Product>);
@@ -316,21 +306,11 @@ export async function getHomePageData(): Promise<HomePageData> {
   productsByCategory.accessories = data.accessoriesProducts;
   productsByCategory["gaming-laptops"] = data.gamingLaptopsProducts;
 
-  const productsBySlug: Record<string, Product> = [
-    ...data.phonesProducts,
-    ...data.tabletsProducts,
-    ...data.laptopsProducts,
-    ...data.wearablesProducts,
-    ...data.smartGadgetsProducts,
-    ...data.gamingConsoleProducts,
-    ...data.accessoriesProducts,
-    ...data.gamingLaptopsProducts,
-    ...data.featuredProducts,
-    ...data.trendingProducts,
-  ].reduce((acc, product) => {
-    acc[product.slug] = product;
-    return acc;
-  }, {} as Record<string, Product>);
+  const productsBySlug: Record<string, Product> = {};
+  mockProducts.forEach((p) => {
+    const product = mockProductToProduct(p);
+    productsBySlug[product.slug] = product;
+  });
 
   return {
     ...result,

@@ -60,6 +60,20 @@ export interface MockCoupon {
   createdAt: string;
 }
 
+export interface MockPromotion {
+  id: string;
+  name: string;
+  description: string;
+  type: "PERCENTAGE" | "FIXED_AMOUNT";
+  value: number;
+  startsAt?: string;
+  expiresAt?: string;
+  isActive: boolean;
+  createdAt: string;
+  productIds?: string[];
+  categoryIds?: string[];
+}
+
 // Utility to convert MockCategory to full Category interface
 export function mockCategoryToCategory(
   mock: MockCategory
@@ -626,6 +640,45 @@ export const mockCoupons: MockCoupon[] = [
     usedCount: 890,
     isActive: true,
     createdAt: "2025-01-01T00:00:00.000Z",
+  },
+];
+
+export const mockPromotions: MockPromotion[] = [
+  {
+    id: "promo-1",
+    name: "Summer Clearance 2024",
+    description: "Get 20% off on all phones and accessories",
+    type: "PERCENTAGE",
+    value: 20,
+    startsAt: "2024-06-01T00:00:00.000Z",
+    expiresAt: "2024-08-31T23:59:59.000Z",
+    isActive: true,
+    createdAt: "2024-05-15T10:00:00.000Z",
+    categoryIds: ["phones", "accessories"],
+  },
+  {
+    id: "promo-2",
+    name: "Back to School Laptop Deal",
+    description: "$100 off on select business laptops",
+    type: "FIXED_AMOUNT",
+    value: 100,
+    startsAt: "2024-08-01T00:00:00.000Z",
+    expiresAt: "2024-09-15T23:59:59.000Z",
+    isActive: true,
+    createdAt: "2024-07-20T14:30:00.000Z",
+    productIds: ["dell-xps-13", "hp-spectre-x360-14"],
+  },
+  {
+    id: "promo-3",
+    name: "Holiday Gaming Bonanza",
+    description: "15% off all gaming consoles and controllers",
+    type: "PERCENTAGE",
+    value: 15,
+    startsAt: "2024-12-01T00:00:00.000Z",
+    expiresAt: "2024-12-31T23:59:59.000Z",
+    isActive: false,
+    createdAt: "2024-11-10T09:00:00.000Z",
+    categoryIds: ["gaming-console"],
   },
 ];
 
@@ -1856,4 +1909,8 @@ export function getAllCategories(): MockCategory[] {
 
 export function getAllCoupons(): MockCoupon[] {
   return mockCoupons;
+}
+
+export function getAllPromotions(): MockPromotion[] {
+  return mockPromotions;
 }

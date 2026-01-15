@@ -4,7 +4,7 @@ import React from "react";
 import { AdminSidebar } from "./_components/AdminSidebar";
 import { useSidebarStore } from "@/store/sidebar-store";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { Menu, Search, Bell, User } from "lucide-react";
+import { Menu, Bell, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Heading } from "@/components/ui/typography";
 
@@ -42,10 +42,6 @@ export default function AdminLayout({
             >
               <Menu className="w-5 h-5 text-warm-gray-600" />
             </Button>
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-warm-gray-50 rounded-lg border border-warm-gray-100 text-warm-gray-400">
-              <Search className="w-4 h-4" />
-              <span className="text-xs">Quick search...</span>
-            </div>
           </div>
 
           <div className="flex items-center gap-2 md:gap-4">

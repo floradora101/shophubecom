@@ -57,7 +57,7 @@ export default function HeroSlidesAdminPage() {
 
   const filteredSlides = useMemo(() => {
     let result = slides.filter(s => {
-      const headline = s.headline || ("content" in s ? s.content?.headline : "") || "";
+      const headline = ("content" in s ? s.content?.headline : s.headline) || "";
       const id = s.id || "";
       return (
         headline.toLowerCase().includes(search.toLowerCase()) ||
@@ -96,6 +96,8 @@ export default function HeroSlidesAdminPage() {
   const getSlideThumbnail = (slide: any) => {
     if (slide.media?.imageUrl) return slide.media.imageUrl;
     if (slide.media?.kind === "product") return "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100&h=100&fit=crop";
+    if (slide.type === "CATEGORY_SPOTLIGHT") return "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=100&h=100&fit=crop";
+    if (slide.type === "EDITORS_PICK") return "https://images.unsplash.com/photo-1456324504439-367cee3b3c32?w=100&h=100&fit=crop";
     return null;
   };
 
@@ -151,6 +153,8 @@ export default function HeroSlidesAdminPage() {
                   <DropdownMenuRadioItem value="OFFER" className="rounded-lg cursor-pointer py-2.5">Offer</DropdownMenuRadioItem>
                   <DropdownMenuRadioItem value="TESTIMONIAL" className="rounded-lg cursor-pointer py-2.5">Testimonial</DropdownMenuRadioItem>
                   <DropdownMenuRadioItem value="LANDSCAPE_IMAGE" className="rounded-lg cursor-pointer py-2.5">Landscape Image</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="CATEGORY_SPOTLIGHT" className="rounded-lg cursor-pointer py-2.5">Category Spotlight</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="EDITORS_PICK" className="rounded-lg cursor-pointer py-2.5">Editor&apos;s Pick</DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -233,7 +237,7 @@ export default function HeroSlidesAdminPage() {
               </div>
 
               {filteredSlides.map((slide) => {
-                const headline = slide.headline || ("content" in slide ? slide.content?.headline : "") || "Untitled Slide";
+                const headline = ("content" in slide ? slide.content?.headline : slide.headline) || "Untitled Slide";
                 const thumbnail = getSlideThumbnail(slide);
 
                 return (
@@ -337,7 +341,7 @@ export default function HeroSlidesAdminPage() {
             /* Grid View */
             <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredSlides.map((slide) => {
-                const headline = slide.headline || ("content" in slide ? slide.content?.headline : "") || "Untitled Slide";
+                const headline = ("content" in slide ? slide.content?.headline : slide.headline) || "Untitled Slide";
                 const thumbnail = getSlideThumbnail(slide);
 
                 return (

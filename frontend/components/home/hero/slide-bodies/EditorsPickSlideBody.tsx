@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useMemo } from "react";
-import { ArrowRight, Sparkles, Star, Award, User, Quote } from "lucide-react";
+import { ArrowRight, Sparkles, Star, Award, User, Quote, Truck, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -31,7 +31,6 @@ export const EditorsPickSlideBody = memo(function EditorsPickSlideBody({
   products = [],
   productsBySlug,
   isActive = false,
-  index = 0,
   onMouseEnter,
   onMouseLeave,
 }: EditorsPickSlideBodyProps) {
@@ -89,7 +88,7 @@ export const EditorsPickSlideBody = memo(function EditorsPickSlideBody({
                       src={getProductImageWithPlaceholder(editorProducts[0])}
                       alt={editorProducts[0].name}
                       fill
-                      className="object-contain p-4 sm:p-8 drop-shadow-2xl group-hover/product:scale-110 transition-transform duration-1000"
+                      className="object-contain object-center p-4 sm:p-8 drop-shadow-2xl group-hover/product:scale-110 transition-transform duration-1000"
                       sizes="(max-width: 1024px) 100vw, 40vw"
                     />
                   </div>
@@ -153,7 +152,7 @@ export const EditorsPickSlideBody = memo(function EditorsPickSlideBody({
                         src={getProductImageWithPlaceholder(product)}
                         alt={product.name}
                         fill
-                        className="object-contain p-2 sm:p-4 group-hover/product-card:scale-110 transition-transform duration-500"
+                        className="object-contain object-center p-2 sm:p-4 group-hover/product-card:scale-110 transition-transform duration-500"
                         sizes="(max-width: 1024px) 50vw, 20vw"
                       />
                     </div>
@@ -211,28 +210,30 @@ export const EditorsPickSlideBody = memo(function EditorsPickSlideBody({
           <>
             {/* Row 1: Themed Badge */}
             <HeroItem run={run} animationKey={animationKey}>
-              <div className="hero-item-enter hero-badge w-fit max-w-full">
+              <div className="hero-item-enter hero-badge">
                 <Badge
                   variant="primary"
                   size="default"
-                  className="mt-1 sm:mt-4 px-2 py-0 h-5 sm:h-auto"
+                  className="mt-2 sm:mt-4"
                 >
-                  <Sparkles className="h-3 w-3 shrink-0" />
-                  <span className="truncate text-[10px] sm:text-xs">
-                    {slide.badgeText || "Editor's Pick"}
-                  </span>
+                  <Sparkles className="h-3.5 w-3.5" />
+                  {slide.badgeText || "Editor's Pick"}
                 </Badge>
               </div>
             </HeroItem>
 
             {/* Row 2: Headline */}
             <HeroItem run={run} animationKey={animationKey}>
-              <div className="hero-item-enter hero-headline mt-0.5 transition-transform duration-700 group-hover:translate-x-2 w-full max-w-full min-w-0">
-                <h1 className="text-lg xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-tighter text-gray-900 wrap-break-word">
+              <div className="hero-item-enter hero-headline mt-1.5 transition-transform duration-700 group-hover:translate-x-2">
+                <h1
+                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black leading-[1.1] md:leading-none tracking-tighter text-gray-900 mb-0.5 md:mb-1"
+                >
                   {slide.headline}
                 </h1>
                 {slide.highlight && (
-                  <h2 className="text-lg xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-light leading-tight tracking-tight italic text-red-600 wrap-break-word">
+                  <h2
+                    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light leading-[1.1] md:leading-none tracking-tight italic text-red-600 mb-3 md:mb-4"
+                  >
                     {slide.highlight}
                   </h2>
                 )}
@@ -242,7 +243,7 @@ export const EditorsPickSlideBody = memo(function EditorsPickSlideBody({
             {/* Row 3: Description */}
             <HeroItem run={run} animationKey={animationKey}>
               <p
-                className={`text-[10px] sm:text-sm md:text-base lg:text-lg leading-snug font-medium mt-0.5 hero-item-enter hero-description ${contentClamp.description} text-warm-gray-500 line-clamp-2 sm:line-clamp-none w-full max-w-full`}
+                className={`text-sm md:text-base lg:text-lg leading-relaxed font-medium mt-1 hero-item-enter hero-description ${contentClamp.description} text-warm-gray-500`}
               >
                 {slide.description}
               </p>
@@ -250,20 +251,20 @@ export const EditorsPickSlideBody = memo(function EditorsPickSlideBody({
 
             {/* Row 4: Editor Note & Product Stats */}
             <HeroItem run={run} animationKey={animationKey}>
-              <div className="w-[calc(100%-4px)] mx-auto lg:mx-0 lg:w-full max-w-full min-w-0 space-y-1 mt-1 md:mt-3 hero-item-enter hero-description bg-white/40 backdrop-blur-md p-1.5 md:p-4 rounded-lg border border-red-600/5 shadow-sm transition-all duration-500 group-hover:bg-white/60 group-hover:shadow-md">
-                <div className="space-y-2 min-w-0">
+              <div className="space-y-3 mt-4 hero-item-enter hero-description bg-white/40 backdrop-blur-md p-4 rounded-lg border border-red-600/5 shadow-sm transition-all duration-500 hover:bg-white/60 hover:shadow-md">
+                <div className="space-y-3 min-w-0">
                   {/* Editor Note */}
                   {slide.editorNote && (
-                    <div className="space-y-1 border-b border-red-600/5 pb-2">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <User className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-red-600 shrink-0" />
-                        <div className="text-[7px] sm:text-[9px] font-black text-gray-500 uppercase tracking-widest">
+                    <div className="space-y-2 border-b border-red-600/5 pb-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <User className="h-3.5 w-3.5 text-red-600 shrink-0" />
+                        <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
                           Editor's Note
                         </div>
                       </div>
-                      <div className="flex items-start gap-1.5">
-                        <Quote className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-red-600/60 shrink-0 mt-0.5" />
-                        <p className="text-[8px] sm:text-xs md:text-sm font-medium text-gray-700 italic leading-snug">
+                      <div className="flex items-start gap-2">
+                        <Quote className="h-4 w-4 text-red-600/20 shrink-0 mt-0.5" />
+                        <p className="text-sm font-medium text-gray-700 italic leading-relaxed">
                           {slide.editorNote}
                         </p>
                       </div>
@@ -272,7 +273,7 @@ export const EditorsPickSlideBody = memo(function EditorsPickSlideBody({
 
                   {/* Product Stats */}
                   {editorProducts.length > 0 && (
-                    <div className="grid grid-cols-3 gap-1 sm:gap-2">
+                    <div className="grid grid-cols-3 gap-4">
                       {[
                         {
                           icon: Star,
@@ -292,13 +293,15 @@ export const EditorsPickSlideBody = memo(function EditorsPickSlideBody({
                       ].map((stat, i) => (
                         <div
                           key={i}
-                          className="space-y-0.5 sm:space-y-1 min-w-0"
+                          className="min-w-0"
                         >
-                          <stat.icon className="h-2 w-2 sm:h-3 sm:w-3 text-red-600" />
-                          <div className="text-[6px] sm:text-[8px] font-black text-gray-500 uppercase tracking-widest truncate">
-                            {stat.label}
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <stat.icon className="h-3.5 w-3.5 text-red-600" />
+                            <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest truncate">
+                              {stat.label}
+                            </span>
                           </div>
-                          <div className="text-[7px] sm:text-xs font-bold text-gray-900 truncate">
+                          <div className="text-xs sm:text-sm font-black text-gray-900 truncate">
                             {stat.value}
                           </div>
                         </div>
@@ -311,7 +314,7 @@ export const EditorsPickSlideBody = memo(function EditorsPickSlideBody({
 
             {/* Row 5: CTAs */}
             <HeroItem run={run} animationKey={animationKey}>
-              <div className="flex flex-row gap-1.5 mt-1.5 md:mt-4 justify-center lg:justify-start hero-item-enter hero-buttons text-gray-900">
+              <div className="flex flex-row gap-3 mt-6 justify-center lg:justify-start hero-item-enter hero-buttons text-gray-900">
                 <Link
                   href={slide.ctaPrimary.href}
                   onMouseEnter={onMouseEnter}
@@ -319,11 +322,11 @@ export const EditorsPickSlideBody = memo(function EditorsPickSlideBody({
                 >
                   <Button
                     size="hero"
-                    className="bg-red-600 hover:bg-red-700 text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all px-2.5 sm:px-6 h-7 sm:h-12"
+                    className="bg-red-600 hover:bg-red-700 text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all px-6 h-11 md:h-12"
                   >
-                    <span className="flex items-center gap-1 font-black uppercase tracking-wider text-[9px] sm:text-sm md:text-base">
+                    <span className="flex items-center gap-1 font-black uppercase tracking-wider text-sm md:text-base">
                       {slide.ctaPrimary.label}
-                      <ArrowRight className="h-2.5 w-2.5 md:h-5 md:w-5 transition-transform group-hover:translate-x-1" />
+                      <ArrowRight className="h-4 w-4 md:h-5 md:w-5 transition-transform group-hover:translate-x-1" />
                     </span>
                   </Button>
                 </Link>
@@ -335,7 +338,7 @@ export const EditorsPickSlideBody = memo(function EditorsPickSlideBody({
                   >
                     <Button
                       size="hero"
-                      className="bg-white text-red-600 hover:bg-red-600 hover:text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all duration-500 px-2.5 sm:px-6 h-7 sm:h-12 font-black uppercase tracking-wider text-[9px] sm:text-sm md:text-base"
+                      className="bg-white text-red-600 hover:bg-red-600 hover:text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all duration-500 px-6 h-11 md:h-12 font-black uppercase tracking-wider text-sm md:text-base"
                     >
                       {slide.ctaSecondary.label}
                     </Button>
@@ -346,12 +349,12 @@ export const EditorsPickSlideBody = memo(function EditorsPickSlideBody({
 
             {/* Row 6: Enhanced Trust Row */}
             <HeroItem run={run} animationKey={animationKey}>
-              <div className="hidden sm:block hero-item-enter hero-description pt-1.5 mt-1.5 border-t border-red-600/5">
-                <div className="flex flex-nowrap items-center gap-4 overflow-x-auto">
+              <div className="hero-item-enter hero-description pt-4 mt-4 border-t border-red-600/5">
+                <div className="flex flex-nowrap items-center gap-6 overflow-x-auto">
                   {[
                     { icon: Star, text: "Staff Favorite" },
-                    { icon: Award, text: "Expert Curated" },
-                    { icon: Sparkles, text: "Top Quality" },
+                    { icon: Truck, text: "Fast Shipping" },
+                    { icon: RotateCcw, text: "30D Returns" },
                   ].map((item, index) => (
                     <div
                       key={index}

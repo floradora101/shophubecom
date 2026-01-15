@@ -15,6 +15,7 @@ interface NavigationButtonProps {
   className?: string;
   size?: "sm" | "default" | "lg";
   "aria-label"?: string;
+  disabled?: boolean;
 }
 
 export function NavigationButton({
@@ -27,6 +28,7 @@ export function NavigationButton({
   className,
   size = "default",
   "aria-label": ariaLabel,
+  disabled,
 }: NavigationButtonProps) {
   const getIcon = () => {
     switch (direction) {
@@ -67,6 +69,7 @@ export function NavigationButton({
         className
       )}
       aria-label={ariaLabel}
+      disabled={disabled}
     >
       {getIcon()}
     </Button>

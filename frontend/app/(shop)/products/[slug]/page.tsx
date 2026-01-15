@@ -23,7 +23,7 @@ export async function generateMetadata({
       title: product.name,
       description:
         product.description ||
-        `Shop ${product.name} at ShopHub. ${
+        `Shop ${product.name} at MegaStore. ${
           product.price ? `Price: $${product.price}` : ""
         }`,
       openGraph: {

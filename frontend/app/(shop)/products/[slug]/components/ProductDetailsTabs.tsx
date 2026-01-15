@@ -99,7 +99,10 @@ function ReviewCard({ review }: { review: Review }) {
                   {review.userName}
                 </span>
                 {review.verified && (
-                  <Badge variant="success" className="bg-emerald-500/10 text-emerald-600 border-none text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0 font-bold">
+                  <Badge
+                    variant="success"
+                    className="bg-emerald-500/10 text-emerald-600 border-none text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0 font-bold"
+                  >
                     <CheckCircle className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-1" />
                     Verified
                   </Badge>
@@ -166,7 +169,7 @@ function ReviewCard({ review }: { review: Review }) {
 // Reviews Summary Component
 function ReviewsSummary({ stats }: { stats: ReviewStats }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-12 mb-10 sm:mb-16 items-center bg-surface-muted/30 rounded-2xl p-6 sm:p-0 sm:bg-transparent">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-12 mb-10 sm:mb-16 items-center bg-surface-muted/30 rounded-lg p-6 sm:p-0 sm:bg-transparent">
       {/* Overall Rating Section */}
       <div className="flex flex-col items-center justify-center py-4 sm:py-10">
         <div className="text-center space-y-4 sm:space-y-6">
@@ -205,9 +208,14 @@ function ReviewsSummary({ stats }: { stats: ReviewStats }) {
               ];
             const percentage = (count / stats.totalReviews) * 100;
             return (
-              <div key={rating} className="flex items-center gap-3 sm:gap-4 group">
+              <div
+                key={rating}
+                className="flex items-center gap-3 sm:gap-4 group"
+              >
                 <div className="flex items-center gap-1 min-w-[45px] sm:min-w-[55px]">
-                  <span className="text-[10px] sm:text-xs font-bold">{rating}</span>
+                  <span className="text-[10px] sm:text-xs font-bold">
+                    {rating}
+                  </span>
                   <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3 fill-primary-500 text-primary-500 transition-transform group-hover:scale-125" />
                 </div>
                 <div className="flex-1 h-1 sm:h-1.5 bg-surface-muted sm:bg-border/20 rounded-full overflow-hidden">
@@ -472,12 +480,6 @@ function DescriptionTab({ product }: { product: Product }) {
   return (
     <div className="relative">
       <div className="space-y-10">
-        <div className="flex items-center gap-4 mb-2">
-          <h4 className="text-xl sm:text-2xl font-display font-bold text-fg tracking-tight">
-            Design & Features
-          </h4>
-        </div>
-
         <div className="prose prose-slate prose-sm md:prose-base max-w-none">
           <p className="text-muted-fg leading-relaxed whitespace-pre-line text-sm sm:text-base">
             {description}
@@ -537,14 +539,15 @@ export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
   const tabs: TabItem[] = useMemo(() => {
     const tabItems: TabItem[] = [];
 
-    // Specifications Tab - NEVER show on xl+ screens (specs are shown separately)
-    // Only show on screens smaller than xl breakpoint
-    if (product.specs && product.specs.length > 0 && !isLargeScreen) {
+    // Specifications Tab - Always include but hide on xl+ screens using CSS
+    // This prevents hydration mismatch issues
+    if (product.specs && product.specs.length > 0) {
       tabItems.push({
         id: "specifications",
         label: isMobile ? "Specs" : "Specifications",
         icon: isMobile ? null : <Settings className="h-4 w-4" />,
         content: <SpecificationsTab product={product} />,
+        hiddenOnLarge: true, // Hide on xl+ screens using CSS
       });
     }
 
@@ -568,7 +571,7 @@ export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
     });
 
     return tabItems;
-  }, [product, isLargeScreen, isMobile]);
+  }, [product, isMobile]);
 
   if (tabs.length === 0) {
     return (
@@ -584,11 +587,18 @@ export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
     );
   }
 
+  // Determine default tab - prefer description, then reviews, never specs
+  const defaultTab = useMemo(() => {
+    if (product.description) return "description";
+    return "reviews";
+  }, [product.description]);
+
   return (
     <div className="w-full">
       {/* Responsive tab sizing: smaller on mobile, larger on big screens */}
       <Tabs
         tabs={tabs}
+        defaultTab={defaultTab}
         variant="pill"
         size={isLargeScreen ? "lg" : isMobile ? "sm" : "md"}
         className="transition-all duration-300"

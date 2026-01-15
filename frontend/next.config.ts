@@ -1,5 +1,10 @@
 import type { NextConfig } from "next";
 
+// Bundle analyzer configuration
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
+});
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -71,6 +76,16 @@ const nextConfig: NextConfig = {
     return config;
   },
   transpilePackages: ["@uploadthing/react", "@uploadthing/shared"],
+
+  // Optimize bundle splitting
+  experimental: {
+    optimizePackageImports: [
+      "lucide-react",
+      "@radix-ui/react-navigation-menu",
+      "@radix-ui/react-dialog",
+      "@radix-ui/react-popover",
+    ],
+  },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

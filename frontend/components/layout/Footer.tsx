@@ -38,10 +38,34 @@ export function Footer() {
   // Accordion state for mobile
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
-  // Get categories from data layer
+  // Get categories from data layer - deferred loading for performance
+  // Footer categories are non-critical, so we load them after page is interactive
   const [mainCategories, setMainCategories] = useState<Category[]>([]);
+
   useEffect(() => {
-    getMainCategories().then(setMainCategories).catch(console.error);
+    // Defer loading until after page is interactive (reduces initial API calls)
+    // Use requestIdleCallback if available, otherwise fallback to setTimeout
+    const loadCategories = () => {
+      getMainCategories()
+        .then(setMainCategories)
+        .catch((error) => {
+          // Silent error handling for mock environments
+          if (process.env.NEXT_PUBLIC_USE_MOCKS !== "false") {
+            // Silently ignore expected errors in mock mode
+          } else {
+            console.error("Failed to load categories:", error);
+          }
+        });
+    };
+
+    if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+      // Use requestIdleCallback to defer until browser is idle
+      requestIdleCallback(loadCategories, { timeout: 2000 });
+    } else {
+      // Fallback: defer by 100ms to allow critical resources to load first
+      const timeoutId = setTimeout(loadCategories, 100);
+      return () => clearTimeout(timeoutId);
+    }
   }, []);
 
   const toggleSection = (section: string) => {
@@ -110,8 +134,8 @@ export function Footer() {
                   onSubmit={handleNewsletterSubmit}
                   className="relative group"
                 >
-                  <div className="absolute -inset-1 bg-linear-to-r from-primary-600/50 to-primary-800/50 rounded-2xl blur opacity-25 group-focus-within:opacity-50 transition duration-1000 group-hover:duration-200"></div>
-                  <div className="relative flex flex-col sm:flex-row gap-3 p-2 bg-gray-800/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl">
+                  <div className="absolute -inset-1 bg-linear-to-r from-primary-600/50 to-primary-800/50 rounded-lg blur opacity-25 group-focus-within:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                  <div className="relative flex flex-col sm:flex-row gap-3 p-2 bg-gray-800/80 backdrop-blur-xl border border-white/10 rounded-lg shadow-2xl">
                     <div className="flex-1 relative">
                       <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
                         <Mail className="h-5 w-5" />
@@ -166,7 +190,7 @@ export function Footer() {
                     key={i}
                     className="flex flex-col items-center gap-3 group cursor-default"
                   >
-                    <div className="bg-gray-800/50 p-3 rounded-2xl border border-white/5 transition-all duration-300 group-hover:border-primary-600/50 group-hover:bg-primary-600/5">
+                    <div className="bg-gray-800/50 p-3 rounded-lg border border-white/5 transition-all duration-300 group-hover:border-primary-600/50 group-hover:bg-primary-600/5">
                       <item.icon className="h-6 w-6 text-gray-400 group-hover:text-primary-500 transition-colors" />
                     </div>
                     <span className="text-sm font-semibold text-gray-400 group-hover:text-white transition-colors uppercase tracking-wider">
@@ -188,7 +212,7 @@ export function Footer() {
             <div className="flex items-center justify-center h-16 mb-5">
               <Image
                 src="/logo.png"
-                alt="ShopHub Logo"
+                alt="Logo"
                 width={120}
                 height={120}
                 className="object-contain hover:opacity-90 transition-opacity duration-200"
@@ -637,7 +661,7 @@ export function Footer() {
             )}
           >
             <p className="text-sm text-gray-700 text-center md:text-left">
-              &copy; {new Date().getFullYear()} ShopHub. All rights reserved.
+              &copy; {new Date().getFullYear()} All rights reserved.
             </p>
             <div
               className={cn(

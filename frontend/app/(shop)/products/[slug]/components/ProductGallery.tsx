@@ -120,8 +120,10 @@ export function ProductGallery({
 
   if (images.length === 0) {
     return (
-      <div className="aspect-[4/5] rounded-[2rem] bg-surface-muted/30 flex items-center justify-center border border-dashed border-border">
-        <span className="text-muted-fg text-sm font-medium">No image available</span>
+      <div className="aspect-[4/5] rounded-lg bg-surface-muted/30 flex items-center justify-center border border-dashed border-border">
+        <span className="text-muted-fg text-sm font-medium">
+          No image available
+        </span>
       </div>
     );
   }
@@ -136,7 +138,7 @@ export function ProductGallery({
               <button
                 key={`${image}-${index}`}
                 onClick={() => handleThumbnailClick(index)}
-                className={`relative w-16 h-16 xl:w-20 xl:h-20 rounded-xl border-2 overflow-hidden transition-all duration-300 ${
+                className={`relative w-16 h-16 xl:w-20 xl:h-20 rounded-lg border-2 overflow-hidden transition-all duration-300 ${
                   index === activeIndex
                     ? "border-primary ring-2 ring-primary/10 shadow-md scale-105 z-10"
                     : "border-transparent hover:border-border-hover bg-surface-muted/50"
@@ -161,7 +163,7 @@ export function ProductGallery({
           {/* Sliding Image Carousel */}
           <div
             ref={containerRef}
-            className="relative w-full aspect-[4/5] max-w-[520px] mx-auto sm:max-w-none max-h-none sm:max-h-[750px] lg:max-h-[800px] xl:max-h-[850px] rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden group cursor-grab active:cursor-grabbing transition-all duration-500"
+            className="relative w-full aspect-[4/5] max-w-[520px] mx-auto sm:max-w-none max-h-none sm:max-h-[750px] lg:max-h-[800px] xl:max-h-[850px] rounded-lg overflow-hidden group cursor-grab active:cursor-grabbing transition-all duration-500"
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
@@ -175,10 +177,15 @@ export function ProductGallery({
               }}
             >
               {images.map((image, index) => (
-                <div key={index} className="shrink-0 w-full h-full relative overflow-hidden flex items-center justify-center">
+                <div
+                  key={index}
+                  className="shrink-0 w-full h-full relative overflow-hidden flex items-center justify-center"
+                >
                   <div
                     className={`relative w-full h-full p-6 sm:p-10 md:p-14 transition-transform duration-500 ease-out ${
-                      index === activeIndex && zoomState.show ? "scale-150 sm:scale-[2.5]" : "scale-100"
+                      index === activeIndex && zoomState.show
+                        ? "scale-150 sm:scale-[2.5]"
+                        : "scale-100"
                     }`}
                     style={
                       index === activeIndex && zoomState.show
@@ -216,10 +223,14 @@ export function ProductGallery({
                 className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-surface/90 backdrop-blur-sm border border-black/5 flex items-center justify-center transition-all duration-200 shadow-sm ${
                   favorite ? "text-red-500" : "text-fg hover:text-red-500"
                 }`}
-                aria-label={favorite ? "Remove from favorites" : "Add to favorites"}
+                aria-label={
+                  favorite ? "Remove from favorites" : "Add to favorites"
+                }
               >
                 <Heart
-                  className={`h-4 w-4 sm:h-5 sm:w-5 ${favorite ? "fill-current" : ""}`}
+                  className={`h-4 w-4 sm:h-5 sm:w-5 ${
+                    favorite ? "fill-current" : ""
+                  }`}
                 />
               </button>
             </div>
@@ -291,7 +302,7 @@ export function ProductGallery({
                 <button
                   key={`${image}-${index}`}
                   onClick={() => handleThumbnailClick(index)}
-                  className={`relative shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-2 overflow-hidden transition-all duration-300 ${
+                  className={`relative shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg border-2 overflow-hidden transition-all duration-300 ${
                     index === activeIndex
                       ? "border-primary ring-2 ring-primary/10 shadow-md scale-110 z-10"
                       : "border-transparent bg-surface-muted/50 hover:border-border-hover"

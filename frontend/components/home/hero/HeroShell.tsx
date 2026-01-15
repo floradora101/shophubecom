@@ -6,10 +6,12 @@ import {
   useRef,
   useCallback,
   useLayoutEffect,
+  useMemo,
 } from "react";
 import { NavigationButton } from "@/components/ui/navigation-button";
 import { SkeletonBlock } from "@/components/ui/skeleton";
 import { SlideIndicators } from "../shared/slide-indicators";
+import { SlideCounter } from "./shared/slide-counter";
 import { SlideBodyRenderer } from "./SlideBodyRenderer";
 import { usePrefersReducedMotion } from "@/lib/hooks/usePrefersReducedMotion";
 import { useSwipe } from "@/lib/hooks/useSwipe";
@@ -136,6 +138,7 @@ export function HeroShell({
   const [isPlaying, setIsPlaying] = useState(autoplay);
   const [isVisible, setIsVisible] = useState(true);
   const [isHovering, setIsHovering] = useState(false);
+  const [renderedSlidesCount, setRenderedSlidesCount] = useState(3); // Start with 3 slides
 
   // Refs for autoplay management and slide tracking
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -275,7 +278,17 @@ export function HeroShell({
   }px, 0, 0)`;
 
   // Screen reader announcement for slide changes
-  const currentSlideTitle = processedSlides[currentSlide]?.headline || "";
+  // Get slide title safely across different slide types
+  const getSlideTitle = (slide: HeroSlide): string => {
+    if ("headline" in slide) return slide.headline;
+    if ("content" in slide && slide.content?.headline)
+      return slide.content.headline;
+    return slide.type;
+  };
+
+  const currentSlideTitle = processedSlides[currentSlide]
+    ? getSlideTitle(processedSlides[currentSlide])
+    : "";
   const liveRegionText = `Slide ${currentSlide + 1} of ${
     processedSlides.length
   }: ${currentSlideTitle}`;
@@ -323,9 +336,41 @@ export function HeroShell({
     onSwipeRight: prevSlide,
   });
 
-  // Render all slides to enable animations when slides become active
-  // Note: Hero slides are typically lightweight (images + text) so rendering all is acceptable
-  const slidesToRender = processedSlides.map((_, i) => i);
+  // Progressive loading: render first few slides immediately, load more on demand
+  const slidesToRender = useMemo(() => {
+    const maxSlides = Math.min(renderedSlidesCount, processedSlides.length);
+    return processedSlides.slice(0, maxSlides).map((_, i) => i);
+  }, [processedSlides, renderedSlidesCount]);
+
+  // Intersection Observer for progressive loading
+  const loadMoreTriggerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (
+          entry.isIntersecting &&
+          renderedSlidesCount < processedSlides.length
+        ) {
+          // Load 2 more slides when user approaches the end
+          setRenderedSlidesCount((prev) =>
+            Math.min(prev + 2, processedSlides.length)
+          );
+        }
+      },
+      {
+        rootMargin: "100px", // Trigger 100px before reaching the element
+        threshold: 0.1,
+      }
+    );
+
+    if (loadMoreTriggerRef.current) {
+      observer.observe(loadMoreTriggerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [renderedSlidesCount, processedSlides.length]);
 
   // Hover handlers for autoplay pause
   const handleMouseEnter = useCallback(() => setIsHovering(true), []);
@@ -358,10 +403,6 @@ export function HeroShell({
   // Early return for empty slides - must be after all hooks
   if (!rawSlides || rawSlides.length === 0) return null;
 
-  // Define currentSlideData early for use in effects
-  const currentSlideData =
-    processedSlides.length > 0 ? processedSlides[currentSlide] : null;
-
   return (
     <div className="relative overflow-hidden overflow-x-hidden">
       {/* Transparent container - blends with global background */}
@@ -379,6 +420,20 @@ export function HeroShell({
             tabIndex={0}
             onKeyDown={handleKeyDown}
           >
+            {/* Slide Counter - Top Left */}
+            {processedSlides.length > 1 && (
+              <div
+                className="absolute top-4 sm:top-6 lg:top-8 left-4 sm:left-6 lg:left-8 z-30"
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                <SlideCounter
+                  currentIndex={currentSlide}
+                  totalSlides={processedSlides.length}
+                />
+              </div>
+            )}
+
             {/* Floating Background */}
             <div className="absolute inset-0 -z-10">
               {floatingPositions.map((pos, i) => (
@@ -438,9 +493,28 @@ export function HeroShell({
               </div>
             </div>
 
+            {/* Progressive loading trigger - invisible element that triggers loading more slides */}
+            {renderedSlidesCount < processedSlides.length && (
+              <div
+                ref={loadMoreTriggerRef}
+                className="sr-only"
+                aria-label={`Loading ${Math.min(
+                  2,
+                  processedSlides.length - renderedSlidesCount
+                )} more slides`}
+                aria-busy="true"
+              />
+            )}
+
             {/* Screen reader live region for slide announcements */}
             <div aria-live="polite" aria-atomic="true" className="sr-only">
               {liveRegionText}
+              {renderedSlidesCount < processedSlides.length && (
+                <div aria-live="polite">
+                  Loading additional slides... {renderedSlidesCount} of{" "}
+                  {processedSlides.length} slides loaded.
+                </div>
+              )}
             </div>
 
             {processedSlides.length > 1 && (

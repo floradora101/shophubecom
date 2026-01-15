@@ -92,17 +92,17 @@ function ServiceCard({
 
   return (
     <div
-      className="group relative bg-gray-800/40 backdrop-blur-md rounded-2xl p-6 sm:p-8 border border-white/5 hover:border-primary-500/30 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary-900/20 overflow-hidden flex flex-col h-full"
+      className="group relative bg-gray-800/40 backdrop-blur-md rounded-lg p-6 sm:p-8 border border-white/5 hover:border-primary-500/30 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary-900/20 overflow-hidden flex flex-col h-full"
       style={{
         animationDelay: `${index * 150}ms`,
       }}
     >
       {/* Subtle Hover Glow - Consistent with website cards */}
-      <div className="absolute -inset-1 bg-linear-to-r from-primary-600/10 to-transparent rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute -inset-1 bg-linear-to-r from-primary-600/10 to-transparent rounded-lg blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
       {/* Tech Icon Section - Simplified & Consistent */}
       <div className="relative mb-6">
-        <div className="inline-flex items-center justify-center p-4 rounded-2xl bg-gray-900/50 border border-white/5 group-hover:border-primary-500/50 group-hover:bg-primary-600/5 transition-all duration-500 shadow-xl">
+        <div className="inline-flex items-center justify-center p-4 rounded-lg bg-gray-900/50 border border-white/5 group-hover:border-primary-500/50 group-hover:bg-primary-600/5 transition-all duration-500 shadow-xl">
           <Icon
             className={`h-8 w-8 sm:h-10 sm:w-10 ${service.accentColor} transition-transform duration-500 group-hover:scale-110`}
           />
@@ -274,11 +274,11 @@ export function ServiceShowcaseSkeleton() {
             {Array.from({ length: 4 }, (_, i) => (
               <div
                 key={i}
-                className="bg-gray-800/40 backdrop-blur-md rounded-2xl p-8 border border-white/5 min-h-[400px] flex flex-col relative overflow-hidden"
+                className="bg-gray-800/40 backdrop-blur-md rounded-lg p-8 border border-white/5 min-h-[400px] flex flex-col relative overflow-hidden"
               >
                 {/* Icon placeholder */}
                 <div className="mb-6">
-                  <SkeletonBlock className="w-16 h-16 rounded-2xl" />
+                  <SkeletonBlock className="w-16 h-16 rounded-lg" />
                 </div>
 
                 {/* Content skeleton */}

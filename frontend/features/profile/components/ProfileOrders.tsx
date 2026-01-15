@@ -103,7 +103,7 @@ export function ProfileOrders() {
           <p className="text-muted-fg text-sm font-medium">Looks like you haven't placed any orders. Start exploring our collection!</p>
         </div>
         <Link href="/products" passHref>
-          <Button variant="primary" className="font-bold uppercase tracking-widest text-xs px-8">
+          <Button variant="default" className="font-bold uppercase tracking-widest text-xs px-8">
             Start Shopping
           </Button>
         </Link>

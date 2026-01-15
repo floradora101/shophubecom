@@ -5,7 +5,7 @@ export const categorySchema = yup.object({
   slug: yup.string().trim()
     .required()
     .matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase letters, numbers, and dashes"),
-  parentId: yup.string().nullable(),
+  parentId: yup.string().nullable().optional(),
   description: yup.string().trim().max(600).optional(),
   image: yup.string().trim().url().optional(),
   sortOrder: yup.number().integer().min(0).max(9999).optional(),

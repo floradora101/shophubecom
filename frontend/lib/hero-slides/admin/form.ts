@@ -15,6 +15,9 @@ const baseHeroSlideSchema = z.object({
     "OFFER",
     "TESTIMONIAL",
     "LANDSCAPE_IMAGE",
+    "CATEGORY_SPOTLIGHT",
+    "EDITORS_PICK",
+    "COMPARISON_BATTLE",
   ] as const),
 
   priority: z.number().int().min(0).default(0),
@@ -67,6 +70,19 @@ const baseHeroSlideSchema = z.object({
 
   // LANDSCAPE_IMAGE (New structure)
   landscapeTheme: z.enum(["glass-red", "minimal-white", "bold-dark", "centered-glass", "right-industrial", "clean-modern"]).default("glass-red"),
+
+  // CATEGORY_SPOTLIGHT
+  categorySlug: z.string().optional().or(z.literal("")),
+  categoryBullets: z.string().optional().or(z.literal("")), // Comma separated for form input
+
+  // EDITORS_PICK
+  editorNote: z.string().max(300).optional().or(z.literal("")),
+  productSlugs: z.string().optional().or(z.literal("")), // Comma separated for form input
+
+  // COMPARISON_BATTLE
+  leftProductSlug: z.string().optional().or(z.literal("")),
+  rightProductSlug: z.string().optional().or(z.literal("")),
+  comparisonPoints: z.string().optional().or(z.literal("")), // Comma separated for form input
 });
 
 export const HeroSlideFormSchema = baseHeroSlideSchema;
@@ -74,8 +90,9 @@ export const HeroSlideFormSchema = baseHeroSlideSchema;
 export type HeroSlideFormValues = z.infer<typeof HeroSlideFormSchema>;
 
 export function getDefaultHeroSlideFormValues(type?: HeroSlideType): HeroSlideFormValues {
+  const selectedType = type || "PRODUCT_SPOTLIGHT";
   return {
-    type: type || "PRODUCT_SPOTLIGHT",
+    type: selectedType,
     priority: 0,
     isActive: true,
     startsAt: "",
@@ -88,7 +105,7 @@ export function getDefaultHeroSlideFormValues(type?: HeroSlideType): HeroSlideFo
     ctaPrimaryHref: "",
     ctaSecondaryLabel: "",
     ctaSecondaryHref: "",
-    mediaKind: "none",
+    mediaKind: selectedType === "PRODUCT_SPOTLIGHT" ? "product" : "none",
     mediaProductSlug: "",
     mediaImageUrl: "",
     mediaAlt: "",
@@ -104,6 +121,10 @@ export function getDefaultHeroSlideFormValues(type?: HeroSlideType): HeroSlideFo
     rating: 5,
     testimonialStats: [],
     landscapeTheme: "glass-red",
+    categorySlug: "",
+    categoryBullets: "",
+    editorNote: "",
+    productSlugs: "",
   };
 }
 
@@ -114,19 +135,19 @@ export function toFormValues(slide: HeroSlide): HeroSlideFormValues {
     isActive: slide.isActive,
     startsAt: slide.startsAt || "",
     endsAt: slide.endsAt || "",
-    badgeText: slide.badgeText || "",
-    headline: slide.headline || (slide.type === "LANDSCAPE_IMAGE" ? slide.content.headline : ""),
-    highlight: slide.highlight || (slide.type === "LANDSCAPE_IMAGE" ? slide.content.highlight : ""),
-    description: slide.description || (slide.type === "LANDSCAPE_IMAGE" ? slide.content.description : ""),
+    badgeText: slide.type === "LANDSCAPE_IMAGE" ? "" : slide.badgeText || "",
+    headline: slide.type === "LANDSCAPE_IMAGE" ? slide.content.headline : slide.headline || "",
+    highlight: slide.type === "LANDSCAPE_IMAGE" ? slide.content.highlight : slide.highlight || "",
+    description: slide.type === "LANDSCAPE_IMAGE" ? slide.content.description : slide.description || "",
     ctaPrimaryLabel: slide.type === "LANDSCAPE_IMAGE" ? slide.actionButton.label : slide.ctaPrimary.label,
     ctaPrimaryHref: slide.type === "LANDSCAPE_IMAGE" ? slide.actionButton.href : slide.ctaPrimary.href,
     ctaSecondaryLabel: slide.type === "LANDSCAPE_IMAGE" ? "" : slide.ctaSecondary?.label || "",
     ctaSecondaryHref: slide.type === "LANDSCAPE_IMAGE" ? "" : slide.ctaSecondary?.href || "",
     mediaKind: slide.media.kind,
     mediaProductSlug: "productSlug" in slide.media ? slide.media.productSlug || "" : "",
-    mediaImageUrl: slide.media.imageUrl || "",
-    mediaAlt: slide.media.alt || "",
-    mediaPosition: slide.media.position || "center",
+    mediaImageUrl: "imageUrl" in slide.media ? slide.media.imageUrl || "" : "",
+    mediaAlt: "alt" in slide.media ? slide.media.alt || "" : "",
+    mediaPosition: "position" in slide.media ? slide.media.position || "center" : "center",
     mediaAspect: "aspect" in slide.media ? slide.media.aspect || "default" : "default",
   };
 
@@ -149,6 +170,12 @@ export function toFormValues(slide: HeroSlide): HeroSlideFormValues {
     (otherValues as any).authorName = slide.authorName;
     (otherValues as any).rating = slide.rating;
     (otherValues as any).testimonialStats = slide.stats;
+  } else if (slide.type === "CATEGORY_SPOTLIGHT") {
+    (otherValues as any).categorySlug = slide.categorySlug;
+    (otherValues as any).categoryBullets = (slide.categoryBullets || []).join(", ");
+  } else if (slide.type === "EDITORS_PICK") {
+    (otherValues as any).editorNote = slide.editorNote;
+    (otherValues as any).productSlugs = slide.productSlugs.join(", ");
   }
 
   return otherValues as HeroSlideFormValues;
@@ -232,6 +259,48 @@ export function fromFormValues(values: HeroSlideFormValues, existingId?: string)
         authorName: values.authorName || "",
         rating: values.rating,
         stats: values.testimonialStats,
+      };
+    case "CATEGORY_SPOTLIGHT":
+      return {
+        ...baseSlide,
+        type: "CATEGORY_SPOTLIGHT",
+        categorySlug: values.categorySlug || "",
+        categoryBullets: (values.categoryBullets || "")
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean),
+        media: { kind: "none" },
+      };
+    case "EDITORS_PICK":
+      return {
+        ...baseSlide,
+        type: "EDITORS_PICK",
+        editorNote: values.editorNote || "",
+        productSlugs: (values.productSlugs || "")
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean),
+        media: { kind: "none" },
+      };
+    case "COMPARISON_BATTLE":
+      return {
+        ...baseSlide,
+        type: "COMPARISON_BATTLE",
+        leftProductSlug: values.leftProductSlug || "",
+        rightProductSlug: values.rightProductSlug || "",
+        comparisonPoints: (values.comparisonPoints || "")
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .map((point) => {
+            const [label, leftValue, rightValue] = point.split("|");
+            return {
+              label: label || "",
+              leftValue: leftValue || "",
+              rightValue: rightValue || "",
+            };
+          }),
+        media: { kind: "none" },
       };
     default:
       return baseSlide as HeroSlide;

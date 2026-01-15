@@ -298,7 +298,7 @@ export function ProfileDashboard() {
                   Refer a friend
                 </Heading>
                 <Text className="text-white/80 text-xs font-medium">
-                  Get $20 for every friend who joins Shophub.
+                  Get $20 for every friend who joins.
                 </Text>
               </div>
               <Button

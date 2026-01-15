@@ -25,6 +25,7 @@ import { Text } from "@/components/ui/typography";
 interface CategoryPickerProps {
   value?: string | string[];
   onChange?: (value: string | string[] | undefined) => void;
+  valueField?: "id" | "slug";
   multiple?: boolean;
   placeholder?: string;
   className?: string;
@@ -40,6 +41,7 @@ interface CategoryOption extends Category {
 export function CategoryPicker({
   value,
   onChange,
+  valueField = "id",
   multiple = false,
   placeholder = "Select parent category...",
   className,
@@ -126,20 +128,25 @@ export function CategoryPicker({
     );
   }, [categoryOptions, searchTerm]);
 
-  const selectedValues = useMemo(() => {
+  const selectedValues = useMemo((): string[] => {
     if (multiple) {
       return Array.isArray(value) ? value : [];
     }
-    return value ? [value] : [];
+    return value ? (typeof value === 'string' ? [value] : []) : [];
   }, [value, multiple]);
 
   const selectedOptions = useMemo(() => {
-    return categoryOptions.filter(option => selectedValues.includes(option.id));
-  }, [categoryOptions, selectedValues]);
+    return categoryOptions.filter(option => selectedValues.includes(option[valueField]));
+  }, [categoryOptions, selectedValues, valueField]);
 
   const handleSelect = useCallback((optionId: string | undefined) => {
+    // If we're looking for slugs but were passed an ID by some CommandItem value,
+    // we need to find the actual slug. But CommandItem onSelect passes the value prop of CommandItem.
+    // In our case CommandItem value is option.path, but onSelect is called with no args?
+    // Wait, onSelect in CommandItem is usually () => handleSelect(option.id).
+
     if (multiple) {
-      if (!optionId) return; // "None" not applicable for multiple
+      if (!optionId) return;
       const newValues = selectedValues.includes(optionId)
         ? selectedValues.filter(id => id !== optionId)
         : [...selectedValues, optionId];
@@ -225,14 +232,15 @@ export function CategoryPicker({
                 )}
 
                 {filteredOptions.map((option) => {
-                  const isSelected = selectedValues.includes(option.id);
+                  const val = option[valueField];
+                  const isSelected = val ? selectedValues.includes(val) : false;
                   const indent = option.depth * 16;
 
                   return (
                     <CommandItem
                       key={option.id}
                       value={option.path}
-                      onSelect={() => handleSelect(option.id)}
+                      onSelect={() => handleSelect(val)}
                       className={cn(
                         "rounded-lg cursor-pointer px-3 py-2.5 my-0.5 transition-colors",
                         isSelected ? "bg-primary-50" : "hover:bg-warm-gray-50"

@@ -134,52 +134,46 @@ export function VariantSelector({
                 const isDisabled = isOutOfStock;
 
                 if (isColorOption) {
-                  // Enhanced Color Swatches
+                  // Color Options as Text Blocks
                   return (
                     <button
                       key={value}
                       onClick={() => !isDisabled && onOptionSelect(key, value)}
                       disabled={isDisabled}
                       className={`
-                        group relative w-10 h-10 sm:w-11 sm:h-11 lg:w-12 lg:h-12 rounded-full border-2 transition-all duration-200 ease-in-out
+                        group relative px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-lg border transition-all duration-200 ease-in-out
                         ${
                           isSelected
-                            ? "border-primary-600 ring-2 ring-primary-600/30 scale-110 shadow-lg"
-                            : "border-border hover:border-primary-400 hover:ring-2 hover:ring-primary-400/20 hover:scale-105 active:scale-95 hover:shadow-md"
+                            ? "bg-primary-600 text-white border-primary-600 shadow-lg"
+                            : "border-border text-muted-fg hover:border-primary-400 hover:bg-primary-50 hover:text-primary-700 active:bg-primary-100"
                         }
                         ${
                           isDisabled
-                            ? "opacity-40 cursor-not-allowed"
+                            ? "opacity-50 cursor-not-allowed bg-surface-muted"
                             : "cursor-pointer hover:shadow-sm"
                         }
                       `}
                       aria-label={`Select ${value} color`}
                     >
-                      <div
-                        className="w-full h-full rounded-full border border-white/20"
-                        style={{ backgroundColor: getColorHex(value) }}
-                      />
+                      <span className="relative z-10 truncate max-w-20 sm:max-w-none">
+                        {value}
+                      </span>
 
                       {/* Selection indicator */}
                       {isSelected && (
-                        <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-4 h-4 sm:w-5 sm:h-5 bg-primary-600 rounded-full flex items-center justify-center shadow-lg">
+                        <div className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1">
                           <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-white" />
                         </div>
                       )}
 
-                      {/* Out of stock indicator */}
+                      {/* Out of stock overlay */}
                       {isOutOfStock && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-full">
-                          <X className="h-3 w-3 sm:h-4 sm:w-4 text-white font-bold" />
+                        <div className="absolute inset-0 bg-surface-muted rounded-lg flex items-center justify-center">
+                          <span className="text-xs text-muted-fg font-medium">
+                            Sold out
+                          </span>
                         </div>
                       )}
-
-                      {/* Tooltip on hover - hide on mobile */}
-                      <div className="hidden sm:block absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
-                        <div className="bg-gray-800 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap">
-                          {value}
-                        </div>
-                      </div>
                     </button>
                   );
                 } else {

@@ -4,7 +4,8 @@ export type HeroSlideType =
   | "TESTIMONIAL"
   | "LANDSCAPE_IMAGE"
   | "CATEGORY_SPOTLIGHT"
-  | "EDITORS_PICK";
+  | "EDITORS_PICK"
+  | "COMPARISON_BATTLE";
 
 export interface BaseHeroSlide {
   id: string;
@@ -111,6 +112,7 @@ export interface LandscapeImageSlide
 export interface CategorySpotlightSlide extends Omit<BaseHeroSlide, "media"> {
   type: "CATEGORY_SPOTLIGHT";
   categorySlug: string;
+  categoryBullets?: string[];
   media: {
     kind: "none";
   };
@@ -125,10 +127,25 @@ export interface EditorsPickSlide extends Omit<BaseHeroSlide, "media"> {
   };
 }
 
+export interface ComparisonBattleSlide extends Omit<BaseHeroSlide, "media"> {
+  type: "COMPARISON_BATTLE";
+  leftProductSlug: string;
+  rightProductSlug: string;
+  comparisonPoints: Array<{
+    label: string;
+    leftValue: string;
+    rightValue: string;
+  }>;
+  media: {
+    kind: "none";
+  };
+}
+
 export type HeroSlide =
   | ProductSpotlightSlide
   | OfferSlide
   | TestimonialSlide
   | LandscapeImageSlide
   | CategorySpotlightSlide
-  | EditorsPickSlide;
+  | EditorsPickSlide
+  | ComparisonBattleSlide;

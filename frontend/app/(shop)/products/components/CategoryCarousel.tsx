@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils/cn";
 import { ReadonlyURLSearchParams } from "next/navigation";
 
 type UpdateSearchParamsFn = (
-  currentParams: URLSearchParams,
+  currentParams: ReadonlyURLSearchParams,
   updates: Partial<CanonicalFilters>
 ) => URLSearchParams;
 
@@ -254,17 +254,15 @@ export function CategoryCarousel({
                 direction="left"
                 variant="secondary"
                 onClick={() => scrollCarousel("left")}
-                disabled={!canScrollLeft}
                 aria-label="Previous categories"
-                className="h-12 w-12"
+                className={cn("h-12 w-12", !canScrollLeft && "opacity-50 cursor-not-allowed pointer-events-none")}
               />
               <NavigationButton
                 direction="right"
                 variant="secondary"
                 onClick={() => scrollCarousel("right")}
-                disabled={!canScrollRight}
                 aria-label="Next categories"
-                className="h-12 w-12"
+                className={cn("h-12 w-12", !canScrollRight && "opacity-50 cursor-not-allowed pointer-events-none")}
               />
             </div>
           </div>

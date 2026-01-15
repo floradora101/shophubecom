@@ -2,15 +2,18 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Package,
   Layers,
-  Image as   ImageIcon,
+  Image as ImageIcon,
   LogOut,
   ChevronRight,
-  Ticket
+  Ticket,
+  LayoutGrid,
+  Megaphone
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Heading, Text } from "@/components/ui/typography";
@@ -28,6 +31,11 @@ const menuItems = [
     href: "/admin/categories",
   },
   {
+    title: "Departments",
+    icon: LayoutGrid,
+    href: "/admin/departments",
+  },
+  {
     title: "Products",
     icon: Package,
     href: "/admin/products",
@@ -42,6 +50,11 @@ const menuItems = [
     icon: Ticket,
     href: "/admin/coupons",
   },
+  {
+    title: "Promotions",
+    icon: Megaphone,
+    href: "/admin/promotions",
+  },
 ];
 
 export function AdminSidebar({ isMobile = false }: { isMobile?: boolean }) {
@@ -54,13 +67,16 @@ export function AdminSidebar({ isMobile = false }: { isMobile?: boolean }) {
       !isMobile && "w-64 border-r border-warm-gray-200"
     )}>
       <div className="p-6 border-b border-warm-gray-100">
-        <Link href="/" className="flex items-center gap-2" onClick={closeMobile}>
-          <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-xl">S</span>
-          </div>
-          <Heading level="h4" className="text-warm-gray-900 tracking-tight">
-            ShopHub Admin
-          </Heading>
+        <Link href="/" className="flex items-center justify-center" onClick={closeMobile}>
+          <Image
+            src="/logo.png"
+            alt="Logo"
+            width={120}
+            height={120}
+            className="object-contain w-20 h-20"
+            sizes="80px"
+            priority
+          />
         </Link>
       </div>
 

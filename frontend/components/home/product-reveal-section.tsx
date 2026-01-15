@@ -131,10 +131,10 @@ export function ProductRevealSection({ products }: ProductRevealSectionProps) {
                 }}
               >
                 {/* 2026 Style: Animated Glow behind card */}
-                <div className="absolute -inset-1 bg-linear-to-r from-primary-600/20 to-primary-600/0 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute -inset-1 bg-linear-to-r from-primary-600/20 to-primary-600/0 rounded-lg blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                 {/* Card container */}
-                <div className="relative rounded-2xl shadow-xl overflow-hidden border border-white/5 bg-gray-900 h-full">
+                <div className="relative rounded-lg shadow-xl overflow-hidden border border-white/5 bg-gray-900 h-full">
                   <SwipeRevealCard
                     product={reveal.product}
                     revealType={reveal.revealType}
@@ -209,10 +209,10 @@ export function ProductRevealSectionSkeleton() {
           <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
             {Array.from({ length: 4 }, (_, i) => (
               <div key={i} className="relative">
-                <div className="relative rounded-2xl shadow-sm border border-gray-100 overflow-hidden min-h-[360px] xs:min-h-[400px] sm:min-h-[480px] bg-gray-900">
+                <div className="relative rounded-lg shadow-sm border border-gray-100 overflow-hidden min-h-[360px] xs:min-h-[400px] sm:min-h-[480px] bg-gray-900">
                   {/* Card content skeleton - matches SwipeRevealCard structure */}
                   <div className="p-4 xs:p-6 h-full flex flex-col items-center justify-center">
-                    <SkeletonBlock className="w-[75%] xs:w-[85%] max-w-[180px] xs:max-w-[250px] sm:max-w-[300px] aspect-square rounded-2xl mb-4 sm:mb-8" />
+                    <SkeletonBlock className="w-[75%] xs:w-[85%] max-w-[180px] xs:max-w-[250px] sm:max-w-[300px] aspect-square rounded-lg mb-4 sm:mb-8" />
                     <div className="space-y-2 sm:space-y-3 w-full max-w-[200px] xs:max-w-[240px] sm:max-w-xs">
                       <SkeletonBlock className="h-6 sm:h-7 w-full rounded" />
                       <SkeletonBlock className="h-4 sm:h-5 w-2/3 rounded mx-auto" />

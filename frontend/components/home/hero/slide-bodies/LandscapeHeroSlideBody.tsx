@@ -1,8 +1,9 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { SkeletonBlock } from "@/components/ui/skeleton";
 import type { LandscapeImageSlide } from "@/lib/types/heroSlides.types";
 import { getLandscapeTheme } from "@/lib/utils/landscape-style-resolver";
 import { HeroItem } from "../shared/hero-item";
@@ -31,6 +32,17 @@ export const LandscapeHeroSlideBody = memo(function LandscapeHeroSlideBody({
 }: LandscapeHeroSlideBodyProps) {
   const theme = getLandscapeTheme(slide.theme);
   const { run, animationKey } = useHeroRunCounter(isActive || false);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  // Reset loading state when slide changes
+  useEffect(() => {
+    setImageLoaded(false);
+  }, [slide.media.imageUrl]);
+
+  // Handle image load completion - use both onLoad and onLoadingComplete for reliability
+  const handleImageLoad = () => {
+    setImageLoaded(true);
+  };
 
   // Determine object position for image
   const objectPosition = slide.media.position || "center";
@@ -39,17 +51,30 @@ export const LandscapeHeroSlideBody = memo(function LandscapeHeroSlideBody({
     <div className="relative w-full h-full overflow-hidden group">
       {/* Background Layer */}
       <div className="absolute inset-0 z-0 bg-gray-900">
+        {/* Skeleton loader - shows while image is loading */}
+        {!imageLoaded && (
+          <div className="absolute inset-0 z-[5]">
+            <SkeletonBlock className="w-full h-full rounded-none" />
+          </div>
+        )}
+
         <Image
           src={slide.media.imageUrl}
-          alt={slide.media.alt || ""}
+          alt={slide.media.alt || slide.content.headline || "Hero image"}
           fill
-          className="object-cover transition-transform duration-2000 group-hover:scale-110"
+          className={cn(
+            "object-cover transition-opacity duration-500",
+            imageLoaded ? "opacity-100" : "opacity-0",
+            "group-hover:scale-110 transition-transform duration-2000"
+          )}
           style={{
             objectPosition:
               objectPosition !== "center" ? objectPosition : undefined,
           }}
           sizes="100vw"
           priority={isActive}
+          onLoad={handleImageLoad}
+          onLoadingComplete={handleImageLoad}
         />
         {/* Theme-defined Overlay */}
         <div

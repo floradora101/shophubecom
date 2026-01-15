@@ -29,7 +29,7 @@ function TrustItem({
   return (
     <div
       className={cn(
-        "group relative p-4 rounded-2xl border border-border/50 hover:border-primary-500/30 hover:bg-primary-500/5 transition-all duration-500",
+        "group relative p-4 rounded-lg border border-border/50 hover:border-primary-500/30 hover:bg-primary-500/5 transition-all duration-500",
         className
       )}
     >

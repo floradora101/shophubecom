@@ -10,6 +10,7 @@ import type { HomePageData } from "@/lib/data/home";
 
 // Import skeleton components for dynamic loading
 import { DepartmentTabsSkeleton } from "@/components/home/department-tabs";
+import { CategorySpotlightSkeleton } from "@/components/home/category-spotlight";
 import { ServiceShowcaseSkeleton } from "@/components/home/service-showcase";
 import { ProductRevealSectionSkeleton } from "@/components/home/product-reveal-section";
 import { TrendingNowSkeleton } from "@/components/home/trending-now";
@@ -25,6 +26,16 @@ const DepartmentTabs = dynamic(
     })),
   {
     loading: () => <DepartmentTabsSkeleton />,
+  }
+);
+
+const CategorySpotlight = dynamic(
+  () =>
+    import("@/components/home/category-spotlight").then((mod) => ({
+      default: mod.CategorySpotlight,
+    })),
+  {
+    loading: () => <CategorySpotlightSkeleton />,
   }
 );
 
@@ -111,6 +122,14 @@ export function HomePageContent({ data }: HomePageContentProps) {
         {/* Department Tabs - Lazy loaded when in viewport */}
         <LazySection fallback={<DepartmentTabsSkeleton />}>
           <DepartmentTabs
+            categories={data.categories}
+            productsByCategory={productsByCategory}
+          />
+        </LazySection>
+
+        {/* Category Spotlight - Lazy loaded when in viewport */}
+        <LazySection fallback={<CategorySpotlightSkeleton />}>
+          <CategorySpotlight
             categories={data.categories}
             productsByCategory={productsByCategory}
           />

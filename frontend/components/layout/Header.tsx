@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
@@ -10,7 +11,13 @@ import { useShallow } from "zustand/react/shallow";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/auth-store";
 import { useCart } from "@/features/cart/hooks";
-import { CartSidebar } from "@/features/cart/components/CartSidebar";
+// Code-split CartSidebar - only loads when cart is opened
+const CartSidebar = dynamic(
+  () => import("@/features/cart/components/CartSidebar").then((mod) => ({
+    default: mod.CartSidebar,
+  })),
+  { ssr: false }
+);
 import * as NavigationMenu from "@radix-ui/react-navigation-menu";
 import { getAllCategories } from "@/lib/data/categories";
 import type { Category } from "@/features/products/types";
@@ -20,7 +27,7 @@ import { cn } from "@/lib/utils";
 
 // Shared menu design tokens
 const MENU_PANEL_CLASS =
-  "bg-white border border-border rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl bg-white/95";
+  "bg-white border border-border rounded-lg shadow-2xl overflow-hidden backdrop-blur-xl bg-white/95";
 const MENU_PAD_CLASS = "p-6";
 const MENU_SECTION_GAP = "space-y-4";
 const MENU_HEADING_LINK_CLASS =
@@ -67,9 +74,9 @@ const MegaMenu = ({ categoryTree }: { categoryTree: CategoryNode[] }) => {
     pathname === `/products/category/${slug}`;
 
   return (
-    <div
+    <nav
       id="shop-all-menu"
-      role="menu"
+      role="navigation"
       aria-label="Shop all categories"
       className={cn(
         MENU_PANEL_CLASS,
@@ -113,7 +120,7 @@ const MegaMenu = ({ categoryTree }: { categoryTree: CategoryNode[] }) => {
           </div>
         ))}
       </div>
-    </div>
+    </nav>
   );
 };
 
@@ -157,10 +164,24 @@ export function Header() {
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Category data
+  // Category data - with loading state to prevent flash of incomplete content
   const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
   useEffect(() => {
-    getAllCategories().then(setCategories).catch(console.error);
+    getAllCategories()
+      .then((data) => {
+        setCategories(data);
+        setCategoriesLoading(false);
+      })
+      .catch((error) => {
+        // Silent error handling for mock environments
+        if (process.env.NEXT_PUBLIC_USE_MOCKS !== "false") {
+          // Silently ignore expected errors in mock mode
+        } else {
+          console.error("Failed to load categories:", error);
+        }
+        setCategoriesLoading(false);
+      });
   }, []);
   const categoryTree = useMemo(
     () => buildCategoryTree(categories),
@@ -219,7 +240,7 @@ export function Header() {
               >
                 <Image
                   src="/logo.png"
-                  alt="ShopHub Logo"
+                  alt="Logo"
                   width={140}
                   height={140}
                   className="object-contain w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28"
@@ -228,119 +249,121 @@ export function Header() {
                 />
               </Link>
 
-              {/* Desktop Navigation - Categories */}
-              <NavigationMenu.Root className="hidden lg:flex items-center justify-center flex-1 mx-12">
-                <NavigationMenu.List className="flex items-center gap-2">
-                  {/* Shop All Mega Menu */}
-                  <NavigationMenu.Item>
-                    <NavigationMenu.Trigger
-                      className={cn(
-                        "flex h-10 items-center gap-2 px-5 text-[13px] font-bold tracking-wider text-primary-600 transition-all duration-300 rounded-lg hover:bg-primary-50 data-[state=open]:bg-primary-50",
-                        isActive("/products") && "bg-primary-50"
-                      )}
-                    >
-                      SHOP ALL
-                      <ChevronDown className="h-3.5 w-3.5 transition-transform duration-300 data-[state=open]:rotate-180" />
-                    </NavigationMenu.Trigger>
+              {/* Desktop Navigation - Categories - Hidden until loaded to prevent flash */}
+              {!categoriesLoading && (
+                <NavigationMenu.Root className="hidden lg:flex items-center justify-center flex-1 mx-12">
+                  <NavigationMenu.List className="flex items-center gap-2">
+                    {/* Shop All Mega Menu */}
+                    <NavigationMenu.Item>
+                      <NavigationMenu.Trigger
+                        className={cn(
+                          "flex h-10 items-center gap-2 px-5 text-[13px] font-bold tracking-wider text-primary-600 transition-all duration-300 rounded-lg hover:bg-primary-50 data-[state=open]:bg-primary-50",
+                          isActive("/products") && "bg-primary-50"
+                        )}
+                      >
+                        SHOP ALL
+                        <ChevronDown className="h-3.5 w-3.5 transition-transform duration-300 data-[state=open]:rotate-180" />
+                      </NavigationMenu.Trigger>
 
-                    <NavigationMenu.Content className="absolute left-1/2 top-full mt-3 z-50">
-                      <div className="fixed left-[50vw] -translate-x-1/2 w-[min(100vw-2rem,85rem)] animate-in fade-in slide-in-from-top-2 duration-300">
-                        <MegaMenu categoryTree={categoryTree} />
-                      </div>
-                    </NavigationMenu.Content>
-                  </NavigationMenu.Item>
+                      <NavigationMenu.Content className="absolute left-1/2 top-full mt-3 z-50">
+                        <div className="fixed left-[50vw] -translate-x-1/2 w-[min(100vw-2rem,85rem)] animate-in fade-in slide-in-from-top-2 duration-300">
+                          <MegaMenu categoryTree={categoryTree} />
+                        </div>
+                      </NavigationMenu.Content>
+                    </NavigationMenu.Item>
 
-                  {/* Individual Category Links */}
-                  {categoryTree.slice(0, 5).map((category) => (
-                    <NavigationMenu.Item
-                      key={category.id}
-                      className="relative h-full"
-                    >
-                      {category.children?.length > 0 ? (
-                        <>
-                          <NavigationMenu.Trigger
-                            className={cn(
-                              "flex h-10 items-center gap-1.5 px-4 text-[13px] font-semibold text-muted-fg transition-all duration-300 rounded-lg hover:bg-gray-50 hover:text-fg data-[state=open]:bg-gray-50 data-[state=open]:text-primary-600",
-                              isCategoryActive(category.slug) &&
-                                "text-primary-600 bg-primary-50"
-                            )}
-                          >
-                            {category.name.toUpperCase()}
-                            <ChevronDown className="h-3 w-3 transition-transform duration-300 data-[state=open]:rotate-180" />
-                          </NavigationMenu.Trigger>
-
-                          <NavigationMenu.Content className="absolute left-1/2 top-full -translate-x-1/2 mt-3 z-50">
-                            <div
+                    {/* Individual Category Links */}
+                    {categoryTree.slice(0, 5).map((category) => (
+                      <NavigationMenu.Item
+                        key={category.id}
+                        className="relative h-full"
+                      >
+                        {category.children?.length > 0 ? (
+                          <>
+                            <NavigationMenu.Trigger
                               className={cn(
-                                MENU_PANEL_CLASS,
-                                "w-72",
-                                MENU_PAD_CLASS,
-                                "animate-in fade-in slide-in-from-top-2 duration-300"
+                                "flex h-10 items-center gap-1.5 px-4 text-[13px] font-semibold text-muted-fg transition-all duration-300 rounded-lg hover:bg-gray-50 hover:text-fg data-[state=open]:bg-gray-50 data-[state=open]:text-primary-600",
+                                isCategoryActive(category.slug) &&
+                                  "text-primary-600 bg-primary-50"
                               )}
                             >
-                              <div className={MENU_SECTION_GAP}>
-                                <Link
-                                  href={`/products/category/${category.slug}`}
-                                  className={MENU_HEADING_LINK_CLASS}
-                                >
-                                  {category.name.toUpperCase()}
-                                </Link>
+                              {category.name.toUpperCase()}
+                              <ChevronDown className="h-3 w-3 transition-transform duration-300 data-[state=open]:rotate-180" />
+                            </NavigationMenu.Trigger>
 
-                                <div className="space-y-2">
-                                  {category.children.map((child) => (
-                                    <Link
-                                      key={child.id}
-                                      href={`/products/category/${child.slug}`}
-                                      className={cn(
-                                        MENU_ITEM_LINK_CLASS,
-                                        isCategoryActive(child.slug) &&
-                                          "text-primary-600 font-medium translate-x-1"
-                                      )}
-                                    >
-                                      {child.name}
-                                    </Link>
-                                  ))}
+                            <NavigationMenu.Content className="absolute left-1/2 top-full -translate-x-1/2 mt-3 z-50">
+                              <div
+                                className={cn(
+                                  MENU_PANEL_CLASS,
+                                  "w-72",
+                                  MENU_PAD_CLASS,
+                                  "animate-in fade-in slide-in-from-top-2 duration-300"
+                                )}
+                              >
+                                <div className={MENU_SECTION_GAP}>
+                                  <Link
+                                    href={`/products/category/${category.slug}`}
+                                    className={MENU_HEADING_LINK_CLASS}
+                                  >
+                                    {category.name.toUpperCase()}
+                                  </Link>
+
+                                  <div className="space-y-2">
+                                    {category.children.map((child) => (
+                                      <Link
+                                        key={child.id}
+                                        href={`/products/category/${child.slug}`}
+                                        className={cn(
+                                          MENU_ITEM_LINK_CLASS,
+                                          isCategoryActive(child.slug) &&
+                                            "text-primary-600 font-medium translate-x-1"
+                                        )}
+                                      >
+                                        {child.name}
+                                      </Link>
+                                    ))}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </NavigationMenu.Content>
-                        </>
-                      ) : (
+                            </NavigationMenu.Content>
+                          </>
+                        ) : (
+                          <NavigationMenu.Link asChild>
+                            <Link
+                              href={`/products/category/${category.slug}`}
+                              className={cn(
+                                "flex h-10 items-center px-4 text-[13px] font-semibold text-muted-fg transition-all duration-300 rounded-lg hover:bg-gray-50 hover:text-fg",
+                                isCategoryActive(category.slug) &&
+                                  "text-primary-600 bg-primary-50"
+                              )}
+                            >
+                              {category.name.toUpperCase()}
+                            </Link>
+                          </NavigationMenu.Link>
+                        )}
+                      </NavigationMenu.Item>
+                    ))}
+
+                    {/* More Categories */}
+                    {categoryTree.length > 5 && (
+                      <NavigationMenu.Item>
                         <NavigationMenu.Link asChild>
                           <Link
-                            href={`/products/category/${category.slug}`}
+                            href="/categories"
                             className={cn(
-                              "flex h-10 items-center px-4 text-[13px] font-semibold text-muted-fg transition-all duration-300 rounded-lg hover:bg-gray-50 hover:text-fg",
-                              isCategoryActive(category.slug) &&
+                              "flex h-10 items-center px-5 text-[13px] font-semibold text-muted-fg transition-all duration-300 rounded-lg hover:bg-gray-50 hover:text-fg",
+                              pathname === "/categories" &&
                                 "text-primary-600 bg-primary-50"
                             )}
                           >
-                            {category.name.toUpperCase()}
+                            MORE
                           </Link>
                         </NavigationMenu.Link>
-                      )}
-                    </NavigationMenu.Item>
-                  ))}
-
-                  {/* More Categories */}
-                  {categoryTree.length > 5 && (
-                    <NavigationMenu.Item>
-                      <NavigationMenu.Link asChild>
-                        <Link
-                          href="/categories"
-                          className={cn(
-                            "flex h-10 items-center px-5 text-[13px] font-semibold text-muted-fg transition-all duration-300 rounded-lg hover:bg-gray-50 hover:text-fg",
-                            pathname === "/categories" &&
-                              "text-primary-600 bg-primary-50"
-                          )}
-                        >
-                          MORE
-                        </Link>
-                      </NavigationMenu.Link>
-                    </NavigationMenu.Item>
-                  )}
-                </NavigationMenu.List>
-              </NavigationMenu.Root>
+                      </NavigationMenu.Item>
+                    )}
+                  </NavigationMenu.List>
+                </NavigationMenu.Root>
+              )}
 
               {/* Actions */}
               <div className="flex items-center gap-1 sm:gap-2">
@@ -430,7 +453,7 @@ export function Header() {
 
             {/* Mobile Menu */}
             {isMobileMenuOpen && (
-              <div className="lg:hidden border-t border-border bg-white animate-in slide-in-from-top duration-300">
+              <div className="lg:hidden border-t border-border bg-white rounded-b-lg animate-in slide-in-from-top duration-300">
                 <nav className="px-4 py-8 space-y-6 max-h-[80vh] overflow-y-auto">
                   {/* Shop All */}
                   <Link
@@ -444,43 +467,45 @@ export function Header() {
                     SHOP ALL
                   </Link>
 
-                  {/* Categories */}
-                  <div className="space-y-6">
-                    {categoryTree.map((category) => (
-                      <div key={category.id} className="space-y-3">
-                        <Link
-                          href={`/products/category/${category.slug}`}
-                          className={cn(
-                            "block px-4 py-2 text-sm font-bold tracking-widest text-fg hover:text-primary-600 transition-all uppercase",
-                            isCategoryActive(category.slug) &&
-                              "text-primary-600"
-                          )}
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          {category.name.toUpperCase()}
-                        </Link>
+                  {/* Categories - Only show when loaded to prevent flash */}
+                  {!categoriesLoading && (
+                    <div className="space-y-6">
+                      {categoryTree.map((category) => (
+                        <div key={category.id} className="space-y-3">
+                          <Link
+                            href={`/products/category/${category.slug}`}
+                            className={cn(
+                              "block px-4 py-2 text-sm font-bold tracking-widest text-fg hover:text-primary-600 transition-all uppercase",
+                              isCategoryActive(category.slug) &&
+                                "text-primary-600"
+                            )}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            {category.name.toUpperCase()}
+                          </Link>
 
-                        {category.children?.length > 0 && (
-                          <div className="ml-4 grid grid-cols-1 gap-1 border-l-2 border-border pl-4">
-                            {category.children.map((child) => (
-                              <Link
-                                key={child.id}
-                                href={`/products/category/${child.slug}`}
-                                className={cn(
-                                  "block px-4 py-2 text-[13px] text-muted-fg hover:text-primary-600 hover:translate-x-1 transition-all rounded-lg",
-                                  isCategoryActive(child.slug) &&
-                                    "text-primary-600 font-medium bg-primary-50/50"
-                                )}
-                                onClick={() => setIsMobileMenuOpen(false)}
-                              >
-                                {child.name}
-                              </Link>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                          {category.children?.length > 0 && (
+                            <div className="ml-4 grid grid-cols-1 gap-1 border-l-2 border-border pl-4">
+                              {category.children.map((child) => (
+                                <Link
+                                  key={child.id}
+                                  href={`/products/category/${child.slug}`}
+                                  className={cn(
+                                    "block px-4 py-2 text-[13px] text-muted-fg hover:text-primary-600 hover:translate-x-1 transition-all rounded-lg",
+                                    isCategoryActive(child.slug) &&
+                                      "text-primary-600 font-medium bg-primary-50/50"
+                                  )}
+                                  onClick={() => setIsMobileMenuOpen(false)}
+                                >
+                                  {child.name}
+                                </Link>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </nav>
               </div>
             )}

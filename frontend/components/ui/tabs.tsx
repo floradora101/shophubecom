@@ -7,6 +7,7 @@ export interface TabItem {
   content: React.ReactNode;
   icon?: React.ReactNode;
   badge?: string | number;
+  hiddenOnLarge?: boolean; // Hide this tab on xl+ screens (>= 1280px)
 }
 
 interface TabsProps {
@@ -83,7 +84,9 @@ export function Tabs({
     }
   };
 
-  const activeContent = tabs.find((tab) => tab.id === activeTab)?.content;
+  const activeTabData = tabs.find((tab) => tab.id === activeTab);
+  const activeContent = activeTabData?.content;
+  const isActiveTabHidden = activeTabData?.hiddenOnLarge || false;
 
   return (
     <div className={cn("w-full", className)}>
@@ -97,7 +100,11 @@ export function Tabs({
               <button
                 key={tab.id}
                 onClick={() => handleTabChange(tab.id)}
-                className={cn(tabButtonClasses, getVariantClasses(isActive))}
+                className={cn(
+                  tabButtonClasses,
+                  getVariantClasses(isActive),
+                  tab.hiddenOnLarge && "xl:hidden"
+                )}
                 disabled={false}
               >
                 {/* Tab content */}
@@ -147,7 +154,10 @@ export function Tabs({
         {/* Content fade animation */}
         <div
           key={activeTab}
-          className="animate-in fade-in-0 slide-in-from-bottom-2 duration-500"
+          className={cn(
+            "animate-in fade-in-0 slide-in-from-bottom-2 duration-500",
+            isActiveTabHidden && "xl:hidden"
+          )}
         >
           {activeContent}
         </div>
