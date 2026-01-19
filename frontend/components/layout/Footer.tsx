@@ -27,7 +27,7 @@ import { ui } from "@/lib/ui-tokens";
 import { cn } from "@/lib/utils/cn";
 import { getMainCategories } from "@/lib/data/categories";
 import { getSubcategories } from "@/lib/mock-data/mock-data";
-import { SparkleEffect } from "@/components/home/hero/shared/SparkleEffect";
+import { SparkleEffect } from "@/components/ui/SparkleEffect";
 import type { Category } from "@/features/products/types";
 
 export function Footer() {
