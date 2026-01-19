@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
-import { ShoppingCart, User, Search, ChevronDown, Menu, X } from "lucide-react";
+import { ShoppingCart, User, UserPlus, Search, ChevronDown, Menu, X } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/auth-store";
@@ -163,7 +163,6 @@ export function Header() {
   const { totalItems: cartCount, toggleCart } = useCart();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false);
 
   // Category data - with loading state to prevent flash of incomplete content
   const [categories, setCategories] = useState<Category[]>([]);
@@ -218,17 +217,6 @@ export function Header() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [pathname, router]);
 
-  // Close account dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (isAccountDropdownOpen && !(event.target as Element).closest('.account-dropdown-container')) {
-        setIsAccountDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isAccountDropdownOpen]);
 
   return (
     <>
@@ -429,39 +417,49 @@ export function Header() {
                     </Button>
                   </div>
                 ) : (
-                  <div className="relative account-dropdown-container">
-                    <button
-                      onClick={() => setIsAccountDropdownOpen(!isAccountDropdownOpen)}
-                      className="flex items-center justify-center w-10 h-10 rounded-lg text-muted-fg hover:text-primary-600 hover:bg-primary-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-                      aria-label="Account menu"
-                    >
+                  <div className="relative group">
+                    <button className="flex items-center justify-center w-10 h-10 rounded-lg text-muted-fg hover:text-primary-600 hover:bg-primary-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 cursor-pointer">
                       <User className="h-5 w-5" />
                     </button>
 
-                    {/* Account Dropdown */}
-                    {isAccountDropdownOpen && (
-                      <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                        <Link
-                          href="/login"
-                          onClick={() => setIsAccountDropdownOpen(false)}
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary-600 transition-colors"
-                        >
-                          Sign In
-                        </Link>
-                        <Link
-                          href="/register"
-                          onClick={() => setIsAccountDropdownOpen(false)}
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary-600 transition-colors font-medium"
-                        >
-                          Create Account
-                        </Link>
-                        <div className="border-t border-gray-100 mt-2 pt-2 px-4">
-                          <p className="text-xs text-gray-500">
-                            Skip accounts, checkout as guest
+                    {/* Account Dropdown - Hover activated */}
+                    <div className={cn(
+                      "absolute right-0 top-full mt-3 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300",
+                      MENU_PANEL_CLASS,
+                      "w-72",
+                      MENU_PAD_CLASS
+                    )}>
+                      <div className={MENU_SECTION_GAP}>
+                        <div className="space-y-3">
+                          <Link
+                            href="/login"
+                            className={cn(
+                              MENU_ITEM_LINK_CLASS,
+                              "flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-primary-50 font-medium"
+                            )}
+                          >
+                            <span>Sign In</span>
+                            <User className="h-4 w-4 text-primary-600" />
+                          </Link>
+                          <Link
+                            href="/register"
+                            className={cn(
+                              MENU_ITEM_LINK_CLASS,
+                              "flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-primary-50 font-bold"
+                            )}
+                          >
+                            <span>Create Account</span>
+                            <UserPlus className="h-4 w-4 text-primary-600" />
+                          </Link>
+                        </div>
+
+                        <div className="pt-3 border-t border-warm-gray-100">
+                          <p className="text-sm text-warm-gray-600 leading-relaxed">
+                            Create an account for faster checkout and order tracking, or continue shopping as a guest.
                           </p>
                         </div>
                       </div>
-                    )}
+                    </div>
                   </div>
                 )}
 
