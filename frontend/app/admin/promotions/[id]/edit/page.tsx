@@ -2,7 +2,7 @@
 
 import React, { useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { PromotionForm } from "../../_components/PromotionForm";
+import { PromotionForm } from "@/app/admin/promotions/_components/PromotionForm";
 import { Heading, Text } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Loader2 } from "lucide-react";

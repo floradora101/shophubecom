@@ -8,8 +8,8 @@
 
 import { Search, Filter, Sparkles, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ProductCard } from "@/features/products/components/ProductCard";
-import { ProductCardSkeleton } from "@/features/products/components/ProductCardSkeleton";
+import { ProductCard } from "@/components/shared/ProductCard";
+import { ProductCardSkeleton } from "@/components/shared/ProductCardSkeleton";
 import { cn } from "@/lib/utils/cn";
 import type { Product } from "@/features/products/types";
 

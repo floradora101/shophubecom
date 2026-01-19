@@ -6,6 +6,7 @@ import {
   type UpdateCartItemParams,
 } from "./api";
 import { cartKeys } from "./query-keys";
+import type { Product } from "@/features/products/types";
 
 /**
  * React Query hook to fetch current cart
@@ -24,6 +25,20 @@ export function useCartQuery() {
     refetchOnWindowFocus: false, // Not needed - invalidation handles freshness
     enabled: true, // ALWAYS enabled - never disabled by auth state
     retry: false, // Let errors propagate
+    // In client-side mode, initialize with empty cart if needed
+    initialData: () => {
+      if (typeof window !== "undefined") {
+        try {
+          const stored = localStorage.getItem("shophub_cart");
+          if (stored) {
+            return JSON.parse(stored) as Cart;
+          }
+        } catch {
+          // Ignore parse errors
+        }
+      }
+      return undefined;
+    },
   });
 }
 
@@ -36,7 +51,7 @@ export function useAddCartItemMutation() {
   const queryKey = cartKeys.all;
 
   return useMutation({
-    mutationFn: async (params: AddCartItemParams) => {
+    mutationFn: async (params: AddCartItemParams & { product?: Product }) => {
       return cartApi.addItem(params);
     },
     onMutate: async (params) => {

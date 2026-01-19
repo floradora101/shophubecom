@@ -2,7 +2,7 @@
 
 import React, { useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { HeroSlideForm } from "../../_components/HeroSlideForm";
+import { HeroSlideForm } from "@/app/admin/hero-slides/_components/HeroSlideForm";
 import { Heading, Text } from "@/components/ui/typography";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import Link from "next/link";

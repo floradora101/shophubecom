@@ -2,10 +2,11 @@
 
 import React from "react";
 import type { HeroSlide } from "@/lib/types/heroSlides.types";
-import { SlideBodyRenderer } from "@/components/home/hero/SlideBodyRenderer";
+import { SlideBodyRenderer } from "@/app/_components/hero/SlideBodyRenderer";
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/typography";
 import { useProductQuery } from "@/features/products/queries";
+import { mockCategories, mockCategoryToCategory, mockProducts, mockProductToProduct } from "@/lib/mock-data/mock-data";
 
 interface HeroSlidePreviewProps {
   slide: HeroSlide;
@@ -24,6 +25,43 @@ export function HeroSlidePreview({ slide }: HeroSlidePreviewProps) {
 
   const { data: product } = useProductQuery(productSlug || "");
 
+  // Resolve products for comparison battle
+  const leftProductSlug =
+    slide.type === "COMPARISON_BATTLE" ? slide.leftProductSlug : undefined;
+  const rightProductSlug =
+    slide.type === "COMPARISON_BATTLE" ? slide.rightProductSlug : undefined;
+
+  const { data: leftProduct } = useProductQuery(leftProductSlug || "");
+  const { data: rightProduct } = useProductQuery(rightProductSlug || "");
+
+  // Use mock categories for admin preview
+  const categories = React.useMemo(() => mockCategories.map(mockCategoryToCategory), []);
+
+  // Create productsByCategory mapping for preview using mock data
+  const productsByCategory = React.useMemo(() => {
+    if (slide.type !== "CATEGORY_SPOTLIGHT") return {};
+
+    const mapping: Record<string, any[]> = {};
+
+    // Map all products to their respective categories from mock data
+    mockProducts.forEach((p) => {
+      const product = mockProductToProduct(p);
+      const categorySlug = p.categorySlug || "uncategorized";
+      if (!mapping[categorySlug]) {
+        mapping[categorySlug] = [];
+      }
+      mapping[categorySlug].push(product);
+    });
+
+    return mapping;
+  }, [slide.type]);
+
+  // Find the selected category for preview
+  const category = React.useMemo(() => {
+    if (slide.type !== "CATEGORY_SPOTLIGHT" || !slide.categorySlug) return undefined;
+    return categories.find(cat => cat.slug === slide.categorySlug);
+  }, [slide.type, slide.categorySlug, categories]);
+
   return (
     <Card className="overflow-hidden border-2 border-primary/20 shadow-lg bg-surface">
       <div className="p-3 border-b border-primary/10 bg-surface-muted/50 flex justify-between items-center">
@@ -39,6 +77,11 @@ export function HeroSlidePreview({ slide }: HeroSlidePreviewProps) {
           <SlideBodyRenderer
             slide={slide}
             product={product}
+            leftProduct={leftProduct}
+            rightProduct={rightProduct}
+            category={category}
+            categories={categories}
+            productsByCategory={productsByCategory}
             isActive={true}
             index={0}
           />

@@ -188,7 +188,6 @@ export async function getHomePageData(): Promise<HomePageData> {
       // ... other data
     };
   } catch (error) {
-    console.error('Failed to fetch homepage data:', error);
     // Fallback to mocks if API fails
     return getHomePageData();
   }

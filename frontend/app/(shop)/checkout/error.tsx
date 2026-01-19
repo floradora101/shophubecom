@@ -13,8 +13,14 @@ export default function CheckoutError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log error for debugging
-    console.error("Checkout page error:", error);
+    // Log error with centralized logging
+    import("@/lib/errors/logger").then(({ logError }) => {
+      logError(error, {
+        component: "CheckoutPage",
+        action: "page_error",
+        route: "/checkout",
+      });
+    });
   }, [error]);
 
   return (

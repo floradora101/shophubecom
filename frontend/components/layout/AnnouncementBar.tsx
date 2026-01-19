@@ -1,33 +1,25 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { ChevronLeft, ChevronRight, Truck, Info, Zap, Sparkles } from "lucide-react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { ChevronLeft, ChevronRight, Truck, Info, Zap, Sparkles, Bell, Tag, Gift } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { mockAnnouncements } from "@/dev/mocks/announcements.mock";
 
-const announcements = [
-  {
-    text: "Free delivery in Lebanon on all orders over $50",
-    icon: Truck,
-    highlight: "Free Delivery",
-  },
-  {
-    text: "Join our tech community for exclusive weekly deals",
-    icon: Sparkles,
-    highlight: "Exclusive Deals",
-  },
-  {
-    text: "Premium technical support available 24/7 for you",
-    icon: Zap,
-    highlight: "24/7 Support",
-  },
-  {
-    text: "New Year Sale: Up to 40% off on latest gadgets",
-    icon: Info,
-    highlight: "40% Off",
-  },
-];
+const iconMap = {
+  Truck: Truck,
+  Sparkles: Sparkles,
+  Zap: Zap,
+  Info: Info,
+  Bell: Bell,
+  Tag: Tag,
+  Gift: Gift
+};
 
 export function AnnouncementBar() {
+  const announcements = useMemo(() => {
+    return mockAnnouncements.filter(a => a.isActive).sort((a, b) => b.priority - a.priority);
+  }, []);
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -71,12 +63,12 @@ export function AnnouncementBar() {
         {/* Announcements Content Container */}
         <div className="relative w-full max-w-3xl overflow-hidden h-full">
           {announcements.map((announcement, index) => {
-            const Icon = announcement.icon;
+            const Icon = (iconMap[announcement.icon as keyof typeof iconMap] || Info) as any;
             const isActive = index === currentIndex;
 
             return (
               <div
-                key={index}
+                key={announcement.id}
                 className={cn(
                   "absolute inset-0 flex items-center justify-center transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] px-10",
                   isActive

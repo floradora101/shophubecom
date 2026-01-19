@@ -1,0 +1,185 @@
+/**
+ * useCheckoutOrder Hook
+ *
+ * Handles order submission and navigation.
+ *
+ * Responsibilities:
+ * - Order submission logic (demo and real)
+ * - Cart clearing
+ * - Draft clearing
+ * - Navigation after order
+ * - Error handling
+ */
+
+import { useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { apiClient } from "@/lib/api/client";
+import { cartKeys } from "@/features/cart/query-keys";
+import { extractErrorMessage } from "@/lib/utils/error-handler";
+import { DEMO_CHECKOUT } from "@/lib/flags";
+import { createDemoOrder } from "@/features/orders/demo/demoOrders";
+import { logger } from "@/lib/logger";
+import type { CheckoutFormData } from "../types";
+
+// UI Cart Item type (returned by useCart hook)
+interface UICartItem {
+  id: string;
+  productId: string;
+  slug: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+  variantId?: string | null;
+  variantSku?: string | null;
+  selectedOptions?: Record<string, string>;
+}
+
+interface UseCheckoutOrderProps {
+  items: UICartItem[];
+  couponDiscount: number;
+  clearCart: () => Promise<void>;
+  clearDraft: () => void;
+}
+
+interface UseCheckoutOrderReturn {
+  onSubmit: (data: CheckoutFormData) => Promise<void>;
+}
+
+/**
+ * Hook for managing checkout order submission
+ */
+export function useCheckoutOrder({
+  items,
+  couponDiscount,
+  clearCart,
+  clearDraft,
+}: UseCheckoutOrderProps): UseCheckoutOrderReturn {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const onSubmit = useCallback(
+    async (data: CheckoutFormData) => {
+      try {
+        // Always use form data (user can edit even if address was selected)
+        const shippingAddress = {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phone: data.phone,
+          email: data.email || undefined,
+          country: data.country,
+          city: data.city,
+          state: data.state || undefined,
+          street1: data.street1,
+          postalCode: data.postalCode,
+          notes: data.notes || undefined,
+        };
+
+        if (DEMO_CHECKOUT) {
+          // Demo checkout mode - create order client-side
+          logger.debug("Using demo checkout mode");
+
+          const shippingCost =
+            data.shippingOption === "pickup"
+              ? 0
+              : data.shippingOption === "beirut"
+              ? 0
+              : 5;
+          const subtotal = items.reduce(
+            (sum, item) => sum + item.price * item.quantity,
+            0
+          );
+          const total = subtotal + shippingCost - couponDiscount;
+
+          const demoOrderItems = items.map((item) => ({
+            id: item.id,
+            productId: item.productId,
+            variantId: item.variantId || item.productId, // Fallback to productId if no variantId
+            quantity: item.quantity,
+            unitPrice: item.price,
+            total: item.price * item.quantity,
+            title: item.name,
+            attributes: null,
+            variant:
+              item.variantId && item.variantSku
+                ? {
+                    id: item.variantId,
+                    sku: item.variantSku,
+                    image: item.image,
+                    options: item.selectedOptions
+                      ? Object.entries(item.selectedOptions).map(
+                          ([name, value]) => ({ name, value })
+                        )
+                      : undefined,
+                  }
+                : undefined,
+            product: {
+              id: item.productId,
+              name: item.name,
+              slug: item.slug,
+              images: [item.image],
+            },
+          }));
+
+          const order = createDemoOrder({
+            items: demoOrderItems,
+            subtotal,
+            shippingOption: data.shippingOption,
+            shippingCost,
+            total,
+            shippingAddress,
+          });
+
+          // Clear draft on successful order
+          clearDraft();
+
+          // Clear cart client-side
+          await clearCart();
+
+          // Redirect to order complete page with demo flag
+          router.replace(`/order-complete/${order.id}?demo=1`);
+          return;
+        }
+
+        // Original backend flow
+        const response = await apiClient.post("/checkout/place-order", {
+          shippingOption: data.shippingOption,
+          shippingAddress,
+        });
+
+        // Clear draft on successful order
+        clearDraft();
+
+        // Invalidate cart query cache since backend cleared the cart
+        queryClient.invalidateQueries({ queryKey: cartKeys.all });
+
+        // Redirect to order complete page
+        // Backend wraps response in { success: true, data: { orderId, ... } }
+        // For guest orders, token is automatically set in httpOnly cookie by backend
+        const orderData = response.data?.data || response.data;
+        const orderId = orderData?.orderId;
+
+        if (!orderId) {
+          toast.error(
+            "Order placed successfully, but order ID is missing. Please contact support."
+          );
+          return;
+        }
+
+        // Redirect to order complete page (token is in httpOnly cookie)
+        const redirectUrl = `/order-complete/${orderId}`;
+        // Use replace instead of push to prevent back navigation to checkout
+        router.replace(redirectUrl);
+      } catch (error: unknown) {
+        toast.error(
+          extractErrorMessage(error, "Failed to place order. Please try again.")
+        );
+      }
+    },
+    [items, couponDiscount, clearCart, clearDraft, router, queryClient]
+  );
+
+  return { onSubmit };
+}

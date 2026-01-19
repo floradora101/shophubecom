@@ -44,18 +44,18 @@ export function CategoryCard({ category, index }: CategoryCardProps) {
       </div>
 
       {/* Content Section */}
-      <div className="p-5 flex flex-col flex-1">
+      <div className="p-5 lg:p-4 xl:p-4 2xl:p-3 flex flex-col flex-1">
         {category.description && (
-          <p className="text-sm text-warm-gray-600 line-clamp-2 mb-4">
+          <p className="text-sm lg:text-base xl:text-base 2xl:text-sm text-warm-gray-600 line-clamp-3 mb-3 xl:mb-2 2xl:mb-1">
             {category.description}
           </p>
         )}
 
         <div className="mt-auto flex items-center justify-between">
-          <span className="text-[10px] font-black uppercase tracking-widest text-red-600 bg-red-50 px-2 py-1 rounded-lg border border-red-100">
+          <span className="text-[10px] lg:text-xs xl:text-xs 2xl:text-[10px] font-black uppercase tracking-widest text-red-600 bg-red-50 px-2 lg:px-3 xl:px-3 2xl:px-2 py-1 lg:py-1.5 xl:py-1.5 2xl:py-1 rounded-lg border border-red-100">
             View Collection
           </span>
-          <div className="h-8 w-8 rounded-full bg-warm-gray-100 flex items-center justify-center text-warm-gray-600 group-hover:bg-primary-600 group-hover:text-white transition-all duration-300 transform group-hover:translate-x-1">
+          <div className="h-8 w-8 lg:h-10 lg:w-10 xl:h-10 2xl:h-9 2xl:w-9 rounded-full bg-warm-gray-100 flex items-center justify-center text-warm-gray-600 group-hover:bg-primary-600 group-hover:text-white transition-all duration-300 transform group-hover:translate-x-1">
             <ArrowRight className="h-4 w-4" />
           </div>
         </div>

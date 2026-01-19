@@ -106,7 +106,6 @@ export function ProductForm({
 
   const onSubmit = async (data: ProductFormData) => {
     try {
-      console.log("Submitting product data:", data);
       // Transform data if needed for API
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -114,7 +113,6 @@ export function ProductForm({
       toast.success(initialData ? "Product updated!" : "Product created!");
       onSuccess();
     } catch (error) {
-      console.error("Save error:", error);
       toast.error("Failed to save product");
     }
   };

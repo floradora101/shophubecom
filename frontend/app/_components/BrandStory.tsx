@@ -5,8 +5,8 @@ import { Section } from "@/components/ui/section";
 import { SkeletonBlock } from "@/components/ui/skeleton";
 import { Cpu, Zap, Shield } from "lucide-react";
 import Image from "next/image";
-import { SectionHeader, SectionTitle } from "./shared/section-header";
-import { BackgroundGradients } from "./shared/background-gradients";
+import { SectionHeader, SectionTitle } from "@/components/shared/SectionHeader";
+import { BackgroundGradients } from "./shared/BackgroundGradients";
 
 const techValues = [
   {

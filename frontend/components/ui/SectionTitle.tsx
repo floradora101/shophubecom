@@ -1,16 +1,19 @@
 /**
- * Reusable Section Title Component with Optional Left Icon Decorations
+ * Badged Section Title Component with Optional Left Icon Decorations
  *
  * A flexible title component that can be used across the app with customizable text and styling.
  * Supports optional heart decoration on the left side and can be configured for different sections.
  *
+ * NOTE: This is different from the SectionTitle in /components/shared/ which uses italic/bold split styling.
+ * This component displays: badge + title + subtitle pattern.
+ *
  * @example
  * // Default "You May Also Like" with left heart
- * <SectionTitle />
+ * <BadgedSectionTitle />
  *
  * @example
  * // Custom title without heart
- * <SectionTitle
+ * <BadgedSectionTitle
  *   badgeText="Featured Products"
  *   title="Trending Now"
  *   subtitle="Check out what's popular"
@@ -19,7 +22,7 @@
  *
  * @example
  * // Custom styling
- * <SectionTitle
+ * <BadgedSectionTitle
  *   title="Special Offers"
  *   titleClassName="text-red-600"
  *   badgeClassName="bg-red-50 border-red-200"
@@ -30,7 +33,7 @@ import React from "react";
 import { Zap, LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-interface SectionTitleProps {
+interface BadgedSectionTitleProps {
   // Main badge text (what appears in the rounded badge)
   badgeText?: string;
   // Main title text
@@ -51,7 +54,7 @@ interface SectionTitleProps {
   subtitleClassName?: string;
 }
 
-export function SectionTitle({
+export function BadgedSectionTitle({
   badgeText = "You May Also Like",
   title = "Discover More",
   subtitle = "Curated recommendations based on your interests",
@@ -61,7 +64,7 @@ export function SectionTitle({
   badgeClassName = "",
   titleClassName = "",
   subtitleClassName = "",
-}: SectionTitleProps) {
+}: BadgedSectionTitleProps) {
   return (
     <div className={`text-center space-y-4 ${className}`}>
       {/* Badge with optional hearts */}
@@ -103,17 +106,19 @@ export function SectionTitle({
   );
 }
 
-// Backward compatibility alias - keeps existing code working
-export const YouMayAlsoLikeTitle = SectionTitle;
+// NOTE: Aliases removed for consistency. Use BadgedSectionTitle directly.
+// Previously removed aliases:
+// - SectionTitle (caused collision with /components/shared/SectionTitle)
+// - YouMayAlsoLikeTitle (unused, removed for consistency)
 
 /*
 Usage Examples:
 
-// 1. Default "You May Also Like" with left heart (backward compatible)
-<YouMayAlsoLikeTitle />
+// 1. Default "You May Also Like" with badge
+<BadgedSectionTitle />
 
 // 2. Custom section title without heart
-<SectionTitle
+<BadgedSectionTitle
   badgeText="Featured Products"
   title="Trending Now"
   subtitle="Check out what's popular this week"
@@ -121,7 +126,7 @@ Usage Examples:
 />
 
 // 3. Custom section title with star icon
-<SectionTitle
+<BadgedSectionTitle
   badgeText="Refine Your Search"
   title=""
   subtitle="Find exactly what you're looking for"
@@ -132,7 +137,7 @@ Usage Examples:
 />
 
 // 4. Special offers with custom styling
-<SectionTitle
+<BadgedSectionTitle
   badgeText="SPECIAL OFFERS"
   title="Limited Time Deals"
   subtitle="Don't miss out on these amazing discounts"
@@ -142,7 +147,7 @@ Usage Examples:
 />
 
 // 5. Product recommendations with left heart
-<SectionTitle
+<BadgedSectionTitle
   badgeText="Recommended for You"
   title="Personal Picks"
   subtitle="Based on your browsing history"
@@ -150,7 +155,7 @@ Usage Examples:
 />
 
 // 6. Simple title without badge
-<SectionTitle
+<BadgedSectionTitle
   badgeText=""
   title="Our Collection"
   subtitle="Explore our curated selection"

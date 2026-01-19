@@ -53,7 +53,6 @@ export function CouponForm({
 
   const onSubmit = async (data: CouponFormData) => {
     try {
-      console.log("Submitting coupon data:", data);
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -64,7 +63,6 @@ export function CouponForm({
       );
       onSuccess();
     } catch (error) {
-      console.error("Failed to save coupon:", error);
       toast.error("Failed to save coupon. Please try again.");
     }
   };

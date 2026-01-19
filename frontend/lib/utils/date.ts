@@ -77,7 +77,7 @@ export function formatOfferCountdown(endDate: string): string {
 
     return rtf.format(days, "day");
   } catch (error) {
-    console.warn("Error calculating countdown:", error);
+    // Fallback to safe default on date parsing error
     return "Ending soon";
   }
 }
@@ -108,7 +108,7 @@ export function getDetailedCountdown(endDate: string): {
 
     return { days, hours, minutes, isEndingSoon };
   } catch (error) {
-    console.warn("Error calculating detailed countdown:", error);
+    // Fallback to safe default on date parsing error
     return { days: 0, hours: 0, minutes: 0, isEndingSoon: true };
   }
 }

@@ -18,14 +18,13 @@ import {
 import { Container } from "@/components/ui/container";
 import { Badge } from "@/components/ui/badge";
 import { Section } from "@/components/ui/section";
-import { SkeletonBlock } from "@/components/ui/skeleton";
 import { NavigationButton } from "@/components/ui/navigation-button";
-import { ProductCard } from "@/features/products/components/ProductCard";
-import { ProductCardSkeleton } from "@/features/products/components/ProductCardSkeleton";
-import { SectionHeader, SectionTitle } from "./shared/section-header";
+import { ProductCard } from "@/components/shared/ProductCard";
+import { ProductCardSkeleton } from "@/components/shared/ProductCardSkeleton";
+import { SectionHeader, SectionTitle } from "@/components/shared/SectionHeader";
 import type { Product, Category } from "@/features/products/types";
 import { getDiscountInfo } from "@/lib/utils/products";
-import { SparkleEffect } from "./hero/shared/SparkleEffect";
+import { SparkleEffect } from "@/components/ui/SparkleEffect";
 import { useHeroRunCounter } from "@/lib/hooks/use-hero-run-counter";
 
 interface DepartmentTabsProps {
@@ -98,69 +97,8 @@ const departmentConfig: Record<
   },
 };
 
-/**
- * Skeleton loader for DepartmentTabs component
- * Shows tab navigation skeleton and product grid skeleton
- */
-export function DepartmentTabsSkeleton() {
-  return (
-    <Section spacing="md" className="relative overflow-hidden bg-transparent">
-      <Container className="relative z-10">
-        <div className="space-y-6">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="text-center md:text-left space-y-4 flex-1">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600/10 mb-2">
-                <SkeletonBlock className="h-4 w-4 rounded" />
-                <SkeletonBlock className="h-4 w-32 rounded" />
-              </div>
-              <SkeletonBlock className="h-10 w-80 rounded" />
-              <SkeletonBlock className="h-5 w-96 rounded" />
-            </div>
-          </div>
-
-          {/* Enhanced Tabs with Icons */}
-          <div className="flex flex-nowrap sm:flex-wrap justify-start sm:justify-center gap-2.5 pb-4 overflow-x-auto sm:overflow-x-visible scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
-            {Array.from({ length: 7 }, (_, i) => (
-              <div
-                key={i}
-                className="shrink-0 flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg border border-gray-200"
-              >
-                <SkeletonBlock className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded" />
-                <SkeletonBlock className="h-3.5 sm:h-4 w-16 sm:w-20 rounded" />
-              </div>
-            ))}
-          </div>
-
-          {/* Department Info Banner Skeleton */}
-          <div className="relative overflow-hidden rounded-lg p-5 sm:p-6 bg-linear-to-r from-gray-50 to-gray-100 border border-white/20">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-3">
-              <div className="flex items-center gap-3 w-full sm:w-auto">
-                <SkeletonBlock className="p-2.5 rounded-lg w-10 h-10 shrink-0" />
-                <div className="flex-1">
-                  <SkeletonBlock className="h-5 w-32 mb-1" />
-                  <SkeletonBlock className="h-4 w-full sm:w-48" />
-                </div>
-              </div>
-              <SkeletonBlock className="w-full sm:w-20 h-10 sm:h-8 rounded-lg mt-2 sm:mt-0" />
-            </div>
-            {/* Subtle decorative elements */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
-          </div>
-
-          {/* Content - Grid layout only, consistent across all tabs */}
-          <div className="min-h-[350px] transition-all duration-300 ease-in-out">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 animate-fade-in">
-              {Array.from({ length: 8 }, (_, index) => (
-                <ProductCardSkeleton key={`skeleton-${index}`} />
-              ))}
-            </div>
-          </div>
-        </div>
-      </Container>
-    </Section>
-  );
-}
+// Skeleton component extracted to separate server component file
+// See: app/_components/DepartmentTabsSkeleton.tsx
 
 export function DepartmentTabs({
   categories,
@@ -338,7 +276,7 @@ export function DepartmentTabs({
           />
 
           {/* Enhanced Tabs with Staggered Entrance - Horizontal scroll on mobile */}
-          <div className="flex flex-nowrap sm:flex-wrap overflow-x-auto sm:overflow-x-visible sm:justify-center gap-2.5 sm:gap-3 pb-6 px-4 sm:px-0 -mx-4 sm:mx-0 scrollbar-hide hero-item-enter hero-headline">
+          <div className="flex flex-nowrap sm:flex-wrap overflow-x-auto sm:overflow-x-visible sm:justify-center gap-2 sm:gap-2.5 lg:gap-2 pb-6 px-4 sm:px-0 -mx-4 sm:mx-0 scrollbar-hide hero-item-enter hero-headline">
             {mainCategories.map((category, idx) => {
               const config =
                 departmentConfig[category.slug] || departmentConfig.phones;
@@ -349,7 +287,7 @@ export function DepartmentTabs({
                 <button
                   key={category.id}
                   onClick={() => setActiveTab(category.slug)}
-                  className={`group relative shrink-0 px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg font-black transition-all duration-500 ease-out transform hover:scale-[1.05] active:scale-95 ${
+                  className={`group relative shrink-0 px-4 sm:px-5 lg:px-4 py-2 sm:py-2.5 lg:py-2 rounded-lg font-black transition-all duration-500 ease-out transform hover:scale-[1.05] active:scale-95 ${
                     isActive
                       ? "bg-linear-to-r from-red-600 via-red-700 to-red-800 text-white shadow-2xl shadow-red-500/30 border border-white/20"
                       : "bg-white/90 backdrop-blur-md text-gray-600 hover:bg-red-600 hover:text-white border border-gray-100 hover:border-red-600 shadow-sm hover:shadow-xl"
@@ -360,19 +298,19 @@ export function DepartmentTabs({
                   aria-selected={isActive}
                   role="tab"
                 >
-                  <div className="flex items-center gap-2.5 sm:gap-3">
+                  <div className="flex items-center gap-2 sm:gap-2.5 lg:gap-2">
                     <Icon
-                      className={`h-4 w-4 sm:h-5 sm:w-5 transition-all duration-700 ${
+                      className={`h-4 w-4 sm:h-5 sm:w-5 lg:h-4 lg:w-4 transition-all duration-700 ${
                         isActive
                           ? "scale-110 rotate-12"
                           : "group-hover:scale-110 group-hover:-rotate-6"
                       }`}
                     />
-                    <span className="text-[10px] sm:text-sm tracking-widest uppercase font-black">
+                    <span className="text-[10px] sm:text-sm lg:text-xs tracking-widest uppercase font-black">
                       {category.name}
                     </span>
                     {isActive && (
-                      <Sparkles className="h-3.5 w-3.5 animate-pulse text-white/90" />
+                      <Sparkles className="h-3.5 w-3.5 lg:h-3 lg:w-3 animate-pulse text-white/90" />
                     )}
                   </div>
                 </button>
@@ -382,31 +320,31 @@ export function DepartmentTabs({
 
           {/* Department Info Banner - Staggered Entrance */}
           <div
-            className={`relative overflow-hidden rounded-lg p-5 sm:p-8 bg-linear-to-r ${activeConfig.bgGradient} border border-white/20 transition-all duration-700 ease-in-out shadow-lg hero-item-enter hero-description`}
+            className={`relative overflow-hidden rounded-lg p-4 sm:p-6 lg:p-4 bg-linear-to-r ${activeConfig.bgGradient} border border-white/20 transition-all duration-700 ease-in-out shadow-lg hero-item-enter hero-description`}
             style={{ animationDelay: "300ms" }}
           >
-            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-5 sm:gap-6">
-              <div className="flex items-center gap-4 sm:gap-5 w-full md:w-auto">
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-5 lg:gap-4">
+              <div className="flex items-center gap-3 sm:gap-4 lg:gap-3 w-full md:w-auto">
                 <div
-                  className={`p-3 sm:p-4 rounded-lg bg-linear-to-br ${activeConfig.gradient} shadow-2xl shadow-primary-500/20`}
+                  className={`p-2.5 sm:p-3 lg:p-2.5 rounded-lg bg-linear-to-br ${activeConfig.gradient} shadow-2xl shadow-primary-500/20`}
                 >
-                  <activeConfig.icon className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+                  <activeConfig.icon className="h-5 w-5 sm:h-7 sm:w-7 lg:h-6 lg:w-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg sm:text-2xl font-black text-gray-900 mb-0.5 sm:mb-1 tracking-tight">
+                  <h3 className="text-base sm:text-xl lg:text-lg font-black text-gray-900 mb-0.5 sm:mb-1 tracking-tight">
                     {activeConfig.tagline}
                   </h3>
-                  <p className="text-xs sm:text-base text-gray-600 font-medium opacity-80 line-clamp-1 sm:line-clamp-none">
+                  <p className="text-xs sm:text-sm lg:text-xs text-gray-600 font-medium opacity-80 line-clamp-1 sm:line-clamp-none">
                     {activeConfig.description}
                   </p>
                 </div>
               </div>
               <Link
                 href={`/products/category/${activeTab}`}
-                className="group w-full md:w-auto flex items-center justify-center gap-3 px-5 py-3 sm:px-6 sm:py-3 bg-white/95 backdrop-blur-sm rounded-lg text-[10px] sm:text-sm font-black uppercase tracking-widest text-gray-900 hover:bg-red-600 hover:text-white hover:shadow-2xl transition-all duration-500 hover:-translate-y-1"
+                className="group w-full md:w-auto flex items-center justify-center gap-2.5 sm:gap-3 lg:gap-2.5 px-4 py-2.5 sm:px-5 sm:py-2.5 lg:px-4 lg:py-2.5 bg-white/95 backdrop-blur-sm rounded-lg text-[10px] sm:text-sm lg:text-xs font-black uppercase tracking-widest text-gray-900 hover:bg-red-600 hover:text-white hover:shadow-2xl transition-all duration-500 hover:-translate-y-1"
               >
                 <span>View All</span>
-                <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform duration-500" />
+                <ArrowRight className="h-3.5 w-3.5 lg:h-3 lg:w-3 group-hover:translate-x-1 transition-transform duration-500" />
               </Link>
             </div>
             {/* Subtle decorative elements */}

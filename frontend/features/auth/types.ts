@@ -1,12 +1,16 @@
-export interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: "CUSTOMER" | "ADMIN";
-  createdAt: string;
-  updatedAt: string;
-}
+/**
+ * Auth Feature Types
+ *
+ * This file re-exports shared types from @/lib/types/shared for backward compatibility.
+ * New code should import User directly from @/lib/types/shared.
+ *
+ * @see NEXT_REFACTORING_STRATEGIC_ROADMAP.md - Phase 3.1: Type Consolidation
+ */
+
+import type { User } from "@/lib/types/shared";
+
+// Re-export shared types for backward compatibility
+export type { User };
 
 /**
  * Auth response from backend (cookie-based authentication)

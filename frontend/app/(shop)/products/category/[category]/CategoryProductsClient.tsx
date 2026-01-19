@@ -2,7 +2,7 @@
 
 import { Suspense } from "react";
 import { LoadingSpinner } from "@/components/ui/spinner";
-import { ProductsContent } from "../../ProductsContent";
+import { ProductsContent } from "@/app/(shop)/products/ProductsContent";
 
 interface CategoryProductsClientProps {
   categorySlug: string;

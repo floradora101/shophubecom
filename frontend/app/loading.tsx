@@ -4,19 +4,19 @@ import { Header } from "@/components/layout/Header";
 // eslint-disable-next-line no-restricted-imports
 import { Footer } from "@/components/layout/Footer";
 // eslint-disable-next-line no-restricted-imports
-import { HeroShellSkeleton } from "@/components/home/hero/HeroShell";
+import { HeroShellSkeleton } from "@/app/_components/hero/HeroShell";
 // eslint-disable-next-line no-restricted-imports
-import { ServiceShowcaseSkeleton } from "@/components/home/service-showcase";
+import { ServiceShowcaseSkeleton } from "@/app/_components/ServiceShowcaseSkeleton";
 // eslint-disable-next-line no-restricted-imports
-import { DepartmentTabsSkeleton } from "@/components/home/department-tabs";
+import { DepartmentTabsSkeleton } from "@/app/_components/DepartmentTabsSkeleton";
 // eslint-disable-next-line no-restricted-imports
-import { ProductRevealSectionSkeleton } from "@/components/home/product-reveal-section";
+import { ProductRevealSectionSkeleton } from "@/app/_components/ProductRevealSectionSkeleton";
 // eslint-disable-next-line no-restricted-imports
-import { TrendingNowSkeleton } from "@/components/home/trending-now";
+import { TrendingNowSkeleton } from "@/app/_components/TrendingNowSkeleton";
 // eslint-disable-next-line no-restricted-imports
-import { LatestProductsCarouselSkeleton } from "@/components/home/deals-carousel";
+import { LatestProductsCarouselSkeleton } from "@/app/_components/LatestProductsCarouselSkeleton";
 // eslint-disable-next-line no-restricted-imports
-import { BrandStorySkeleton } from "@/components/home/brand-story";
+import { BrandStorySkeleton } from "@/app/_components/BrandStory";
 
 export default function HomePageLoading() {
   return (

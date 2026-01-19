@@ -1,27 +1,9 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { ordersApi, type Order, type OrderStats } from "./api";
+import { orderKeys, type OrderListParams } from "./query-keys";
 
-export const orderKeys = {
-  all: ["orders"] as const,
-  lists: () => ["orders", "list"] as const,
-  list: (params?: {
-    status?: "PENDING" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
-    paymentStatus?: "PENDING" | "AUTHORIZED" | "PAID" | "FAILED" | "REFUNDED";
-    fulfillmentStatus?: "UNFULFILLED" | "PARTIAL" | "FULFILLED" | "RETURNED";
-    page?: number;
-    limit?: number;
-  }) => ["orders", "list", params] as const,
-  detail: (id: string) => ["orders", "detail", id] as const,
-  stats: () => ["orders", "stats"] as const,
-};
-
-export type OrdersListParams = {
-  status?: "PENDING" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
-  paymentStatus?: "PENDING" | "AUTHORIZED" | "PAID" | "FAILED" | "REFUNDED";
-  fulfillmentStatus?: "UNFULFILLED" | "PARTIAL" | "FULFILLED" | "RETURNED";
-  page?: number;
-  limit?: number;
-};
+// Re-export type for convenience
+export type { OrderListParams };
 
 export type OrdersListResult = {
   data: Order[];
@@ -34,7 +16,7 @@ export type OrdersListResult = {
 /**
  * Get paginated orders for the current user with filters
  */
-export function useOrdersQuery(params?: OrdersListParams) {
+export function useOrdersQuery(params?: OrderListParams) {
   return useQuery<OrdersListResult>({
     queryKey: orderKeys.list(params),
     queryFn: () => ordersApi.getOrders(params),

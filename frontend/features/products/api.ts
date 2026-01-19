@@ -1,6 +1,7 @@
 import { apiClient } from "@/lib/api/client";
 import type { BackendResponse } from "@/lib/types/api";
 import type { Product, ProductFilters, ProductsResponse } from "./types";
+import { extractResponseData, extractPaginatedData } from "@/lib/api/response-transformer";
 import {
   searchProducts as getMockProducts,
   getProductBySlug as getMockProductBySlug,
@@ -58,17 +59,7 @@ export const productsApi = {
       }>
     >("/products", { params });
 
-    const { data, total, page, limit, totalPages } = response.data.data;
-
-    const normalized: ProductsResponse = {
-      data,
-      meta: { total, page, limit, totalPages },
-    };
-
-    return {
-      ...normalized,
-      ...normalized.meta,
-    };
+    return extractPaginatedData(response);
   },
 
   async getProductBySlug(slug: string): Promise<Product> {
@@ -81,8 +72,7 @@ export const productsApi = {
     const response = await apiClient.get<BackendResponse<Product>>(
       `/products/${slug}`
     );
-    // Extract data from wrapped response
-    return response.data.data;
+    return extractResponseData(response);
   },
 
   async getFeaturedProducts(): Promise<Product[]> {
@@ -93,7 +83,7 @@ export const productsApi = {
     const response = await apiClient.get<BackendResponse<Product[]>>(
       "/products/featured"
     );
-    return response.data.data;
+    return extractResponseData(response);
   },
 
   async getLatestProducts(): Promise<Product[]> {
@@ -105,6 +95,6 @@ export const productsApi = {
     const response = await apiClient.get<BackendResponse<Product[]>>(
       "/products/latest"
     );
-    return response.data.data;
+    return extractResponseData(response);
   },
 };

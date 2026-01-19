@@ -5,7 +5,6 @@ import React, { useState } from "react";
 import { ChevronDown, FileText, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { SectionTitle } from "@/components/ui/SectionTitle";
 import { Stack } from "@/components/ui/stack";
 import type { Product } from "@/features/products/types";
 

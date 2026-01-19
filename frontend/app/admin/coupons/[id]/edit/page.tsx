@@ -5,7 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Heading, Text } from "@/components/ui/typography";
-import { CouponForm } from "../../_components/CouponForm";
+import { CouponForm } from "@/app/admin/coupons/_components/CouponForm";
 import { mockCoupons } from "@/lib/mock-data/mock-data";
 
 export default function EditCouponPage() {

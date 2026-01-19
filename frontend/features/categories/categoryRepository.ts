@@ -1,10 +1,11 @@
 import * as yup from "yup";
 import { Category } from "@/features/products/types";
-import { categorySchema, CategoryFormData } from "./validation/category.schema";
+import { categorySchema, CategoryFormData } from "./schemas";
 import {
   mockCategories,
   mockCategoryToCategory,
 } from "@/lib/mock-data/mock-data";
+import { logError } from "@/lib/errors";
 
 // Use mock data from frontend with local storage persistence
 class CategoryRepository {
@@ -28,8 +29,11 @@ class CategoryRepository {
       if (stored) {
         this.categories = JSON.parse(stored);
       }
-    } catch (error) {
-      console.error("Failed to load categories from storage:", error);
+    } catch (error: unknown) {
+      logError(error, {
+        component: "CategoryRepository",
+        action: "load_from_storage",
+      });
     }
   }
 
@@ -40,8 +44,14 @@ class CategoryRepository {
           "admin_categories",
           JSON.stringify(this.categories)
         );
-      } catch (error) {
-        console.error("Failed to save categories to storage:", error);
+      } catch (error: unknown) {
+        logError(error, {
+          component: "CategoryRepository",
+          action: "save_to_storage",
+          metadata: {
+            categoryCount: this.categories.length,
+          },
+        });
       }
     }
   }

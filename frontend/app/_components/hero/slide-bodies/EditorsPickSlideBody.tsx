@@ -332,20 +332,6 @@ export const EditorsPickSlideBody = memo(function EditorsPickSlideBody({
                     </span>
                   </Button>
                 </Link>
-                {slide.ctaSecondary && (
-                  <Link
-                    href={slide.ctaSecondary.href}
-                    onMouseEnter={onMouseEnter}
-                    onMouseLeave={onMouseLeave}
-                  >
-                    <Button
-                      size="hero"
-                      className="bg-white text-red-600 hover:bg-red-600 hover:text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all duration-500 px-2.5 sm:px-6 h-7 sm:h-12 font-black uppercase tracking-wider text-[9px] sm:text-sm md:text-base"
-                    >
-                      {slide.ctaSecondary.label}
-                    </Button>
-                  </Link>
-                )}
               </div>
             </HeroItem>
 

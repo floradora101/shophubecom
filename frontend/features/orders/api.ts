@@ -1,5 +1,6 @@
 import { apiClient, type ExtendedAxiosRequestConfig } from "@/lib/api/client";
 import type { BackendResponse } from "@/lib/types/api";
+import { extractResponseData, extractPaginatedData } from "@/lib/api/response-transformer";
 
 // Orders API client
 export type OrderStatus =
@@ -184,14 +185,11 @@ export const ordersApi = {
       if (params?.page) queryParams.append("page", params.page.toString());
       if (params?.limit) queryParams.append("limit", params.limit.toString());
 
-      // Backend wraps response in { success: true, data: {...} }
       const response = await apiClient.get<
         BackendResponse<PaginatedOrderResponse>
       >(`/orders?${queryParams.toString()}`);
 
-      // response.data is the wrapped response: { success: true, data: {...}, timestamp: "..." }
-      // response.data.data is the actual orders response: { data: [...], total, page, limit, totalPages }
-      const ordersResponse = response.data.data;
+      const ordersResponse = extractResponseData(response);
 
       return {
         data: ordersResponse.data.map(transformToOrder),
@@ -215,7 +213,7 @@ export const ordersApi = {
       const response = await apiClient.get<
         BackendResponse<BackendOrderResponseDto>
       >(`/orders/${id}`);
-      return transformToOrder(response.data.data);
+      return transformToOrder(extractResponseData(response));
     } catch (error: unknown) {
       throw error;
     }
@@ -233,7 +231,7 @@ export const ordersApi = {
       >(`/orders/${id}`, {
         _skipAuthRefresh: true,
       } as ExtendedAxiosRequestConfig);
-      return response.data.data;
+      return extractResponseData(response);
     } catch (error: unknown) {
       throw error;
     }
@@ -247,7 +245,7 @@ export const ordersApi = {
       const response = await apiClient.get<BackendResponse<OrderStats>>(
         "/orders/stats"
       );
-      return response.data.data;
+      return extractResponseData(response);
     } catch (error: unknown) {
       throw error;
     }

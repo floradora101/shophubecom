@@ -18,7 +18,7 @@ import { ProfileDashboard } from "@/features/profile/components/ProfileDashboard
 import { ProfileOrders } from "@/features/profile/components/ProfileOrders";
 import { ProfileAddresses } from "@/features/profile/components/ProfileAddresses";
 import { ProfileAccountDetails } from "@/features/profile/components/ProfileAccountDetails";
-import { SectionTitle } from "@/components/ui/SectionTitle";
+import { BadgedSectionTitle } from "@/components/ui/SectionTitle";
 import { Tabs, TabItem } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -94,7 +94,7 @@ function ProfileContent() {
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-red-500/5 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl" />
 
         <div className="container mx-auto px-4 relative z-10">
-          <SectionTitle
+          <BadgedSectionTitle
             badgeText="Member Profile"
             title={`Welcome back, ${mockUser.name.split(" ")[0]}`}
             subtitle="Manage your orders, addresses, and account settings in one place."

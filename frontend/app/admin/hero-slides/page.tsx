@@ -98,6 +98,7 @@ export default function HeroSlidesAdminPage() {
     if (slide.media?.kind === "product") return "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100&h=100&fit=crop";
     if (slide.type === "CATEGORY_SPOTLIGHT") return "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=100&h=100&fit=crop";
     if (slide.type === "EDITORS_PICK") return "https://images.unsplash.com/photo-1456324504439-367cee3b3c32?w=100&h=100&fit=crop";
+    if (slide.type === "COMPARISON_BATTLE") return "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=100&h=100&fit=crop";
     return null;
   };
 

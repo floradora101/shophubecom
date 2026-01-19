@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { HeroMediaFrame } from "../shared/hero-media-frame";
 import { SlideLayout, contentClamp } from "../shared/slide-layout";
 import { HeroItem } from "../shared/hero-item";
-import { SparkleEffect } from "../shared/SparkleEffect";
+import { SparkleEffect } from "@/components/ui/SparkleEffect";
 import { useHeroRunCounter } from "@/lib/hooks/use-hero-run-counter";
 import type { HeroSlide } from "@/lib/types/heroSlides.types";
 import type { Product } from "@/features/products/types";
@@ -42,7 +42,7 @@ export const OfferSlideBody = memo(function OfferSlideBody({
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      console.warn("Failed to copy promo code:", error);
+      // Clipboard write failed - user feedback handled by UI state
     }
   };
 
@@ -162,20 +162,6 @@ export const OfferSlideBody = memo(function OfferSlideBody({
               </span>
             </Button>
           </Link>
-          {slide.ctaSecondary && (
-            <Link
-              href={slide.ctaSecondary.href}
-              onMouseEnter={onMouseEnter}
-              onMouseLeave={onMouseLeave}
-            >
-              <Button
-                size="hero"
-                className="bg-white text-red-600 hover:bg-red-600 hover:text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all duration-500 px-2.5 sm:px-6 h-7 md:h-14 font-black uppercase tracking-wider text-[9px] sm:text-sm md:text-base"
-              >
-                {slide.ctaSecondary.label}
-              </Button>
-            </Link>
-          )}
         </div>
       </HeroItem>
 

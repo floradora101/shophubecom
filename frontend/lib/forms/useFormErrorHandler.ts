@@ -6,6 +6,7 @@
 import { useState, useCallback } from "react";
 import { FieldErrors } from "react-hook-form";
 import { extractErrorMessage } from "@/lib/utils/error-handler";
+import { logError } from "@/lib/errors/logger";
 
 export interface UseFormErrorHandlerOptions {
   /** Fallback error message */
@@ -71,7 +72,13 @@ export function useFormErrorHandler(
       setFormError(message);
 
       if (logErrors) {
-        console.error("[Form Error Handler]", error);
+        logError(error, {
+          component: "FormErrorHandler",
+          action: "form_submission_error",
+          metadata: {
+            fallbackMessage,
+          },
+        });
       }
     },
     [fallbackMessage, logErrors]
@@ -88,7 +95,17 @@ export function useFormErrorHandler(
       }
 
       if (logErrors) {
-        console.error("[Form Validation Errors]", errors);
+        logError(
+          new Error("Form validation failed"),
+          {
+            component: "FormErrorHandler",
+            action: "form_validation_error",
+            metadata: {
+              validationErrors: errors,
+              firstError,
+            },
+          }
+        );
       }
     },
     [logErrors]

@@ -3,9 +3,11 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
-import { SectionHeader } from "./shared/section-header";
-import { ProductCard } from "@/features/products/components/ProductCard";
-import { ProductCardSkeleton } from "@/features/products/components/ProductCardSkeleton";
+import { SectionHeader } from "@/components/shared/SectionHeader";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { ProductCard } from "@/components/shared/ProductCard";
+import { ProductCardSkeleton } from "@/components/shared/ProductCardSkeleton";
 import type { Product, Category } from "@/features/products/types";
 import {
   Sparkles,
@@ -17,19 +19,19 @@ import {
   Star,
   Zap,
   ShieldCheck,
-  ArrowUpRight,
   ArrowRight
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils/cn";
-import { SparkleEffect } from "./hero/shared/SparkleEffect";
+import { SparkleEffect } from "@/components/ui/SparkleEffect";
 import { useCart } from "@/features/cart/hooks";
 import { useFavorites } from "@/features/favorites";
 import { formatPrice } from "@/lib/utils/price";
 import { getProductImageWithPlaceholder, getDiscountInfo } from "@/lib/utils/products";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { extractErrorMessage } from "@/lib/utils/error-handler";
 
 interface SubcategoryShowcaseProps {
   categories: Category[];
@@ -67,13 +69,18 @@ function FeaturedProductDisplay({ product }: { product: Product }) {
       toast.success(`${product.name} added to cart!`);
       toggleCart(true);
     } catch (error) {
-      toast.error("Failed to add to cart");
+      const errorMessage = extractErrorMessage(
+        error,
+        "Failed to add to cart"
+      );
+      toast.error(errorMessage);
+      console.error("Add to cart error:", error);
     }
   };
 
   return (
     <div className="relative group/featured h-full flex flex-col">
-      <div className="relative flex-1 overflow-hidden rounded-lg bg-white border border-gray-100 shadow-[0_30px_70px_rgba(0,0,0,0.06)] group-hover/featured:shadow-[0_50px_100px_rgba(0,0,0,0.1)] transition-all duration-700 flex flex-col">
+      <Card className="relative flex-1 overflow-hidden bg-white shadow-[0_30px_70px_rgba(0,0,0,0.06)] group-hover/featured:shadow-[0_50px_100px_rgba(0,0,0,0.1)] transition-all duration-700 flex flex-col">
         {/* Top Badges & Actions */}
         <div className="absolute top-8 left-8 right-8 z-20 flex justify-between items-start pointer-events-none">
           <div className="flex flex-col gap-2">
@@ -83,7 +90,7 @@ function FeaturedProductDisplay({ product }: { product: Product }) {
             </div>
             {hasDiscount && (
               <div className="bg-red-600 text-white text-[10px] font-black uppercase tracking-[0.2em] px-4 py-2 rounded-lg shadow-xl shadow-red-500/20 self-start pointer-events-auto">
-                -{discountPercent}% OFF
+                {discountPercent}% OFF
               </div>
             )}
           </div>
@@ -163,16 +170,16 @@ function FeaturedProductDisplay({ product }: { product: Product }) {
               </span>
             </div>
 
-            <button
+            <Button
               onClick={handleAddToCart}
               className="flex items-center gap-2.5 sm:gap-3 px-5 py-3 sm:px-8 sm:py-5 bg-red-600 text-white rounded-lg font-black uppercase tracking-[0.15em] text-[10px] sm:text-xs shadow-2xl shadow-red-600/30 hover:bg-red-700 hover:shadow-red-600/50 hover:-translate-y-1 transition-all duration-500 group/btn"
             >
               <span className="whitespace-nowrap">Quick Shop</span>
               <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4 group-hover/btn:rotate-12 transition-transform" />
-            </button>
+            </Button>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* Decorative Shadow Elements */}
       <div className="absolute -bottom-6 inset-x-12 h-12 bg-gray-900/5 blur-3xl -z-10 rounded-full" />
@@ -274,10 +281,10 @@ export function SubcategoryShowcase({
             actions={
               <Link
                 href={`/products/category/${parentCategorySlug}`}
-                className="group flex items-center gap-4 px-6 py-3 bg-white/95 backdrop-blur-md border border-gray-100 rounded-lg text-[10px] font-black uppercase tracking-[0.25em] text-gray-900 hover:border-red-600 shadow-sm hover:shadow-2xl hover:shadow-red-500/10 transition-all duration-500"
+                className="group w-full md:w-auto flex items-center justify-center gap-2.5 sm:gap-3 lg:gap-2.5 px-4 py-2.5 sm:px-5 sm:py-2.5 lg:px-4 lg:py-2.5 bg-white/95 backdrop-blur-sm rounded-lg text-[10px] sm:text-sm lg:text-xs font-black uppercase tracking-widest text-gray-900 hover:bg-red-600 hover:text-white hover:shadow-2xl transition-all duration-500 hover:-translate-y-1"
               >
                 <span>Full Experience</span>
-                <ArrowUpRight className="h-4 w-4 text-red-600 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                <ArrowRight className="h-3.5 w-3.5 lg:h-3 lg:w-3 group-hover:translate-x-1 transition-transform duration-500" />
               </Link>
             }
           />
@@ -292,7 +299,7 @@ export function SubcategoryShowcase({
                     key={sub.id}
                     onClick={() => setActiveSubSlug(sub.slug)}
                     className={cn(
-                      "group relative shrink-0 px-8 py-4 rounded-lg font-black transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] transform active:scale-95 overflow-hidden",
+                      "group relative shrink-0 px-8 py-4 rounded-lg font-black transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] transform active:scale-95 overflow-hidden cursor-pointer",
                       isActive
                         ? "bg-gray-900 text-white shadow-2xl shadow-gray-900/20"
                         : "bg-white text-gray-400 hover:bg-red-600 hover:text-white border border-gray-100 hover:border-red-600 shadow-sm"
@@ -334,17 +341,18 @@ export function SubcategoryShowcase({
 
             {/* Supporting Products Grid */}
             <div className="lg:col-span-7 xl:col-span-7">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-12">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 {products.length > 1 ? (
                   products.slice(1, 5).map((product, idx) => (
                     <div
                       key={product.id}
-                      className="group/item animate-in fade-in slide-in-from-bottom-8 duration-1000"
+                      className="group/item animate-in fade-in slide-in-from-bottom-8 duration-1000 max-w-[180px] sm:max-w-[200px]"
                       style={{ animationDelay: `${idx * 200}ms` }}
                     >
                       <ProductCard
                         product={product}
                         layout="vertical"
+                        compact
                         className="transition-all duration-700 hover:-translate-y-2"
                       />
                     </div>
@@ -358,23 +366,6 @@ export function SubcategoryShowcase({
                 )}
               </div>
 
-              {/* Bottom Call to Action */}
-              <div className="mt-12 pt-8 border-t border-gray-100 flex items-center justify-between">
-                <div className="flex -space-x-3">
-                  {products.slice(0, 5).map((p, i) => (
-                    <div key={p.id} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-gray-100 shadow-sm relative grayscale hover:grayscale-0 transition-all duration-500">
-                      <Image fill src={getProductImageWithPlaceholder(p)} alt="" className="object-cover" />
-                    </div>
-                  ))}
-                  <div className="w-10 h-10 rounded-full border-2 border-white bg-gray-900 flex items-center justify-center text-[9px] font-bold text-white shadow-sm">
-                    +{Math.max(0, products.length - 5)}
-                  </div>
-                </div>
-                <Link href={`/products/category/${activeSubSlug}`} className="flex items-center gap-2 group/more text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-red-600 transition-colors">
-                  <span>Explore full line-up</span>
-                  <ArrowRight className="h-3.5 w-3.5 group-hover/more:translate-x-1 transition-transform" />
-                </Link>
-              </div>
             </div>
           </div>
         </div>
@@ -383,43 +374,5 @@ export function SubcategoryShowcase({
   );
 }
 
-export function SubcategoryShowcaseSkeleton() {
-  return (
-    <Section spacing="lg" className="py-24">
-      <Container>
-        <div className="space-y-16">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-            <div className="space-y-4 flex-1 text-center md:text-left">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-600/10 mb-2 mx-auto md:mx-0">
-                <div className="h-4 w-4 bg-red-600/20 rounded animate-pulse" />
-                <div className="h-4 w-32 bg-gray-100 rounded animate-pulse" />
-              </div>
-              <div className="h-12 w-64 xs:w-80 md:w-96 bg-gray-200 rounded-lg animate-pulse mx-auto md:mx-0" />
-              <div className="h-20 w-full max-w-2xl bg-gray-50 rounded-lg animate-pulse mx-auto md:mx-0" />
-            </div>
-            <div className="h-12 w-48 bg-gray-100 rounded-lg animate-pulse hidden md:block" />
-          </div>
-
-          <div className="flex gap-3 overflow-hidden">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-12 w-32 bg-gray-100 rounded-lg animate-pulse shrink-0" />
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
-            <div className="lg:col-span-5 xl:col-span-4">
-              <div className="aspect-[4/5] bg-gray-100 rounded-lg animate-pulse" />
-            </div>
-            <div className="lg:col-span-7 xl:col-span-8">
-              <div className="grid grid-cols-2 xl:grid-cols-3 gap-8">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <ProductCardSkeleton key={i} />
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </Container>
-    </Section>
-  );
-}
+// Skeleton component extracted to separate server component file
+// See: app/_components/SubcategoryShowcaseSkeleton.tsx

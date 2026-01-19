@@ -4,24 +4,25 @@ import { Header } from "@/components/layout/Header";
 // eslint-disable-next-line no-restricted-imports
 import { Footer } from "@/components/layout/Footer";
 // eslint-disable-next-line no-restricted-imports
-import { HeroShell } from "@/components/home/hero/HeroShell";
+import { HeroShell } from "@/app/_components/hero/HeroShell";
 import { LazySection } from "@/components/ui/lazy-section";
 import type { HomePageData } from "@/lib/data/home";
 
 // Import skeleton components for dynamic loading
-import { DepartmentTabsSkeleton } from "@/components/home/department-tabs";
-import { CategorySpotlightSkeleton } from "@/components/home/category-spotlight";
-import { ServiceShowcaseSkeleton } from "@/components/home/service-showcase";
-import { ProductRevealSectionSkeleton } from "@/components/home/product-reveal-section";
-import { TrendingNowSkeleton } from "@/components/home/trending-now";
-import { SubcategoryShowcaseSkeleton } from "@/components/home/subcategory-showcase";
-import { LatestProductsCarouselSkeleton } from "@/components/home/deals-carousel";
-import { BrandStorySkeleton } from "@/components/home/brand-story";
+import { DepartmentTabsSkeleton } from "@/app/_components/DepartmentTabsSkeleton";
+import { CategorySpotlightSkeleton } from "@/app/_components/CategorySpotlightSkeleton";
+import { ServiceShowcaseSkeleton } from "@/app/_components/ServiceShowcaseSkeleton";
+import { ProductRevealSectionSkeleton } from "@/app/_components/ProductRevealSectionSkeleton";
+import { TrendingNowSkeleton } from "@/app/_components/TrendingNowSkeleton";
+import { SubcategoryShowcaseSkeleton } from "@/app/_components/SubcategoryShowcaseSkeleton";
+import { LatestProductsCarouselSkeleton } from "@/app/_components/LatestProductsCarouselSkeleton";
+import { BrandStorySkeleton } from "@/app/_components/BrandStory";
 
 // Dynamic imports for below-the-fold sections with skeleton fallbacks
+// Components are client components (marked with "use client"), so they won't be SSR'd
 const DepartmentTabs = dynamic(
   () =>
-    import("@/components/home/department-tabs").then((mod) => ({
+    import("@/app/_components/DepartmentTabs").then((mod) => ({
       default: mod.DepartmentTabs,
     })),
   {
@@ -31,7 +32,7 @@ const DepartmentTabs = dynamic(
 
 const CategorySpotlight = dynamic(
   () =>
-    import("@/components/home/category-spotlight").then((mod) => ({
+    import("@/app/_components/CategorySpotlight").then((mod) => ({
       default: mod.CategorySpotlight,
     })),
   {
@@ -41,7 +42,7 @@ const CategorySpotlight = dynamic(
 
 const ServiceShowcase = dynamic(
   () =>
-    import("@/components/home/service-showcase").then((mod) => ({
+    import("@/app/_components/ServiceShowcase").then((mod) => ({
       default: mod.ServiceShowcase,
     })),
   {
@@ -51,7 +52,7 @@ const ServiceShowcase = dynamic(
 
 const ProductRevealSection = dynamic(
   () =>
-    import("@/components/home/product-reveal-section").then((mod) => ({
+    import("@/app/_components/ProductRevealSection").then((mod) => ({
       default: mod.ProductRevealSection,
     })),
   {
@@ -61,7 +62,7 @@ const ProductRevealSection = dynamic(
 
 const TrendingNow = dynamic(
   () =>
-    import("@/components/home/trending-now").then((mod) => ({
+    import("@/app/_components/TrendingNow").then((mod) => ({
       default: mod.TrendingNow,
     })),
   {
@@ -71,7 +72,7 @@ const TrendingNow = dynamic(
 
 const SubcategoryShowcase = dynamic(
   () =>
-    import("@/components/home/subcategory-showcase").then((mod) => ({
+    import("@/app/_components/SubcategoryShowcase").then((mod) => ({
       default: mod.SubcategoryShowcase,
     })),
   {
@@ -81,7 +82,7 @@ const SubcategoryShowcase = dynamic(
 
 const LatestProductsCarousel = dynamic(
   () =>
-    import("@/components/home/deals-carousel").then((mod) => ({
+    import("@/app/_components/DealsCarousel").then((mod) => ({
       default: mod.LatestProductsCarousel,
     })),
   {
@@ -91,7 +92,7 @@ const LatestProductsCarousel = dynamic(
 
 const BrandStory = dynamic(
   () =>
-    import("@/components/home/brand-story").then((mod) => ({
+    import("@/app/_components/BrandStory").then((mod) => ({
       default: mod.BrandStory,
     })),
   {

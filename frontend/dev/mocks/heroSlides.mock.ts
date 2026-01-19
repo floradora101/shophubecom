@@ -195,10 +195,6 @@ export const HERO_SLIDES: HeroSlide[] = [
       label: "Shop Premium Audio",
       href: "/products/sony-wf-1000xm5-premium",
     },
-    ctaSecondary: {
-      label: "View All Earbuds",
-      href: "/categories/earphones",
-    },
     media: {
       kind: "product",
       productSlug: "sony-wf-1000xm5-premium",
@@ -222,10 +218,6 @@ export const HERO_SLIDES: HeroSlide[] = [
     ctaPrimary: {
       label: "Shop Sale Now",
       href: "/categories/electronics?onSale=true",
-    },
-    ctaSecondary: {
-      label: "View All Deals",
-      href: "/offers",
     },
     media: {
       kind: "image",
@@ -257,10 +249,6 @@ export const HERO_SLIDES: HeroSlide[] = [
       label: "Join Our Community",
       href: "/register",
     },
-    ctaSecondary: {
-      label: "Read Reviews",
-      href: "/reviews",
-    },
     media: {
       kind: "image",
       imageUrl:
@@ -280,10 +268,6 @@ export const HERO_SLIDES: HeroSlide[] = [
     ctaPrimary: {
       label: "Explore Laptops",
       href: "/products?category=laptops",
-    },
-    ctaSecondary: {
-      label: "View All Categories",
-      href: "/categories",
     },
     categorySlug: "laptops",
     categoryBullets: [

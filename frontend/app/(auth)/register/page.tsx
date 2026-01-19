@@ -8,9 +8,9 @@ import { LoadingSpinner } from "@/components/ui/spinner";
 import { RegisterForm } from "@/features/auth";
 
 import { UserPlus, ArrowRight, Shield, Star, Sparkles } from "lucide-react";
-import { SparkleEffect } from "@/components/home/hero/shared/SparkleEffect";
+import { SparkleEffect } from "@/components/ui/SparkleEffect";
 import { Badge } from "@/components/ui/badge";
-import { SectionTitle } from "@/components/home/shared/section-header";
+import { SectionTitle } from "@/components/shared/SectionHeader";
 
 function RegisterContent() {
   const searchParams = useSearchParams();

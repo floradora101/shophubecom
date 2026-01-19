@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { categoryRepository } from "../categoryRepository";
 import type { Category } from "@/features/products/types";
 import { Text } from "@/components/ui/typography";
+import { logError } from "@/lib/errors";
 
 interface CategoryPickerProps {
   value?: string | string[];
@@ -64,8 +65,14 @@ export function CategoryPicker({
           filteredData = data.filter(cat => cat.id !== excludeId && !descendants.includes(cat.id));
         }
         setCategories(filteredData);
-      } catch (error) {
-        console.error("Failed to load categories:", error);
+      } catch (error: unknown) {
+        logError(error, {
+          component: "CategoryPicker",
+          action: "load_categories",
+          metadata: {
+            excludeId,
+          },
+        });
       }
     };
 

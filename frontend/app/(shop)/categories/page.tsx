@@ -6,7 +6,7 @@
 import { Suspense } from "react";
 import { Container } from "@/components/ui/container";
 import { Stack } from "@/components/ui/stack";
-import { SectionTitle } from "@/components/home/shared/section-header";
+import { SectionTitle } from "@/components/shared/SectionHeader";
 import { CategoryCard } from "@/features/categories/components/CategoryCard";
 import { getMainCategories } from "@/lib/data/categories";
 import { LoadingSpinner } from "@/components/ui/spinner";
@@ -36,7 +36,7 @@ async function CategoriesContent() {
           </div>
 
           {/* Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-6 md:gap-8">
             {categories.map((category, index) => (
               <CategoryCard
                 key={category.id}

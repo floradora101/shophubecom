@@ -2,7 +2,7 @@
 "use client";
 
 import { Section } from "@/components/ui/section";
-import { ProductCard } from "@/features/products/components/ProductCard";
+import { ProductCard } from "@/components/shared/ProductCard";
 import type { Product } from "@/features/products/types";
 
 interface RelatedProductsProps {

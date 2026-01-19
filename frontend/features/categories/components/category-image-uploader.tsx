@@ -6,6 +6,7 @@ import { Upload, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { logError, extractErrorMessage } from "@/lib/errors";
 
 interface CategoryImageUploaderProps {
   value?: string;
@@ -22,8 +23,6 @@ export function CategoryImageUploader({
 }: CategoryImageUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
 
-  console.log("CategoryImageUploader rendered with value:", value);
-
   // Cleanup blob URLs to prevent memory leaks
   React.useEffect(() => {
     return () => {
@@ -33,24 +32,13 @@ export function CategoryImageUploader({
     };
   }, [value]);
 
-  // For debugging - create a blob URL to show the actual uploaded image
+  // Create a blob URL to show the actual uploaded image
   const uploadFile = useCallback(async (file: File) => {
-    console.log(
-      "Starting upload for file:",
-      file.name,
-      "Size:",
-      file.size,
-      "Type:",
-      file.type
-    );
-
     // Simulate upload delay
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     // Create a blob URL from the actual file to show the real image
     const blobUrl = URL.createObjectURL(file);
-    console.log("Upload successful, created blob URL:", blobUrl);
-
     return blobUrl;
   }, []);
 
@@ -75,14 +63,11 @@ export function CategoryImageUploader({
       }
 
       setIsUploading(true);
-      console.log("Starting image upload process...");
 
       try {
         const uploadedUrl = await uploadFile(file);
-        console.log("Upload completed, URL:", uploadedUrl);
 
         if (uploadedUrl) {
-          console.log("Calling onChange with URL:", uploadedUrl);
           // Clean up previous blob URL if it exists
           if (value && value.startsWith("blob:")) {
             URL.revokeObjectURL(value);
@@ -92,18 +77,20 @@ export function CategoryImageUploader({
         } else {
           throw new Error("No URL returned from upload");
         }
-      } catch (error: any) {
-        console.error("Upload failed with error:", error);
-        console.error("Error details:", {
-          message: error.message,
-          stack: error.stack,
-          name: error.name,
+      } catch (error: unknown) {
+        logError(error, {
+          component: "CategoryImageUploader",
+          action: "upload_image",
+          metadata: {
+            fileType: file.type,
+            fileSize: file.size,
+            fileName: file.name,
+          },
         });
 
-        toast.error(`Upload failed: ${error.message || "Unknown error"}`);
+        toast.error(extractErrorMessage(error, "Upload failed"));
       } finally {
         setIsUploading(false);
-        console.log("Upload process finished");
       }
     },
     [disabled, isUploading, uploadFile, onChange]
@@ -142,7 +129,6 @@ export function CategoryImageUploader({
 
   const removeImage = useCallback(() => {
     if (disabled) return;
-    console.log("Removing image, calling onChange with undefined");
     // Clean up blob URL if it exists
     if (value && value.startsWith("blob:")) {
       URL.revokeObjectURL(value);

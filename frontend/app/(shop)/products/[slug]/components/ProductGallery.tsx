@@ -67,7 +67,7 @@ export function ProductGallery({
           url: window.location.href,
         });
       } catch (err) {
-        console.error("Error sharing:", err);
+        // Share API failed - fallback to clipboard handled below
       }
     } else {
       navigator.clipboard.writeText(window.location.href);

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Geist_Mono, DM_Sans, Inter } from "next/font/google";
 import "./globals.css";
 import { AppProviders } from "./providers";
+import { AppErrorBoundary } from "@/components/errors/ErrorBoundary";
 
 // Tech-focused font stack - clean, modern, professional
 
@@ -44,7 +45,9 @@ export default function RootLayout({
       <body
         className={`${geistMono.variable} ${dmSans.variable} ${inter.variable} antialiased`}
       >
-        <AppProviders>{children}</AppProviders>
+        <AppErrorBoundary>
+          <AppProviders>{children}</AppProviders>
+        </AppErrorBoundary>
       </body>
     </html>
   );

@@ -2,478 +2,105 @@
 "use client";
 
 import { useEffect, useMemo, useState, useCallback } from "react";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { ChevronRight, AlertTriangle, Settings, FileText } from "lucide-react";
+import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+import { AlertTriangle, Settings, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { extractErrorMessage } from "@/lib/utils/error-handler";
 import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/ui/container";
-import { SkeletonBlock } from "@/components/ui/skeleton";
-import {
-  mockProducts,
-  mockProductToProduct,
-  mockCategories,
-  mockCategoryToCategory,
-} from "@/lib/mock-data/mock-data";
-import { getEffectiveStock } from "@/features/products/utils/inventory";
 import { useCart } from "@/features/cart/hooks";
-import {
-  getProductImageWithPlaceholder,
-  PLACEHOLDER_IMAGE,
-  getDiscountInfo,
-} from "@/lib/utils/products";
-import { getAllProductImages } from "@/features/products/utils/product-images";
+import { getProductImageWithPlaceholder } from "@/lib/utils/products";
 import { ProductGallery } from "./components/ProductGallery";
 import { ProductPurchasePanel } from "./components/ProductPurchasePanel";
 import { ProductDetailsTabs } from "./components/ProductDetailsTabs";
-import { YouMayAlsoLike } from "./components/YouMayAlsoLike";
 import { StickyPurchaseBar } from "./components/StickyPurchaseBar";
+import { ProductBreadcrumb } from "./components/ProductBreadcrumb";
+import {
+  ProductDetailSkeleton,
+  ProductGallerySkeleton,
+  ProductPurchasePanelSkeleton,
+  ProductDetailsAccordionSkeleton,
+  YouMayAlsoLikeSkeleton,
+} from "./components/ProductDetailSkeletons";
+import { useStickyBar } from "./hooks/useStickyBar";
+import { useProductGallery } from "./hooks/useProductGallery";
+import { useProductDetail } from "./hooks/useProductDetail";
+import { useVariantSelection } from "./hooks/useVariantSelection";
+import { useVariantLogic } from "./hooks/useVariantLogic";
+import { useProductPricing } from "./hooks/useProductPricing";
+
+// Dynamically import below-the-fold components to reduce initial bundle size
+const YouMayAlsoLike = dynamic(
+  () =>
+    import("./components/YouMayAlsoLike").then((mod) => ({
+      default: mod.YouMayAlsoLike,
+    })),
+  {
+    loading: () => <YouMayAlsoLikeSkeleton />,
+    ssr: false, // Client-only recommendation component
+  }
+);
 
 interface ProductDetailClientProps {
   slug: string;
 }
 
-/**
- * Product Gallery Skeleton - matches ProductGallery layout
- */
-function ProductGallerySkeleton() {
-  return (
-    <div className="w-full">
-      {/* Main image area */}
-      <div className="relative aspect-[4/5] w-full rounded-lg overflow-hidden bg-surface-muted/30">
-        <SkeletonBlock className="absolute inset-0 rounded-none" />
-      </div>
-
-      {/* Thumbnails */}
-      <div className="flex gap-4 mt-6 overflow-x-auto pb-2">
-        {Array.from({ length: 4 }, (_, i) => (
-          <div
-            key={i}
-            className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden bg-surface-muted/30"
-          >
-            <SkeletonBlock className="w-full h-full rounded-none" />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/**
- * Product Purchase Panel Skeleton - matches ProductPurchasePanel layout
- */
-function ProductPurchasePanelSkeleton() {
-  return (
-    <div className="space-y-6">
-      {/* Price section */}
-      <div className="space-y-2">
-        <div className="flex items-baseline gap-3">
-          <SkeletonBlock className="h-8 w-24" />
-          <SkeletonBlock className="h-6 w-16" />
-        </div>
-        <SkeletonBlock className="h-4 w-32" />
-      </div>
-
-      {/* Variant selectors */}
-      <div className="space-y-4">
-        {Array.from({ length: 2 }, (_, i) => (
-          <div key={i} className="space-y-3">
-            <SkeletonBlock className="h-4 w-20" />
-            <div className="grid grid-cols-3 gap-2">
-              {Array.from({ length: 3 }, (_, j) => (
-                <SkeletonBlock key={j} className="h-10 rounded-lg" />
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Quantity and add to cart */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-4">
-          <SkeletonBlock className="h-10 w-32" />
-          <SkeletonBlock className="h-12 flex-1 rounded-lg" />
-        </div>
-      </div>
-
-      {/* Stock info */}
-      <SkeletonBlock className="h-4 w-40" />
-    </div>
-  );
-}
-
-/**
- * Product Details Accordion Skeleton - matches ProductDetailsAccordion layout
- */
-function ProductDetailsAccordionSkeleton() {
-  return (
-    <div className="space-y-4">
-      {Array.from({ length: 3 }, (_, i) => (
-        <div
-          key={i}
-          className="border border-border rounded-lg overflow-hidden"
-        >
-          <div className="flex items-center justify-between p-4 bg-surface-muted">
-            <SkeletonBlock className="h-5 w-48" />
-            <SkeletonBlock className="w-5 h-5 rounded" />
-          </div>
-          <div className="p-4 space-y-3">
-            <SkeletonBlock className="h-4 w-full" />
-            <SkeletonBlock className="h-4 w-5/6" />
-            <SkeletonBlock className="h-4 w-4/5" />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/**
- * You May Also Like Skeleton - matches YouMayAlsoLike layout
- */
-function YouMayAlsoLikeSkeleton() {
-  return (
-    <div className="space-y-8 mt-12 sm:mt-16">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <SkeletonBlock className="w-6 h-6 rounded" />
-        <SkeletonBlock className="h-8 w-64" />
-      </div>
-
-      {/* Products grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-        {Array.from({ length: 4 }, (_, i) => (
-          <div key={i} className="w-full">
-            <div className="group flex flex-col w-full">
-              {/* Image */}
-              <SkeletonBlock className="relative aspect-square rounded-lg overflow-hidden border border-warm-gray-200" />
-
-              {/* Info */}
-              <div className="mt-3 space-y-1 min-h-16 flex flex-col justify-end">
-                <SkeletonBlock className="h-4 md:h-5" />
-                <SkeletonBlock className="h-4 md:h-5 w-3/4" />
-                <SkeletonBlock className="h-3 w-1/2 mt-1" />
-                <div className="flex items-baseline gap-2 flex-wrap mt-2">
-                  <SkeletonBlock className="h-4 md:h-5 w-16" />
-                  <SkeletonBlock className="h-3 w-12" />
-                  <SkeletonBlock className="h-3 w-20" />
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/**
- * Product Detail Page Skeleton - full page loading state
- */
-export function ProductDetailSkeleton() {
-  return (
-    <div className="min-h-screen relative">
-      {/* Breadcrumb */}
-      <div className="border-b border-border/60">
-        <Container className="py-3 sm:py-4">
-          <nav className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
-            <SkeletonBlock className="h-4 w-12" />
-            <div className="w-3.5 h-3.5 rounded" />
-            <SkeletonBlock className="h-4 w-20" />
-            <div className="w-3.5 h-3.5 rounded" />
-            <SkeletonBlock className="h-4 w-16" />
-            <div className="w-3.5 h-3.5 rounded" />
-            <SkeletonBlock className="h-4 w-32" />
-          </nav>
-        </Container>
-      </div>
-
-      {/* Main Content */}
-      <Container className="py-6 sm:py-8 lg:py-12 pb-24 lg:pb-0">
-        <div className="grid gap-8 sm:gap-12 lg:grid-cols-[minmax(0,600px)_minmax(0,1fr)] lg:gap-12 xl:gap-16 2xl:gap-20 min-w-0">
-          {/* Left Column - Gallery Only */}
-          <div className="order-1 lg:order-1 min-w-0 lg:min-h-[calc(100vh-var(--sticky-top)-16px)]">
-            <ProductGallerySkeleton />
-          </div>
-
-          {/* Right Column - Sticky Sidebar */}
-          <div className="order-2 lg:order-2 min-w-0 lg:sticky lg:top-(--sticky-top) self-start">
-            <div className="space-y-6 sm:space-y-8 lg:h-[calc(100vh-var(--sticky-top)-16px)] lg:overflow-y-auto scrollbar-hide">
-              {/* MegaStore Brand & Title - Inside scrollable container */}
-              <div className="w-full mb-6 sm:mb-8 lg:mb-10 text-left">
-                <div className="text-xs sm:text-sm text-gray-500 uppercase tracking-wide font-medium mb-2">
-                  <SkeletonBlock className="h-4 w-16" />
-                </div>
-                <SkeletonBlock className="h-10 w-full" />
-              </div>
-
-              <div id="purchase-section">
-                <ProductPurchasePanelSkeleton />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Full-width sections below the grid */}
-        <div className="mt-12 sm:mt-16 lg:mt-20 space-y-12 sm:space-y-16 lg:space-y-20">
-          {/* Product Details Accordion */}
-          <ProductDetailsAccordionSkeleton />
-
-          {/* You May Also Like Section */}
-          <YouMayAlsoLikeSkeleton />
-        </div>
-      </Container>
-    </div>
-  );
-}
-
 export function ProductDetailClient({ slug }: ProductDetailClientProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { addItem, toggleCart } = useCart();
 
-  // Find product from mock data
-  const product = useMemo(() => {
-    const mockProduct = mockProducts.find((p) => p.slug === slug);
-    if (!mockProduct) return null;
+  // Extract product and category loading to custom hook
+  const { product, category } = useProductDetail({ slug });
 
-    const converted = mockProductToProduct(mockProduct);
-
-    // Ensure defaultVariant exists for products without variants
-    if (!converted.variants?.length) {
-      converted.defaultVariant = {
-        id: `${converted.id}-default`,
-        image: PLACEHOLDER_IMAGE,
-        images: [PLACEHOLDER_IMAGE],
-      };
-    }
-
-    return converted;
-  }, [slug]);
-
-  // Parse URL variant selections
-  const selectedOptions = useMemo(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    const options: Record<string, string> = {};
-    ["color", "size", "storage", "style"].forEach((key) => {
-      const value = params.get(key);
-      if (value) options[key] = value;
-    });
-    return options;
-  }, [searchParams]);
-
-  const [selectedOptionsState, setSelectedOptionsState] =
-    useState(selectedOptions);
   const [quantity, setQuantity] = useState(1);
-  const [showStickyBar, setShowStickyBar] = useState(false);
   const [showSelectionError, setShowSelectionError] = useState(false);
 
-  // Update URL when selections change
-  const updateUrlWithSelections = useCallback(
-    (newSelections: Record<string, string>) => {
-      const params = new URLSearchParams(searchParams.toString());
-      Object.entries(newSelections).forEach(([key, value]) => {
-        if (value) params.set(key, value);
-        else params.delete(key);
-      });
-      const newUrl = params.toString() ? `?${params.toString()}` : "";
-      router.replace(`/products/${slug}${newUrl}`, { scroll: false });
-    },
-    [router, searchParams, slug]
-  );
+  // Extract sticky bar logic to custom hook
+  const { showStickyBar } = useStickyBar();
 
-  // Sync URL params to state
-  useEffect(() => {
-    setSelectedOptionsState(selectedOptions);
-  }, [selectedOptions]);
+  // Extract variant selection logic to custom hook
+  const {
+    selectedOptions,
+    selectedOptionsState,
+    setSelectedOptionsState,
+    updateUrlWithSelections,
+  } = useVariantSelection({ slug });
 
-  // Intersection observer for sticky bar
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => setShowStickyBar(!entry.isIntersecting),
-      { threshold: 0, rootMargin: "-100px 0px 0px 0px" }
-    );
-
-    const productGallery = document.getElementById("product-gallery");
-    if (productGallery) observer.observe(productGallery);
-
-    return () => observer.disconnect();
-  }, []);
-
-  // Get category for breadcrumbs
-  const category = useMemo(() => {
-    if (!product?.categoryId) return null;
-    const mockCategory = mockCategories.find(
-      (c) => c.slug === product.categoryId
-    );
-    return mockCategory ? mockCategoryToCategory(mockCategory) : null;
-  }, [product]);
-
-  // Compute variant logic
+  // Extract variant logic computation to custom hook
   const {
     selectedVariant,
     optionKeys,
     allOptionValues,
     isUserSelectionComplete,
     isInvalidSelection,
-  } = useMemo(() => {
-    if (!product)
-      return {
-        selectedVariant: null,
-        optionKeys: [],
-        allOptionValues: {},
-        isUserSelectionComplete: false,
-        isInvalidSelection: false,
-      };
+  } = useVariantLogic({
+    product,
+    selectedOptionsState,
+  });
 
-    const variants = product.variants || [];
-    const keys = new Set<string>();
+  // Extract pricing and stock calculations to custom hook
+  const {
+    effectivePrice,
+    hasDiscount,
+    discountPercent,
+    originalPrice,
+    isOutOfStock,
+    isUnavailable,
+    effectiveStock,
+    canAddToCart,
+  } = useProductPricing({
+    product,
+    selectedVariant,
+    isInvalidSelection,
+  });
 
-    variants.forEach((variant) => {
-      Object.keys(variant.options || {}).forEach((key) => keys.add(key));
-    });
-
-    const prioritized = ["color", "storage", "size"];
-    const rest = Array.from(keys)
-      .filter((key) => !prioritized.includes(key))
-      .sort();
-    const optionKeys = [...prioritized.filter((key) => keys.has(key)), ...rest];
-
-    // Calculate option values with stock
-    const optionMap = new Map<string, Map<string, number>>();
-    variants.forEach((variant) => {
-      const stock = variant.stock ?? 0;
-      Object.entries(variant.options || {}).forEach(([key, value]) => {
-        if (!optionMap.has(key)) optionMap.set(key, new Map());
-        const valueMap = optionMap.get(key)!;
-        valueMap.set(value, (valueMap.get(value) ?? 0) + stock);
-      });
-    });
-
-    const allOptionValues: Record<
-      string,
-      { value: string; totalStock: number }[]
-    > = {};
-    optionKeys.forEach((key) => {
-      const valueMap = optionMap.get(key) ?? new Map();
-      allOptionValues[key] = Array.from(valueMap.entries()).map(
-        ([value, totalStock]) => ({
-          value,
-          totalStock,
-        })
-      );
-    });
-
-    // Find selected variant
-    const selectionEntries = Object.entries(selectedOptionsState).filter(
-      ([, v]) => Boolean(v)
-    );
-    const candidateVariants = variants.filter((variant) =>
-      selectionEntries.every(([key, value]) => variant.options?.[key] === value)
-    );
-
-    const isUserSelectionComplete =
-      optionKeys.length > 0 &&
-      optionKeys.every((k) => Boolean(selectedOptionsState[k]));
-    const isInvalidSelection =
-      isUserSelectionComplete && candidateVariants.length === 0;
-
-    let selectedVariant = null;
-    if (variants.length > 0) {
-      if (isInvalidSelection) {
-        selectedVariant = null;
-      } else {
-        const inStockCandidate = candidateVariants.find(
-          (v) => (v.stock ?? 0) > 0
-        );
-        if (inStockCandidate) selectedVariant = inStockCandidate;
-        else if (candidateVariants[0]) selectedVariant = candidateVariants[0];
-        else
-          selectedVariant =
-            variants.find((v) => (v.stock ?? 0) > 0) ?? variants[0] ?? null;
-      }
-    } else {
-      // No variants - create a default variant for products without explicit variants
-      selectedVariant = {
-        id: `${product?.id}-default`,
-        sku: `${product?.id}-default`,
-        price: product?.price ?? 0,
-        stock: product?.stock ?? 100,
-        image: product?.defaultVariant?.image ?? PLACEHOLDER_IMAGE,
-        images: product?.defaultVariant?.images ?? [PLACEHOLDER_IMAGE],
-        options: {},
-      };
-    }
-
-    return {
-      selectedVariant,
-      optionKeys,
-      allOptionValues,
-      isUserSelectionComplete,
-      isInvalidSelection,
-    };
-  }, [product, selectedOptionsState]);
-
-  // Price and stock calculations
-  const effectivePrice = selectedVariant?.price ?? product?.price ?? 0;
-
-  // Use getDiscountInfo for base product discount, then adjust for variant pricing
-  const baseDiscountInfo = product
-    ? getDiscountInfo(product)
-    : {
-        hasDiscount: false,
-        discountPercent: 0,
-        originalPrice: null,
-        savings: 0,
-      };
-
-  // For variants, we need to calculate discount relative to the effective price
-  // If variant has different pricing, adjust the discount calculation
-  let hasDiscount = baseDiscountInfo.hasDiscount;
-  let discountPercent = baseDiscountInfo.discountPercent;
-  let originalPrice = baseDiscountInfo.originalPrice;
-
-  // If we have a selected variant with different price, recalculate discount
-  if (
-    selectedVariant &&
-    product?.originalPrice &&
-    product.originalPrice > effectivePrice
-  ) {
-    originalPrice = product.originalPrice;
-    discountPercent = Math.round(
-      ((originalPrice - effectivePrice) / originalPrice) * 100
-    );
-    hasDiscount = true;
-  }
-
-  const variantStock = selectedVariant?.stock ?? 0;
-  const isOutOfStock = selectedVariant && variantStock <= 0;
-  const isUnavailable = isInvalidSelection;
-  const effectiveStock = selectedVariant
-    ? variantStock
-    : product
-    ? getEffectiveStock(product)
-    : 0;
-  const canAddToCart = selectedVariant && variantStock > 0 && !isUnavailable;
-
-  // Gallery images
-  const galleryImages = useMemo(() => {
-    if (!product) return [PLACEHOLDER_IMAGE];
-
-    // If a specific variant is selected, prioritize its images
-    if (selectedVariant) {
-      const images = [];
-      if (selectedVariant.image) images.push(selectedVariant.image);
-      if (selectedVariant.images?.length)
-        images.push(...selectedVariant.images);
-      if (images.length > 0) return images;
-    }
-
-    // Fallback to all product images using the proper utility
-    const allImages = getAllProductImages(product);
-    return allImages.length > 0 ? allImages : [PLACEHOLDER_IMAGE];
-  }, [selectedVariant, product]);
+  // Extract gallery images logic to custom hook
+  const { galleryImages } = useProductGallery({
+    product,
+    selectedVariant,
+  });
 
   // Handlers
   const handleOptionSelect = useCallback(
@@ -550,8 +177,12 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
       // Clear any previous selection errors on successful add
       setShowSelectionError(false);
     } catch (error) {
-      console.error("Failed to add item to cart:", error);
-      toast.error("Failed to add item to cart. Please try again.");
+      const errorMessage = extractErrorMessage(
+        error,
+        "Failed to add item to cart. Please try again."
+      );
+      toast.error(errorMessage);
+      console.error("Add to cart error:", error);
     }
   }, [
     canAddToCart,
@@ -644,43 +275,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
   return (
     <div className="min-h-screen relative">
       {/* Breadcrumb */}
-      <div className="border-b border-border/60">
-        <Container className="py-3 sm:py-4">
-          <nav
-            className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm overflow-x-auto scrollbar-hide"
-            aria-label="Breadcrumb"
-          >
-            <Link
-              href="/"
-              className="text-muted-fg hover:text-fg transition-colors whitespace-nowrap shrink-0"
-            >
-              Home
-            </Link>
-            <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-fg shrink-0" />
-            <Link
-              href="/products"
-              className="text-muted-fg hover:text-fg transition-colors whitespace-nowrap shrink-0"
-            >
-              Products
-            </Link>
-            {category && (
-              <>
-                <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-fg shrink-0" />
-                <Link
-                  href={`/products/category/${category.slug}`}
-                  className="text-muted-fg hover:text-fg transition-colors whitespace-nowrap shrink-0"
-                >
-                  {category.name}
-                </Link>
-              </>
-            )}
-            <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-fg shrink-0" />
-            <span className="text-fg font-medium truncate max-w-32 sm:max-w-xs">
-              {product.name}
-            </span>
-          </nav>
-        </Container>
-      </div>
+      <ProductBreadcrumb product={product} category={category} />
 
       {/* Main Content */}
       <Container className="py-6 sm:py-8 lg:py-12 pb-24 lg:pb-0">

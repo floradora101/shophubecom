@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { HeroItem } from "../shared/hero-item";
 import { useHeroRunCounter } from "@/lib/hooks/use-hero-run-counter";
 import { getProductImageWithPlaceholder } from "@/lib/utils/products";
-import { HeroPriceBlock } from "../../shared/hero-price-block";
+import { HeroPriceBlock } from "../../shared/HeroPriceBlock";
 import Image from "next/image";
 import { cn } from "@/lib/utils/cn";
 import { SkeletonBlock } from "@/components/ui/skeleton";

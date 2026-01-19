@@ -9,11 +9,11 @@ import {
 } from "react";
 import { NavigationButton } from "@/components/ui/navigation-button";
 import { SkeletonBlock } from "@/components/ui/skeleton";
-import { SlideIndicators } from "../shared/slide-indicators";
+import { SlideIndicators } from "../shared/SlideIndicators";
 import { SlideCounter } from "./shared/slide-counter";
 import { SlideBodyRenderer } from "./SlideBodyRenderer";
-import { usePrefersReducedMotion } from "@/lib/hooks/usePrefersReducedMotion";
-import { useSwipe } from "@/lib/hooks/useSwipe";
+import { usePrefersReducedMotion } from "@/lib/hooks/use-prefers-reduced-motion";
+import { useSwipe } from "@/lib/hooks/use-swipe";
 import { useHeroSlideProcessor } from "@/lib/utils/hero-slide-hydrator";
 import type { HeroSlide } from "@/lib/types/heroSlides.types";
 import type { Product, Category } from "@/features/products/types";

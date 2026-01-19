@@ -1,12 +1,33 @@
-/* Global styles for the Next.js app shell. */
+/* ============================================================================
+   DESIGN SYSTEM - GLOBAL STYLES
+   ============================================================================
+   Organized by a Senior System Solution Architect following best practices:
+   - CSS Variables grouped by category
+   - Clear section comments
+   - Logical ordering (foundation → tokens → utilities → animations)
+   - Removed unused color palettes for maintainability
+   ============================================================================ */
+
 @import "tailwindcss";
 @config "../tailwind.config.ts";
 
+/* ============================================================================
+   ROOT CSS VARIABLES
+   ============================================================================ */
+
 :root {
+  /* --------------------------------------------------------------------------
+     Base Colors
+     ------------------------------------------------------------------------ */
   --background: #ffffff;
   --foreground: #2d2926;
+  --white: #ffffff;
+  --black: #000000;
+  --light-gray: #f3f4f6;
 
-  /* Primary Accent Color - Deep Red Theme */
+  /* --------------------------------------------------------------------------
+     Primary Brand Colors - Deep Red Theme
+     ------------------------------------------------------------------------ */
   --primary-50: #fef2f4;
   --primary-100: #fce8ea;
   --primary-200: #f7c5c9;
@@ -18,7 +39,23 @@
   --primary-800: #b10302;
   --primary-900: #8c0302;
 
-  /* Warm Neutral Colors - Silver & Charcoal (Oil-like) with Red Accents */
+  /* --------------------------------------------------------------------------
+     Secondary Brand Colors - Warm Amber/Gray Theme
+     ------------------------------------------------------------------------ */
+  --secondary-50: #f8f7f6;
+  --secondary-100: #f0eeec;
+  --secondary-200: #ddd9d5;
+  --secondary-300: #c4b8b0;
+  --secondary-400: #9c8a7f;
+  --secondary-500: #7a6a5e;
+  --secondary-600: #5a4f46;
+  --secondary-700: #433b34;
+  --secondary-800: #2d2620;
+  --secondary-900: #1a1613;
+
+  /* --------------------------------------------------------------------------
+     Warm Neutral Colors - Silver & Charcoal (Oil-like)
+     ------------------------------------------------------------------------ */
   --cream-50: #fefefe;
   --cream-100: #fcf9f9;
   --cream-200: #f8f4f4;
@@ -34,7 +71,9 @@
   --warm-gray-800: #4a413d;
   --warm-gray-900: #342d2a;
 
-  /* Neutral Base Colors */
+  /* --------------------------------------------------------------------------
+     Neutral Base Colors - Standard Grays
+     ------------------------------------------------------------------------ */
   --gray-50: #fafafa;
   --gray-100: #f5f5f5;
   --gray-200: #e5e5e5;
@@ -46,7 +85,9 @@
   --gray-800: #262626;
   --gray-900: #171717;
 
-  /* Semantic Colors */
+  /* --------------------------------------------------------------------------
+     Semantic Colors - Status & Feedback
+     ------------------------------------------------------------------------ */
   --success: #10b981;
   --success-light: #34d399;
   --error: #ef4444;
@@ -54,15 +95,10 @@
   --warning: #f59e0b;
   --info: #3b82f6;
 
-  /* Base Colors */
-  --white: #ffffff;
-  --black: #000000;
-
-  /* Additional Semantic Colors */
-  --yellow: #fef3c7;
-  --yellow-light: #fef3c7;
-
-  /* Green color scale for success theme */
+  /* --------------------------------------------------------------------------
+     Status Color Palettes (Used for UI feedback)
+     ------------------------------------------------------------------------ */
+  /* Green - Success states, badges, status indicators */
   --green-50: #f0fdf4;
   --green-100: #dcfce7;
   --green-200: #bbf7d0;
@@ -72,7 +108,7 @@
   --green-600: #16a34a;
   --green-700: #15803d;
 
-  /* Yellow color scale for warning theme */
+  /* Yellow - Warning states, highlights */
   --yellow-50: #fffbeb;
   --yellow-100: #fef3c7;
   --yellow-200: #fde68a;
@@ -82,27 +118,7 @@
   --yellow-600: #d97706;
   --yellow-700: #b45309;
 
-  /* Purple color scale for blue theme gradients */
-  --purple-50: #faf5ff;
-  --purple-100: #f3e8ff;
-  --purple-200: #e9d5ff;
-  --purple-300: #d8b4fe;
-  --purple-400: #c084fc;
-  --purple-500: #a855f7;
-  --purple-600: #9333ea;
-  --purple-700: #7c3aed;
-
-  /* Pink color scale for success theme gradients */
-  --pink-50: #fdf2f8;
-  --pink-100: #fce7f3;
-  --pink-200: #fbcfe8;
-  --pink-300: #f9a8d4;
-  --pink-400: #f472b6;
-  --pink-500: #ec4899;
-  --pink-600: #db2777;
-  --pink-700: #be185d;
-
-  /* Orange color scale for warning theme gradients */
+  /* Orange - Alert states, promotions */
   --orange-50: #fff7ed;
   --orange-100: #ffedd5;
   --orange-200: #fed7aa;
@@ -112,7 +128,34 @@
   --orange-600: #ea580c;
   --orange-700: #c2410c;
 
-  /* Rose color scale for cream theme gradients */
+  /* Additional semantic color aliases */
+  --yellow: #fef3c7;
+  --yellow-light: #fef3c7;
+
+  /* --------------------------------------------------------------------------
+     Accent Color Palettes (Used sparingly in specific components)
+     ------------------------------------------------------------------------ */
+  /* Purple - Gradient accents (used in ProductsGrid) */
+  --purple-50: #faf5ff;
+  --purple-100: #f3e8ff;
+  --purple-200: #e9d5ff;
+  --purple-300: #d8b4fe;
+  --purple-400: #c084fc;
+  --purple-500: #a855f7;
+  --purple-600: #9333ea;
+  --purple-700: #7c3aed;
+
+  /* Pink - Gradient accents */
+  --pink-50: #fdf2f8;
+  --pink-100: #fce7f3;
+  --pink-200: #fbcfe8;
+  --pink-300: #f9a8d4;
+  --pink-400: #f472b6;
+  --pink-500: #ec4899;
+  --pink-600: #db2777;
+  --pink-700: #be185d;
+
+  /* Rose - Admin UI accents */
   --rose-50: #fff1f2;
   --rose-100: #ffe4e6;
   --rose-200: #fecdd3;
@@ -122,7 +165,7 @@
   --rose-600: #e11d48;
   --rose-700: #be123c;
 
-  /* Indigo color scale for blue theme gradients */
+  /* Indigo - Gradient accents */
   --indigo-50: #eef2ff;
   --indigo-100: #e0e7ff;
   --indigo-200: #c7d2fe;
@@ -132,42 +175,9 @@
   --indigo-600: #4f46e5;
   --indigo-700: #4338ca;
 
-  /* Teal color scale for success theme gradients */
-  --teal-50: #f0fdfa;
-  --teal-100: #ccfbf1;
-  --teal-200: #99f6e4;
-  --teal-300: #5eead4;
-  --teal-400: #2dd4bf;
-  --teal-500: #14b8a6;
-  --teal-600: #0d9488;
-  --teal-700: #0f766e;
-
-  /* Violet color scale for cream theme gradients */
-  --violet-50: #faf5ff;
-  --violet-100: #f3e8ff;
-  --violet-200: #e9d5ff;
-  --violet-300: #d8b4fe;
-  --violet-400: #c084fc;
-  --violet-500: #a855f7;
-  --violet-600: #9333ea;
-  --violet-700: #7c3aed;
-  --light-gray: #f3f4f6;
-
-  /* Secondary Accent Color - Deep Black/Red & Gray/Red Theme */
-  --secondary-50: #f8f7f6;
-  --secondary-100: #f0eeec;
-  --secondary-200: #ddd9d5;
-  --secondary-300: #c4b8b0;
-  --secondary-400: #9c8a7f;
-  --secondary-500: #7a6a5e;
-  --secondary-600: #5a4f46;
-  --secondary-700: #433b34;
-  --secondary-800: #2d2620;
-  --secondary-900: #1a1613;
-
-  /* Design System Tokens - Unified Design System */
-
-  /* Border Radius Scale */
+  /* --------------------------------------------------------------------------
+     Design System Tokens - Border Radius
+     ------------------------------------------------------------------------ */
   --radius-xs: 0.25rem; /* 4px */
   --radius-sm: 0.375rem; /* 6px */
   --radius-md: 0.5rem; /* 8px */
@@ -176,7 +186,9 @@
   --radius-2xl: 0.75rem; /* 12px */
   --radius-full: 9999px; /* Full circle */
 
-  /* Spacing Scale (for sections and components) */
+  /* --------------------------------------------------------------------------
+     Design System Tokens - Spacing Scale
+     ------------------------------------------------------------------------ */
   --spacing-xs: 0.5rem; /* 8px */
   --spacing-sm: 0.75rem; /* 12px */
   --spacing-md: 1rem; /* 16px */
@@ -184,25 +196,29 @@
   --spacing-xl: 2rem; /* 32px */
   --spacing-2xl: 3rem; /* 48px */
   --spacing-3xl: 4rem; /* 64px */
-  /* Shadow Scale */
+
+  /* --------------------------------------------------------------------------
+     Design System Tokens - Shadow Scale
+     ------------------------------------------------------------------------ */
   --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1),
-    0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1),
-    0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-  --shadow-hover: 0 20px 25px -5px rgb(0 0 0 / 0.1),
-    0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-hover: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 
-  /* Border Colors */
+  /* --------------------------------------------------------------------------
+     Design System Tokens - Border Colors
+     ------------------------------------------------------------------------ */
   --border-color: var(--warm-gray-200);
   --border-color-hover: var(--warm-gray-300);
   --border-color-focus: var(--primary-600);
   --border-color-error: var(--error);
 
-  /* Design System Color Aliases */
+  /* --------------------------------------------------------------------------
+     Design System Tokens - Color Aliases (Unified Design System)
+     ------------------------------------------------------------------------ */
   --ds-bg: var(--background);
   --ds-fg: var(--foreground);
   --ds-surface: var(--white);
@@ -212,18 +228,24 @@
   --ds-ring: var(--border-color-focus);
   --ds-muted-fg: var(--warm-gray-600);
 
-  /* Focus Ring */
+  /* --------------------------------------------------------------------------
+     Design System Tokens - Focus Ring
+     ------------------------------------------------------------------------ */
   --focus-ring: 0 0 0 2px var(--primary-600);
   --focus-ring-offset: 2px;
 
-  /* Primary Gradient */
+  /* --------------------------------------------------------------------------
+     Design System Tokens - Gradients
+     ------------------------------------------------------------------------ */
   --gradient-primary: linear-gradient(
     to right,
     var(--primary-600),
     var(--primary-600)
   );
 
-  /* Typography Scale - Semantic Scale */
+  /* --------------------------------------------------------------------------
+     Design System Tokens - Typography Scale
+     ------------------------------------------------------------------------ */
   --font-size-xs: 0.75rem; /* 12px */
   --font-size-sm: 0.875rem; /* 14px */
   --font-size-base: 1rem; /* 16px */
@@ -264,7 +286,9 @@
   --letter-spacing-wider: 0.05em;
   --letter-spacing-widest: 0.1em;
 
-  /* Z-Index Scale */
+  /* --------------------------------------------------------------------------
+     Design System Tokens - Z-Index Scale
+     ------------------------------------------------------------------------ */
   --z-index-dropdown: 1000;
   --z-index-sticky: 1020;
   --z-index-fixed: 1030;
@@ -277,17 +301,21 @@
   /* Sticky Top Offset - Header height + spacing (AnnouncementBar 40px + Header 64px) */
   --sticky-top: 104px;
 
-  /* Animation Durations */
+  /* --------------------------------------------------------------------------
+     Design System Tokens - Animation Timing
+     ------------------------------------------------------------------------ */
   --duration-fast: 150ms;
   --duration-normal: 300ms;
   --duration-slow: 500ms;
 
-  /* Animation Easing */
+  /* Animation Easing Functions */
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Hero Theme Variables - New simplified theming system */
+  /* --------------------------------------------------------------------------
+     Hero Component Variables
+     ------------------------------------------------------------------------ */
   --hero-h: clamp(550px, min(78svh, 90svw * 0.75), 870px);
   --hero-pad: 40px;
 
@@ -303,13 +331,16 @@
   --hero-accent-weak: rgba(250, 6, 3, 0.12); /* red with 12% opacity */
   --hero-landscape-accent: #fa0603; /* primary-600 red */
   --hero-border: rgba(250, 6, 3, 0.18); /* red with 18% opacity */
-
-  /* Hero Glass UI Utility Classes */
   --hero-glass-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
     0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
+/* ============================================================================
+   THEME INLINE - Tailwind CSS v4 Theme Configuration
+   ============================================================================ */
+
 @theme inline {
+  /* Font Families */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-mono: var(--font-geist-mono);
@@ -533,71 +564,93 @@
   --animate-hero-item-enter: hero-item-enter 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
-/* Standard CSS Keyframes for manual usage */
+/* ============================================================================
+   STANDARD CSS KEYFRAMES (For manual usage outside Tailwind)
+   ============================================================================ */
+
 @keyframes fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
 @keyframes fade-out {
   from { opacity: 1; }
   to { opacity: 0; }
 }
+
 @keyframes fade-in-up {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
 @keyframes fade-in-down {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
 @keyframes fade-in-left {
   from { opacity: 0; transform: translateX(-20px); }
   to { opacity: 1; transform: translateX(0); }
 }
+
 @keyframes fade-in-right {
   from { opacity: 0; transform: translateX(20px); }
   to { opacity: 1; transform: translateX(0); }
 }
+
 @keyframes scale-in {
   from { opacity: 0; transform: scale(0.95); }
   to { opacity: 1; transform: scale(1); }
 }
+
 @keyframes scale-out {
   from { opacity: 1; transform: scale(1); }
   to { opacity: 0; transform: scale(0.95); }
 }
+
 @keyframes slide-in-right {
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
+
 @keyframes slide-in-left {
   from { transform: translateX(-100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
+
 @keyframes bounce-slow {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
 }
+
 @keyframes pulse-slow {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.8; }
 }
+
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-10px); }
 }
+
 @keyframes shimmer {
   0% { background-position: -200px 0; }
   100% { background-position: calc(200px + 100%) 0; }
 }
+
 @keyframes marquee {
   0% { transform: translate3d(0, 0, 0); }
   100% { transform: translate3d(-50%, 0, 0); }
 }
+
 @keyframes hero-item-enter {
   0% { opacity: 0; transform: translate3d(0, 12px, 0); }
   100% { opacity: 1; transform: translate3d(0, 0, 0); }
 }
+
+/* ============================================================================
+   BASE HTML/BODY STYLES
+   ============================================================================ */
 
 html {
   overflow-x: hidden;
@@ -613,8 +666,7 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-inter), var(--font-geist-sans), Arial, Helvetica,
-    sans-serif;
+  font-family: var(--font-inter), var(--font-geist-sans), Arial, Helvetica, sans-serif;
   font-size: 16px;
   line-height: 1.5;
   letter-spacing: 0.01em;
@@ -627,6 +679,10 @@ body {
     overflow-x: visible;
   }
 }
+
+/* ============================================================================
+   UTILITY CLASSES - Scrollbar Utilities
+   ============================================================================ */
 
 /* Hide scrollbar for navbar */
 .scrollbar-hide {
@@ -642,6 +698,36 @@ body {
 .overflow-x-auto::-webkit-scrollbar {
   display: none;
 }
+
+/* Custom Scrollbar - For Cart & Other Drawers */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 20px;
+  border: 1px solid transparent;
+  background-clip: content-box;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+  background-clip: content-box;
+}
+
+/* ============================================================================
+   UTILITY CLASSES - Hero Component Effects
+   ============================================================================ */
 
 /* Red-Neon Glow Effect */
 .red-neon-glow {
@@ -659,18 +745,6 @@ body {
   }
 }
 
-/* Reduced Motion Support - Accessibility */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
 /* Ensure consistent button centering */
 .hero-item-enter.hero-buttons {
   display: flex !important;
@@ -679,7 +753,10 @@ body {
   width: 100% !important;
 }
 
-/* Landscape text decoration effects */
+/* ============================================================================
+   UTILITY CLASSES - Landscape Text Decoration Effects
+   ============================================================================ */
+
 .outline-text {
   -webkit-text-stroke: 2px var(--hero-landscape-accent);
   color: white;
@@ -728,7 +805,10 @@ body {
   color: transparent;
 }
 
-/* New trendy headline decorations */
+/* ============================================================================
+   UTILITY CLASSES - Text Decoration Styles
+   ============================================================================ */
+
 .double-underline {
   position: relative;
   display: inline-block;
@@ -788,8 +868,7 @@ body {
 }
 
 @keyframes wave-flow {
-  0%,
-  100% {
+  0%, 100% {
     transform: scaleX(1);
   }
   50% {
@@ -858,6 +937,10 @@ body {
   text-shadow: 0 0 20px rgba(250, 6, 3, 0.3);
 }
 
+/* ============================================================================
+   UTILITY CLASSES - Glitch Effect
+   ============================================================================ */
+
 .glitch {
   position: relative;
   color: white;
@@ -893,96 +976,39 @@ body {
 }
 
 @keyframes glitch-main {
-  0%,
-  100% {
-    transform: translate(0);
-  }
-  10% {
-    transform: translate(-1px, 1px);
-  }
-  20% {
-    transform: translate(1px, -1px);
-  }
-  30% {
-    transform: translate(-1px, -1px);
-  }
-  40% {
-    transform: translate(1px, 1px);
-  }
-  50% {
-    transform: translate(-1px, 1px);
-  }
-  60% {
-    transform: translate(1px, -1px);
-  }
-  70% {
-    transform: translate(-1px, -1px);
-  }
-  80% {
-    transform: translate(1px, 1px);
-  }
-  90% {
-    transform: translate(-1px, 1px);
-  }
+  0%, 100% { transform: translate(0); }
+  10% { transform: translate(-1px, 1px); }
+  20% { transform: translate(1px, -1px); }
+  30% { transform: translate(-1px, -1px); }
+  40% { transform: translate(1px, 1px); }
+  50% { transform: translate(-1px, 1px); }
+  60% { transform: translate(1px, -1px); }
+  70% { transform: translate(-1px, -1px); }
+  80% { transform: translate(1px, 1px); }
+  90% { transform: translate(-1px, 1px); }
 }
 
 @keyframes glitch-red {
-  0%,
-  100% {
-    transform: translate(0);
-  }
-  10% {
-    transform: translate(-2px, 0);
-  }
-  20% {
-    transform: translate(2px, 0);
-  }
-  30% {
-    transform: translate(0, -1px);
-  }
-  40% {
-    transform: translate(0, 1px);
-  }
-  50% {
-    transform: translate(-1px, -1px);
-  }
-  60% {
-    transform: translate(1px, 1px);
-  }
-  70% {
-    transform: translate(-2px, 0);
-  }
-  80% {
-    transform: translate(2px, 0);
-  }
-  90% {
-    transform: translate(0, -1px);
-  }
+  0%, 100% { transform: translate(0); }
+  10% { transform: translate(-2px, 0); }
+  20% { transform: translate(2px, 0); }
+  30% { transform: translate(0, -1px); }
+  40% { transform: translate(0, 1px); }
+  50% { transform: translate(-1px, -1px); }
+  60% { transform: translate(1px, 1px); }
+  70% { transform: translate(-2px, 0); }
+  80% { transform: translate(2px, 0); }
+  90% { transform: translate(0, -1px); }
 }
 
 @keyframes glitch-blue {
-  0%,
-  100% {
-    transform: translate(0);
-  }
-  15% {
-    transform: translate(1px, 0);
-  }
-  30% {
-    transform: translate(-1px, 0);
-  }
-  45% {
-    transform: translate(0, 1px);
-  }
-  60% {
-    transform: translate(0, -1px);
-  }
-  75% {
-    transform: translate(1px, 1px);
-  }
-  90% {
-    transform: translate(-1px, -1px);
-  }
+  0%, 100% { transform: translate(0); }
+  15% { transform: translate(1px, 0); }
+  30% { transform: translate(-1px, 0); }
+  45% { transform: translate(0, 1px); }
+  60% { transform: translate(0, -1px); }
+  75% { transform: translate(1px, 1px); }
+  90% { transform: translate(-1px, -1px); }
 }
 
 .stripe {
@@ -999,7 +1025,10 @@ body {
   text-shadow: 0 0 10px rgba(250, 6, 3, 0.5);
 }
 
-/* New silver/metallic styles */
+/* ============================================================================
+   UTILITY CLASSES - Metallic/Silver Effects
+   ============================================================================ */
+
 .silver-glow {
   color: white;
   text-shadow: 0 0 5px rgba(192, 192, 192, 0.5),
@@ -1061,14 +1090,16 @@ body {
     0 0 20px rgba(245, 245, 245, 0.4), 0 1px 0 rgba(0, 0, 0, 0.1);
 }
 
-/* New highlight effects */
+/* ============================================================================
+   UTILITY CLASSES - Highlight Effects
+   ============================================================================ */
+
 .highlight-pulse {
   animation: highlight-pulse 2s ease-in-out infinite;
 }
 
 @keyframes highlight-pulse {
-  0%,
-  100% {
+  0%, 100% {
     text-shadow: 0 0 10px var(--hero-landscape-accent);
     transform: scale(1);
   }
@@ -1114,8 +1145,7 @@ body {
 }
 
 @keyframes highlight-bounce {
-  0%,
-  100% {
+  0%, 100% {
     transform: translateY(0);
   }
   25% {
@@ -1129,7 +1159,10 @@ body {
   }
 }
 
-/* Landscape text animation effects */
+/* ============================================================================
+   UTILITY CLASSES - Landscape Text Animation Effects
+   ============================================================================ */
+
 @media (prefers-reduced-motion: no-preference) {
   .landscape-mask-reveal {
     clip-path: inset(0 100% 0 0);
@@ -1183,7 +1216,6 @@ body {
   }
 }
 
-/* Animation keyframes */
 @keyframes landscape-mask-reveal {
   0% {
     clip-path: inset(0 100% 0 0);
@@ -1223,7 +1255,10 @@ body {
   }
 }
 
-/* Hero Item Entry Animations - Layout Preserving */
+/* ============================================================================
+   UTILITY CLASSES - Hero Item Entry Animations
+   ============================================================================ */
+
 [data-run] .hero-item-enter {
   animation: hero-item-enter 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
   opacity: 0;
@@ -1255,10 +1290,12 @@ body {
   }
 }
 
-/* Sparkle/Glitter effect for Hero Slides */
+/* ============================================================================
+   UTILITY CLASSES - Sparkle/Glitter Effect for Hero Slides
+   ============================================================================ */
+
 @keyframes sparkle {
-  0%,
-  100% {
+  0%, 100% {
     opacity: 0.2;
     transform: scale(0.6) rotate(0deg) translate3d(0, 0, 0);
   }
@@ -1271,4 +1308,19 @@ body {
 .animate-sparkle {
   animation: sparkle ease-in-out infinite;
   will-change: transform, opacity;
+}
+
+/* ============================================================================
+   ACCESSIBILITY - Reduced Motion Support
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

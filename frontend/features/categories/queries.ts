@@ -1,10 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { categoriesApi } from "./api";
 import type { Category } from "@/features/products/types";
-
-export const categoryKeys = {
-  all: ["categories"] as const,
-};
+import { categoryKeys } from "./query-keys";
 
 export function useCategoriesQuery() {
   return useQuery<Category[]>({

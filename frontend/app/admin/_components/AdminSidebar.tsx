@@ -13,7 +13,8 @@ import {
   ChevronRight,
   Ticket,
   LayoutGrid,
-  Megaphone
+  Megaphone,
+  Bell
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Heading, Text } from "@/components/ui/typography";
@@ -31,9 +32,9 @@ const menuItems = [
     href: "/admin/categories",
   },
   {
-    title: "Departments",
+    title: "Subcategories",
     icon: LayoutGrid,
-    href: "/admin/departments",
+    href: "/admin/subcategories",
   },
   {
     title: "Products",
@@ -55,6 +56,11 @@ const menuItems = [
     icon: Megaphone,
     href: "/admin/promotions",
   },
+  {
+    title: "Announcements",
+    icon: Bell,
+    href: "/admin/announcements",
+  },
 ];
 
 export function AdminSidebar({ isMobile = false }: { isMobile?: boolean }) {
@@ -73,8 +79,8 @@ export function AdminSidebar({ isMobile = false }: { isMobile?: boolean }) {
             alt="Logo"
             width={120}
             height={120}
-            className="object-contain w-20 h-20"
-            sizes="80px"
+            className="object-contain w-28 h-28"
+            sizes="112px"
             priority
           />
         </Link>
@@ -122,7 +128,6 @@ export function AdminSidebar({ isMobile = false }: { isMobile?: boolean }) {
         <button
           className="flex items-center gap-3 w-full px-3 py-2.5 text-warm-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 group"
           onClick={() => {
-            console.log("Logging out...");
             closeMobile();
           }}
         >

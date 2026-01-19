@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { categorySchema, type CategoryFormData } from "@/features/categories/validation/category.schema";
+import { categorySchema, type CategoryFormData } from "@/features/categories/schemas";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -58,7 +58,6 @@ export function CategoryForm({
 
   const onSubmit = async (data: CategoryFormData) => {
     try {
-      console.log("Submitting category data:", data);
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -69,7 +68,6 @@ export function CategoryForm({
       );
       onSuccess();
     } catch (error) {
-      console.error("Failed to save category:", error);
       toast.error("Failed to save category. Please try again.");
     }
   };

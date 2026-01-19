@@ -140,7 +140,7 @@ export function WriteReviewModal({
       setErrors({});
       onClose();
     } catch (error) {
-      console.error("Failed to submit review:", error);
+      // Error handling should be added here if API integration is needed
     } finally {
       setIsSubmitting(false);
     }

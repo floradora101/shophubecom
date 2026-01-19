@@ -1,6 +1,7 @@
 import { apiClient } from "@/lib/api/client";
 import type { BackendResponse } from "@/lib/types/api";
 import type { Category } from "@/features/products/types";
+import { extractNestedPaginatedData } from "@/lib/api/response-transformer";
 
 interface PaginatedResponse<T> {
   data: T[];
@@ -21,8 +22,8 @@ export const categoriesApi = {
         BackendResponse<PaginatedResponse<Category>>
       >("/categories?limit=1000");
 
-      // Backend wraps response in { success, data: { data: [...], meta: {...} }, timestamp }
-      const allCategories = response.data.data.data || [];
+      // Extract paginated data using transformer
+      const { data: allCategories } = extractNestedPaginatedData(response);
 
       // Filter to only return parent categories (categories without parentId)
       return allCategories.filter(

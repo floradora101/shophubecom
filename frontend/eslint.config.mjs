@@ -85,7 +85,6 @@ const eslintConfig = defineConfig([
                 "@/components/cart/*",
                 "@/components/profile/*",
                 "@/components/admin/*",
-                "@/components/home/*",
                 "@/components/forms/LoginForm",
                 "@/components/forms/RegisterForm",
               ],

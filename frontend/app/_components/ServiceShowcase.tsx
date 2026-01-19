@@ -16,9 +16,8 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
-import { SkeletonBlock } from "@/components/ui/skeleton";
-import { SectionHeader } from "./shared/section-header";
-import { SparkleEffect } from "./hero/shared/SparkleEffect";
+import { SectionHeader } from "@/components/shared/SectionHeader";
+import { SparkleEffect } from "@/components/ui/SparkleEffect";
 
 const services = [
   {
@@ -36,10 +35,9 @@ const services = [
     stats: { completed: "15K+", turnaround: "<24h" },
   },
   {
-    title: "Digital Cards & Gaming",
+    title: "Digital Cards",
     description:
       "Instant digital recharge cards for gaming, internet, and mobile services. Competitive rates with immediate delivery.",
-    subtitle: "PlayStation • Xbox • Google Play • Steam",
     features: [
       "Instant Delivery",
       "Best Rates",
@@ -51,7 +49,7 @@ const services = [
     stats: { completed: "25K+", turnaround: "<5min" },
   },
   {
-    title: "Audio Device Cleaning",
+    title: "Audio Cleaning",
     description:
       "Professional deep cleaning service for AirPods and audio devices. Restores sound quality and extends device lifespan.",
     features: [
@@ -65,7 +63,7 @@ const services = [
     stats: { completed: "8K+", turnaround: "<1h" },
   },
   {
-    title: "Personalized Engraving",
+    title: "Engraving",
     description:
       "Custom laser engraving on premium devices. High-precision personalization for IQOS, AirPods, and phone cases.",
     features: [
@@ -92,39 +90,28 @@ function ServiceCard({
 
   return (
     <div
-      className="group relative bg-gray-800/40 backdrop-blur-md rounded-lg p-6 sm:p-8 border border-white/5 hover:border-primary-500/30 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary-900/20 overflow-hidden flex flex-col h-full"
+      className="group relative bg-gray-800/40 backdrop-blur-md rounded-lg p-6 sm:p-8 border border-white/10 hover:border-primary-500/60 transition-all duration-500 hover:-translate-y-3 hover:scale-[1.02] hover:shadow-[0_20px_50px_-12px_rgba(250,6,3,0.4)] overflow-hidden flex flex-col h-full cursor-default select-none"
       style={{
         animationDelay: `${index * 150}ms`,
       }}
     >
-      {/* Subtle Hover Glow - Consistent with website cards */}
-      <div className="absolute -inset-1 bg-linear-to-r from-primary-600/10 to-transparent rounded-lg blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      {/* Enhanced Hover Glow */}
+      <div className="absolute -inset-1 bg-gradient-to-r from-primary-500/20 via-primary-600/10 to-primary-500/20 rounded-lg blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-      {/* Tech Icon Section - Simplified & Consistent */}
+      {/* Tech Icon Section - Enhanced */}
       <div className="relative mb-6">
-        <div className="inline-flex items-center justify-center p-4 rounded-lg bg-gray-900/50 border border-white/5 group-hover:border-primary-500/50 group-hover:bg-primary-600/5 transition-all duration-500 shadow-xl">
+        <div className="inline-flex items-center justify-center p-4 rounded-lg bg-gray-900/70 border border-white/10 group-hover:border-primary-500/70 group-hover:bg-primary-600/10 transition-all duration-500 shadow-xl group-hover:shadow-primary-500/30">
           <Icon
-            className={`h-8 w-8 sm:h-10 sm:w-10 ${service.accentColor} transition-transform duration-500 group-hover:scale-110`}
+            className={`h-8 w-8 sm:h-10 sm:w-10 ${service.accentColor} transition-all duration-500 group-hover:scale-110 group-hover:drop-shadow-[0_0_12px_rgba(250,6,3,0.6)]`}
           />
         </div>
       </div>
 
       {/* Content Section */}
       <div className="relative space-y-4 flex-1 flex flex-col">
-        <div className="space-y-2">
-          <h3 className="text-xl font-bold text-white group-hover:text-primary-400 transition-colors duration-300">
-            {service.title}
-          </h3>
-
-          {service.subtitle && (
-            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-primary-500/10 border border-primary-500/20">
-              <Zap className="h-3 w-3 text-primary-500" />
-              <span className="text-[10px] font-bold uppercase tracking-wider text-primary-500">
-                {service.subtitle}
-              </span>
-            </div>
-          )}
-        </div>
+        <h3 className="text-xl font-bold text-white group-hover:text-primary-500 transition-all duration-300 group-hover:drop-shadow-[0_0_8px_rgba(250,6,3,0.5)]">
+          {service.title}
+        </h3>
 
         <p className="text-sm text-gray-400 leading-relaxed group-hover:text-gray-300 transition-colors duration-300">
           {service.description}
@@ -190,6 +177,7 @@ export function ServiceShowcase() {
               bold: "Maintenance",
             }}
             description="Cutting-edge maintenance and personalization services for all your smart devices. Powered by certified technicians using premium tools and AI-driven diagnostics."
+            dark
           />
 
           {/* Services Grid */}
@@ -242,84 +230,5 @@ export function ServiceShowcase() {
   );
 }
 
-/**
- * Consistent skeleton loader for ServiceShowcase component
- */
-export function ServiceShowcaseSkeleton() {
-  return (
-    <Section
-      spacing="lg"
-      className="relative overflow-hidden bg-gray-900"
-      withContainer={false}
-    >
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary-600/10 blur-[100px] rounded-full" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary-700/10 blur-[100px] rounded-full" />
-      </div>
-
-      <Container className="relative z-10">
-        <div className="space-y-12">
-          {/* Header Skeleton */}
-          <div className="space-y-4 text-center md:text-left">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-600/10 mb-2 mx-auto md:mx-0">
-              <div className="h-4 w-4 bg-red-600/20 rounded animate-pulse" />
-              <SkeletonBlock className="h-6 w-32 rounded-lg" />
-            </div>
-            <SkeletonBlock className="h-12 w-64 xs:w-80 md:w-96 rounded mx-auto md:mx-0" />
-            <SkeletonBlock className="h-6 w-full max-w-2xl rounded mx-auto md:mx-0" />
-          </div>
-
-          {/* Services Grid Skeleton */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {Array.from({ length: 4 }, (_, i) => (
-              <div
-                key={i}
-                className="bg-gray-800/40 backdrop-blur-md rounded-lg p-8 border border-white/5 min-h-[400px] flex flex-col relative overflow-hidden"
-              >
-                {/* Icon placeholder */}
-                <div className="mb-6">
-                  <SkeletonBlock className="w-16 h-16 rounded-lg" />
-                </div>
-
-                {/* Content skeleton */}
-                <div className="space-y-4 flex-1">
-                  <div className="space-y-3">
-                    <SkeletonBlock className="h-6 w-32 rounded" />
-                    <SkeletonBlock className="h-4 w-24 rounded-full" />
-                  </div>
-                  <SkeletonBlock className="h-4 w-full rounded" />
-                  <SkeletonBlock className="h-4 w-4/5 rounded" />
-
-                  {/* Features skeleton */}
-                  <div className="space-y-2 mt-4">
-                    {Array.from({ length: 3 }, (_, k) => (
-                      <div key={k} className="flex items-center gap-2">
-                        <SkeletonBlock className="w-4 h-4 rounded-full" />
-                        <SkeletonBlock className="h-3 w-24 rounded" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Bottom accent skeleton */}
-                <div className="flex gap-4 mt-auto pt-4 border-t border-white/5">
-                  <SkeletonBlock className="h-3 w-16 rounded" />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Bottom trust row skeleton */}
-          <div className="flex justify-center gap-8 pt-8 border-t border-white/5">
-            {Array.from({ length: 2 }, (_, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <SkeletonBlock className="h-8 w-8 rounded-xl" />
-                <SkeletonBlock className="h-4 w-24 rounded" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </Container>
-    </Section>
-  );
-}
+// Skeleton component extracted to separate server component file
+// See: app/_components/ServiceShowcaseSkeleton.tsx

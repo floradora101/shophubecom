@@ -36,8 +36,6 @@ const baseHeroSlideSchema = z.object({
   // CTA
   ctaPrimaryLabel: z.string().min(1, "Primary CTA label is required").max(20),
   ctaPrimaryHref: z.string().min(1, "Primary CTA link is required"),
-  ctaSecondaryLabel: z.string().max(20).optional().or(z.literal("")),
-  ctaSecondaryHref: z.string().optional().or(z.literal("")),
 
   // Media
   mediaKind: z.enum(["product", "image", "video", "none"]),
@@ -73,7 +71,7 @@ const baseHeroSlideSchema = z.object({
 
   // CATEGORY_SPOTLIGHT
   categorySlug: z.string().optional().or(z.literal("")),
-  categoryBullets: z.string().optional().or(z.literal("")), // Comma separated for form input
+  categoryBullets: z.array(z.string().min(1).max(50)).max(3).optional().default([]),
 
   // EDITORS_PICK
   editorNote: z.string().max(300).optional().or(z.literal("")),
@@ -103,8 +101,6 @@ export function getDefaultHeroSlideFormValues(type?: HeroSlideType): HeroSlideFo
     description: "",
     ctaPrimaryLabel: "",
     ctaPrimaryHref: "",
-    ctaSecondaryLabel: "",
-    ctaSecondaryHref: "",
     mediaKind: selectedType === "PRODUCT_SPOTLIGHT" ? "product" : "none",
     mediaProductSlug: "",
     mediaImageUrl: "",
@@ -122,9 +118,12 @@ export function getDefaultHeroSlideFormValues(type?: HeroSlideType): HeroSlideFo
     testimonialStats: [],
     landscapeTheme: "glass-red",
     categorySlug: "",
-    categoryBullets: "",
+    categoryBullets: [],
     editorNote: "",
     productSlugs: "",
+    leftProductSlug: "",
+    rightProductSlug: "",
+    comparisonPoints: "",
   };
 }
 
@@ -141,8 +140,6 @@ export function toFormValues(slide: HeroSlide): HeroSlideFormValues {
     description: slide.type === "LANDSCAPE_IMAGE" ? slide.content.description : slide.description || "",
     ctaPrimaryLabel: slide.type === "LANDSCAPE_IMAGE" ? slide.actionButton.label : slide.ctaPrimary.label,
     ctaPrimaryHref: slide.type === "LANDSCAPE_IMAGE" ? slide.actionButton.href : slide.ctaPrimary.href,
-    ctaSecondaryLabel: slide.type === "LANDSCAPE_IMAGE" ? "" : slide.ctaSecondary?.label || "",
-    ctaSecondaryHref: slide.type === "LANDSCAPE_IMAGE" ? "" : slide.ctaSecondary?.href || "",
     mediaKind: slide.media.kind,
     mediaProductSlug: "productSlug" in slide.media ? slide.media.productSlug || "" : "",
     mediaImageUrl: "imageUrl" in slide.media ? slide.media.imageUrl || "" : "",
@@ -172,10 +169,16 @@ export function toFormValues(slide: HeroSlide): HeroSlideFormValues {
     (otherValues as any).testimonialStats = slide.stats;
   } else if (slide.type === "CATEGORY_SPOTLIGHT") {
     (otherValues as any).categorySlug = slide.categorySlug;
-    (otherValues as any).categoryBullets = (slide.categoryBullets || []).join(", ");
+    (otherValues as any).categoryBullets = slide.categoryBullets || [];
   } else if (slide.type === "EDITORS_PICK") {
     (otherValues as any).editorNote = slide.editorNote;
     (otherValues as any).productSlugs = slide.productSlugs.join(", ");
+  } else if (slide.type === "COMPARISON_BATTLE") {
+    (otherValues as any).leftProductSlug = slide.leftProductSlug;
+    (otherValues as any).rightProductSlug = slide.rightProductSlug;
+    (otherValues as any).comparisonPoints = (slide.comparisonPoints || [])
+      .map((p) => `${p.label}|${p.leftValue}|${p.rightValue}`)
+      .join(", ");
   }
 
   return otherValues as HeroSlideFormValues;
@@ -228,10 +231,6 @@ export function fromFormValues(values: HeroSlideFormValues, existingId?: string)
       label: values.ctaPrimaryLabel,
       href: values.ctaPrimaryHref,
     },
-    ctaSecondary: values.ctaSecondaryLabel ? {
-      label: values.ctaSecondaryLabel,
-      href: values.ctaSecondaryHref || "",
-    } : undefined,
     media: {
       kind: values.mediaKind,
       productSlug: values.mediaProductSlug || undefined,
@@ -265,10 +264,7 @@ export function fromFormValues(values: HeroSlideFormValues, existingId?: string)
         ...baseSlide,
         type: "CATEGORY_SPOTLIGHT",
         categorySlug: values.categorySlug || "",
-        categoryBullets: (values.categoryBullets || "")
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
+        categoryBullets: values.categoryBullets || [],
         media: { kind: "none" },
       };
     case "EDITORS_PICK":

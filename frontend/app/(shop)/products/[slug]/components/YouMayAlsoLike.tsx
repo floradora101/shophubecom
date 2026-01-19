@@ -3,7 +3,7 @@
 
 import { useMemo } from "react";
 import { Heart, Sparkles } from "lucide-react";
-import { ProductCard } from "@/features/products/components/ProductCard";
+import { ProductCard } from "@/components/shared/ProductCard";
 import { Stack } from "@/components/ui/stack";
 import { getAllProductsSync } from "@/lib/data/products";
 import type { Product } from "@/features/products/types";

@@ -27,8 +27,10 @@
  * - All requests include credentials (cookies) via withCredentials: true
  */
 import { apiClient, type ExtendedAxiosRequestConfig } from "@/lib/api/client";
-import type { AuthResponse, AuthResponseData, User } from "./types";
+import type { BackendResponse } from "@/lib/types/api";
+import type { AuthResponseData, User } from "./types";
 import type { LoginFormData, RegisterFormData } from "./types";
+import { extractResponseData } from "@/lib/api/response-transformer";
 export const authApi = {
   /**
    * Register a new user
@@ -36,7 +38,7 @@ export const authApi = {
    * @returns Auth response with user data (tokens in httpOnly cookies)
    */
   async register(data: RegisterFormData): Promise<AuthResponseData> {
-    const response = await apiClient.post<AuthResponse>(
+    const response = await apiClient.post<BackendResponse<AuthResponseData>>(
       "/auth/register",
       {
         email: data.email,
@@ -47,12 +49,8 @@ export const authApi = {
       } as ExtendedAxiosRequestConfig
     );
 
-    if (!response.data.success || !response.data.data) {
-      throw new Error("Registration failed");
-    }
-
     // Tokens are automatically set in httpOnly cookies by backend
-    return response.data.data;
+    return extractResponseData(response);
   },
 
   /**
@@ -61,7 +59,7 @@ export const authApi = {
    * @returns Auth response with user data (tokens in httpOnly cookies)
    */
   async login(data: LoginFormData): Promise<AuthResponseData> {
-    const response = await apiClient.post<AuthResponse>(
+    const response = await apiClient.post<BackendResponse<AuthResponseData>>(
       "/auth/login",
       {
         email: data.email,
@@ -72,12 +70,8 @@ export const authApi = {
       } as ExtendedAxiosRequestConfig
     );
 
-    if (!response.data.success || !response.data.data) {
-      throw new Error("Login failed");
-    }
-
     // Tokens are automatically set in httpOnly cookies by backend
-    return response.data.data;
+    return extractResponseData(response);
   },
 
   /**
@@ -95,16 +89,16 @@ export const authApi = {
    * @returns Auth response with user data (new tokens in httpOnly cookies)
    */
   async refresh(): Promise<AuthResponseData> {
-    const response = await apiClient.post<AuthResponse>("/auth/refresh", {}, {
-      _skipAuthRefresh: true,
-    } as ExtendedAxiosRequestConfig);
-
-    if (!response.data.success || !response.data.data) {
-      throw new Error("Token refresh failed");
-    }
+    const response = await apiClient.post<BackendResponse<AuthResponseData>>(
+      "/auth/refresh",
+      {},
+      {
+        _skipAuthRefresh: true,
+      } as ExtendedAxiosRequestConfig
+    );
 
     // Tokens are automatically set in httpOnly cookies by backend
-    return response.data.data;
+    return extractResponseData(response);
   },
 
   /**
@@ -113,15 +107,8 @@ export const authApi = {
    * Note: Does NOT skip auth refresh - allows token refresh on 401
    */
   async getMe(): Promise<User> {
-    const response = await apiClient.get<{ success: boolean; data: User }>(
-      "/auth/me"
-    );
-
-    if (!response.data.success || !response.data.data) {
-      throw new Error("Failed to get user data");
-    }
-
-    return response.data.data;
+    const response = await apiClient.get<BackendResponse<User>>("/auth/me");
+    return extractResponseData(response);
   },
 
   /**
@@ -129,18 +116,14 @@ export const authApi = {
    * @param email - User email address
    */
   async forgotPassword(email: string): Promise<{ message: string }> {
-    const response = await apiClient.post<{
-      success: boolean;
-      data: { message: string };
-    }>("/auth/forgot-password", { email }, {
-      _skipAuthRefresh: true,
-    } as ExtendedAxiosRequestConfig);
-
-    if (!response.data.success || !response.data.data) {
-      throw new Error("Failed to send password reset email");
-    }
-
-    return response.data.data;
+    const response = await apiClient.post<BackendResponse<{ message: string }>>(
+      "/auth/forgot-password",
+      { email },
+      {
+        _skipAuthRefresh: true,
+      } as ExtendedAxiosRequestConfig
+    );
+    return extractResponseData(response);
   },
 
   /**
@@ -152,17 +135,13 @@ export const authApi = {
     token: string,
     password: string
   ): Promise<{ message: string }> {
-    const response = await apiClient.post<{
-      success: boolean;
-      data: { message: string };
-    }>("/auth/reset-password", { token, password }, {
-      _skipAuthRefresh: true,
-    } as ExtendedAxiosRequestConfig);
-
-    if (!response.data.success || !response.data.data) {
-      throw new Error("Failed to reset password");
-    }
-
-    return response.data.data;
+    const response = await apiClient.post<BackendResponse<{ message: string }>>(
+      "/auth/reset-password",
+      { token, password },
+      {
+        _skipAuthRefresh: true,
+      } as ExtendedAxiosRequestConfig
+    );
+    return extractResponseData(response);
   },
 };

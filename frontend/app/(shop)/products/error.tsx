@@ -13,8 +13,14 @@ export default function ProductsError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log error for debugging
-    console.error("Products page error:", error);
+    // Log error with centralized logging
+    import("@/lib/errors/logger").then(({ logError }) => {
+      logError(error, {
+        component: "ProductsPage",
+        action: "page_error",
+        route: "/products",
+      });
+    });
   }, [error]);
 
   return (

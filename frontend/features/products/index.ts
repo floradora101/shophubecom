@@ -1,9 +1,12 @@
 // Products feature barrel exports
 export * from "./api";
 export * from "./queries";
+export * from "./query-keys";
 export * from "./types";
 export * from "./schemas";
-export * from "./components/ProductCard";
+// ProductCard moved to /components/shared - import from there
+export { ProductCard } from "@/components/shared/ProductCard";
+export { ProductCardSkeleton } from "@/components/shared/ProductCardSkeleton";
 // ProductFilters component is not exported here to avoid conflict with ProductFilters interface in types
 // Import directly: import { ProductFilters } from "@/features/products/components/ProductFilters"
 export * from "./utils/product-images";

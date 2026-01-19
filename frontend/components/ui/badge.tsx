@@ -7,14 +7,18 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-surface-muted text-fg border-warm-gray-200 shadow-sm hover:bg-surface",
+        default:
+          "bg-surface-muted text-fg border-warm-gray-200 shadow-sm hover:bg-surface",
         primary: "bg-red-600 text-white border-white/20 shadow-lg",
-        secondary: "bg-surface-muted text-muted-fg border-gray-200 hover:bg-surface",
+        secondary:
+          "bg-surface-muted text-muted-fg border-gray-200 hover:bg-surface",
         success: "bg-green-50 text-green-600 border-green-100/50",
-        warning: "bg-yellow-50 text-yellow-700 border-yellow-100/50",
-        destructive: "bg-gray-900 text-white border-white/10 shadow-2xl hover:bg-black",
-        outline: "bg-transparent text-fg border-warm-gray-300 hover:bg-warm-gray-50",
-        glass: "bg-white/10 backdrop-blur-md border-white/10 text-white shadow-xl",
+        destructive:
+          "bg-gray-900 text-white border-white/10 shadow-2xl hover:bg-black",
+        outline:
+          "bg-transparent text-fg border-warm-gray-300 hover:bg-warm-gray-50",
+        glass:
+          "bg-white/10 backdrop-blur-md border-white/10 text-white shadow-xl",
       },
       size: {
         sm: "px-2 py-0.5 text-[9px] tracking-[0.15em]",

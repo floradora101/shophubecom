@@ -26,10 +26,6 @@ export interface BaseHeroSlide {
     label: string;
     href: string;
   };
-  ctaSecondary?: {
-    label: string;
-    href: string;
-  };
 
   // Media
   media: {
@@ -87,7 +83,6 @@ export interface LandscapeImageSlide
     | "highlight"
     | "badgeText"
     | "ctaPrimary"
-    | "ctaSecondary"
   > {
   type: "LANDSCAPE_IMAGE";
   theme: LandscapeTheme;

@@ -6,6 +6,7 @@ import { Upload, X, Loader2, ImagePlus, Images } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { logError, extractErrorMessage } from "@/lib/errors";
 
 interface ProductImageUploaderProps {
   value?: string[];
@@ -81,8 +82,17 @@ export function ProductImageUploader({
           onChange?.([...value, ...uploadedUrls]);
           toast.success(`${uploadedUrls.length} image(s) added!`);
         }
-      } catch (error: any) {
-        toast.error(`Upload failed: ${error.message || "Unknown error"}`);
+      } catch (error: unknown) {
+        logError(error, {
+          component: "ProductImageUploader",
+          action: "upload_image",
+          metadata: {
+            fileCount: filesToUpload.length,
+            maxFiles,
+            currentValueLength: value.length,
+          },
+        });
+        toast.error(extractErrorMessage(error, "Upload failed"));
       } finally {
         setIsUploading(false);
       }

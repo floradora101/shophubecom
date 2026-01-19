@@ -3,8 +3,6 @@
 
 import Link from "next/link";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -18,19 +16,18 @@ import { FormSection } from "@/components/ui/form-section";
 import { Stepper } from "@/components/ui/stepper";
 import { CardRadio } from "@/components/ui/card-radio";
 import { Heading, Text } from "@/components/ui/typography";
-import { SectionTitle } from "@/components/ui/SectionTitle";
+import { BadgedSectionTitle } from "@/components/ui/SectionTitle";
 import { CreditCard, Truck, ShoppingBag, ShieldCheck } from "lucide-react";
 import { AddressSelector, OrderSummaryCard } from "@/features/checkout";
+import { CheckoutCardSection } from "@/features/checkout/components/CheckoutCardSection";
+import { useCheckoutAddress } from "./hooks/useCheckoutAddress";
+import { useCheckoutCoupon } from "./hooks/useCheckoutCoupon";
+import { useCheckoutOrder } from "./hooks/useCheckoutOrder";
+import type { CheckoutFormData } from "./types";
 import { useCart } from "@/features/cart/hooks";
-import { apiClient } from "@/lib/api/client";
-import { cartKeys } from "@/features/cart/query-keys";
 import { useFormDraft } from "@/lib/forms/useFormDraft";
-import { useAddressesQuery } from "@/features/addresses/queries";
-import { extractErrorMessage } from "@/lib/utils/error-handler";
 import { DEMO_CHECKOUT } from "@/lib/flags";
-import { createDemoOrder } from "@/features/orders/demo/demoOrders";
 import { logger } from "@/lib/logger";
-import type { Address } from "@/features/addresses/api";
 import { SkeletonBlock, SkeletonText } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils/cn";
 
@@ -40,66 +37,9 @@ const steps = [
   { label: "Order Complete", state: "upcoming" as const },
 ];
 
-interface CheckoutFormData {
-  firstName: string;
-  lastName: string;
-  phone: string;
-  email?: string;
-  country: string;
-  city: string;
-  state?: string;
-  street1: string;
-  postalCode: string;
-  notes?: string;
-  shippingOption: "pickup" | "beirut" | "outside";
-}
 
-// Wrapper component to reduce repetition of Card + FormSection pattern
-function CheckoutCardSection({
-  title,
-  description,
-  children,
-  tone,
-  icon: Icon,
-}: {
-  title: string;
-  description?: string;
-  children: React.ReactNode;
-  tone?: "default" | "subtle";
-  icon?: any;
-}) {
-  return (
-    <Card
-      variant={tone === "subtle" ? "default" : "bordered"}
-      className={cn(
-        "transition-all duration-300",
-        tone === "subtle"
-          ? "border-warm-gray-200 bg-warm-gray-50/30"
-          : "hover:border-primary-200 hover:shadow-md"
-      )}
-    >
-      <FormSection
-        title={title}
-        description={description}
-        className="p-6 sm:p-8"
-        headerClassName="mb-2"
-        actions={
-          Icon && (
-            <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600 shrink-0">
-              <Icon className="w-5 h-5" />
-            </div>
-          )
-        }
-      >
-        {children}
-      </FormSection>
-    </Card>
-  );
-}
 
 export default function CheckoutPage() {
-  const router = useRouter();
-  const queryClient = useQueryClient();
   const {
     items,
     clearCart,
@@ -110,24 +50,7 @@ export default function CheckoutPage() {
 
   // Dev-only debug log for demo mode
   logger.debug("DEMO_CHECKOUT:", DEMO_CHECKOUT);
-  const { data: addresses = [] } = useAddressesQuery();
-  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
 
-  // Coupon state management
-  const [couponCode, setCouponCode] = useState<string>("");
-  const [couponDiscount, setCouponDiscount] = useState<number>(0);
-  const [couponError, setCouponError] = useState<string>("");
-  const [isValidatingCoupon, setIsValidatingCoupon] = useState<boolean>(false);
-
-  // Auto-select default address if available
-  useEffect(() => {
-    if (addresses.length > 0 && !selectedAddress) {
-      const defaultAddress = addresses.find((addr) => addr.isDefault);
-      if (defaultAddress) {
-        setSelectedAddress(defaultAddress);
-      }
-    }
-  }, [addresses, selectedAddress]);
 
   const form = useForm<CheckoutFormData>({
     defaultValues: {
@@ -149,77 +72,16 @@ export default function CheckoutPage() {
   const { isSubmitting } = formState;
   const shippingOption = watch("shippingOption");
 
-  // Pre-fill form when address is selected
-  useEffect(() => {
-    if (selectedAddress) {
-      // Split name into first and last name
-      const nameParts = selectedAddress.name.trim().split(/\s+/);
-      const firstName = nameParts[0] || "";
-      const lastName = nameParts.slice(1).join(" ") || "";
-
-      setValue("firstName", firstName);
-      setValue("lastName", lastName || firstName); // Fallback to full name if no last name
-      setValue("phone", selectedAddress.phone || "");
-      setValue("country", selectedAddress.country || "Lebanon");
-      setValue("city", selectedAddress.city);
-      setValue("state", selectedAddress.state || "");
-      setValue("street1", selectedAddress.street); // Backend returns 'street', map to 'street1' for form
-      setValue("postalCode", selectedAddress.zipCode || ""); // Backend returns 'zipCode', map to 'postalCode' for form
-    }
-  }, [selectedAddress, setValue]);
-
-  // Handle address selection
-  const handleSelectAddress = (address: Address | null) => {
-    setSelectedAddress(address);
-    if (!address) {
-      // Reset form when "Use new address" is selected
-      reset({
-        firstName: "",
-        lastName: "",
-        phone: "",
-        email: "",
-        country: "Lebanon",
-        city: "",
-        state: "",
-        street1: "",
-        postalCode: "",
-        notes: "",
-        shippingOption: cartShippingOption,
-      });
-    } else {
-      // Pre-fill form immediately when address is selected
-      const nameParts = address.name.trim().split(/\s+/);
-      const firstName = nameParts[0] || "";
-      const lastName = nameParts.slice(1).join(" ") || "";
-
-      setValue("firstName", firstName);
-      setValue("lastName", lastName || firstName);
-      setValue("phone", address.phone || "");
-      setValue("country", address.country || "Lebanon");
-      setValue("city", address.city);
-      setValue("state", address.state || "");
-      setValue("street1", address.street);
-      setValue("postalCode", address.zipCode || "");
-      setValue("shippingOption", cartShippingOption);
-    }
-  };
-
-  // Handle clearing selected address to use form
-  const handleUseForm = () => {
-    setSelectedAddress(null);
-    reset({
-      firstName: "",
-      lastName: "",
-      phone: "",
-      email: "",
-      country: "Lebanon",
-      city: "",
-      street1: "",
-      postalCode: "",
-      notes: "",
-      shippingOption: cartShippingOption,
-    });
-  };
+  // Extract address selection logic to custom hook
+  const {
+    addresses,
+    selectedAddress,
+    handleSelectAddress,
+    handleUseForm,
+  } = useCheckoutAddress({
+    form,
+    cartShippingOption,
+  });
 
   // Enable draft persistence when cart is loaded (not empty)
   const { clearDraft } = useFormDraft(form, {
@@ -228,166 +90,23 @@ export default function CheckoutPage() {
     enabled: !isEmpty,
   });
 
-  // Coupon handlers
-  const handleApplyCoupon = async (code: string) => {
-    setIsValidatingCoupon(true);
-    setCouponError("");
+  // Extract coupon management logic to custom hook
+  const {
+    couponCode,
+    couponDiscount,
+    couponError,
+    isValidatingCoupon,
+    handleApplyCoupon,
+    handleRemoveCoupon,
+  } = useCheckoutCoupon();
 
-    try {
-      // Mock coupon validation - in production this would be an API call
-
-      // Simple mock logic - accept "SAVE10", "DISCOUNT20", or "WELCOME15"
-      const validCoupons: Record<string, number> = {
-        SAVE10: 10,
-        DISCOUNT20: 20,
-        WELCOME15: 15,
-      };
-
-      if (validCoupons[code]) {
-        setCouponCode(code);
-        setCouponDiscount(validCoupons[code]);
-        toast.success(
-          `Coupon "${code}" applied! You saved $${validCoupons[code].toFixed(
-            2
-          )}`
-        );
-      } else {
-        throw new Error("Invalid coupon code");
-      }
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to apply coupon";
-      setCouponError(message);
-      toast.error(message);
-    } finally {
-      setIsValidatingCoupon(false);
-    }
-  };
-
-  const handleRemoveCoupon = () => {
-    setCouponCode("");
-    setCouponDiscount(0);
-    setCouponError("");
-    toast.success("Coupon removed");
-  };
-
-  const onSubmit = async (data: CheckoutFormData) => {
-    try {
-      // Always use form data (user can edit even if address was selected)
-      const shippingAddress = {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        phone: data.phone,
-        email: data.email || undefined,
-        country: data.country,
-        city: data.city,
-        state: data.state || undefined,
-        street1: data.street1,
-        postalCode: data.postalCode,
-        notes: data.notes || undefined,
-      };
-
-      if (DEMO_CHECKOUT) {
-        // Demo checkout mode - create order client-side
-        logger.debug("Using demo checkout mode");
-
-        const shippingCost =
-          data.shippingOption === "pickup"
-            ? 0
-            : data.shippingOption === "beirut"
-            ? 0
-            : 5;
-        const subtotal = items.reduce(
-          (sum, item) => sum + item.price * item.quantity,
-          0
-        );
-        const total = subtotal + shippingCost - couponDiscount;
-
-        const demoOrderItems = items.map((item) => ({
-          id: item.id,
-          productId: item.productId,
-          variantId: item.variantId,
-          quantity: item.quantity,
-          unitPrice: item.price,
-          total: item.price * item.quantity,
-          title: item.name,
-          attributes: null,
-          variant:
-            item.variantId && item.variantSku
-              ? {
-                  id: item.variantId,
-                  sku: item.variantSku,
-                  image: item.image,
-                  options: item.selectedOptions
-                    ? Object.entries(item.selectedOptions).map(
-                        ([name, value]) => ({ name, value })
-                      )
-                    : undefined,
-                }
-              : undefined,
-          product: {
-            id: item.productId,
-            name: item.name,
-            slug: item.slug,
-            images: [item.image],
-          },
-        }));
-
-        const order = createDemoOrder({
-          items: demoOrderItems,
-          subtotal,
-          shippingOption: data.shippingOption,
-          shippingCost,
-          total,
-          shippingAddress,
-        });
-
-        // Clear draft on successful order
-        clearDraft();
-
-        // Clear cart client-side
-        await clearCart();
-
-        // Redirect to order complete page with demo flag
-        router.replace(`/order-complete/${order.id}?demo=1`);
-        return;
-      }
-
-      // Original backend flow
-      const response = await apiClient.post("/checkout/place-order", {
-        shippingOption: data.shippingOption,
-        shippingAddress,
-      });
-
-      // Clear draft on successful order
-      clearDraft();
-
-      // Invalidate cart query cache since backend cleared the cart
-      queryClient.invalidateQueries({ queryKey: cartKeys.all });
-
-      // Redirect to order complete page
-      // Backend wraps response in { success: true, data: { orderId, ... } }
-      // For guest orders, token is automatically set in httpOnly cookie by backend
-      const orderData = response.data?.data || response.data;
-      const orderId = orderData?.orderId;
-
-      if (!orderId) {
-        toast.error(
-          "Order placed successfully, but order ID is missing. Please contact support."
-        );
-        return;
-      }
-
-      // Redirect to order complete page (token is in httpOnly cookie)
-      const redirectUrl = `/order-complete/${orderId}`;
-      // Use replace instead of push to prevent back navigation to checkout
-      router.replace(redirectUrl);
-    } catch (error: unknown) {
-      toast.error(
-        extractErrorMessage(error, "Failed to place order. Please try again.")
-      );
-    }
-  };
+  // Extract order submission logic to custom hook
+  const { onSubmit } = useCheckoutOrder({
+    items,
+    couponDiscount,
+    clearCart,
+    clearDraft,
+  });
 
   // Loading skeleton for checkout form
   const CheckoutFormSkeleton = () => (
@@ -510,7 +229,7 @@ export default function CheckoutPage() {
         <Stack spacing="xl" align="stretch">
           {/* Header & Stepper */}
           <Stack spacing="md" align="center">
-            <SectionTitle
+            <BadgedSectionTitle
               badgeText="Final Step"
               title="Checkout"
               subtitle="Complete your order by filling in the details below"

@@ -2,12 +2,7 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { productsApi, type ProductsQueryParams } from "./api";
 import type { ProductsResult, Product } from "./api";
 import { normalizeFilters } from "./utils/filters";
-
-export const productKeys = {
-  all: ["products"] as const,
-  list: (params: ProductsQueryParams) => ["products", "list", params] as const,
-  detail: (slug: string) => ["products", "detail", slug] as const,
-};
+import { productKeys } from "./query-keys";
 
 export function useProductsQuery(params: ProductsQueryParams) {
   // Normalize filters before using in query key and API call
@@ -43,7 +38,7 @@ export function useProductQuery(slug: string) {
 
 export function useFeaturedProductsQuery() {
   return useQuery<Product[]>({
-    queryKey: ["products", "featured"],
+    queryKey: productKeys.featured(),
     queryFn: () => productsApi.getFeaturedProducts(),
     staleTime: 30_000, // 30 seconds
   });
@@ -51,7 +46,7 @@ export function useFeaturedProductsQuery() {
 
 export function useLatestProductsQuery() {
   return useQuery<Product[]>({
-    queryKey: ["products", "latest"],
+    queryKey: productKeys.latest(),
     queryFn: () => productsApi.getLatestProducts(),
     staleTime: 30_000, // 30 seconds
   });

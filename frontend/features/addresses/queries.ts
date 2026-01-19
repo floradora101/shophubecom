@@ -7,13 +7,7 @@ import {
 } from "./api";
 import { toast } from "sonner";
 import { extractErrorMessage } from "@/lib/utils/error-handler";
-
-export const addressKeys = {
-  all: ["addresses"] as const,
-  lists: () => ["addresses", "list"] as const,
-  list: () => ["addresses", "list"] as const,
-  detail: (id: string) => ["addresses", "detail", id] as const,
-};
+import { addressKeys } from "./query-keys";
 
 /**
  * Get all addresses for the current user
@@ -21,38 +15,7 @@ export const addressKeys = {
 export function useAddressesQuery() {
   return useQuery<Address[]>({
     queryKey: addressKeys.list(),
-    queryFn: async () => {
-      // Get addresses from the API
-      const response = await addressesApi.getAddresses();
-
-      // addressesApi.getAddresses() returns AddressesResponse = { success: boolean, data: Address[] }
-      // But response.data can be nested: {success: true, data: Address[]}
-      // So we need to extract the nested data property if it exists
-      let addresses: Address[] = [];
-
-      if (response && typeof response === "object" && "data" in response) {
-        const responseData = response.data as unknown;
-
-        // Check if response.data is directly an array
-        if (Array.isArray(responseData)) {
-          addresses = responseData;
-        }
-        // Check if response.data is an object with a data property that is an array
-        else if (
-          responseData &&
-          typeof responseData === "object" &&
-          responseData !== null &&
-          "data" in responseData
-        ) {
-          const nestedData = (responseData as { data?: unknown }).data;
-          if (Array.isArray(nestedData)) {
-            addresses = nestedData;
-          }
-        }
-      }
-
-      return addresses;
-    },
+    queryFn: () => addressesApi.getAddresses(),
     staleTime: 30_000, // 30 seconds
   });
 }
@@ -63,10 +26,7 @@ export function useAddressesQuery() {
 export function useAddressQuery(id: string, enabled = true) {
   return useQuery<Address>({
     queryKey: addressKeys.detail(id),
-    queryFn: async () => {
-      const response = await addressesApi.getAddressById(id);
-      return response.data;
-    },
+    queryFn: () => addressesApi.getAddressById(id),
     enabled: enabled && !!id,
     staleTime: 60_000, // 1 minute
   });

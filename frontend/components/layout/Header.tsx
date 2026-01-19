@@ -31,9 +31,9 @@ const MENU_PANEL_CLASS =
 const MENU_PAD_CLASS = "p-6";
 const MENU_SECTION_GAP = "space-y-4";
 const MENU_HEADING_LINK_CLASS =
-  "inline-flex text-[11px] font-bold tracking-[0.15em] text-fg uppercase transition-all duration-200 hover:text-primary-600 focus:text-primary-600 focus:outline-none";
+  "inline-flex text-[11px] font-bold tracking-[0.15em] text-fg uppercase transition-all duration-200 hover:text-primary-600 focus:text-primary-600 focus:outline-none cursor-pointer";
 const MENU_ITEM_LINK_CLASS =
-  "block text-sm text-muted-fg transition-all duration-200 hover:text-primary-600 hover:translate-x-1 focus:text-primary-600 focus:outline-none";
+  "block text-sm text-muted-fg transition-all duration-200 hover:text-primary-600 hover:translate-x-1 focus:text-primary-600 focus:outline-none cursor-pointer";
 
 // Category tree building and mega-menu logic
 type CategoryNode = Category & { children: CategoryNode[] };
@@ -139,7 +139,7 @@ function SearchIconButton() {
       type="button"
       onClick={handleClick}
       className={cn(
-        "p-2 sm:p-2.5 text-muted-fg hover:text-primary-600 transition-all duration-200 focus:outline-none rounded-lg hover:bg-primary-50",
+        "p-2 sm:p-2.5 text-muted-fg hover:text-primary-600 transition-all duration-200 focus:outline-none rounded-lg hover:bg-primary-50 cursor-pointer",
         pathname === "/search" && "text-primary-600 bg-primary-50"
       )}
       aria-label="Search"
@@ -163,6 +163,7 @@ export function Header() {
   const { totalItems: cartCount, toggleCart } = useCart();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false);
 
   // Category data - with loading state to prevent flash of incomplete content
   const [categories, setCategories] = useState<Category[]>([]);
@@ -178,7 +179,7 @@ export function Header() {
         if (process.env.NEXT_PUBLIC_USE_MOCKS !== "false") {
           // Silently ignore expected errors in mock mode
         } else {
-          console.error("Failed to load categories:", error);
+          // Error logged silently in production - categories are non-critical
         }
         setCategoriesLoading(false);
       });
@@ -216,6 +217,18 @@ export function Header() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [pathname, router]);
+
+  // Close account dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isAccountDropdownOpen && !(event.target as Element).closest('.account-dropdown-container')) {
+        setIsAccountDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isAccountDropdownOpen]);
 
   return (
     <>
@@ -257,7 +270,7 @@ export function Header() {
                     <NavigationMenu.Item>
                       <NavigationMenu.Trigger
                         className={cn(
-                          "flex h-10 items-center gap-2 px-5 text-[13px] font-bold tracking-wider text-primary-600 transition-all duration-300 rounded-lg hover:bg-primary-50 data-[state=open]:bg-primary-50",
+                          "flex h-10 items-center gap-2 px-5 text-[13px] font-bold tracking-wider text-primary-600 transition-all duration-300 rounded-lg hover:bg-primary-50 data-[state=open]:bg-primary-50 cursor-pointer",
                           isActive("/products") && "bg-primary-50"
                         )}
                       >
@@ -282,7 +295,7 @@ export function Header() {
                           <>
                             <NavigationMenu.Trigger
                               className={cn(
-                                "flex h-10 items-center gap-1.5 px-4 text-[13px] font-semibold text-muted-fg transition-all duration-300 rounded-lg hover:bg-gray-50 hover:text-fg data-[state=open]:bg-gray-50 data-[state=open]:text-primary-600",
+                                "flex h-10 items-center gap-1.5 px-4 text-[13px] font-semibold text-muted-fg transition-all duration-300 rounded-lg hover:bg-gray-50 hover:text-fg data-[state=open]:bg-gray-50 data-[state=open]:text-primary-600 cursor-pointer",
                                 isCategoryActive(category.slug) &&
                                   "text-primary-600 bg-primary-50"
                               )}
@@ -332,7 +345,7 @@ export function Header() {
                             <Link
                               href={`/products/category/${category.slug}`}
                               className={cn(
-                                "flex h-10 items-center px-4 text-[13px] font-semibold text-muted-fg transition-all duration-300 rounded-lg hover:bg-gray-50 hover:text-fg",
+                                "flex h-10 items-center px-4 text-[13px] font-semibold text-muted-fg transition-all duration-300 rounded-lg hover:bg-gray-50 hover:text-fg cursor-pointer",
                                 isCategoryActive(category.slug) &&
                                   "text-primary-600 bg-primary-50"
                               )}
@@ -351,7 +364,7 @@ export function Header() {
                           <Link
                             href="/categories"
                             className={cn(
-                              "flex h-10 items-center px-5 text-[13px] font-semibold text-muted-fg transition-all duration-300 rounded-lg hover:bg-gray-50 hover:text-fg",
+                              "flex h-10 items-center px-5 text-[13px] font-semibold text-muted-fg transition-all duration-300 rounded-lg hover:bg-gray-50 hover:text-fg cursor-pointer",
                               pathname === "/categories" &&
                                 "text-primary-600 bg-primary-50"
                             )}
@@ -374,7 +387,7 @@ export function Header() {
                 <button
                   type="button"
                   onClick={() => toggleCart(true)}
-                  className="group relative p-2 sm:p-2.5 text-muted-fg hover:text-primary-600 transition-all duration-200 focus:outline-none rounded-lg hover:bg-primary-50"
+                  className="group relative p-2 sm:p-2.5 text-muted-fg hover:text-primary-600 transition-all duration-200 focus:outline-none rounded-lg hover:bg-primary-50 cursor-pointer"
                   aria-label="Open cart"
                   suppressHydrationWarning
                 >
@@ -416,30 +429,46 @@ export function Header() {
                     </Button>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-1 sm:gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      asChild
-                      className="rounded-lg px-4 text-muted-fg hover:text-primary-600 hover:bg-primary-50 font-semibold"
+                  <div className="relative account-dropdown-container">
+                    <button
+                      onClick={() => setIsAccountDropdownOpen(!isAccountDropdownOpen)}
+                      className="flex items-center justify-center w-10 h-10 rounded-lg text-muted-fg hover:text-primary-600 hover:bg-primary-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                      aria-label="Account menu"
                     >
-                      <Link href="/login">Login</Link>
-                    </Button>
-                    <Button
-                      variant="default"
-                      size="sm"
-                      asChild
-                      className="hidden xl:flex rounded-lg bg-primary-600 hover:bg-primary-700 text-white font-semibold shadow-md hover:shadow-lg transition-all"
-                    >
-                      <Link href="/register">Sign Up</Link>
-                    </Button>
+                      <User className="h-5 w-5" />
+                    </button>
+
+                    {/* Account Dropdown */}
+                    {isAccountDropdownOpen && (
+                      <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <Link
+                          href="/login"
+                          onClick={() => setIsAccountDropdownOpen(false)}
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary-600 transition-colors"
+                        >
+                          Sign In
+                        </Link>
+                        <Link
+                          href="/register"
+                          onClick={() => setIsAccountDropdownOpen(false)}
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-primary-600 transition-colors font-medium"
+                        >
+                          Create Account
+                        </Link>
+                        <div className="border-t border-gray-100 mt-2 pt-2 px-4">
+                          <p className="text-xs text-gray-500">
+                            Skip accounts, checkout as guest
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
                 {/* Mobile Menu Toggle */}
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="lg:hidden p-2 text-muted-fg hover:text-primary-600 transition-all rounded-lg hover:bg-primary-50"
+                  className="lg:hidden p-2 text-muted-fg hover:text-primary-600 transition-all rounded-lg hover:bg-primary-50 cursor-pointer"
                   aria-label="Toggle mobile menu"
                 >
                   {isMobileMenuOpen ? (

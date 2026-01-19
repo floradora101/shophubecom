@@ -1,4 +1,6 @@
 import { apiClient } from "@/lib/api/client";
+import type { BackendResponse } from "@/lib/types/api";
+import { extractResponseData } from "@/lib/api/response-transformer";
 
 export interface Address {
   id: string;
@@ -44,43 +46,31 @@ export interface UpdateAddressData {
   isDefault?: boolean;
 }
 
-export interface AddressResponse {
-  success: boolean;
-  data: Address;
-}
-
-export interface AddressesResponse {
-  success: boolean;
-  data: Address[];
-}
-
 export const addressesApi = {
-  async getAddresses(): Promise<AddressesResponse> {
-    // Simple API call - backend returns { success: true, data: Address[] }
-    const response = await apiClient.get<AddressesResponse>("/addresses");
-    // axios response.data contains the backend response body
-    return response.data;
+  async getAddresses(): Promise<Address[]> {
+    const response = await apiClient.get<BackendResponse<Address[]>>("/addresses");
+    return extractResponseData(response);
   },
 
-  async getAddressById(id: string): Promise<AddressResponse> {
-    const response = await apiClient.get<AddressResponse>(`/addresses/${id}`);
-    return response.data;
+  async getAddressById(id: string): Promise<Address> {
+    const response = await apiClient.get<BackendResponse<Address>>(`/addresses/${id}`);
+    return extractResponseData(response);
   },
 
-  async createAddress(data: CreateAddressData): Promise<AddressResponse> {
-    const response = await apiClient.post<AddressResponse>("/addresses", data);
-    return response.data;
+  async createAddress(data: CreateAddressData): Promise<Address> {
+    const response = await apiClient.post<BackendResponse<Address>>("/addresses", data);
+    return extractResponseData(response);
   },
 
   async updateAddress(
     id: string,
     data: UpdateAddressData
-  ): Promise<AddressResponse> {
-    const response = await apiClient.put<AddressResponse>(
+  ): Promise<Address> {
+    const response = await apiClient.put<BackendResponse<Address>>(
       `/addresses/${id}`,
       data
     );
-    return response.data;
+    return extractResponseData(response);
   },
 
   async deleteAddress(id: string): Promise<void> {

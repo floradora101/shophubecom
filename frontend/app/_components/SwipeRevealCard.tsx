@@ -4,9 +4,9 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { SparkleEffect } from "./hero/shared/SparkleEffect";
+import { SparkleEffect } from "@/components/ui/SparkleEffect";
 import { getProductImageWithPlaceholder } from "@/lib/utils";
-import { ProductCard } from "@/features/products/components/ProductCard";
+import { ProductCard } from "@/components/shared/ProductCard";
 import type { Product } from "@/features/products/types";
 
 interface SwipeRevealCardProps {

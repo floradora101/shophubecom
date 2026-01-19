@@ -2,3 +2,4 @@
 export * from "./components/AddressSelector";
 export * from "./components/OrderSummaryCard";
 export * from "./components/CouponCodeInput";
+export * from "./components/CheckoutCardSection";

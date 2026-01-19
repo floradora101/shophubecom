@@ -61,11 +61,22 @@ export const CategorySpotlightSlideBody = memo(
       return categories.filter((c) => c.parentId === category.id).slice(0, 4);
     }, [categories, category]);
 
-    const stats = [
-      { label: "Performance", value: "99th Percentile", icon: Zap },
-      { label: "Durability", value: "Mil-Spec Rated", icon: Award },
-      { label: "Design", value: "Aesthetic Core", icon: TrendingUp },
-    ];
+    // Use dynamic bullets from slide, fallback to default stats if empty
+    const bullets = slide.categoryBullets && slide.categoryBullets.length > 0
+      ? slide.categoryBullets.map((text, index) => {
+          const icons = [Zap, Award, TrendingUp];
+          return {
+            label: text,
+            value: "",
+            icon: icons[index] || Zap,
+            isCustom: true
+          };
+        })
+      : [
+          { label: "Performance", value: "99th Percentile", icon: Zap, isCustom: false },
+          { label: "Durability", value: "Mil-Spec Rated", icon: Award, isCustom: false },
+          { label: "Design", value: "Aesthetic Core", icon: TrendingUp, isCustom: false },
+        ];
 
     // Media content: Product grid
     const mediaContent = (
@@ -208,20 +219,22 @@ export const CategorySpotlightSlideBody = memo(
               <HeroItem run={run} animationKey={animationKey}>
                 <div className="w-[calc(100%-4px)] mx-auto lg:mx-0 lg:w-full max-w-full min-w-0 space-y-1 mt-1 md:mt-3 hero-item-enter hero-description bg-white/40 backdrop-blur-md p-1.5 md:p-4 rounded-lg border border-red-600/5 shadow-sm transition-all duration-500 group-hover:bg-white/60 group-hover:shadow-md">
                   <div className="space-y-2 min-w-0">
-                    {/* Stats */}
+                    {/* Stats/Bullets */}
                     <div className="grid grid-cols-3 gap-1 sm:gap-2">
-                      {stats.map((stat, i) => (
+                      {bullets.map((bullet, i) => (
                         <div
                           key={i}
                           className="space-y-0.5 sm:space-y-1 min-w-0"
                         >
-                          <stat.icon className="h-2 w-2 sm:h-3 sm:w-3 text-red-600" />
+                          <bullet.icon className="h-2 w-2 sm:h-3 sm:w-3 text-red-600" />
                           <div className="text-[6px] sm:text-[8px] font-black text-gray-500 uppercase tracking-widest truncate">
-                            {stat.label}
+                            {bullet.label}
                           </div>
-                          <div className="text-[7px] sm:text-xs font-bold text-gray-900 truncate">
-                            {stat.value}
-                          </div>
+                          {!bullet.isCustom && bullet.value && (
+                            <div className="text-[7px] sm:text-xs font-bold text-gray-900 truncate">
+                              {bullet.value}
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -267,20 +280,6 @@ export const CategorySpotlightSlideBody = memo(
                       </span>
                     </Button>
                   </Link>
-                  {slide.ctaSecondary && (
-                    <Link
-                      href={slide.ctaSecondary.href}
-                      onMouseEnter={onMouseEnter}
-                      onMouseLeave={onMouseLeave}
-                    >
-                      <Button
-                        size="hero"
-                        className="bg-white text-red-600 hover:bg-red-600 hover:text-white border-none shadow-xl hover:scale-105 active:scale-95 transition-all duration-500 px-2.5 sm:px-6 h-7 sm:h-12 font-black uppercase tracking-wider text-[9px] sm:text-sm md:text-base"
-                      >
-                        {slide.ctaSecondary.label}
-                      </Button>
-                    </Link>
-                  )}
                 </div>
               </HeroItem>
 

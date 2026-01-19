@@ -4,7 +4,7 @@ import React, { use } from "react";
 import { useRouter } from "next/navigation";
 import { Heading, Text } from "@/components/ui/typography";
 import { Card } from "@/components/ui/card";
-import { CategoryForm } from "../../_components/CategoryForm";
+import { CategoryForm } from "@/app/admin/categories/_components/CategoryForm";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getAllCategories } from "@/lib/mock-data/mock-data";

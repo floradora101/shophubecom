@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/features/cart/hooks";
 import { formatPrice } from "@/lib/utils";
 import { SkeletonBlock, SkeletonText } from "@/components/ui/skeleton";
-import { SectionTitle } from "@/components/ui/SectionTitle";
+import { BadgedSectionTitle } from "@/components/ui/SectionTitle";
 import { Stepper, type Step } from "@/components/ui/stepper";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
@@ -134,7 +134,7 @@ export default function CartPage() {
         <Stack spacing="xl">
           {/* Header & Stepper */}
           <Stack spacing="md" align="center">
-            <SectionTitle
+            <BadgedSectionTitle
               badgeText="Your Selection"
               title="Shopping Cart"
               subtitle="Review your items before proceeding to checkout"
