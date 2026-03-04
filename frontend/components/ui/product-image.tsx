@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils/cn";
 import { forwardRef } from "react";
+import { shouldUnoptimizeImage } from "@/lib/utils/image-helpers";
 
 interface ProductImageProps
   extends Omit<React.ComponentProps<typeof Image>, "src" | "alt"> {
@@ -49,6 +50,7 @@ const ProductImage = forwardRef<HTMLImageElement, ProductImageProps>(
           priority={priority}
           quality={quality}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          unoptimized={shouldUnoptimizeImage(src)}
           {...props}
         />
       </div>

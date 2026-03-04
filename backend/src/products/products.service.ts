@@ -6,47 +6,70 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { TtlCache } from '../common/utils/ttl-cache.util';
 import {
   CategoryNotFoundException,
   ProductNotFoundException,
-  ProductVariantNotFoundException,
 } from '../common/exceptions';
-import { ensureUniqueSlug, generateSlug } from '../common/utils/slug.util';
+import {
+  ensureUniqueSlugInDb,
+  generateSlug,
+} from '../common/utils/slug.util';
 import {
   CreateProductDto,
   UpdateProductDto,
   FilterProductsDto,
   ProductResponseDto,
-  UpdateProductVariantDto,
 } from './dto';
+import { ProductMapperService } from './services/product-mapper.service';
+import { VariantService } from './services/variant.service';
+import { ProductDerivedFieldsService } from './services/product-derived-fields.service';
+import { CategoriesService } from '../categories/categories.service';
+import type { PrismaTransactionClient } from '../common/types/prisma-transaction.client';
 
 type ProductWithRelations = Prisma.ProductGetPayload<{
   include: {
     category: {
       include: {
         parent: true;
+        _count: { select: { products: true } };
       };
     };
-    variants: {
-      include: { options: true };
-    };
+    variants: { include: { options: true } };
     defaultVariant: {
-      select: {
-        id: true;
-        image: true;
-        images: true;
-      };
+      select: { id: true; image: true; images: true };
     };
+    promotionProducts: { include: { promotion: true } };
   };
 }>;
+
+/** TTL for promotions cache (seconds) - promotions change infrequently */
+const PROMOTIONS_CACHE_TTL = 120;
 
 @Injectable()
 export class ProductsService {
   private readonly logger = new Logger(ProductsService.name);
+  private readonly promotionsCache = new TtlCache<
+    string,
+    Array<{
+      id: string;
+      type: string;
+      value: unknown;
+      startsAt: Date | null;
+      expiresAt: Date | null;
+      promotionCategories: Array<{ categoryId: string; applyToDescendants: boolean }>;
+    }>
+  >(PROMOTIONS_CACHE_TTL);
+
   private readonly productInclude = {
     category: {
       include: {
         parent: true,
+        _count: {
+          select: {
+            products: true,
+          },
+        },
       },
     },
     variants: { include: { options: true } },
@@ -57,105 +80,30 @@ export class ProductsService {
         images: true,
       },
     },
+    promotionProducts: {
+      include: {
+        promotion: true,
+      },
+    },
   } as const;
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly productMapper: ProductMapperService,
+    private readonly variantService: VariantService,
+    private readonly derivedFieldsService: ProductDerivedFieldsService,
+    private readonly categoriesService: CategoriesService,
+  ) {}
 
-  /**
-   * Validates that defaultVariantId belongs to the same product.
-   * Throws BadRequestException if validation fails.
-   * @param tx - Prisma transaction client (or regular client)
-   * @param productId - The product ID to validate against
-   * @param defaultVariantId - The variant ID to validate
-   */
-  private async validateDefaultVariant(
-    tx: any, // Prisma transaction client or regular client
-    productId: string,
-    defaultVariantId: string | null | undefined,
-  ): Promise<void> {
-    if (!defaultVariantId) {
-      return; // null/undefined is allowed
-    }
-
-    const variant = await tx.productVariant.findUnique({
-      where: { id: defaultVariantId },
-      select: { id: true, productId: true },
-    });
-
-    if (!variant) {
-      throw new BadRequestException(
-        `Default variant with id "${defaultVariantId}" does not exist`,
-      );
-    }
-
-    if (variant.productId !== productId) {
-      throw new BadRequestException(
-        'Default variant must belong to the same product',
-      );
-    }
-  }
-
-  /**
-   * Smart fallback: Selects the best default variant when current default is invalid.
-   * Priority: 1) in-stock variant with image, 2) any variant with image, 3) first variant
-   * @param variants - Array of product variants
-   * @returns Variant ID or null if no variants exist
-   */
-  private selectDefaultVariantFallback(
-    variants: Array<{
-      id: string;
-      stock: number;
-      image?: string | null;
-      images?: string[] | null;
-    }>,
-  ): string | null {
-    if (!variants || variants.length === 0) {
-      return null;
-    }
-
-    // Helper: Check if variant has at least one image
-    const hasImage = (variant: {
-      image?: string | null;
-      images?: string[] | null;
-    }): boolean => {
-      if (variant.image && variant.image.trim().length > 0) {
-        return true;
-      }
-      if (
-        variant.images &&
-        Array.isArray(variant.images) &&
-        variant.images.length > 0 &&
-        variant.images.some((img) => img && img.trim().length > 0)
-      ) {
-        return true;
-      }
-      return false;
-    };
-
-    // Priority 1: in-stock variant with image
-    const inStockWithImage = variants.find((v) => v.stock > 0 && hasImage(v));
-    if (inStockWithImage) {
-      return inStockWithImage.id;
-    }
-
-    // Priority 2: any variant with image
-    const withImage = variants.find((v) => hasImage(v));
-    if (withImage) {
-      return withImage.id;
-    }
-
-    // Priority 3: first variant
-    return variants[0].id;
-  }
 
   /**
    * Find all products with filtering, pagination, and sorting support.
    *
    * FILTERING LOGIC:
-   * - categoryId: Filters by exact category ID match
-   * - minPrice/maxPrice: Filters products within price range (uses Prisma DecimalFilter)
+   * - categoryId: Filters by category ID, including products from the category and all its subcategories (recursively)
+   * - minPrice/maxPrice: Filters products by variant prices (checks if any variant price falls within range)
    * - search: Case-insensitive search in product name and description fields
-   * - inStockOnly: When true, returns only products with effectiveStock > 0
+   * - inStockOnly: When true, returns only products with at least one variant in stock
    * - isActive: Non-admin users only see active products (isActive = true)
    *
    * PAGINATION:
@@ -192,6 +140,7 @@ export class ProductsService {
       maxPrice,
       search,
       inStockOnly,
+      promotionId,
       page = 1,
       limit = 20,
       sortBy = 'createdAt',
@@ -201,37 +150,60 @@ export class ProductsService {
     // Build Prisma where clause dynamically based on provided filters
     const where: Prisma.ProductWhereInput = {};
 
+    // Resolved promotion scope (product IDs + category IDs) when filtering by promotionId
+    let promoProductIds: string[] = [];
+    let promoCategoryIds: string[] = [];
+
     // Non-admin users only see active products
     if (!isAdmin) {
       where.isActive = true;
     }
 
-    // Filter by category ID (exact match)
+    // Filter by category ID - includes products from the category and all its subcategories
     if (categoryId) {
-      where.categoryId = categoryId;
-    }
-
-    // Filter by price range using range overlap logic with minPrice/maxPrice
-    // A product matches if ANY variant price falls within the filter range
-    // This means: product.minPrice <= maxPriceFilter AND product.maxPrice >= minPriceFilter
-    if (minPrice !== undefined || maxPrice !== undefined) {
-      if (minPrice !== undefined && maxPrice !== undefined) {
-        // Both min and max: product price range must overlap with filter range
-        where.AND = [
-          { minPrice: { lte: maxPrice } }, // Product's min price <= filter max
-          { maxPrice: { gte: minPrice } }, // Product's max price >= filter min
-        ];
-      } else if (minPrice !== undefined) {
-        // Only min: product's max price must be >= filter min
-        where.maxPrice = { gte: minPrice };
-      } else if (maxPrice !== undefined) {
-        // Only max: product's min price must be <= filter max
-        where.minPrice = { lte: maxPrice };
+      try {
+        // Get all descendant category IDs (includes the category itself and all children)
+        const categoryIds = await this.categoriesService.getDescendantCategoryIds(
+          categoryId,
+        );
+        // Use 'in' operator to match any of the category IDs
+        where.categoryId = { in: categoryIds };
+      } catch (error) {
+        // If category not found, return empty results immediately (no unsafe type coercion)
+        if (error instanceof CategoryNotFoundException) {
+          return {
+            data: [],
+            total: 0,
+            page,
+            limit,
+            totalPages: 0,
+          };
+        }
+        throw error;
       }
     }
 
+    // Filter by price range and stock - combine into single variants filter
+    // to avoid overwriting (when both minPrice and inStockOnly are set)
+    const variantConditions: Prisma.ProductVariantWhereInput[] = [];
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      variantConditions.push(
+        ...[
+          minPrice !== undefined ? { price: { gte: minPrice } } : {},
+          maxPrice !== undefined ? { price: { lte: maxPrice } } : {},
+        ].filter((c) => Object.keys(c).length > 0),
+      );
+    }
+    if (inStockOnly === true) {
+      variantConditions.push({ stock: { gt: 0 } });
+    }
+    if (variantConditions.length > 0) {
+      where.variants = {
+        some: variantConditions.length > 1 ? { AND: variantConditions } : variantConditions[0],
+      };
+    }
+
     // Search filter: case-insensitive search in name and description
-    // Uses PostgreSQL ILIKE operator via Prisma's 'insensitive' mode
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
@@ -239,44 +211,153 @@ export class ProductsService {
       ];
     }
 
-    // Filter by stock availability: only products with effectiveStock > 0
-    // This must be applied BEFORE pagination to ensure correct totals and page counts
-    if (inStockOnly === true) {
-      where.effectiveStock = { gt: 0 };
+    // Filter by promotion: products explicitly linked (PromotionProduct) OR in a linked category (PromotionCategory, respecting applyToDescendants)
+    if (promotionId) {
+      const promotion = await this.prisma.promotion.findUnique({
+        where: { id: promotionId },
+        select: {
+          promotionProducts: { select: { productId: true } },
+          promotionCategories: {
+            select: { categoryId: true, applyToDescendants: true },
+          },
+        },
+      });
+
+      if (!promotion) {
+        return {
+          data: [],
+          total: 0,
+          page,
+          limit,
+          totalPages: 0,
+        };
+      }
+
+      promoProductIds = promotion.promotionProducts.map((p) => p.productId);
+      const categoryIdsSet = new Set<string>();
+
+      for (const pc of promotion.promotionCategories) {
+        if (pc.applyToDescendants) {
+          try {
+            const descendantIds =
+              await this.categoriesService.getDescendantCategoryIds(
+                pc.categoryId,
+              );
+            descendantIds.forEach((id) => categoryIdsSet.add(id));
+          } catch (err) {
+            if (err instanceof CategoryNotFoundException) {
+              continue;
+            }
+            throw err;
+          }
+        } else {
+          categoryIdsSet.add(pc.categoryId);
+        }
+      }
+
+      const promoCategoryIdsArr = Array.from(categoryIdsSet);
+      const promoOrConditions: Prisma.ProductWhereInput[] = [];
+      if (promoProductIds.length > 0) {
+        promoOrConditions.push({ id: { in: promoProductIds } });
+      }
+      if (promoCategoryIdsArr.length > 0) {
+        promoOrConditions.push({ categoryId: { in: promoCategoryIdsArr } });
+      }
+
+      if (promoOrConditions.length === 0) {
+        return {
+          data: [],
+          total: 0,
+          page,
+          limit,
+          totalPages: 0,
+        };
+      }
+
+      promoCategoryIds = promoCategoryIdsArr;
+
+      const promoCondition: Prisma.ProductWhereInput = {
+        OR: promoOrConditions,
+      };
+
+      if (search && where.OR) {
+        where.AND = [{ OR: where.OR }, promoCondition];
+        delete where.OR;
+      } else {
+        where.OR = promoOrConditions;
+      }
     }
 
     // Calculate pagination offset
     const skip = (page - 1) * limit;
 
-    // Build dynamic sort order
-    // When sorting by price:
-    // - ASC (low to high): sort by minPrice (lowest variant price first)
-    // - DESC (high to low): sort by maxPrice (highest variant price first)
-    let orderBy: Prisma.ProductOrderByWithRelationInput;
-    if (sortBy === 'price') {
-      orderBy =
-        sortOrder === 'asc' ? { minPrice: 'asc' } : { maxPrice: 'desc' };
+    // Price sort: Prisma cannot orderBy relation aggregate (_min). Use raw SQL for correct
+    // ordering and pagination at any catalog size.
+    const usePriceSort = sortBy === 'price';
+
+    let products: ProductWithRelations[];
+    let total: number;
+
+    if (usePriceSort) {
+      const categoryIdsForSql = (where.categoryId as { in?: string[] } | undefined)?.in;
+      const productIds = await this.findProductIdsByPriceSort(
+        {
+          isActive: !isAdmin,
+          categoryIds: categoryIdsForSql,
+          minPrice,
+          maxPrice,
+          inStockOnly: inStockOnly === true,
+          search: search ?? undefined,
+          promotionProductIds:
+            promoProductIds.length > 0 || promoCategoryIds.length > 0
+              ? { productIds: promoProductIds, categoryIds: promoCategoryIds }
+              : undefined,
+        },
+        sortOrder,
+        skip,
+        limit,
+      );
+      total = await this.prisma.product.count({ where });
+
+      if (productIds.length === 0) {
+        products = [];
+      } else {
+        const orderMap = new Map(productIds.map((id, i) => [id, i]));
+        const fetched = await this.prisma.product.findMany({
+          where: { id: { in: productIds } },
+          include: this.productInclude,
+        });
+        products = fetched.sort(
+          (a, b) => (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0),
+        );
+      }
     } else {
-      orderBy = {
+      const orderBy: Prisma.ProductOrderByWithRelationInput = {
         [sortBy]: sortOrder,
       } as Prisma.ProductOrderByWithRelationInput;
+
+      [products, total] = await Promise.all([
+        this.prisma.product.findMany({
+          where,
+          include: this.productInclude,
+          skip,
+          take: limit,
+          orderBy,
+        }),
+        this.prisma.product.count({ where }),
+      ]);
     }
 
-    // Execute queries in parallel for better performance
-    const [products, total] = await Promise.all([
-      this.prisma.product.findMany({
-        where,
-        include: this.productInclude,
-        skip,
-        take: limit,
-        orderBy,
-      }),
-      this.prisma.product.count({ where }),
-    ]);
+    // Fetch category promotions for all unique categories in this result set
+    const categoryIds = [...new Set(products.map((p) => p.categoryId))];
+    const categoryPromotionsMap =
+      await this.getCategoryPromotionsForCategories(categoryIds);
 
-    // Transform products to response DTOs
     const data: ProductResponseDto[] = products.map((product) =>
-      this.toProductResponse(product),
+      this.productMapper.toProductResponse(
+        product,
+        categoryPromotionsMap.get(product.categoryId),
+      ),
     );
 
     const totalPages = Math.ceil(total / limit);
@@ -302,20 +383,41 @@ export class ProductsService {
       throw new ProductNotFoundException();
     }
 
-    return this.toProductResponse(product);
+    const categoryPromotionsMap =
+      await this.getCategoryPromotionsForCategories([product.categoryId]);
+    return this.productMapper.toProductResponse(
+      product,
+      categoryPromotionsMap.get(product.categoryId),
+    );
   }
 
+  /**
+   * Featured products: manually curated via isFeatured flag.
+   * Used for homepage "Featured" section.
+   */
   async findFeatured(limit = 8): Promise<ProductResponseDto[]> {
     const products = await this.prisma.product.findMany({
-      where: { isActive: true },
+      where: { isActive: true, isFeatured: true },
       include: this.productInclude,
       take: limit,
       orderBy: { createdAt: 'desc' },
     });
 
-    return products.map((product) => this.toProductResponse(product));
+    const categoryIds = [...new Set(products.map((p) => p.categoryId))];
+    const categoryPromotionsMap =
+      await this.getCategoryPromotionsForCategories(categoryIds);
+    return products.map((product) =>
+      this.productMapper.toProductResponse(
+        product,
+        categoryPromotionsMap.get(product.categoryId),
+      ),
+    );
   }
 
+  /**
+   * Latest products: newest first by creation date.
+   * Used for homepage "Latest" / "New Arrivals" section.
+   */
   async findLatest(limit = 8): Promise<ProductResponseDto[]> {
     const products = await this.prisma.product.findMany({
       where: { isActive: true },
@@ -324,7 +426,15 @@ export class ProductsService {
       orderBy: { createdAt: 'desc' },
     });
 
-    return products.map((product) => this.toProductResponse(product));
+    const categoryIds = [...new Set(products.map((p) => p.categoryId))];
+    const categoryPromotionsMap =
+      await this.getCategoryPromotionsForCategories(categoryIds);
+    return products.map((product) =>
+      this.productMapper.toProductResponse(
+        product,
+        categoryPromotionsMap.get(product.categoryId),
+      ),
+    );
   }
 
   async create(
@@ -339,11 +449,11 @@ export class ProductsService {
     }
 
     const baseSlug = generateSlug(createProductDto.name);
-    const existingProducts = await this.prisma.product.findMany({
-      select: { slug: true },
-    });
-    const existingSlugs = existingProducts.map((p) => p.slug);
-    const uniqueSlug = ensureUniqueSlug(baseSlug, existingSlugs);
+    const uniqueSlug = await ensureUniqueSlugInDb(
+      this.prisma,
+      baseSlug,
+      'product',
+    );
 
     // Variants are required in SKU-first model
     if (!createProductDto.variants || createProductDto.variants.length === 0) {
@@ -391,7 +501,7 @@ export class ProductsService {
       stock: variant.stock,
       image: variant.image,
       images: variant.images ?? [],
-      options: this.buildVariantOptions(variant.options),
+      options: this.variantService.buildVariantOptions(variant.options),
     }));
 
     // Calculate derived fields from variants
@@ -408,13 +518,14 @@ export class ProductsService {
           name: createProductDto.name,
           slug: uniqueSlug,
           description: createProductDto.description,
-          price: minPrice, // Starting from price = MIN(variant.price)
-          minPrice: minPrice,
-          maxPrice: maxPrice,
-          effectiveStock: effectiveStock, // Denormalized sum of variant stocks
+          specs: createProductDto.specs
+            ? (createProductDto.specs as Prisma.InputJsonValue)
+            : undefined,
+          // Derived fields (price, minPrice, maxPrice, effectiveStock) are calculated on-the-fly from variants
           currency: (createProductDto.currency ?? 'USD').toUpperCase(),
           categoryId: createProductDto.categoryId,
           isActive: createProductDto.isActive ?? true,
+          isFeatured: createProductDto.isFeatured ?? false,
           isOnSale: createProductDto.isOnSale ?? false,
           discountType: createProductDto.discountType ?? null,
           discountValue:
@@ -439,11 +550,11 @@ export class ProductsService {
           },
         },
         include: this.productInclude,
-      });
+      }) as ProductWithRelations;
 
       // Set defaultVariantId using smart fallback (prefers variant with image)
       if (created.variants && created.variants.length > 0) {
-        const fallbackVariantId = this.selectDefaultVariantFallback(
+        const fallbackVariantId = this.variantService.selectDefaultVariantFallback(
           created.variants.map((v) => ({
             id: v.id,
             stock: v.stock,
@@ -453,16 +564,15 @@ export class ProductsService {
         );
         if (fallbackVariantId) {
           // Validate that the variant belongs to this product (should always pass here, but for safety)
-          await this.validateDefaultVariant(tx, created.id, fallbackVariantId);
+          await this.variantService.validateDefaultVariant(tx, created.id, fallbackVariantId);
           await tx.product.update({
             where: { id: created.id },
-            data: { defaultVariantId: fallbackVariantId } as any,
+            data: { defaultVariant: { connect: { id: fallbackVariantId } } },
           });
         }
       }
 
-      // Recompute derived fields to ensure consistency
-      await this.recomputeDerivedFields(tx, created.id);
+      // Derived fields are calculated on-the-fly, no need to store them
 
       return tx.product.findUnique({
         where: { id: created.id },
@@ -475,7 +585,12 @@ export class ProductsService {
     }
 
     this.logger.log(`Product created: ${product.id} - ${product.name}`);
-    return this.toProductResponse(product);
+    const categoryPromotionsMap =
+      await this.getCategoryPromotionsForCategories([product.categoryId]);
+    return this.productMapper.toProductResponse(
+      product,
+      categoryPromotionsMap.get(product.categoryId),
+    );
   }
 
   async update(
@@ -513,12 +628,7 @@ export class ProductsService {
         });
 
         if (existingProduct) {
-          const existingProducts = await this.prisma.product.findMany({
-            select: { slug: true },
-            where: { id: { not: id } },
-          });
-          const existingSlugs = existingProducts.map((p) => p.slug);
-          data.slug = ensureUniqueSlug(baseSlug, existingSlugs);
+          data.slug = await ensureUniqueSlugInDb(this.prisma, baseSlug, 'product', id);
         } else {
           data.slug = baseSlug;
         }
@@ -534,42 +644,32 @@ export class ProductsService {
 
     if (updateProductDto.currency !== undefined) {
       if (updateProductDto.currency) {
-        (data as any).currency = updateProductDto.currency.toUpperCase();
+        data.currency = updateProductDto.currency.toUpperCase();
       }
     }
 
     if (updateProductDto.isOnSale !== undefined) {
-      if (updateProductDto.isOnSale !== undefined) {
-        (data as any).isOnSale = updateProductDto.isOnSale;
-      }
+      data.isOnSale = updateProductDto.isOnSale;
     }
 
     if (updateProductDto.discountType !== undefined) {
-      if (updateProductDto.discountType !== undefined) {
-        (data as any).discountType = updateProductDto.discountType;
-      }
+      data.discountType = updateProductDto.discountType;
     }
 
     if (updateProductDto.discountValue !== undefined) {
-      if (updateProductDto.discountValue !== undefined) {
-        (data as any).discountValue = updateProductDto.discountValue;
-      }
+      data.discountValue = updateProductDto.discountValue;
     }
 
     if (updateProductDto.saleStartsAt !== undefined) {
-      if (updateProductDto.saleStartsAt !== undefined) {
-        (data as any).saleStartsAt = updateProductDto.saleStartsAt
-          ? new Date(updateProductDto.saleStartsAt)
-          : null;
-      }
+      data.saleStartsAt = updateProductDto.saleStartsAt
+        ? new Date(updateProductDto.saleStartsAt)
+        : null;
     }
 
     if (updateProductDto.saleEndsAt !== undefined) {
-      if (updateProductDto.saleEndsAt !== undefined) {
-        (data as any).saleEndsAt = updateProductDto.saleEndsAt
-          ? new Date(updateProductDto.saleEndsAt)
-          : null;
-      }
+      data.saleEndsAt = updateProductDto.saleEndsAt
+        ? new Date(updateProductDto.saleEndsAt)
+        : null;
     }
 
     if (updateProductDto.categoryId !== undefined) {
@@ -582,18 +682,26 @@ export class ProductsService {
       data.isActive = updateProductDto.isActive;
     }
 
+    if (updateProductDto.isFeatured !== undefined) {
+      data.isFeatured = updateProductDto.isFeatured;
+    }
+
     // Validate defaultVariantId if provided (validate before transaction)
     if (updateProductDto.defaultVariantId !== undefined) {
       // If null is explicitly provided but product has variants, we'll set fallback in transaction
       if (updateProductDto.defaultVariantId === null) {
         // Will be handled in transaction after syncVariants
       } else {
-        await this.validateDefaultVariant(
+        await this.variantService.validateDefaultVariant(
           this.prisma,
           id,
           updateProductDto.defaultVariantId,
         );
-        (data as any).defaultVariantId = updateProductDto.defaultVariantId;
+        if (updateProductDto.defaultVariantId === null) {
+          data.defaultVariant = { disconnect: true };
+        } else {
+          data.defaultVariant = { connect: { id: updateProductDto.defaultVariantId } };
+        }
       }
     }
 
@@ -610,16 +718,19 @@ export class ProductsService {
         throw new ProductNotFoundException();
       }
 
-      return this.toProductResponse(unchanged);
+      const categoryPromotionsMap =
+        await this.getCategoryPromotionsForCategories([unchanged.categoryId]);
+      return this.productMapper.toProductResponse(
+        unchanged,
+        categoryPromotionsMap.get(unchanged.categoryId),
+      );
     }
 
     try {
       const product = await this.prisma.$transaction(async (tx) => {
         if (hasVariantPayload) {
-          // Sync variants and recompute derived fields (effectiveStock, minPrice, maxPrice, price)
-          await this.syncVariants(tx, id, variantsPayload ?? []);
-          await this.recomputeDerivedFields(tx, id);
-          // Price and stock are automatically calculated from variants
+          // Sync variants - derived fields (effectiveStock, minPrice, maxPrice, price) are calculated on-the-fly
+          await this.variantService.syncVariants(tx, id, variantsPayload ?? []);
 
           // Update defaultVariantId if needed
           const updatedProduct = await tx.product.findUnique({
@@ -628,8 +739,7 @@ export class ProductsService {
           });
 
           if (updatedProduct && updatedProduct.variants.length > 0) {
-            const currentDefaultVariantId = (updatedProduct as any)
-              .defaultVariantId;
+            const currentDefaultVariantId = updatedProduct.defaultVariantId;
             const currentDefaultVariant = updatedProduct.variants.find(
               (v) => v.id === currentDefaultVariantId,
             );
@@ -662,7 +772,7 @@ export class ProductsService {
               });
 
             if (needsFallback) {
-              const fallbackVariantId = this.selectDefaultVariantFallback(
+              const fallbackVariantId = this.variantService.selectDefaultVariantFallback(
                 updatedProduct.variants.map((v) => ({
                   id: v.id,
                   stock: v.stock,
@@ -672,8 +782,8 @@ export class ProductsService {
               );
               if (fallbackVariantId) {
                 // Validate (should always pass, but for safety)
-                await this.validateDefaultVariant(tx, id, fallbackVariantId);
-                (data as any).defaultVariantId = fallbackVariantId;
+                await this.variantService.validateDefaultVariant(tx, id, fallbackVariantId);
+                data.defaultVariant = { connect: { id: fallbackVariantId } };
               }
             }
           }
@@ -688,7 +798,12 @@ export class ProductsService {
       });
 
       this.logger.log(`Product updated: ${product.id} - ${product.name}`);
-      return this.toProductResponse(product);
+      const categoryPromotionsMap =
+        await this.getCategoryPromotionsForCategories([product.categoryId]);
+      return this.productMapper.toProductResponse(
+        product,
+        categoryPromotionsMap.get(product.categoryId),
+      );
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -739,300 +854,214 @@ export class ProductsService {
     }
   }
 
-  private async syncVariants(
-    tx: any, // Prisma transaction client - will be properly typed after Prisma client regeneration
-    productId: string,
-    variants: UpdateProductVariantDto[],
-  ): Promise<number> {
-    const existingVariants = await tx.productVariant.findMany({
-      where: { productId },
-      include: {
-        options: true,
-        cartItems: { select: { id: true } },
-        orderItems: { select: { id: true } },
-      },
-    });
 
-    const existingMap = new Map(
-      existingVariants.map((variant: any) => [variant.id, variant]),
-    );
-    const incomingIds = new Set(
-      variants
-        .filter((variant) => Boolean(variant.id))
-        .map((variant) => variant.id as string),
-    );
+  /**
+   * Raw SQL: get product IDs ordered by min variant price, with filters and pagination.
+   * Used when sortBy=price for correct ordering at any catalog size.
+   */
+  private async findProductIdsByPriceSort(
+    filters: {
+      isActive?: boolean;
+      categoryIds?: string[];
+      minPrice?: number;
+      maxPrice?: number;
+      inStockOnly?: boolean;
+      search?: string;
+      /** When set, restrict to products in promotion (by product ID or category ID). */
+      promotionProductIds?: { productIds: string[]; categoryIds: string[] };
+    },
+    sortOrder: 'asc' | 'desc',
+    skip: number,
+    limit: number,
+  ): Promise<string[]> {
+    const conditions: Prisma.Sql[] = [];
 
-    // Check for duplicate SKUs within the provided variants
-    const incomingSkus = variants
-      .filter((v) => v.sku)
-      .map((v) => v.sku as string);
-    const duplicateSkus = incomingSkus.filter(
-      (sku, index) => incomingSkus.indexOf(sku) !== index,
-    );
-    if (duplicateSkus.length > 0) {
-      throw new BadRequestException(
-        `Duplicate SKUs found within the provided variants: ${duplicateSkus.join(', ')}. Each variant must have a unique SKU.`,
+    if (filters.isActive === true) {
+      conditions.push(Prisma.sql`p."isActive" = true`);
+    }
+    if (filters.categoryIds?.length) {
+      conditions.push(
+        Prisma.sql`p."categoryId" IN (${Prisma.join(
+          filters.categoryIds.map((c) => Prisma.sql`${c}`),
+          ', ',
+        )})`,
       );
     }
-
-    // Check for SKU conflicts with existing variants (excluding current product's variants)
-    if (incomingSkus.length > 0) {
-      const existingSkusInOtherProducts = await tx.productVariant.findMany({
-        where: {
-          sku: { in: incomingSkus },
-          productId: { not: productId },
-        },
-        select: { sku: true },
-      });
-
-      if (existingSkusInOtherProducts.length > 0) {
-        const conflictingSkus = existingSkusInOtherProducts.map(
-          (v: { sku: string }) => v.sku,
+    if (filters.minPrice !== undefined) {
+      conditions.push(Prisma.sql`v.min_price >= ${filters.minPrice}`);
+    }
+    if (filters.maxPrice !== undefined) {
+      conditions.push(Prisma.sql`v.min_price <= ${filters.maxPrice}`);
+    }
+    if (filters.inStockOnly) {
+      conditions.push(
+        Prisma.sql`EXISTS (SELECT 1 FROM "ProductVariant" pv2 WHERE pv2."productId" = p.id AND pv2.stock > 0)`,
+      );
+    }
+    if (filters.search) {
+      const pattern = `%${filters.search}%`;
+      conditions.push(
+        Prisma.sql`(p.name ILIKE ${pattern} OR (p.description IS NOT NULL AND p.description ILIKE ${pattern}))`,
+      );
+    }
+    if (
+      filters.promotionProductIds &&
+      (filters.promotionProductIds.productIds.length > 0 ||
+        filters.promotionProductIds.categoryIds.length > 0)
+    ) {
+      const promo = filters.promotionProductIds;
+      const promoParts: Prisma.Sql[] = [];
+      if (promo.productIds.length > 0) {
+        promoParts.push(
+          Prisma.sql`p.id IN (${Prisma.join(
+            promo.productIds.map((id) => Prisma.sql`${id}`),
+            ', ',
+          )})`,
         );
-        throw new BadRequestException(
-          `The following SKUs already exist in other products: ${conflictingSkus.join(', ')}. Each SKU must be unique.`,
+      }
+      if (promo.categoryIds.length > 0) {
+        promoParts.push(
+          Prisma.sql`p."categoryId" IN (${Prisma.join(
+            promo.categoryIds.map((c) => Prisma.sql`${c}`),
+            ', ',
+          )})`,
         );
       }
-
-      // Check for SKU conflicts within the current product (for new variants or updated SKUs)
-      for (const variant of variants) {
-        if (variant.sku) {
-          const existingVariantWithSku = existingVariants.find(
-            (ev: any) => ev.sku === variant.sku && ev.id !== variant.id,
-          );
-          if (existingVariantWithSku) {
-            throw new BadRequestException(
-              `SKU "${variant.sku}" is already used by another variant in this product.`,
-            );
-          }
-        }
-      }
+      conditions.push(Prisma.sql`(${Prisma.join(promoParts, ' OR ')})`);
     }
 
-    const variantsToRemove = existingVariants.filter(
-      (variant: any) => !incomingIds.has(variant.id),
-    );
+    const whereClause =
+      conditions.length > 0 ? Prisma.sql`WHERE ${Prisma.join(conditions, ' AND ')}` : Prisma.empty;
+    const orderDir = sortOrder === 'asc' ? Prisma.sql`ASC` : Prisma.sql`DESC`;
 
-    for (const variant of variantsToRemove) {
-      if (variant.cartItems.length === 0 && variant.orderItems.length === 0) {
-        await tx.variantOption.deleteMany({
-          where: { productVariantId: variant.id },
-        });
-        await tx.productVariant.delete({ where: { id: variant.id } });
-      } else {
-        await tx.variantOption.deleteMany({
-          where: { productVariantId: variant.id },
-        });
-        await tx.productVariant.update({
-          where: { id: variant.id },
-          data: { stock: 0 },
-        });
-      }
-    }
+    const rows = await this.prisma.$queryRaw<{ id: string }[]>`
+      SELECT p.id
+      FROM "Product" p
+      INNER JOIN (
+        SELECT "productId", MIN(price)::float as min_price
+        FROM "ProductVariant"
+        GROUP BY "productId"
+      ) v ON p.id = v."productId"
+      ${whereClause}
+      ORDER BY v.min_price ${orderDir}
+      LIMIT ${limit} OFFSET ${skip}
+    `;
 
-    for (const variant of variants) {
-      if (variant.id && existingMap.has(variant.id)) {
-        const updateData: any = {}; // Will be properly typed after Prisma client regeneration
-        if (variant.sku !== undefined) {
-          updateData.sku = variant.sku;
-        }
-        if (variant.price !== undefined) {
-          updateData.price = variant.price;
-        }
-        if (variant.stock !== undefined) {
-          updateData.stock = variant.stock;
-        }
-        if (variant.image !== undefined) {
-          updateData.image = variant.image;
-        }
-        if (variant.images !== undefined) {
-          updateData.images = variant.images;
-        }
-        if (variant.options !== undefined) {
-          await tx.variantOption.deleteMany({
-            where: { productVariantId: variant.id },
-          });
-          const optionData = this.buildVariantOptions(variant.options);
-          if (optionData) {
-            updateData.options = optionData;
-          }
-        }
-
-        await tx.productVariant.update({
-          where: { id: variant.id },
-          data: updateData,
-        });
-      } else {
-        if (variant.id) {
-          throw new ProductVariantNotFoundException();
-        } else {
-          if (
-            !variant.sku ||
-            variant.price === undefined ||
-            variant.stock === undefined
-          ) {
-            throw new BadRequestException(
-              'New variants must include sku, price, and stock',
-            );
-          }
-
-          await tx.productVariant.create({
-            data: {
-              productId,
-              sku: variant.sku,
-              price: variant.price,
-              stock: variant.stock,
-              image: variant.image,
-              images: variant.images ?? [],
-              options: this.buildVariantOptions(variant.options),
-            },
-          });
-        }
-      }
-    }
-
-    const aggregate = await tx.productVariant.aggregate({
-      where: { productId },
-      _sum: { stock: true },
-    });
-
-    return aggregate._sum.stock ?? 0;
-  }
-
-  private buildVariantOptions(options?: Record<string, string>) {
-    const entries = options
-      ? Object.entries(options).filter(
-          ([key, value]) =>
-            Boolean(key) && value !== undefined && value !== null,
-        )
-      : [];
-
-    if (!entries.length) {
-      return undefined;
-    }
-
-    return {
-      create: entries.map(([name, value]) => ({
-        name,
-        value,
-      })),
-    };
+    return rows.map((r) => r.id);
   }
 
   /**
-   * Recomputes derived fields from variant aggregates and updates Product.
-   * Computes: effectiveStock (sum of variant stocks), minPrice, maxPrice, and price (set to minPrice).
-   * Used after variant creates/updates/deletes and default variant stock updates.
+   * Get promotions that apply to products in the given categories via PromotionCategory.
+   * Respects applyToDescendants: when true, promotion applies to category and its descendants.
+   *
+   * @param categoryIds - Product category IDs to resolve
+   * @returns Map of categoryId -> applicable promotions (for display in product response)
    */
-  private async recomputeDerivedFields(
-    tx: any, // Prisma transaction client
-    productId: string,
-  ): Promise<{
-    effectiveStock: number;
-    minPrice: number;
-    maxPrice: number;
-    price: number;
-  }> {
-    const aggregate = await tx.productVariant.aggregate({
-      where: { productId },
-      _sum: { stock: true },
-      _min: { price: true },
-      _max: { price: true },
-    });
-
-    const effectiveStock = aggregate._sum.stock ?? 0;
-    const minPrice = aggregate._min.price ? Number(aggregate._min.price) : 0;
-    const maxPrice = aggregate._max.price ? Number(aggregate._max.price) : 0;
-    const price = minPrice; // Keep price = minPrice for backwards compatibility
-
-    await tx.product.update({
-      where: { id: productId },
-      data: {
-        effectiveStock,
-        minPrice,
-        maxPrice,
-        price, // Set price = minPrice for backwards compatibility
-      },
-    });
-
-    return { effectiveStock, minPrice, maxPrice, price };
-  }
-
-  private toProductResponse(product: ProductWithRelations): ProductResponseDto {
-    const minPrice = this.toNumber(product.minPrice);
-    const maxPrice = this.toNumber(product.maxPrice);
-    return {
-      id: product.id,
-      name: product.name,
-      slug: product.slug,
-      description: product.description ?? null,
-      price: this.toNumber(product.price),
-      currency: product.currency,
-      stock: product.effectiveStock, // Use effectiveStock (sum of variant stocks) instead of product.stock
-      isActive: product.isActive,
-      defaultVariantId: product.defaultVariantId ?? null,
-      defaultVariant: product.defaultVariant
-        ? {
-            id: product.defaultVariant.id,
-            image: product.defaultVariant.image,
-            images: product.defaultVariant.images ?? [],
-          }
-        : null,
-      isOnSale: product.isOnSale ?? undefined,
-      discountType: product.discountType ?? undefined,
-      discountValue:
-        product.discountValue !== undefined && product.discountValue !== null
-          ? this.toNumber(product.discountValue)
-          : null,
-      saleStartsAt: product.saleStartsAt ?? null,
-      saleEndsAt: product.saleEndsAt ?? null,
-      categoryId: product.categoryId,
-      category: product.category
-        ? ({
-            id: product.category.id,
-            name: product.category.name,
-            slug: product.category.slug,
-            description: product.category.description ?? null,
-            parentId: product.category.parentId ?? null,
-            parent: product.category.parent
-              ? {
-                  id: product.category.parent.id,
-                  name: product.category.parent.name,
-                  slug: product.category.parent.slug,
-                }
-              : null,
-            createdAt: product.category.createdAt,
-            updatedAt: product.category.updatedAt,
-          } as any)
-        : null,
-      variants: product.variants?.map((variant) => ({
-        id: variant.id,
-        sku: variant.sku,
-        price: this.toNumber(variant.price),
-        stock: variant.stock,
-        image: variant.image,
-        images: variant.images ?? [],
-        options:
-          variant.options && variant.options.length > 0
-            ? variant.options.reduce<Record<string, string>>((acc, option) => {
-                acc[option.name] = option.value;
-                return acc;
-              }, {})
-            : undefined,
-      })),
-      // Include minPrice and maxPrice for products with multiple variant prices
-      // Only include if maxPrice > minPrice (indicating a price range)
-      minPrice: maxPrice > minPrice ? minPrice : undefined,
-      maxPrice: maxPrice > minPrice ? maxPrice : undefined,
-      createdAt: product.createdAt,
-      updatedAt: product.updatedAt,
-    };
-  }
-
-  private toNumber(value?: Prisma.Decimal | number | null): number {
-    if (value === null || value === undefined) {
-      return 0;
+  private async getCategoryPromotionsForCategories(
+    categoryIds: string[],
+  ): Promise<Map<string, Array<{ id: string; type: string; value: unknown; startsAt: Date | null; expiresAt: Date | null }>>> {
+    if (categoryIds.length === 0) {
+      return new Map();
     }
-    return Number(value);
+
+    const now = new Date();
+    const cacheKey = 'promotions:active';
+
+    let promotions = this.promotionsCache.get(cacheKey);
+    if (!promotions) {
+      const raw = await this.prisma.promotion.findMany({
+        where: {
+          isActive: true,
+          AND: [
+            { OR: [{ startsAt: null }, { startsAt: { lte: now } }] },
+            { OR: [{ expiresAt: null }, { expiresAt: { gt: now } }] },
+          ],
+          promotionCategories: { some: {} },
+        },
+        include: { promotionCategories: true },
+      });
+      promotions = raw.map((p) => ({
+        id: p.id,
+        type: p.type,
+        value: p.value,
+        startsAt: p.startsAt,
+        expiresAt: p.expiresAt,
+        promotionCategories: p.promotionCategories.map((pc) => ({
+          categoryId: pc.categoryId,
+          applyToDescendants: pc.applyToDescendants,
+        })),
+      }));
+      this.promotionsCache.set(cacheKey, promotions);
+    }
+
+    const ancestorMap = new Map<string, string[]>();
+    for (const catId of [...new Set(categoryIds)]) {
+      try {
+        ancestorMap.set(
+          catId,
+          await this.categoriesService.getAncestorCategoryIds(catId),
+        );
+      } catch {
+        ancestorMap.set(catId, [catId]);
+      }
+    }
+
+    const result = new Map<
+      string,
+      Array<{ id: string; type: string; value: unknown; startsAt: Date | null; expiresAt: Date | null }>
+    >();
+
+    for (const catId of categoryIds) {
+      const ancestors = ancestorMap.get(catId) ?? [catId];
+      const applicable: Array<{
+        id: string;
+        type: string;
+        value: unknown;
+        startsAt: Date | null;
+        expiresAt: Date | null;
+      }> = [];
+
+      for (const prom of promotions) {
+        for (const pc of prom.promotionCategories) {
+          if (!ancestors.includes(pc.categoryId)) continue;
+          const isDirect = pc.categoryId === catId;
+          if (isDirect || pc.applyToDescendants) {
+            applicable.push({
+              id: prom.id,
+              type: prom.type,
+              value: prom.value,
+              startsAt: prom.startsAt,
+              expiresAt: prom.expiresAt,
+            });
+            break;
+          }
+        }
+      }
+      result.set(catId, applicable);
+    }
+
+    return result;
   }
+
+  /**
+   * Invalidate promotions cache. Call when promotions are created/updated/deleted.
+   * Used by PromotionsService to ensure product listing shows fresh promotion data.
+   */
+  invalidatePromotionsCache(): void {
+    this.promotionsCache.delete('promotions:active');
+    this.logger.debug('Promotions cache invalidated');
+  }
+
+  /**
+   * Public method to recompute derived fields for a product.
+   * Used by other services (checkout, orders) after stock changes.
+   */
+  async recomputeProductDerivedFields(
+    tx: PrismaTransactionClient,
+    productId: string,
+  ): Promise<void> {
+    await this.derivedFieldsService.computeDerivedFields(tx, productId);
+  }
+
+
 }

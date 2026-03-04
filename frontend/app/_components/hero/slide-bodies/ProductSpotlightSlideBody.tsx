@@ -23,6 +23,7 @@ import { StarRating } from "@/components/ui/star-rating";
 import { useHeroRunCounter } from "@/lib/hooks/use-hero-run-counter";
 import type { HeroSlide } from "@/lib/types/heroSlides.types";
 import type { Product } from "@/features/products/types";
+import { resolveSlidePrimaryCtaHref } from "@/lib/utils/heroSlides.utils";
 
 // Icon mapping for dynamic features
 const FEATURE_ICONS: Record<string, ComponentType<{ className?: string }>> = {
@@ -165,7 +166,7 @@ export const ProductSpotlightSlideBody = memo(
               <HeroItem run={run} animationKey={animationKey}>
                 <div className="flex flex-row gap-1.5 mt-1.5 md:mt-4 justify-center lg:justify-start hero-item-enter hero-buttons text-gray-900">
                   <Link
-                    href={slide.ctaPrimary.href}
+                    href={resolveSlidePrimaryCtaHref(slide)}
                     onMouseEnter={onMouseEnter}
                     onMouseLeave={onMouseLeave}
                   >

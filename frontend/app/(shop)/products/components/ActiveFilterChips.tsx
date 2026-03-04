@@ -45,6 +45,15 @@ export function ActiveFilterChips({
     }
   }
 
+  // Promotion / Deals filter
+  if (filters.promotionId) {
+    activeFilters.push({
+      key: "promotionId",
+      label: "Deals",
+      value: "Promotion",
+    });
+  }
+
   // Search filter
   if (filters.search) {
     activeFilters.push({

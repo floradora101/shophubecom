@@ -44,6 +44,43 @@ enum DiscountType {
   FIXED_AMOUNT
 }
 
+enum AnnouncementIconType {
+  Truck
+  Sparkles
+  Zap
+  Info
+  Bell
+  Tag
+  Gift
+}
+
+enum HeroSlideType {
+  PRODUCT_SPOTLIGHT
+  OFFER
+  TESTIMONIAL
+  LANDSCAPE_IMAGE
+  CATEGORY_SPOTLIGHT
+  EDITORS_PICK
+  COMPARISON_BATTLE
+  PROMOTION
+}
+
+enum MediaKind {
+  PRODUCT
+  IMAGE
+  VIDEO
+  NONE
+}
+
+enum LandscapeTheme {
+  GLASS_RED
+  MINIMAL_WHITE
+  BOLD_DARK
+  CENTERED_GLASS
+  RIGHT_INDUSTRIAL
+  CLEAN_MODERN
+}
+
 // Models
 model User {
   id                  String               @id @default(cuid())
@@ -57,6 +94,7 @@ model User {
   addresses           Address[]
   orders              Order[]
   cart                Cart?
+  reviews             ProductReview[]
   auditLogs           AuditLog[]
   passwordResetTokens PasswordResetToken[]
   createdAt           DateTime             @default(now())
@@ -86,11 +124,14 @@ model Category {
   name                String
   slug                String              @unique
   description         String?
+  image               String? // Category image for UI display
   parent              Category?           @relation("CategoryHierarchy", fields: [parentId], references: [id])
   parentId            String?
   children            Category[]          @relation("CategoryHierarchy")
   products            Product[]
   promotionCategories PromotionCategory[]
+  departmentsAsParent Department[]        @relation("DepartmentParentCategory")
+  highlightedInDepartments DepartmentHighlightedSubcategory[]
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
 
@@ -104,13 +145,9 @@ model Product {
   slug              String             @unique
   description       String?
   specs             Json?
-  price             Decimal            @db.Decimal(10, 2)
   currency          String             @default("USD")
-  minPrice          Decimal            @default(0) @db.Decimal(10, 2)
-  maxPrice          Decimal            @default(0) @db.Decimal(10, 2)
-  effectiveStock    Int                @default(0)
-  colors            String[]           @default([])
   isActive          Boolean            @default(true)
+  isFeatured        Boolean            @default(false)
   isOnSale          Boolean            @default(false)
   discountType      DiscountType?
   discountValue     Decimal?           @db.Decimal(10, 2)
@@ -120,6 +157,10 @@ model Product {
   defaultVariant    ProductVariant?    @relation("DefaultVariant", fields: [defaultVariantId], references: [id], onDelete: SetNull)
   category          Category           @relation(fields: [categoryId], references: [id])
   categoryId        String
+  // Rating system
+  averageRating     Decimal?           @db.Decimal(3, 2) // 0.00 to 5.00
+  reviewCount       Int                @default(0)
+  reviews           ProductReview[]
   cartItems         CartItem[]
   orderItems        OrderItem[]
   promotionProducts PromotionProduct[]
@@ -130,10 +171,9 @@ model Product {
   @@index([slug])
   @@index([categoryId])
   @@index([isActive])
-  @@index([effectiveStock])
-  @@index([minPrice])
-  @@index([maxPrice])
+  @@index([isFeatured])
   @@index([defaultVariantId])
+  @@index([averageRating])
 }
 
 model ProductVariant {
@@ -254,7 +294,6 @@ model OrderItem {
   @@index([orderId])
 }
 
-
 model AuditLog {
   id        String   @id @default(cuid())
   actorId   String?
@@ -269,34 +308,40 @@ model AuditLog {
 }
 
 model Coupon {
-  id            String       @id @default(cuid())
-  code          String       @unique
+  id            String        @id @default(cuid())
+  code          String        @unique
   description   String?
   type          DiscountType
-  value         Decimal      @db.Decimal(10, 2)
-  minOrderTotal Decimal?     @db.Decimal(10, 2)
+  value         Decimal       @db.Decimal(10, 2)
+  minOrderTotal Decimal?      @db.Decimal(10, 2)
   startsAt      DateTime?
   expiresAt     DateTime?
   usageLimit    Int?
   perUserLimit  Int?
-  isActive      Boolean      @default(true)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  usedCount     Int           @default(0) // Track total usage
+  isActive      Boolean       @default(true)
+  orderCoupons  OrderCoupon[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
   @@index([code])
+  @@index([isActive])
 }
 
 model OrderCoupon {
   id        String       @id @default(cuid())
   order     Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId   String
-  code      String
+  coupon    Coupon?      @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  couponId  String?
+  code      String // Store code for historical reference even if coupon deleted
   type      DiscountType
   value     Decimal      @db.Decimal(10, 2)
   discount  Decimal      @db.Decimal(10, 2)
   createdAt DateTime     @default(now())
 
   @@index([orderId])
+  @@index([couponId])
 }
 
 model Promotion {
@@ -312,6 +357,7 @@ model Promotion {
   updatedAt           DateTime            @updatedAt
   promotionProducts   PromotionProduct[]
   promotionCategories PromotionCategory[]
+  heroSlides          HeroSlide[]
 
   @@index([isActive, startsAt, expiresAt])
 }
@@ -348,4 +394,132 @@ model PasswordResetToken {
 
   @@index([userId])
   @@index([expiresAt])
+}
+
+// Rating and Review System
+model ProductReview {
+  id           String   @id @default(cuid())
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId    String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  rating       Int // 1 to 5
+  title        String?
+  comment      String?
+  isVerified   Boolean  @default(false) // Verified purchase
+  helpfulCount Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([productId, userId]) // One review per user per product
+  @@index([productId])
+  @@index([userId])
+  @@index([rating])
+  @@index([createdAt])
+}
+
+// Announcements Model
+model Announcement {
+  id        String               @id @default(cuid())
+  text      String
+  highlight String // Highlighted portion of text
+  icon      AnnouncementIconType
+  isActive  Boolean              @default(true)
+  priority  Int                  @default(0) // Higher = shown first
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  @@index([isActive, priority])
+  @@index([priority])
+}
+
+// Hero Slides Model
+model HeroSlide {
+  id       String        @id @default(cuid())
+  type     HeroSlideType
+  priority Int           @default(0) // Higher = shown first
+  isActive Boolean       @default(true)
+  startsAt DateTime? // Optional start date for scheduling
+  endsAt   DateTime? // Optional end date for scheduling
+
+  // Base content fields
+  badgeText   String? // Badge text (optional)
+  headline    String // Main headline (required)
+  highlight   String? // Optional secondary headline part
+  description String // Description text (required)
+
+  // CTA (Call to Action)
+  ctaLabel String // Primary CTA label
+  ctaHref  String // Primary CTA href/link
+
+  // Media configuration
+  mediaKind     MediaKind @default(NONE)
+  productSlug   String? // For PRODUCT_SPOTLIGHT or media kind PRODUCT
+  imageUrl      String? // For LANDSCAPE_IMAGE or media kind IMAGE
+  videoUrl      String? // For media kind VIDEO
+  mediaAlt      String? // Alt text for images
+  mediaPosition String?   @db.VarChar(20) // center | top | bottom | left | right
+  mediaAspect   String?   @db.VarChar(20) // landscape | default
+
+  // Promotion link
+  promotionId   String?
+  promotion     Promotion? @relation(fields: [promotionId], references: [id], onDelete: SetNull)
+
+  // Type-specific fields stored as JSON for flexibility
+  // PRODUCT_SPOTLIGHT: { features?: Array<{ iconName?: string, text: string }> }
+  // OFFER: { offerLabel: string, offerEndsAt: string, promoCode?: string }
+  // TESTIMONIAL: { quote: string, authorName: string, rating: number, stats?: Array<{ label: string, value: string }> }
+  // LANDSCAPE_IMAGE: { theme: LandscapeTheme, content: { badge, headline, highlight, description }, actionButton: { label, href } }
+  // CATEGORY_SPOTLIGHT: { categorySlug: string, categoryBullets?: string[] }
+  // EDITORS_PICK: { productSlugs: string[], editorNote?: string }
+  // COMPARISON_BATTLE: { leftProductSlug: string, rightProductSlug: string, comparisonPoints: Array<{ label, leftValue, rightValue }> }
+  // PROMOTION: { promotionId: string, customColors?: { bg: string, text: string } }
+  typeSpecificData Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive, priority])
+  @@index([type])
+  @@index([priority])
+  @@index([startsAt, endsAt])
+  @@index([promotionId])
+}
+
+/// "Department Spotlight" configuration for homepage subcategory sections.
+/// This is what the Admin `/admin/subcategories` screen manages.
+model Department {
+  id               String   @id @default(cuid())
+  name             String
+  isActive         Boolean  @default(true)
+
+  /// Root/parent category this department is based on
+  parentCategory   Category @relation("DepartmentParentCategory", fields: [parentCategoryId], references: [id], onDelete: Cascade)
+  parentCategoryId String
+
+  /// Ordered list of highlighted subcategories to feature under the parent category
+  highlightedSubcategories DepartmentHighlightedSubcategory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([parentCategoryId])
+  @@index([isActive])
+  @@index([createdAt])
+}
+
+/// Join table for ordered highlighted subcategories inside a Department.
+model DepartmentHighlightedSubcategory {
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  departmentId String
+
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String
+
+  /// Preserves selection order in the admin UI
+  sortOrder Int @default(0)
+
+  @@id([departmentId, categoryId])
+  @@index([categoryId])
+  @@index([departmentId, sortOrder])
 }

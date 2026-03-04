@@ -40,6 +40,12 @@ export class CategoriesController {
     return this.categoriesService.findAll(filters);
   }
 
+  @Get('tree')
+  @Throttle({ default: { limit: 100, ttl: 60000 } })
+  findTree(): Promise<CategoryResponseDto[]> {
+    return this.categoriesService.findTree();
+  }
+
   @Get(':id')
   @Throttle({ default: { limit: 100, ttl: 60000 } }) // 100 requests per 60 seconds for read operations
   findOne(@Param('id') id: string): Promise<CategoryResponseDto> {

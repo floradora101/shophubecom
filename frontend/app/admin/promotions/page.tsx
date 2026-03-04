@@ -23,7 +23,7 @@ import {
   Layers,
   Megaphone
 } from "lucide-react";
-import { getAllPromotions } from "@/lib/mock-data/mock-data";
+import { usePromotionsQuery, useDeletePromotionMutation } from "@/features/promotions/queries";
 import { Heading, Text } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,6 +43,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils/cn";
 import { format } from "date-fns";
+import { Loader2, AlertCircle } from "lucide-react";
 
 type SortOption = "name-asc" | "name-desc" | "value-desc" | "newest";
 
@@ -51,12 +52,15 @@ export default function PromotionsAdminPage() {
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
 
-  const promotions = useMemo(() => getAllPromotions(), []);
+  const { data: promotions, isLoading, error } = usePromotionsQuery();
+  const deleteMutation = useDeletePromotionMutation();
 
   const filteredPromotions = useMemo(() => {
+    if (!promotions) return [];
+
     let result = promotions.filter(p =>
       p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.description.toLowerCase().includes(search.toLowerCase())
+      (p.description?.toLowerCase().includes(search.toLowerCase()) ?? false)
     );
 
     if (statusFilter === "active") {
@@ -78,11 +82,36 @@ export default function PromotionsAdminPage() {
     return result;
   }, [promotions, search, sortBy, statusFilter]);
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm("Are you sure you want to delete this promotion?")) {
-      toast.success("Promotion deleted (mock)");
+      try {
+        await deleteMutation.mutateAsync(id);
+      } catch (err) {
+        // Error handled in mutation
+      }
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 space-y-4">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+        <Text className="text-warm-gray-500 font-medium">Loading promotions...</Text>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 space-y-4">
+        <AlertCircle className="w-16 h-16 text-red-500" />
+        <Heading level="h3">Failed to load promotions</Heading>
+        <Text className="text-warm-gray-500">
+          {error instanceof Error ? error.message : "An error occurred while fetching promotions."}
+        </Text>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 pb-10">
@@ -209,7 +238,7 @@ export default function PromotionsAdminPage() {
                 <div key={promo.id} className="group flex items-center py-5 px-6 hover:bg-warm-gray-50 transition-all duration-200">
                   <div className="w-1/4 flex items-center gap-4 min-w-0">
                     <div className={cn(
-                      "w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm transition-transform group-hover:scale-105",
+                      "w-12 h-12 rounded-lg flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-105",
                       promo.isActive ? "bg-primary-50 text-primary-600" : "bg-warm-gray-100 text-warm-gray-400"
                     )}>
                       <Megaphone className="w-6 h-6" />

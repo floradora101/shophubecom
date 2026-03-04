@@ -5,7 +5,8 @@ export type HeroSlideType =
   | "LANDSCAPE_IMAGE"
   | "CATEGORY_SPOTLIGHT"
   | "EDITORS_PICK"
-  | "COMPARISON_BATTLE";
+  | "COMPARISON_BATTLE"
+  | "PROMOTION";
 
 export interface BaseHeroSlide {
   id: string;
@@ -136,6 +137,15 @@ export interface ComparisonBattleSlide extends Omit<BaseHeroSlide, "media"> {
   };
 }
 
+export interface PromotionSlide extends BaseHeroSlide {
+  type: "PROMOTION";
+  promotionId: string;
+  customColors?: {
+    bg?: string;
+    text?: string;
+  };
+}
+
 export type HeroSlide =
   | ProductSpotlightSlide
   | OfferSlide
@@ -143,4 +153,5 @@ export type HeroSlide =
   | LandscapeImageSlide
   | CategorySpotlightSlide
   | EditorsPickSlide
-  | ComparisonBattleSlide;
+  | ComparisonBattleSlide
+  | PromotionSlide;

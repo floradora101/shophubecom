@@ -7,6 +7,7 @@ export interface ApiError {
   success: false;
   statusCode: number;
   message: string;
+  code?: string;
   errors?: string[];
   timestamp: string;
 }

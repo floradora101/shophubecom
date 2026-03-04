@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { categorySchema, type CategoryFormData } from "@/features/categories/schemas";
@@ -8,15 +8,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Stack } from "@/components/ui/stack";
-import { CategoryImageUploader } from "@/features/categories/components/category-image-uploader";
 import { CategoryPicker } from "@/features/categories/components/category-picker";
 import { Text } from "@/components/ui/typography";
-import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { useCreateCategoryMutation, useUpdateCategoryMutation } from "@/features/categories/queries";
+import type { Category } from "@/features/products/types";
 
 interface CategoryFormProps {
-  category?: any;
-  onSuccess: () => void;
+  category?: Category;
+  onSuccess?: () => void;
   onCancel: () => void;
 }
 
@@ -25,78 +25,67 @@ export function CategoryForm({
   onSuccess,
   onCancel,
 }: CategoryFormProps) {
+  const createMutation = useCreateCategoryMutation();
+  const updateMutation = useUpdateCategoryMutation();
+
   const {
     register,
     handleSubmit,
     control,
-    setValue,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<CategoryFormData>({
-    // resolver: yupResolver(categorySchema), // Temporarily disabled for build
+    resolver: yupResolver(categorySchema) as any,
     defaultValues: {
       name: category?.name || "",
-      slug: category?.slug || "",
       description: category?.description || "",
       parentId: category?.parentId || null,
-      image: category?.image || "",
-      sortOrder: category?.sortOrder || 0,
     },
   });
 
-  // Auto-generate slug from name if creating a new category
-  const nameValue = watch("name");
-  useEffect(() => {
-    if (!category && nameValue) {
-      const generatedSlug = nameValue
-        .toLowerCase()
-        .replace(/\s+/g, "-")
-        .replace(/[^a-z0-9-]/g, "");
-      setValue("slug", generatedSlug, { shouldValidate: true });
-    }
-  }, [nameValue, setValue, category]);
-
   const onSubmit = async (data: CategoryFormData) => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      toast.success(
-        category
-          ? "Category updated successfully!"
-          : "Category created successfully!"
-      );
-      onSuccess();
+      if (category) {
+        // Update existing category
+        await updateMutation.mutateAsync({
+          id: category.id,
+          data: {
+            name: data.name,
+            description: data.description || null,
+            parentId: data.parentId || null,
+          },
+        });
+      } else {
+        // Create new category
+        await createMutation.mutateAsync({
+          name: data.name,
+          description: data.description || null,
+          parentId: data.parentId || null,
+        });
+      }
+      onSuccess?.();
     } catch (error) {
-      toast.error("Failed to save category. Please try again.");
+      // Error handling is done in the mutation hooks
     }
   };
+
+  const isLoading = isSubmitting || createMutation.isPending || updateMutation.isPending;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Stack spacing="xl">
         {/* Basic Info Section */}
         <div className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="space-y-2">
-              <Input
-                label="Category Name *"
-                placeholder="e.g. Smartphones"
-                {...register("name")}
-                error={!!errors.name}
-              />
-            </div>
-            <div className="space-y-2">
-              <Input
-                label="Slug *"
-                placeholder="e.g. smartphones"
-                {...register("slug")}
-                error={!!errors.slug}
-              />
-              <Text className="text-[10px] text-warm-gray-400 px-1">
-                URL-friendly version of the name
-              </Text>
-            </div>
+          <div className="space-y-2">
+            <Input
+              label="Category Name *"
+              placeholder="e.g. Smartphones"
+              {...register("name")}
+              error={!!errors.name?.message}
+              disabled={isLoading}
+            />
+            {errors.name && (
+              <Text className="text-xs text-red-500 mt-1">{errors.name.message}</Text>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -111,7 +100,7 @@ export function CategoryForm({
                   value={field.value || undefined}
                   onChange={field.onChange}
                   placeholder="Select a parent category (optional)"
-                  disabled={isSubmitting}
+                  disabled={isLoading}
                   excludeId={category?.id}
                 />
               )}
@@ -128,29 +117,12 @@ export function CategoryForm({
               rows={4}
               {...register("description")}
               error={errors.description?.message}
+              disabled={isLoading}
             />
-          </div>
-        </div>
-
-        {/* Image Section */}
-        <div className="space-y-3">
-          <Text className="text-sm font-medium text-warm-gray-700 block">
-            Category Image
-          </Text>
-          <Controller
-            name="image"
-            control={control}
-            render={({ field }) => (
-              <CategoryImageUploader
-                value={field.value || undefined}
-                onChange={field.onChange}
-                disabled={isSubmitting}
-              />
+            {errors.description && (
+              <Text className="text-xs text-red-500 mt-1">{errors.description.message}</Text>
             )}
-          />
-          {errors.image && (
-            <Text className="text-xs text-red-500 mt-1">{errors.image.message}</Text>
-          )}
+          </div>
         </div>
 
         {/* Actions */}
@@ -159,17 +131,17 @@ export function CategoryForm({
             type="button"
             variant="ghost"
             onClick={onCancel}
-            disabled={isSubmitting}
+            disabled={isLoading}
             className="rounded-lg px-6"
           >
             Cancel
           </Button>
           <Button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isLoading}
             className="rounded-lg px-8 min-w-[120px] shadow-md hover:shadow-lg transition-all duration-200 bg-primary-600 hover:bg-primary-700"
           >
-            {isSubmitting ? (
+            {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 Saving...

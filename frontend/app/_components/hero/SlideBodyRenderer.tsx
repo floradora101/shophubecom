@@ -100,6 +100,14 @@ const ComparisonBattleSlideBody = dynamic(
   }
 );
 
+const PromotionSlideBody = dynamic(
+  () => import("./slide-bodies/PromotionSlideBody"),
+  {
+    ssr: false,
+    loading: () => <GenericSlideSkeleton />,
+  }
+);
+
 interface SlideBodyRendererProps {
   slide: HeroSlide;
   product?: Product;
@@ -212,6 +220,16 @@ export const SlideBodyRenderer = memo(function SlideBodyRenderer({
                   slide={slide as ComparisonBattleSlide}
                   leftProduct={leftProduct}
                   rightProduct={rightProduct}
+                  isActive={isActive}
+                  onMouseEnter={onMouseEnter}
+                  onMouseLeave={onMouseLeave}
+                />
+              );
+
+            case "PROMOTION":
+              return (
+                <PromotionSlideBody
+                  slide={slide}
                   isActive={isActive}
                   onMouseEnter={onMouseEnter}
                   onMouseLeave={onMouseLeave}

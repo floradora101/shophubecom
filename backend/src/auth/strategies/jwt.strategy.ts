@@ -24,13 +24,14 @@
  * - Tokens read from httpOnly cookies only (prevents XSS token theft)
  * - Always verifies user exists in database (prevents stale token access)
  * - Never returns password in user object
- * - Uses in-memory cache for performance (5-minute TTL)
+ * - Uses bounded LRU cache to prevent memory leaks
  */
 import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
+import { LRUCache } from 'lru-cache';
 import { PrismaService } from '../../prisma/prisma.service';
 import { JwtPayload } from '../../common/interfaces/jwt-payload.interface';
 import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
@@ -45,19 +46,14 @@ interface RequestWithCookies extends Request {
   cookies: Record<string, string | undefined>;
 }
 
-// Simple in-memory cache (no external dependencies)
-// For production, consider Redis via @nestjs/cache-manager
-interface CacheEntry {
-  user: AuthenticatedUser;
-  expiresAt: number;
-}
-
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   private readonly logger = new Logger(JwtStrategy.name);
-  // Simple in-memory cache (thread-safe for single instance)
-  private readonly userCache = new Map<string, CacheEntry>();
-  private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+  /** Bounded LRU cache - max 1000 entries, 5min TTL. Prevents unbounded memory growth. */
+  private readonly userCache = new LRUCache<string, AuthenticatedUser>({
+    max: 1000,
+    ttl: 5 * 60 * 1000, // 5 minutes
+  });
 
   constructor(
     private configService: ConfigService,
@@ -116,15 +112,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: JwtPayload): Promise<AuthenticatedUser> {
     const userId = payload.sub;
 
-    // Try to get from cache first (performance optimization)
+    // Try to get from LRU cache first (performance optimization)
     const cached = this.userCache.get(userId);
-    if (cached && cached.expiresAt > Date.now()) {
-      return cached.user;
-    }
-
-    // Remove expired cache entry
     if (cached) {
-      this.userCache.delete(userId);
+      return cached;
     }
 
     // Fetch from database (ALWAYS verify user exists - SECURITY REQUIREMENT)
@@ -148,16 +139,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('User not found');
     }
 
-    // Cache the user for future requests (performance optimization)
-    this.userCache.set(userId, {
-      user,
-      expiresAt: Date.now() + this.CACHE_TTL,
-    });
-
-    // Clean up expired entries periodically (prevent memory leak)
-    if (this.userCache.size > 1000) {
-      this.cleanExpiredCacheEntries();
-    }
+    // Cache the user (LRU auto-evicts when max size reached)
+    this.userCache.set(userId, user);
 
     return user;
   }
@@ -170,18 +153,5 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
    */
   invalidateUserCache(userId: string): void {
     this.userCache.delete(userId);
-  }
-
-  /**
-   * Cleans up expired cache entries to prevent memory leaks.
-   * Called automatically when cache size exceeds threshold.
-   */
-  private cleanExpiredCacheEntries(): void {
-    const now = Date.now();
-    for (const [key, entry] of this.userCache.entries()) {
-      if (entry.expiresAt <= now) {
-        this.userCache.delete(key);
-      }
-    }
   }
 }

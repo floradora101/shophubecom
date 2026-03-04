@@ -1,8 +1,9 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { productsApi, type ProductsQueryParams } from "./api";
 import type { ProductsResult, Product } from "./api";
 import { normalizeFilters } from "./utils/filters";
 import { productKeys } from "./query-keys";
+import { toast } from "sonner";
 
 export function useProductsQuery(params: ProductsQueryParams) {
   // Normalize filters before using in query key and API call
@@ -28,10 +29,23 @@ export function useProductsQuery(params: ProductsQueryParams) {
 }
 
 export function useProductQuery(slug: string) {
-  return useQuery<Product>({
+  return useQuery<Product | null>({
     queryKey: productKeys.detail(slug),
     queryFn: () => productsApi.getProductBySlug(slug),
     enabled: !!slug,
+    staleTime: 60_000, // Product details change less frequently
+  });
+}
+
+/**
+ * Get a product by ID (for admin edit page)
+ * Backend accepts both ID and slug
+ */
+export function useProductByIdQuery(id: string) {
+  return useQuery<Product | null>({
+    queryKey: productKeys.detail(id),
+    queryFn: () => productsApi.getProductById(id),
+    enabled: !!id,
     staleTime: 60_000, // Product details change less frequently
   });
 }
@@ -49,5 +63,198 @@ export function useLatestProductsQuery() {
     queryKey: productKeys.latest(),
     queryFn: () => productsApi.getLatestProducts(),
     staleTime: 30_000, // 30 seconds
+  });
+}
+
+/**
+ * Mutation hook for creating a new product
+ * Admin-only endpoint
+ */
+export function useCreateProductMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: {
+      name: string;
+      description: string;
+      currency?: string;
+      isOnSale?: boolean;
+      discountType?: "PERCENTAGE" | "FIXED_AMOUNT" | null;
+      discountValue?: number | null;
+      saleStartsAt?: string | null;
+      saleEndsAt?: string | null;
+      categoryId: string;
+      isActive?: boolean;
+      isFeatured?: boolean;
+      variants: Array<{
+        sku: string;
+        price: number;
+        stock: number;
+        image?: string;
+        images?: string[];
+        options?: Record<string, string>;
+      }>;
+    }) => productsApi.createProduct(data),
+    onSuccess: () => {
+      // Invalidate and refetch product queries
+      queryClient.invalidateQueries({ queryKey: productKeys.all });
+      toast.success("Product created successfully!");
+    },
+    onError: (error: any) => {
+      // Extract detailed error message from backend
+      let errorMessage = "Failed to create product. Please check all fields and try again.";
+
+      if (error?.response?.data) {
+        const data = error.response.data;
+
+        // Handle validation errors (array of field errors)
+        if (Array.isArray(data.message)) {
+          const fieldErrors = data.message
+            .map((err: any) => {
+              if (typeof err === 'string') return err;
+              if (err.property && err.constraints) {
+                const constraints = Object.values(err.constraints || {});
+                return `${err.property}: ${constraints.join(', ')}`;
+              }
+              return err.message || JSON.stringify(err);
+            })
+            .filter(Boolean);
+
+          if (fieldErrors.length > 0) {
+            errorMessage = `Validation errors:\n${fieldErrors.join('\n')}`;
+          }
+        }
+        // Handle single error message
+        else if (data.message) {
+          errorMessage = data.message;
+        }
+        // Handle error object with message property
+        else if (data.error) {
+          errorMessage = data.error;
+        }
+      }
+      // Handle network/other errors
+      else if (error?.message) {
+        errorMessage = error.message;
+      }
+
+      toast.error(errorMessage, {
+        duration: 5000, // Show for 5 seconds
+      });
+    },
+  });
+}
+
+/**
+ * Mutation hook for updating a product
+ * Admin-only endpoint
+ */
+export function useUpdateProductMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: {
+        name?: string;
+        description?: string;
+        currency?: string;
+        isOnSale?: boolean;
+        discountType?: "PERCENTAGE" | "FIXED_AMOUNT" | null;
+        discountValue?: number | null;
+        saleStartsAt?: string | null;
+        saleEndsAt?: string | null;
+        categoryId?: string;
+        isActive?: boolean;
+        isFeatured?: boolean;
+        defaultVariantId?: string | null;
+        variants?: Array<{
+          id?: string;
+          sku?: string;
+          price?: number;
+          stock?: number;
+          image?: string;
+          images?: string[];
+          options?: Record<string, string>;
+        }>;
+      };
+    }) => productsApi.updateProduct(id, data),
+    onSuccess: (_, variables) => {
+      // Invalidate and refetch product queries
+      queryClient.invalidateQueries({ queryKey: productKeys.all });
+      queryClient.invalidateQueries({
+        queryKey: productKeys.detail(variables.id),
+      });
+      toast.success("Product updated successfully!");
+    },
+    onError: (error: any) => {
+      // Extract detailed error message from backend
+      let errorMessage = "Failed to update product. Please check all fields and try again.";
+
+      if (error?.response?.data) {
+        const data = error.response.data;
+
+        // Handle validation errors (array of field errors)
+        if (Array.isArray(data.message)) {
+          const fieldErrors = data.message
+            .map((err: any) => {
+              if (typeof err === 'string') return err;
+              if (err.property && err.constraints) {
+                const constraints = Object.values(err.constraints || {});
+                return `${err.property}: ${constraints.join(', ')}`;
+              }
+              return err.message || JSON.stringify(err);
+            })
+            .filter(Boolean);
+
+          if (fieldErrors.length > 0) {
+            errorMessage = `Validation errors:\n${fieldErrors.join('\n')}`;
+          }
+        }
+        // Handle single error message
+        else if (data.message) {
+          errorMessage = data.message;
+        }
+        // Handle error object with message property
+        else if (data.error) {
+          errorMessage = data.error;
+        }
+      }
+      // Handle network/other errors
+      else if (error?.message) {
+        errorMessage = error.message;
+      }
+
+      toast.error(errorMessage, {
+        duration: 5000, // Show for 5 seconds
+      });
+    },
+  });
+}
+
+/**
+ * Mutation hook for deleting a product
+ * Admin-only endpoint
+ */
+export function useDeleteProductMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => productsApi.deleteProduct(id),
+    onSuccess: () => {
+      // Invalidate and refetch product queries
+      queryClient.invalidateQueries({ queryKey: productKeys.all });
+      toast.success("Product deleted successfully!");
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to delete product. Please try again.";
+      toast.error(errorMessage);
+    },
   });
 }

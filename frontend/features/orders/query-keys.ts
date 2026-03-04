@@ -56,4 +56,15 @@ export const orderKeys = {
    * Key for order statistics query
    */
   stats: () => [...orderKeys.all, "stats"] as const,
+
+  /**
+   * Admin-specific order query keys
+   */
+  admin: {
+    all: ["admin", "orders"] as const,
+    lists: () => ["admin", "orders", "list"] as const,
+    list: (params?: any) => ["admin", "orders", "list", params] as const,
+    details: () => ["admin", "orders", "detail"] as const,
+    detail: (id: string) => ["admin", "orders", "detail", id] as const,
+  },
 };

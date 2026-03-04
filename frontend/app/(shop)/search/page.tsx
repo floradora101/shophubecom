@@ -12,6 +12,7 @@ import { usePlatformDetection } from "./hooks/usePlatformDetection";
 import { useSearchState } from "./hooks/useSearchState";
 import { useSearchInput } from "./hooks/useSearchInput";
 import { SearchEmptyState } from "./components/SearchEmptyState";
+import { productRoutes } from "@/lib/routes";
 
 function SearchPage() {
   const router = useRouter();
@@ -134,7 +135,7 @@ function SearchPage() {
                   <div
                     key={product.id}
                     className="transform scale-95 hover:scale-100 transition-transform cursor-pointer"
-                    onClick={() => router.push(`/products/${product.slug}`)}
+                    onClick={() => router.push(productRoutes.detail(product.slug))}
                   >
                     <ProductCard
                       product={product}

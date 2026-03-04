@@ -21,15 +21,27 @@ export const categoryKeys = {
 
   /**
    * Key for category list queries
-   * Use for fetching all categories
+   * Use for fetching paginated/filtered categories
    */
   lists: () => [...categoryKeys.all, "list"] as const,
 
   /**
-   * Key for a specific category list
-   * Currently only one list, but structure allows for future expansion
+   * Key for a specific category list with filters
+   * @param params - Optional filter parameters
    */
-  list: () => [...categoryKeys.lists()] as const,
+  list: (params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    sortBy?: "name" | "createdAt";
+    sortOrder?: "asc" | "desc";
+  }) => [...categoryKeys.lists(), params] as const,
+
+  /**
+   * Key for category tree query
+   * Returns hierarchical structure with children
+   */
+  tree: () => [...categoryKeys.all, "tree"] as const,
 
   /**
    * Key for category detail queries
@@ -39,7 +51,7 @@ export const categoryKeys = {
 
   /**
    * Key for a specific category detail
-   * @param slug - Category slug or ID
+   * @param idOrSlug - Category slug or ID
    */
-  detail: (slug: string) => [...categoryKeys.details(), slug] as const,
+  detail: (idOrSlug: string) => [...categoryKeys.details(), idOrSlug] as const,
 };

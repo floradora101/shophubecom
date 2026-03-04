@@ -9,14 +9,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Stack } from "@/components/ui/stack";
 import { Heading, Text } from "@/components/ui/typography";
-import { toast } from "sonner";
-import { Loader2, Calendar as CalendarIcon, Percent, DollarSign, Info } from "lucide-react";
+import { Loader2, Percent, DollarSign, Info } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils/cn";
+import { useCreateCouponMutation, useUpdateCouponMutation } from "@/features/coupons/queries";
+import type { Coupon } from "@/features/coupons/api";
 
 interface CouponFormProps {
-  coupon?: any;
+  coupon?: Coupon;
   onSuccess: () => void;
   onCancel: () => void;
 }
@@ -26,6 +27,10 @@ export function CouponForm({
   onSuccess,
   onCancel,
 }: CouponFormProps) {
+  const createMutation = useCreateCouponMutation();
+  const updateMutation = useUpdateCouponMutation();
+  const isEditMode = !!coupon?.id;
+
   const {
     register,
     handleSubmit,
@@ -34,7 +39,7 @@ export function CouponForm({
     watch,
     formState: { errors, isSubmitting },
   } = useForm<CouponFormData>({
-    // resolver: yupResolver(couponSchema), // Temporarily disabled for build
+    resolver: yupResolver(couponSchema) as any,
     defaultValues: {
       code: coupon?.code || "",
       description: coupon?.description || "",
@@ -50,20 +55,35 @@ export function CouponForm({
   });
 
   const discountType = watch("type");
+  const isLoading = isSubmitting || createMutation.isPending || updateMutation.isPending;
 
   const onSubmit = async (data: CouponFormData) => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Normalize code to uppercase
+      const normalizedData = {
+        ...data,
+        code: data.code.toUpperCase().trim(),
+        // Convert empty strings to null for optional fields
+        minOrderTotal: data.minOrderTotal || null,
+        startsAt: data.startsAt || null,
+        expiresAt: data.expiresAt || null,
+        usageLimit: data.usageLimit || null,
+        perUserLimit: data.perUserLimit || null,
+      };
 
-      toast.success(
-        coupon
-          ? "Coupon updated successfully!"
-          : "Coupon created successfully!"
-      );
+      if (isEditMode && coupon?.id) {
+        await updateMutation.mutateAsync({
+          id: coupon.id,
+          data: normalizedData,
+        });
+      } else {
+        await createMutation.mutateAsync(normalizedData);
+      }
+
       onSuccess();
     } catch (error) {
-      toast.error("Failed to save coupon. Please try again.");
+      // Error handling is done in the mutation hooks
+      console.error("Failed to save coupon:", error);
     }
   };
 
@@ -88,6 +108,11 @@ export function CouponForm({
                       {...register("code")}
                       error={!!errors.code}
                     />
+                    {errors.code?.message && (
+                      <Text className="text-xs text-red-600 px-1" role="alert">
+                        {errors.code.message}
+                      </Text>
+                    )}
                     <Text className="text-[10px] text-warm-gray-400 px-1 italic">
                       Customers will enter this code at checkout
                     </Text>
@@ -240,7 +265,7 @@ export function CouponForm({
                 </div>
 
                 <div className="p-4 bg-primary-50 rounded-lg flex gap-3">
-                  <Info className="w-5 h-5 text-primary-600 flex-shrink-0" />
+                  <Info className="w-5 h-5 text-primary-600 shrink-0" />
                   <Text className="text-xs text-primary-700 leading-relaxed">
                     Coupons will only be valid between the start and end dates if provided.
                   </Text>
@@ -252,21 +277,21 @@ export function CouponForm({
 
         {/* Actions */}
         <div className="flex items-center justify-end gap-3 pt-6 border-t border-warm-gray-100 mt-4">
-          <Button
+            <Button
             type="button"
             variant="ghost"
             onClick={onCancel}
-            disabled={isSubmitting}
+            disabled={isLoading}
             className="rounded-lg px-6"
           >
             Cancel
           </Button>
           <Button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isLoading}
             className="rounded-lg px-8 min-w-[150px] shadow-md hover:shadow-lg transition-all duration-200 bg-primary-600 hover:bg-primary-700"
           >
-            {isSubmitting ? (
+            {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 Saving...

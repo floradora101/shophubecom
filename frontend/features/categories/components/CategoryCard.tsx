@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { productRoutes } from "@/lib/routes";
 import Image from "next/image";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -14,7 +15,7 @@ interface CategoryCardProps {
 export function CategoryCard({ category, index }: CategoryCardProps) {
   return (
     <Link
-      href={`/products/category/${category.slug}`}
+      href={productRoutes.category(category.slug)}
       className="group relative flex flex-col h-full bg-white rounded-lg overflow-hidden border border-warm-gray-200 hover:border-primary-300 transition-all duration-500 hover:shadow-2xl hover:shadow-primary-500/10"
       style={{
         animation: `fade-in 0.7s ease-out ${index * 100}ms both, slide-in-from-bottom-4 0.7s ease-out ${index * 100}ms both`,

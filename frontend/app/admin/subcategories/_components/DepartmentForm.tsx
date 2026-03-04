@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   ChevronLeft,
@@ -11,6 +11,8 @@ import {
   Layers,
   CheckCircle2
 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -23,71 +25,101 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { getAllCategories } from "@/lib/mock-data/mock-data";
-import { MockDepartment } from "@/lib/mock-data/departments";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils/cn";
 import { Badge } from "@/components/ui/badge";
+import type { Department } from "@/features/departments";
+import { departmentSchema, type DepartmentFormData } from "@/features/departments/schemas";
+import { useCreateDepartmentMutation, useUpdateDepartmentMutation } from "@/features/departments/queries";
+import { useCategoriesQuery } from "@/features/categories/queries";
+import type { Category } from "@/features/products/types";
 
 interface DepartmentFormProps {
-  initialData?: MockDepartment | null;
+  initialData?: Department | null;
 }
 
 export function DepartmentForm({ initialData }: DepartmentFormProps) {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const createMutation = useCreateDepartmentMutation();
+  const updateMutation = useUpdateDepartmentMutation();
 
-  const [formData, setFormData] = useState({
-    name: initialData?.name || "",
-    parentCategoryId: initialData?.parentCategoryId || "",
-    highlightedSubCategoryIds: initialData?.highlightedSubCategoryIds || [] as string[],
-    isActive: initialData?.isActive ?? true,
+  const { data: categoriesResponse, isLoading: isLoadingCategories } = useCategoriesQuery({
+    limit: 1000,
+    sortBy: "name",
+    sortOrder: "asc",
   });
 
-  const categories = getAllCategories();
-  const parentCategories = categories.filter(c => !c.parentId);
+  const categories: Category[] = categoriesResponse?.data || [];
+  const parentCategories = useMemo(
+    () => categories.filter((c) => !c.parentId),
+    [categories]
+  );
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<DepartmentFormData>({
+    resolver: yupResolver(departmentSchema) as any,
+    defaultValues: {
+      name: initialData?.name || "",
+      parentCategoryId: initialData?.parentCategory?.id || "",
+      highlightedSubCategoryIds:
+        initialData?.highlightedSubcategories?.map((c) => c.id) || [],
+      isActive: initialData?.isActive ?? true,
+    },
+  });
+
+  const parentCategoryId = watch("parentCategoryId");
+  const highlightedIds = watch("highlightedSubCategoryIds") || [];
+  const isActive = watch("isActive");
 
   const subCategories = useMemo(() => {
-    if (!formData.parentCategoryId) return [];
-    return categories.filter(c => c.parentId === formData.parentCategoryId);
-  }, [categories, formData.parentCategoryId]);
+    if (!parentCategoryId) return [];
+    return categories.filter((c) => c.parentId === parentCategoryId);
+  }, [categories, parentCategoryId]);
 
   const toggleSubCategory = (id: string) => {
-    setFormData(prev => {
-      const isHighlighted = prev.highlightedSubCategoryIds.includes(id);
-      if (isHighlighted) {
-        return {
-          ...prev,
-          highlightedSubCategoryIds: prev.highlightedSubCategoryIds.filter(item => item !== id)
-        };
+    const current = highlightedIds || [];
+    const exists = current.includes(id);
+    const next = exists ? current.filter((x) => x !== id) : [...current, id];
+    setValue("highlightedSubCategoryIds", next, { shouldDirty: true });
+  };
+
+  const onSubmit = async (data: DepartmentFormData) => {
+    try {
+      if (initialData?.id) {
+        await updateMutation.mutateAsync({
+          id: initialData.id,
+          data: {
+            name: data.name,
+            parentCategoryId: data.parentCategoryId,
+            highlightedSubCategoryIds: data.highlightedSubCategoryIds || [],
+            isActive: !!data.isActive,
+          },
+        });
       } else {
-        return {
-          ...prev,
-          highlightedSubCategoryIds: [...prev.highlightedSubCategoryIds, id]
-        };
+        await createMutation.mutateAsync({
+          name: data.name,
+          parentCategoryId: data.parentCategoryId,
+          highlightedSubCategoryIds: data.highlightedSubCategoryIds || [],
+          isActive: !!data.isActive,
+        });
       }
-    });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.name || !formData.parentCategoryId) {
-      toast.error("Please fill in all required fields");
-      return;
+    } catch {
+      // Error handling is in mutation hooks
     }
-
-    setIsSubmitting(true);
-
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    toast.success(initialData ? "Department updated" : "Department created");
-    router.push("/admin/subcategories");
-    setIsSubmitting(false);
   };
+
+  const isLoading =
+    isSubmitting ||
+    createMutation.isPending ||
+    updateMutation.isPending ||
+    isLoadingCategories;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl mx-auto pb-20">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 max-w-4xl mx-auto pb-20">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button
@@ -110,10 +142,10 @@ export function DepartmentForm({ initialData }: DepartmentFormProps) {
         </div>
         <Button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isLoading}
           className="bg-primary-600 hover:bg-primary-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all"
         >
-          {isSubmitting ? (
+          {isLoading ? (
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               <span>Saving...</span>
@@ -142,10 +174,11 @@ export function DepartmentForm({ initialData }: DepartmentFormProps) {
                   id="name"
                   label="Department Name"
                   placeholder="e.g. Laptops Series, Mobile Hub"
-                  value={formData.name}
-                  onChange={e => setFormData({ ...formData, name: e.target.value })}
+                  {...register("name")}
+                  error={!!errors.name?.message}
                   className="rounded-lg border-warm-gray-200 focus:ring-primary-500"
                   required
+                  disabled={isLoading}
                 />
                 <Text className="text-[11px] text-warm-gray-400">
                   This name is used for internal reference and section headings.
@@ -155,8 +188,12 @@ export function DepartmentForm({ initialData }: DepartmentFormProps) {
               <div className="space-y-2">
                 <Text className="text-sm font-bold text-warm-gray-700 mb-1.5 block">Parent Category</Text>
                 <Select
-                  value={formData.parentCategoryId}
-                  onValueChange={value => setFormData({ ...formData, parentCategoryId: value, highlightedSubCategoryIds: [] })}
+                  value={parentCategoryId}
+                  onValueChange={(value) => {
+                    setValue("parentCategoryId", value, { shouldDirty: true });
+                    setValue("highlightedSubCategoryIds", [], { shouldDirty: true });
+                  }}
+                  disabled={isLoading}
                 >
                   <SelectTrigger className="rounded-lg border-warm-gray-200">
                     <SelectValue placeholder="Select a parent category" />
@@ -169,6 +206,11 @@ export function DepartmentForm({ initialData }: DepartmentFormProps) {
                     ))}
                   </SelectContent>
                 </Select>
+                {errors.parentCategoryId && (
+                  <Text className="text-xs text-red-500 mt-1">
+                    {errors.parentCategoryId.message}
+                  </Text>
+                )}
                 <Text className="text-[11px] text-warm-gray-400">
                   The primary category that this department focuses on.
                 </Text>
@@ -184,11 +226,11 @@ export function DepartmentForm({ initialData }: DepartmentFormProps) {
                 <Heading level="h4">Highlight Sub-categories</Heading>
               </div>
               <Badge variant="secondary" className="bg-primary-50 text-primary-700 font-bold">
-                {formData.highlightedSubCategoryIds.length} Selected
+                {highlightedIds.length} Selected
               </Badge>
             </div>
 
-            {!formData.parentCategoryId ? (
+            {!parentCategoryId ? (
               <div className="py-12 text-center bg-warm-gray-50/50 rounded-xl border border-dashed border-warm-gray-200">
                 <Info className="w-8 h-8 text-warm-gray-300 mx-auto mb-2" />
                 <Text className="text-warm-gray-500 font-medium">Please select a parent category first</Text>
@@ -201,15 +243,16 @@ export function DepartmentForm({ initialData }: DepartmentFormProps) {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {subCategories.map(sub => {
-                  const isActive = formData.highlightedSubCategoryIds.includes(sub.id);
+                  const isSelected = highlightedIds.includes(sub.id);
                   return (
                     <button
                       key={sub.id}
                       type="button"
                       onClick={() => toggleSubCategory(sub.id)}
+                      disabled={isLoading}
                       className={cn(
                         "flex items-center justify-between p-4 rounded-xl border-2 transition-all text-left group",
-                        isActive
+                        isSelected
                           ? "border-primary-600 bg-primary-50/50"
                           : "border-warm-gray-100 bg-white hover:border-warm-gray-200"
                       )}
@@ -217,18 +260,18 @@ export function DepartmentForm({ initialData }: DepartmentFormProps) {
                       <div className="flex items-center gap-3">
                         <div className={cn(
                           "w-4 h-4 rounded border-2 flex items-center justify-center transition-all",
-                          isActive ? "bg-primary-600 border-primary-600" : "border-warm-gray-300 group-hover:border-warm-gray-400"
+                          isSelected ? "bg-primary-600 border-primary-600" : "border-warm-gray-300 group-hover:border-warm-gray-400"
                         )}>
-                          {isActive && <Check className="w-3 h-3 text-white stroke-[3]" />}
+                          {isSelected && <Check className="w-3 h-3 text-white stroke-[3]" />}
                         </div>
                         <div>
-                          <Text className={cn("text-sm font-bold", isActive ? "text-primary-900" : "text-warm-gray-700")}>
+                          <Text className={cn("text-sm font-bold", isSelected ? "text-primary-900" : "text-warm-gray-700")}>
                             {sub.name}
                           </Text>
                           <Text className="text-[10px] text-warm-gray-400">{sub.productCount} Products</Text>
                         </div>
                       </div>
-                      {isActive && <CheckCircle2 className="w-5 h-5 text-primary-600" />}
+                      {isSelected && <CheckCircle2 className="w-5 h-5 text-primary-600" />}
                     </button>
                   );
                 })}
@@ -259,8 +302,11 @@ export function DepartmentForm({ initialData }: DepartmentFormProps) {
                 </div>
                 <Switch
                   id="isActive"
-                  checked={formData.isActive}
-                  onCheckedChange={checked => setFormData({ ...formData, isActive: checked })}
+                  checked={!!isActive}
+                  onCheckedChange={(checked) =>
+                    setValue("isActive", checked, { shouldDirty: true })
+                  }
+                  disabled={isLoading}
                   className="data-[state=checked]:bg-primary-600"
                 />
               </div>

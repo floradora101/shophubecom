@@ -4,6 +4,7 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  Max,
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -32,6 +33,7 @@ export class FilterOrdersDto {
   @Type(() => Number)
   @IsOptional()
   @Min(1)
+  @Max(100)
   limit = 20;
 }
 

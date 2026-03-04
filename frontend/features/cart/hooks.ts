@@ -130,11 +130,9 @@ export function useCart() {
         throw new Error("variantId is required");
       }
 
-      // In client-side mode, we need to pass the product object
       await addItemMutation.mutateAsync({
         variantId: options.variantId,
         quantity: options?.quantity ?? 1,
-        product: product, // Pass product for client-side storage
       });
 
       openCart();

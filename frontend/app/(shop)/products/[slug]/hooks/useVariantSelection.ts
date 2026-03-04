@@ -12,6 +12,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { productRoutes } from "@/lib/routes";
 
 interface UseVariantSelectionProps {
   slug: string;
@@ -58,7 +59,7 @@ export function useVariantSelection({
         else params.delete(key);
       });
       const newUrl = params.toString() ? `?${params.toString()}` : "";
-      router.replace(`/products/${slug}${newUrl}`, { scroll: false });
+      router.replace(`${productRoutes.detail(slug)}${newUrl}`, { scroll: false });
     },
     [router, searchParams, slug]
   );

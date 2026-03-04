@@ -9,10 +9,6 @@ export const updateProfileSchema = yup.object({
     .string()
     .max(100, "Last name must be less than 100 characters")
     .required("Last name is required"),
-  email: yup
-    .string()
-    .email("Invalid email address")
-    .required("Email is required"),
 });
 
 export const addressSchema = yup.object({

@@ -27,7 +27,7 @@ export class ProductResponseDto {
   price!: number;
   currency!: string;
   stock!: number;
-  isActive!: boolean;
+  isFeatured?: boolean;
   defaultVariantId?: string | null;
   defaultVariant?: DefaultVariantDto | null;
   isOnSale?: boolean;
@@ -41,6 +41,9 @@ export class ProductResponseDto {
   // Price range fields for products with multiple variant prices
   minPrice?: number;
   maxPrice?: number;
+  // Rating fields
+  averageRating?: number;
+  reviewCount?: number;
   createdAt!: Date;
   updatedAt!: Date;
 }

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { ChevronLeft, ChevronRight, Truck, Info, Zap, Sparkles, Bell, Tag, Gift } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { mockAnnouncements } from "@/dev/mocks/announcements.mock";
+import { useActiveAnnouncementsQuery } from "@/features/announcements/queries";
 
 const iconMap = {
   Truck: Truck,
@@ -16,33 +16,40 @@ const iconMap = {
 };
 
 export function AnnouncementBar() {
+  const { data: announcementsData = [], isLoading } = useActiveAnnouncementsQuery();
+
   const announcements = useMemo(() => {
-    return mockAnnouncements.filter(a => a.isActive).sort((a, b) => b.priority - a.priority);
-  }, []);
+    return announcementsData.filter(a => a.isActive).sort((a, b) => b.priority - a.priority);
+  }, [announcementsData]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
   const nextSlide = useCallback(() => {
-    if (isAnimating) return;
+    if (isAnimating || announcements.length === 0) return;
     setIsAnimating(true);
     setCurrentIndex((prev) => (prev + 1) % announcements.length);
     setTimeout(() => setIsAnimating(false), 700);
-  }, [isAnimating]);
+  }, [isAnimating, announcements.length]);
 
   const prevSlide = useCallback(() => {
-    if (isAnimating) return;
+    if (isAnimating || announcements.length === 0) return;
     setIsAnimating(true);
     setCurrentIndex((prev) => (prev - 1 + announcements.length) % announcements.length);
     setTimeout(() => setIsAnimating(false), 700);
-  }, [isAnimating]);
+  }, [isAnimating, announcements.length]);
 
   useEffect(() => {
-    if (isPaused) return;
+    if (isPaused || announcements.length === 0) return;
     const interval = setInterval(nextSlide, 5000);
     return () => clearInterval(interval);
-  }, [nextSlide, isPaused]);
+  }, [nextSlide, isPaused, announcements.length]);
+
+  // Don't render if loading or no announcements
+  if (isLoading || announcements.length === 0) {
+    return null;
+  }
 
   return (
     <div

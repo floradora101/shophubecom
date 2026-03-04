@@ -19,4 +19,5 @@ export {
   updateSearchParams,
   filtersToApiParams,
   type CanonicalFilters,
+  type FiltersToApiParamsOptions,
 } from "./utils/filters";

@@ -1,4 +1,5 @@
 import {
+  ArrayMaxSize,
   IsArray,
   IsBoolean,
   IsDateString,
@@ -9,12 +10,13 @@ import {
   IsOptional,
   IsPositive,
   IsString,
+  IsUrl,
   Length,
   MaxLength,
   Min,
   ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
 export class UpdateProductVariantDto {
   @IsString()
@@ -38,10 +40,16 @@ export class UpdateProductVariantDto {
   stock?: number;
 
   @IsOptional()
+  @Transform(({ value }) =>
+    value === '' || value === null ? undefined : value,
+  )
   @IsString()
+  @IsUrl({ protocols: ['http', 'https'] })
+  @MaxLength(2048)
   image?: string;
 
   @IsArray()
+  @ArrayMaxSize(20)
   @IsString({ each: true })
   @IsOptional()
   images?: string[];
@@ -94,6 +102,10 @@ export class UpdateProductDto {
   @IsBoolean()
   @IsOptional()
   isActive?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  isFeatured?: boolean;
 
   @IsString()
   @IsOptional()

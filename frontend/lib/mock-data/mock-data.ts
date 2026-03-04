@@ -5,8 +5,6 @@ export interface MockCategory {
   slug: string;
   image: string;
   description: string;
-  productCount: number;
-  accentColor: string;
   parentId?: string | null;
 }
 
@@ -35,7 +33,6 @@ export interface MockProduct {
   discountValue?: number;
   saleStartsAt?: Date;
   saleEndsAt?: Date;
-  colors?: string[];
   specs?: Array<{ label: string; value: string }> | Record<string, unknown>;
   variants?: MockProductVariant[];
   category?: string;
@@ -85,8 +82,6 @@ export function mockCategoryToCategory(
     description: mock.description,
     image: mock.image,
     parentId: mock.parentId,
-    sortOrder: 0, // Default sort order for mock data
-    productCount: mock.productCount,
     createdAt: "2024-01-01T00:00:00.000Z",
     updatedAt: "2024-01-01T00:00:00.000Z",
   };
@@ -109,6 +104,12 @@ export function mockProductToProduct(
     mock.categorySlug ||
     mock.category?.toLowerCase().replace(/\s+/g, "-") ||
     "uncategorized";
+
+  // Find actual category ID from mock categories (not slug)
+  // This ensures categoryId matches between mock and backend
+  // Note: mockCategories is defined later in file, but accessible due to hoisting
+  const category = (mockCategories as MockCategory[]).find((c) => c.slug === categorySlug);
+  const categoryId = category?.id || null;
 
   // Handle price logic - use minPrice from variants if available, otherwise use base price
   let effectivePrice = mock.price;
@@ -223,9 +224,8 @@ export function mockProductToProduct(
     discountValue: mock.discountValue,
     saleStartsAt: mock.saleStartsAt?.toISOString(),
     saleEndsAt: mock.saleEndsAt?.toISOString(),
-    categoryId: categorySlug,
-    isActive: mock.isActive !== false, // Default to true
-    isFeatured: false,
+    categoryId: categoryId ?? undefined,
+    isFeatured: false, // Used in department-selector utility
     variants,
     defaultVariantId: defaultV?.id,
     defaultVariant: defaultV
@@ -237,15 +237,13 @@ export function mockProductToProduct(
       : undefined,
     minPrice,
     maxPrice,
-    effectiveStock,
     specs,
-    colors: mock.colors,
     originalPrice: mock.originalPrice,
-    discount,
+    discount, // Used in products utils for price calculation
     rating: mock.rating,
     reviewCount: mock.reviewCount,
-    createdAt: "2025-12-23T00:00:00.000Z", // Fixed future-safe timestamp
-    updatedAt: "2025-12-23T00:00:00.000Z", // Fixed future-safe timestamp
+    createdAt: "2025-12-23T00:00:00.000Z", // Used in department-selector for "new" products
+    updatedAt: "2025-12-23T00:00:00.000Z",
   };
 }
 
@@ -259,8 +257,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop",
     description: "Latest smartphones and mobile devices",
-    productCount: 120,
-    accentColor: "#3b82f6",
     parentId: null,
   },
   {
@@ -270,8 +266,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop",
     description: "Apple iPhone models and accessories",
-    productCount: 45,
-    accentColor: "#3b82f6",
     parentId: "phones",
   },
   {
@@ -281,8 +275,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=400&h=300&fit=crop",
     description: "Samsung Galaxy phones and accessories",
-    productCount: 35,
-    accentColor: "#3b82f6",
     parentId: "phones",
   },
   {
@@ -292,8 +284,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop",
     description: "Nokia phones and accessories",
-    productCount: 25,
-    accentColor: "#3b82f6",
     parentId: "phones",
   },
   {
@@ -303,8 +293,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=300&fit=crop",
     description: "Other phone brands and models",
-    productCount: 15,
-    accentColor: "#3b82f6",
     parentId: "phones",
   },
 
@@ -316,8 +304,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=300&fit=crop",
     description: "Tablets and portable computing devices",
-    productCount: 60,
-    accentColor: "#10b981",
     parentId: null,
   },
   {
@@ -327,8 +313,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=300&fit=crop",
     description: "iPad and Apple tablet devices",
-    productCount: 25,
-    accentColor: "#10b981",
     parentId: "tablets",
   },
   {
@@ -338,8 +322,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=300&fit=crop",
     description: "Samsung Galaxy tablets",
-    productCount: 20,
-    accentColor: "#10b981",
     parentId: "tablets",
   },
   {
@@ -349,8 +331,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=300&fit=crop",
     description: "Other tablet brands including Oscal",
-    productCount: 15,
-    accentColor: "#10b981",
     parentId: "tablets",
   },
 
@@ -362,8 +342,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop",
     description: "Laptops and portable computers",
-    productCount: 80,
-    accentColor: "#f59e0b",
     parentId: null,
   },
   {
@@ -373,8 +351,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop",
     description: "Apple MacBook laptops",
-    productCount: 30,
-    accentColor: "#f59e0b",
     parentId: "laptops",
   },
   {
@@ -384,8 +360,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1587831990711-23ca6441447b?w=400&h=300&fit=crop",
     description: "High-performance gaming laptops",
-    productCount: 25,
-    accentColor: "#f59e0b",
     parentId: "laptops",
   },
   {
@@ -395,8 +369,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop",
     description: "Business and productivity laptops",
-    productCount: 25,
-    accentColor: "#f59e0b",
     parentId: "laptops",
   },
 
@@ -408,8 +380,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=300&fit=crop",
     description: "Wearable technology and accessories",
-    productCount: 90,
-    accentColor: "#8b5cf6",
     parentId: null,
   },
   {
@@ -419,8 +389,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=300&fit=crop",
     description: "Smart watches and fitness trackers",
-    productCount: 35,
-    accentColor: "#8b5cf6",
     parentId: "wearables",
   },
   {
@@ -430,8 +398,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop",
     description: "Wireless and wired earphones",
-    productCount: 30,
-    accentColor: "#8b5cf6",
     parentId: "wearables",
   },
   {
@@ -441,8 +407,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop",
     description: "Gaming and audio headsets",
-    productCount: 25,
-    accentColor: "#8b5cf6",
     parentId: "wearables",
   },
 
@@ -454,8 +418,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=300&fit=crop",
     description: "Smart home devices and gadgets",
-    productCount: 70,
-    accentColor: "#ef4444",
     parentId: null,
   },
   {
@@ -465,8 +427,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400&h=300&fit=crop",
     description: "Smart cameras and security devices",
-    productCount: 20,
-    accentColor: "#ef4444",
     parentId: "smart-gadgets",
   },
   {
@@ -476,8 +436,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop",
     description: "Phone stands, mounts, and holders",
-    productCount: 25,
-    accentColor: "#ef4444",
     parentId: "smart-gadgets",
   },
   {
@@ -487,8 +445,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=300&fit=crop",
     description: "Other smart gadgets and accessories",
-    productCount: 25,
-    accentColor: "#ef4444",
     parentId: "smart-gadgets",
   },
 
@@ -500,8 +456,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=300&fit=crop",
     description: "Gaming consoles and accessories",
-    productCount: 85,
-    accentColor: "#06b6d4",
     parentId: null,
   },
   {
@@ -511,8 +465,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=400&h=300&fit=crop",
     description: "PlayStation, Xbox, and Nintendo consoles",
-    productCount: 30,
-    accentColor: "#06b6d4",
     parentId: "gaming-console",
   },
   {
@@ -522,8 +474,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1599669454699-248893623440?w=400&h=300&fit=crop",
     description: "Gaming controllers and accessories",
-    productCount: 35,
-    accentColor: "#06b6d4",
     parentId: "gaming-console",
   },
   {
@@ -533,8 +483,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1556438064-2d7646166914?w=400&h=300&fit=crop",
     description: "Video games and software",
-    productCount: 20,
-    accentColor: "#06b6d4",
     parentId: "gaming-console",
   },
 
@@ -546,8 +494,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=300&fit=crop",
     description: "Device cases, bags, and protection",
-    productCount: 95,
-    accentColor: "#84cc16",
     parentId: null,
   },
   {
@@ -557,8 +503,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=300&fit=crop",
     description: "Phone cases and covers",
-    productCount: 40,
-    accentColor: "#84cc16",
     parentId: "accessories",
   },
   {
@@ -568,8 +512,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=300&fit=crop",
     description: "Laptop bags, tablet cases, and carriers",
-    productCount: 35,
-    accentColor: "#84cc16",
     parentId: "accessories",
   },
   {
@@ -579,8 +521,6 @@ export const mockCategories: MockCategory[] = [
     image:
       "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&h=300&fit=crop",
     description: "Screen protectors and device protection",
-    productCount: 20,
-    accentColor: "#84cc16",
     parentId: "accessories",
   },
 ];
@@ -1012,7 +952,6 @@ export const mockProducts: MockProduct[] = [
     isOnSale: true,
     discountType: "FIXED_AMOUNT",
     discountValue: 100,
-    colors: ["Black", "Silver", "Blue", "White", "Red"],
     specs: [
       { label: "Driver", value: "30mm" },
       { label: "Battery", value: "30 hours (ANC on)" },

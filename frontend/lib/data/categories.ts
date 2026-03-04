@@ -7,8 +7,7 @@ import {
 } from "@/lib/mock-data/mock-data";
 import type { Category } from "@/features/products/types";
 
-// Check if we should use mock data (default: true)
-const USE_MOCKS = process.env.NEXT_PUBLIC_USE_MOCKS !== "false";
+import { USE_MOCKS } from "@/lib/flags";
 
 /**
  * Get all categories
@@ -18,8 +17,15 @@ export async function getAllCategories(): Promise<Category[]> {
     return mockCategories.map(mockCategoryToCategory);
   }
 
-  // TODO: Replace with actual API call when backend is ready
-  throw new Error("API implementation not yet available");
+  // Use API to fetch categories
+  const { categoriesApi } = await import("@/features/categories/api");
+  try {
+    const response = await categoriesApi.getCategories({ limit: 200 });
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch categories from API:", error);
+    throw error;
+  }
 }
 
 /**
@@ -30,8 +36,16 @@ export async function getMainCategories(): Promise<Category[]> {
     return mockGetMainCategories().map(mockCategoryToCategory);
   }
 
-  // TODO: Replace with actual API call when backend is ready
-  throw new Error("API implementation not yet available");
+  // Use API to fetch category tree and filter root categories
+  const { categoriesApi } = await import("@/features/categories/api");
+  try {
+    const categoriesTree = await categoriesApi.getCategoriesTree();
+    // Return only root categories (no parentId)
+    return categoriesTree.filter(cat => !cat.parentId);
+  } catch (error) {
+    console.error("Failed to fetch main categories from API:", error);
+    throw error;
+  }
 }
 
 /**

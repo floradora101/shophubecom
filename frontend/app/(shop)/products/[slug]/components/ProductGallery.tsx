@@ -6,6 +6,7 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight, Expand, Share2, Heart } from "lucide-react";
 import { useFavoritesStore } from "@/store/favorites-store";
 import { toast } from "sonner";
+import { shouldUnoptimizeImage } from "@/lib/utils/image-helpers";
 
 interface ProductGalleryProps {
   productId: string;
@@ -202,7 +203,7 @@ export function ProductGallery({
                       className="object-contain"
                       sizes="(min-width: 1024px) 800px, 100vw"
                       priority={index === 0}
-                      unoptimized={image.startsWith("data:")}
+                      unoptimized={shouldUnoptimizeImage(image)}
                     />
                   </div>
                 </div>
@@ -347,7 +348,7 @@ export function ProductGallery({
               fill
               className="object-contain"
               sizes="100vw"
-              unoptimized={images[activeIndex].startsWith("data:")}
+              unoptimized={shouldUnoptimizeImage(images[activeIndex])}
             />
 
             {/* Close Button */}

@@ -1,10 +1,21 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CartService } from '../cart/cart.service';
+import { ProductsService } from '../products/products.service';
+import { CouponsService } from '../coupons/coupons.service';
+import { PromotionsService } from '../promotions/promotions.service';
 import { PlaceOrderDto, PlaceOrderResponseDto, ShippingOption } from './dto';
 import { Request, Response } from 'express';
 import { randomBytes, createHash } from 'crypto';
+import { toNumber } from '../common/utils/decimal.util';
+import { generateOrderNumber } from '../common/utils/order.util';
+import { transformVariantOptions } from '../common/utils/variant.util';
+import { EmailService } from '../email/email.service';
+
+/** Default: 7 days - guests can revisit order confirmation page */
+const DEFAULT_GUEST_ORDER_COOKIE_MAX_AGE_DAYS = 7;
 
 @Injectable()
 export class CheckoutService {
@@ -13,6 +24,11 @@ export class CheckoutService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cartService: CartService,
+    private readonly productsService: ProductsService,
+    private readonly couponsService: CouponsService,
+    private readonly promotionsService: PromotionsService,
+    private readonly configService: ConfigService,
+    private readonly emailService: EmailService,
   ) {}
 
   async placeOrder(
@@ -40,10 +56,7 @@ export class CheckoutService {
     const shippingCost = this.calculateShipping(dto.shippingOption);
 
     // Generate unique order number
-    const orderNumber = `ORD-${Date.now()}-${Math.random()
-      .toString(36)
-      .substring(2, 9)
-      .toUpperCase()}`;
+    const orderNumber = generateOrderNumber();
 
     // Generate order access token for guest checkout (32+ bytes base64url)
     const orderAccessToken = this.generateOrderAccessToken();
@@ -66,16 +79,72 @@ export class CheckoutService {
         throw new BadRequestException('Cart is empty');
       }
 
-      // Compute subtotal from DB values using ProductVariant.price (not cartResponse.subtotal)
+      // Use cart item unit prices (what the customer saw when adding to cart) so order
+      // totals match the checkout page and cart display. Avoids mismatch with variant.price
+      // if prices changed after add-to-cart.
       const subtotal = cartItems.reduce((sum, cartItem) => {
-        const variantPrice = this.toNumber(cartItem.variant.price);
-        return sum + variantPrice * cartItem.quantity;
+        const unitPrice = toNumber(cartItem.unitPrice);
+        return sum + unitPrice * cartItem.quantity;
       }, 0);
 
-      const total = subtotal + shippingCost;
+      // Build cart items for promotion calculation (same price basis as subtotal)
+      const cartItemsForPromo = cartItems.map((item) => ({
+        productId: item.productId,
+        categoryId: item.product.categoryId,
+        lineTotal: toNumber(item.unitPrice) * item.quantity,
+      }));
+
+      // Apply automatic promotions (product/category-based)
+      const promotionDiscount = await this.promotionsService.getApplicableDiscount(
+        tx,
+        cartItemsForPromo,
+      );
+
+      // Validate and apply coupon if provided
+      let couponDiscount = 0;
+      let couponForOrder: {
+        couponId: string;
+        code: string;
+        type: 'PERCENTAGE' | 'FIXED_AMOUNT';
+        value: number;
+        discountAmount: number;
+      } | null = null;
+
+      if (dto.couponCode && dto.couponCode.trim()) {
+        const guestEmail =
+          !reqUserId && dto.shippingAddress?.email
+            ? dto.shippingAddress.email.trim()
+            : undefined;
+        const validation = await this.couponsService.validateForCheckoutWithTx(
+          tx,
+          dto.couponCode,
+          subtotal,
+          reqUserId,
+          guestEmail,
+        );
+
+        if (!validation.valid || !validation.couponId || !validation.code) {
+          throw new BadRequestException(
+            validation.message || 'Invalid or expired coupon code',
+          );
+        }
+
+        couponDiscount = validation.discount;
+        couponForOrder = {
+          couponId: validation.couponId,
+          code: validation.code,
+          type: validation.type!,
+          value: validation.value ?? 0,
+          discountAmount: couponDiscount,
+        };
+      }
+
+      const discount = promotionDiscount + couponDiscount;
+      const total = Math.max(0, subtotal + shippingCost - discount);
 
       // For each cart item, decrement ProductVariant.stock atomically
       // with a conditional update (stock >= qty) or throw
+      const affectedProductIds = new Set<string>();
       for (const cartItem of cartItems) {
         if (!cartItem.variantId) {
           throw new BadRequestException(
@@ -98,21 +167,23 @@ export class CheckoutService {
             `Insufficient stock for variant ${cartItem.variant.sku}`,
           );
         }
+
+        // Track affected products for effectiveStock recomputation
+        affectedProductIds.add(cartItem.productId);
       }
 
-      // Create Order + OrderItems (attributes from variant options)
-      // Use variant.price from DB, not cartItem.unitPrice
+      // Recompute effectiveStock for all affected products
+      for (const productId of affectedProductIds) {
+        await this.productsService.recomputeProductDerivedFields(tx, productId);
+      }
+
+      // Create Order + OrderItems (attributes from variant options).
+      // Use cart item unit price so order line totals match cart/checkout display.
       const orderItems = cartItems.map((cartItem) => {
         const variant = cartItem.variant;
         const product = cartItem.product;
-        const attributes =
-          variant.options?.reduce<Record<string, string>>((acc, option) => {
-            acc[option.name] = option.value;
-            return acc;
-          }, {}) ?? {};
-
-        // Use variant.price from DB, not cartItem.unitPrice
-        const unitPrice = this.toNumber(variant.price);
+        const attributes = transformVariantOptions(variant.options);
+        const unitPrice = toNumber(cartItem.unitPrice);
 
         return {
           productId: cartItem.productId,
@@ -135,15 +206,24 @@ export class CheckoutService {
         subtotal,
         tax: 0,
         shipping: shippingCost,
-        discount: 0,
+        discount,
         total,
         currency: 'USD',
         shippingAddress: dto.shippingAddress as unknown as Prisma.JsonObject,
-        // Fix billingAddress bug: do not set billingAddress = shippingAddress
-        // Omit billingAddress (will be null in DB by default)
         items: {
           create: orderItems,
         },
+        ...(couponForOrder && {
+          coupons: {
+            create: {
+              couponId: couponForOrder.couponId,
+              code: couponForOrder.code,
+              type: couponForOrder.type,
+              value: couponForOrder.value,
+              discount: couponForOrder.discountAmount,
+            },
+          },
+        }),
       };
 
       // Add guest fields if guest checkout
@@ -151,7 +231,9 @@ export class CheckoutService {
         ? {
             ...baseOrderData,
             guestPhone: dto.shippingAddress.phone,
-            guestEmail: dto.shippingAddress.email || null,
+            guestEmail: dto.shippingAddress.email
+              ? dto.shippingAddress.email.trim().toLowerCase()
+              : null,
             accessTokenHash,
           }
         : baseOrderData;
@@ -162,6 +244,14 @@ export class CheckoutService {
           items: true,
         },
       });
+
+      // Increment coupon usedCount when applied
+      if (couponForOrder) {
+        await tx.coupon.update({
+          where: { id: couponForOrder.couponId },
+          data: { usedCount: { increment: 1 } },
+        });
+      }
 
       // Clear cart items
       await tx.cartItem.deleteMany({
@@ -182,19 +272,24 @@ export class CheckoutService {
 
     // For guest orders, set httpOnly cookie with order token
     // Cookie name: order_token_<orderId>
-    // Max-Age: 900 seconds (15 minutes)
     if (!reqUserId && res) {
       const cookieName = `order_token_${result.order.id}`;
-      const isProduction = process.env.NODE_ENV === 'production';
+      const isProduction =
+        this.configService.get<string>('NODE_ENV') === 'production';
+      const rawDays = this.configService.get<string>(
+        'GUEST_ORDER_COOKIE_MAX_AGE_DAYS',
+      );
+      const parsed = rawDays ? parseInt(rawDays, 10) : NaN;
+      const maxAgeDays =
+        !isNaN(parsed) && parsed > 0 ? parsed : DEFAULT_GUEST_ORDER_COOKIE_MAX_AGE_DAYS;
+      const maxAgeMs = maxAgeDays * 24 * 60 * 60 * 1000;
 
-      // maxAge expects milliseconds; use 15 minutes
       res.cookie(cookieName, orderAccessToken, {
         httpOnly: true, // Prevent XSS attacks
         secure: isProduction, // HTTPS only in production
         sameSite: 'lax', // CSRF protection
-        maxAge: 15 * 60 * 1000, // 15 minutes in ms
+        maxAge: maxAgeMs,
         path: '/', // Available on all routes
-        // Don't set domain for localhost - let browser handle it
       });
     }
 
@@ -211,12 +306,37 @@ export class CheckoutService {
       productId: item.productId,
       variantId: item.variantId,
       quantity: item.quantity,
-      unitPrice: this.toNumber(item.unitPrice),
-      total: this.toNumber(item.total),
+      unitPrice: toNumber(item.unitPrice),
+      total: toNumber(item.total),
       title: item.title,
       attributes:
         (item.attributes as Record<string, string> | null) ?? undefined,
     }));
+
+    // Send confirmation email to the address from the form (single source of truth)
+    // For logged-in users, the form is pre-filled with their account email from the frontend
+    const userEmail = dto.shippingAddress?.email?.trim() || undefined;
+
+    if (userEmail) {
+      // Re-fetch order with items and product details for the email template
+      const fullOrder = await this.prisma.order.findUnique({
+        where: { id: result.order.id },
+        include: {
+          items: {
+            include: {
+              product: true,
+            },
+          },
+          user: true,
+        },
+      });
+      
+      if (fullOrder) {
+        this.emailService.sendOrderConfirmation(userEmail, fullOrder).catch(err => {
+          this.logger.error(`Error sending confirmation email for order ${orderNumber}:`, err.stack);
+        });
+      }
+    }
 
     return response;
   }
@@ -234,12 +354,6 @@ export class CheckoutService {
     }
   }
 
-  private toNumber(value?: Prisma.Decimal | number | null): number {
-    if (value === null || value === undefined) {
-      return 0;
-    }
-    return Number(value);
-  }
 
   /**
    * Generate a secure random token for guest order access (32+ bytes base64url)

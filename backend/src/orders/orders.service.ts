@@ -12,6 +12,7 @@ import {
   Prisma,
 } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { ProductsService } from '../products/products.service';
 import {
   AdminFilterOrdersDto,
   CreateOrderDto,
@@ -25,6 +26,9 @@ import {
   OrderNotFoundException,
   ProductVariantNotFoundException,
 } from '../common/exceptions';
+import { toNumber } from '../common/utils/decimal.util';
+import { generateOrderNumber } from '../common/utils/order.util';
+import { transformVariantOptions } from '../common/utils/variant.util';
 
 type OrderWithRelations = Prisma.OrderGetPayload<{
   include: {
@@ -42,14 +46,26 @@ type OrderWithRelations = Prisma.OrderGetPayload<{
       select: { id: true; firstName: true; lastName: true; email: true };
     };
   };
-}>;
+}> & {
+  // Coupons are queried where available, but treated as optional on the type
+  // so this mapper can work with orders that may not have coupons loaded.
+  coupons?: { code?: string | null }[];
+};
 
 @Injectable()
 export class OrdersService {
   private readonly logger = new Logger(OrdersService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly productsService: ProductsService,
+  ) {}
 
+  /**
+   * Create an order directly (admin/programmatic use).
+   * @deprecated Prefer CheckoutService.placeOrder for customer checkout (handles cart, coupons, promotions, guest checkout).
+   * This method is not exposed via API; use only for internal/admin flows.
+   */
   async create(
     userId: string,
     createOrderDto: CreateOrderDto,
@@ -88,13 +104,9 @@ export class OrdersService {
         );
       }
 
-      const unitPrice = this.toNumber(variant.price);
+      const unitPrice = toNumber(variant.price);
       const total = unitPrice * quantity;
-      const attributes =
-        variant.options?.reduce<Record<string, string>>((acc, option) => {
-          acc[option.name] = option.value;
-          return acc;
-        }, {}) ?? {};
+      const attributes = transformVariantOptions(variant.options);
 
       return {
         productId: variant.productId,
@@ -121,7 +133,7 @@ export class OrdersService {
     const currency = createOrderDto.currency ?? 'USD';
 
     // Generate unique order number
-    const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
+    const orderNumber = generateOrderNumber();
 
     const createdOrder = await this.prisma.$transaction(async (tx) => {
       const order = await tx.order.create({
@@ -170,9 +182,11 @@ export class OrdersService {
           user: {
             select: { id: true, firstName: true, lastName: true, email: true },
           },
+          coupons: true,
         },
       });
 
+      const affectedProductIds = new Set<string>();
       for (const item of orderItems) {
         const updated = await tx.productVariant.updateMany({
           where: { id: item.variantId, stock: { gte: item.quantity } },
@@ -187,6 +201,14 @@ export class OrdersService {
             `Insufficient stock for variant ${item.variantId}`,
           );
         }
+
+        // Track affected products for effectiveStock recomputation
+        affectedProductIds.add(item.productId);
+      }
+
+      // Recompute effectiveStock for all affected products
+      for (const productId of affectedProductIds) {
+        await this.productsService.recomputeProductDerivedFields(tx, productId);
       }
 
       this.logger.log(`Order created: ${order.id} by user ${userId}`);
@@ -242,6 +264,7 @@ export class OrdersService {
           user: {
             select: { id: true, firstName: true, lastName: true, email: true },
           },
+          coupons: true,
         },
       }),
       this.prisma.order.count({ where }),
@@ -299,6 +322,7 @@ export class OrdersService {
     if (search) {
       where.OR = [
         { id: search },
+        { orderNumber: { contains: search, mode: 'insensitive' } },
         { user: { email: { contains: search, mode: 'insensitive' } } },
       ];
     }
@@ -325,6 +349,7 @@ export class OrdersService {
           user: {
             select: { id: true, firstName: true, lastName: true, email: true },
           },
+          coupons: true,
         },
       }),
       this.prisma.order.count({ where }),
@@ -429,11 +454,24 @@ export class OrdersService {
         user: {
           select: { id: true, firstName: true, lastName: true, email: true },
         },
+        coupons: true,
       },
     });
 
     this.logger.log(`Order ${id} status updated`);
     return this.toOrderResponse(order);
+  }
+
+  /**
+   * Normalize order address JSON to include fullName for frontend compatibility.
+   * Checkout stores firstName/lastName; frontend expects fullName.
+   */
+  private normalizeOrderAddress(addr: Record<string, unknown>): OrderResponseDto['shippingAddress'] {
+    const derived =
+      [addr.firstName, addr.lastName].filter(Boolean).join(' ').trim();
+    const fullName =
+      (addr.fullName as string) ?? (derived || '—');
+    return { ...addr, fullName } as OrderResponseDto['shippingAddress'];
   }
 
   private async findOrderById(id: string): Promise<OrderWithRelations | null> {
@@ -453,11 +491,15 @@ export class OrdersService {
         user: {
           select: { id: true, firstName: true, lastName: true, email: true },
         },
+        coupons: true,
       },
     });
   }
 
   private toOrderResponse(order: OrderWithRelations): OrderResponseDto {
+    const shippingAddr = order.shippingAddress as Record<string, unknown>;
+    const billingAddr = (order.billingAddress as Record<string, unknown> | null) ?? null;
+
     return {
       id: order.id,
       orderNumber: order.orderNumber,
@@ -465,21 +507,22 @@ export class OrdersService {
       status: order.status,
       paymentStatus: order.paymentStatus,
       fulfillmentStatus: order.fulfillmentStatus,
-      subtotal: this.toNumber(order.subtotal),
-      tax: this.toNumber(order.tax),
-      shipping: this.toNumber(order.shipping),
-      discount: this.toNumber(order.discount),
-      total: this.toNumber(order.total),
+      subtotal: toNumber(order.subtotal),
+      tax: toNumber(order.tax),
+      shipping: toNumber(order.shipping),
+      discount: toNumber(order.discount),
+      couponCode: order.coupons?.[0]?.code ?? null,
+      total: toNumber(order.total),
       currency: order.currency,
-      shippingAddress: order.shippingAddress as any,
-      billingAddress: (order.billingAddress as any) ?? null,
+      shippingAddress: this.normalizeOrderAddress(shippingAddr),
+      billingAddress: billingAddr ? this.normalizeOrderAddress(billingAddr) : null,
       items: order.items.map((item) => ({
         id: item.id,
         productId: item.productId,
         variantId: item.variantId,
         quantity: item.quantity,
-        unitPrice: this.toNumber(item.unitPrice),
-        total: this.toNumber(item.total),
+        unitPrice: toNumber(item.unitPrice),
+        total: toNumber(item.total),
         title: item.title,
         attributes: (item.attributes as Record<string, unknown> | null) ?? null,
         variant: item.variant
@@ -556,16 +599,10 @@ export class OrdersService {
 
     return {
       totalOrders,
-      totalSpent: this.toNumber(totalSpentResult._sum.total),
+      totalSpent: toNumber(totalSpentResult._sum.total),
       pendingOrders,
       completedOrders,
     };
   }
 
-  private toNumber(value?: Prisma.Decimal | number | null): number {
-    if (value === null || value === undefined) {
-      return 0;
-    }
-    return Number(value);
-  }
 }

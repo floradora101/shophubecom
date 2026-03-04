@@ -1,10 +1,13 @@
 import {
+  Allow,
   IsBoolean,
   IsIn,
   IsInt,
   IsNumber,
   IsOptional,
   IsString,
+  Max,
+  MaxLength,
   Min,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
@@ -27,7 +30,11 @@ import { Transform } from 'class-transformer';
  * @see backend/src/products/products.service.ts:findAll() for filtering implementation
  */
 export class FilterProductsDto {
-  /** Filter by category ID (exact match) */
+  /**
+   * Filter by category ID.
+   * Includes products from the specified category AND all its subcategories (recursively).
+   * For example, filtering by "Electronics" will also include products from "Smartphones", "Laptops", etc.
+   */
   @IsOptional()
   @Transform(({ value }): string | undefined => {
     if (value === undefined || value === null || value === '') {
@@ -85,10 +92,11 @@ export class FilterProductsDto {
       return undefined;
     }
     return typeof value === 'string'
-      ? value.trim() || undefined
+      ? value.trim().slice(0, 200) || undefined
       : (value as string);
   })
   @IsString()
+  @MaxLength(200, { message: 'Search query must not exceed 200 characters' })
   search?: string;
 
   /**
@@ -135,17 +143,18 @@ export class FilterProductsDto {
   @Min(1)
   page = 1;
 
-  /** Items per page (default: 20, min: 1) */
+  /** Items per page (default: 20, min: 1, max: 100) */
   @IsOptional()
   @Transform(({ value }) => {
     if (value === undefined || value === null || value === '') {
       return 20;
     }
     const num = Number(value);
-    return isNaN(num) || num < 1 ? 20 : num;
+    return isNaN(num) || num < 1 ? 20 : Math.min(num, 100);
   })
   @IsInt()
   @Min(1)
+  @Max(100)
   limit = 20;
 
   /** Sort field: 'price' | 'name' | 'createdAt' (default: 'createdAt') */
@@ -177,4 +186,20 @@ export class FilterProductsDto {
   @IsString()
   @IsIn(['asc', 'desc'])
   sortOrder: 'asc' | 'desc' = 'desc';
+
+  /**
+   * Filter by promotion ID.
+   * When set, returns only products that are part of this promotion (via PromotionProduct).
+   * Used by hero promotion slide "Shop Now" to show only that promotion's products.
+   */
+  @Allow()
+  @IsOptional()
+  @Transform(({ value }): string | undefined => {
+    if (value === undefined || value === null || value === '') {
+      return undefined;
+    }
+    return value as string;
+  })
+  @IsString()
+  promotionId?: string;
 }

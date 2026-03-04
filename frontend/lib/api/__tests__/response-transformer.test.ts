@@ -4,7 +4,6 @@ import type { BackendResponse } from "@/lib/types/api";
 import {
   extractResponseData,
   extractPaginatedData,
-  extractNestedPaginatedData,
 } from "../response-transformer";
 
 describe("response-transformer", () => {
@@ -62,45 +61,6 @@ describe("response-transformer", () => {
       } as any;
 
       const result = extractPaginatedData(mockResponse);
-      expect(result).toEqual({
-        data: ["item1", "item2"],
-        total: 2,
-        page: 1,
-        limit: 10,
-        totalPages: 1,
-      });
-    });
-  });
-
-  describe("extractNestedPaginatedData", () => {
-    it("should extract nested paginated data correctly", () => {
-      const mockResponse: AxiosResponse<
-        BackendResponse<{
-          data: string[];
-          meta: {
-            total: number;
-            page: number;
-            limit: number;
-            totalPages: number;
-          };
-        }>
-      > = {
-        data: {
-          success: true,
-          data: {
-            data: ["item1", "item2"],
-            meta: {
-              total: 2,
-              page: 1,
-              limit: 10,
-              totalPages: 1,
-            },
-          },
-          timestamp: "2026-01-01T00:00:00Z",
-        },
-      } as any;
-
-      const result = extractNestedPaginatedData(mockResponse);
       expect(result).toEqual({
         data: ["item1", "item2"],
         total: 2,

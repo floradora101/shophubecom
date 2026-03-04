@@ -20,7 +20,7 @@
  * - Stores refresh token hashes in database for security
  * - Returns tokens to controller (controller sets them in httpOnly cookies)
  */
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { hash, compare } from 'bcrypt';
@@ -58,8 +58,11 @@ export interface AuthServiceResponse {
 }
 
 @Injectable()
-export class AuthService {
+export class AuthService implements OnModuleInit {
   private readonly logger = new Logger(AuthService.name);
+
+  /** Pre-computed valid bcrypt hash for timing-attack mitigation when user not found */
+  private dummyHash!: string;
 
   constructor(
     private usersService: UsersService,
@@ -67,6 +70,10 @@ export class AuthService {
     private configService: ConfigService,
     private prisma: PrismaService,
   ) {}
+
+  async onModuleInit(): Promise<void> {
+    this.dummyHash = await hash('dummy', 10);
+  }
 
   /**
    * Registers a new user and generates authentication tokens.
@@ -118,7 +125,10 @@ export class AuthService {
 
   async validateUser(loginDto: LoginDto): Promise<User> {
     const user = await this.usersService.findByEmail(loginDto.email);
+
     if (!user) {
+      // Run bcrypt compare with pre-computed hash to prevent timing attack
+      await compare(loginDto.password, this.dummyHash);
       this.logger.warn(`Login failed: ${loginDto.email} not found`);
       throw new InvalidCredentialsException();
     }
@@ -256,8 +266,11 @@ export class AuthService {
     forgotPasswordDto: ForgotPasswordDto,
   ): Promise<{ message: string }> {
     const user = await this.usersService.findByEmail(forgotPasswordDto.email);
+
+    // Always return the same message to prevent email enumeration
+    // Only process if user exists, but don't reveal existence
     if (!user) {
-      throw new UserNotFoundException('No user found with this email');
+      return { message: 'If an account exists, a reset link has been sent.' };
     }
 
     // We generate a database record first, then return a composite token:
@@ -274,13 +287,10 @@ export class AuthService {
       },
     });
 
-    const token = `${record.id}:${rawToken}`;
-
-    this.logger.log(
-      `Password reset token generated for user: ${user.id}. Token: ${token}`,
-    );
+    this.logger.log(`Password reset requested for user ${user.id}`);
     // TODO: Send email with reset link in production
-    return { message: 'Reset link sent (check logs for token)' };
+    // Always return same message to prevent email enumeration
+    return { message: 'If an account exists, a reset link has been sent.' };
   }
 
   async resetPassword(

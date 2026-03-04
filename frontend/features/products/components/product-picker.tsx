@@ -30,6 +30,8 @@ interface ProductPickerProps {
   placeholder?: string;
   className?: string;
   disabled?: boolean;
+  /** Use "id" when the backend expects product IDs (e.g. promotions). Use "slug" for display/links. */
+  valueField?: "id" | "slug";
 }
 
 export function ProductPicker({
@@ -39,6 +41,7 @@ export function ProductPicker({
   placeholder = "Select product...",
   className,
   disabled = false,
+  valueField = "slug",
 }: ProductPickerProps) {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -49,6 +52,7 @@ export function ProductPicker({
   });
 
   const products = data?.data || [];
+  const getVal = (p: Product) => (valueField === "id" ? p.id : p.slug);
 
   const selectedValues = useMemo(() => {
     if (multiple) {
@@ -58,22 +62,19 @@ export function ProductPicker({
   }, [value, multiple]);
 
   const selectedProducts = useMemo(() => {
-    // If we have selected items but they aren't in the current 'products' (from search),
-    // we might need a way to fetch them. For a picker, usually we just show what's available.
-    // In a real app, you'd fetch the specific products by their slugs.
-    return products.filter((p) => selectedValues.includes(p.slug));
-  }, [products, selectedValues]);
+    return products.filter((p) => selectedValues.includes(getVal(p)));
+  }, [products, selectedValues, valueField]);
 
-  const handleSelect = useCallback((productSlug: string | undefined) => {
-    if (!productSlug) return;
+  const handleSelect = useCallback((productValue: string | undefined) => {
+    if (!productValue) return;
 
     if (multiple) {
-      const newValues = selectedValues.includes(productSlug)
-        ? selectedValues.filter((s) => s !== productSlug)
-        : [...selectedValues, productSlug];
+      const newValues = selectedValues.includes(productValue)
+        ? selectedValues.filter((s) => s !== productValue)
+        : [...selectedValues, productValue];
       onChange?.(newValues.length > 0 ? newValues : undefined);
     } else {
-      onChange?.(productSlug);
+      onChange?.(productValue);
       setOpen(false);
     }
   }, [multiple, selectedValues, onChange]);
@@ -83,7 +84,7 @@ export function ProductPicker({
     if (multiple) {
       return `${selectedValues.length} products selected`;
     }
-    const selected = products.find(p => p.slug === selectedValues[0]);
+    const selected = products.find(p => getVal(p) === selectedValues[0]);
     return selected ? selected.name : placeholder;
   };
 
@@ -105,10 +106,10 @@ export function ProductPicker({
             disabled={disabled}
           >
             <div className="flex items-center gap-2 truncate">
-              {selectedValues.length === 1 && products.find(p => p.slug === selectedValues[0]) ? (
+              {selectedValues.length === 1 && products.find(p => getVal(p) === selectedValues[0]) ? (
                 <div className="relative w-5 h-5 rounded overflow-hidden">
                   <Image
-                    src={products.find(p => p.slug === selectedValues[0])?.variants?.[0]?.image || "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=50&h=50&fit=crop"}
+                    src={products.find(p => getVal(p) === selectedValues[0])?.variants?.[0]?.image || "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=50&h=50&fit=crop"}
                     alt="Product"
                     fill
                     className="object-cover"
@@ -145,13 +146,14 @@ export function ProductPicker({
               ) : (
                 <CommandGroup>
                   {products.map((product) => {
-                    const isSelected = selectedValues.includes(product.slug);
+                    const val = getVal(product);
+                    const isSelected = selectedValues.includes(val);
 
                     return (
                       <CommandItem
                         key={product.id}
                         value={product.slug}
-                        onSelect={() => handleSelect(product.slug)}
+                        onSelect={() => handleSelect(val)}
                         className={cn(
                           "rounded-lg cursor-pointer px-3 py-2.5 my-0.5 transition-colors",
                           isSelected ? "bg-primary-50" : "hover:bg-warm-gray-50"
@@ -192,19 +194,19 @@ export function ProductPicker({
       {/* Multiple Selection Badges */}
       {multiple && selectedValues.length > 0 && (
         <div className="flex flex-wrap gap-2 mt-3">
-          {selectedValues.map((slug) => {
-            const product = products.find(p => p.slug === slug);
+          {selectedValues.map((val) => {
+            const product = products.find(p => getVal(p) === val);
             return (
               <Badge
-                key={slug}
+                key={val}
                 variant="secondary"
                 className="bg-primary-50 text-primary-700 border-primary-100 px-2 py-1 flex items-center gap-1 rounded-lg animate-in fade-in zoom-in duration-200"
               >
-                <span className="text-[10px] font-bold">{product?.name || slug}</span>
+                <span className="text-[10px] font-bold">{product?.name || val}</span>
                 <button
                   type="button"
                   className="hover:text-primary-900 transition-colors"
-                  onClick={() => handleSelect(slug)}
+                  onClick={() => handleSelect(val)}
                   disabled={disabled}
                 >
                   <X className="h-3 w-3" />

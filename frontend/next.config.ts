@@ -1,5 +1,17 @@
 import type { NextConfig } from "next";
 
+// Production build guard: fail if dev-only flags are set (prevents accidental mock/demo in prod)
+if (process.env.NODE_ENV === "production") {
+  const useMocks = process.env.NEXT_PUBLIC_USE_MOCKS === "true";
+  const demoCheckout = process.env.NEXT_PUBLIC_DEMO_CHECKOUT === "true";
+  if (useMocks || demoCheckout) {
+    throw new Error(
+      "[ShopHub] Production build rejected: NEXT_PUBLIC_USE_MOCKS and NEXT_PUBLIC_DEMO_CHECKOUT must be false. " +
+        "Remove or set to false in your production environment."
+    );
+  }
+}
+
 // Bundle analyzer configuration
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
@@ -7,6 +19,9 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 
 const nextConfig: NextConfig = {
   images: {
+    // Disable image optimization for external images to prevent 404 errors
+    // External images (Unsplash, UploadThing) will be served directly
+    unoptimized: false, // Keep optimization enabled but handle errors gracefully
     remotePatterns: [
       {
         protocol: "https",
@@ -20,7 +35,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "*.uploadthing.com",
+        hostname: "**.uploadthing.com",
         pathname: "/**",
       },
       {
@@ -30,10 +45,26 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "**.ufs.sh",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "q37rrgwkji.ufs.sh",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "picsum.photos",
         pathname: "/**",
       },
     ],
+    // Add image domains for better compatibility
+    domains: [],
+    // Configure image formats
+    formats: ["image/avif", "image/webp"],
+    // Minimum cache time for optimized images
+    minimumCacheTTL: 60,
   },
   async headers() {
     return [
@@ -86,6 +117,9 @@ const nextConfig: NextConfig = {
       "@radix-ui/react-popover",
     ],
   },
+
+  // Enable standalone output for Docker
+  output: "standalone",
 };
 
 export default withBundleAnalyzer(nextConfig);

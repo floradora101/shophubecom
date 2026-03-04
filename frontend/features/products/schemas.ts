@@ -37,12 +37,42 @@ export const productVariantSchema = yup
       .string()
       .trim()
       .transform((v) => (v === "" ? undefined : v))
-      .url("Invalid image URL")
+      .test(
+        "is-valid-url",
+        "Image must be a valid permanent URL (http/https). Blob URLs are not allowed.",
+        function (value) {
+          if (!value) return true; // Optional field
+          // Reject blob URLs - they're temporary and shouldn't be saved
+          if (value.startsWith("blob:")) {
+            return this.createError({
+              message: "Image must be uploaded first. Blob URLs cannot be saved.",
+            });
+          }
+          // Only allow permanent http/https URLs
+          return value.startsWith("http://") || value.startsWith("https://");
+        }
+      )
       .optional(),
     images: yup
       .array()
-      .of(yup.string().trim().url("Invalid image URL"))
-      .transform((v) => (Array.isArray(v) ? v.filter((img) => img !== "") : v))
+      .of(
+        yup.string().trim().test(
+          "is-valid-url",
+          "Each image must be a valid permanent URL (http/https). Blob URLs are not allowed.",
+          function (value) {
+            if (!value) return true;
+            // Reject blob URLs - they're temporary and shouldn't be saved
+            if (value.startsWith("blob:")) {
+              return this.createError({
+                message: "Images must be uploaded first. Blob URLs cannot be saved.",
+              });
+            }
+            // Only allow permanent http/https URLs
+            return value.startsWith("http://") || value.startsWith("https://");
+          }
+        )
+      )
+      .transform((v) => (Array.isArray(v) ? v.filter((img) => img !== "" && !img.startsWith("blob:")) : v))
       .optional(),
     options: yup
       .array()
@@ -87,7 +117,7 @@ export const productSchema = yup.object({
   description: yup
     .string()
     .min(5, "Description must be at least 5 characters")
-    .optional(),
+    .required("Description is required"),
   currency: yup
     .string()
     .matches(/^[A-Z]{3}$/, "Use a 3-letter ISO currency code")
@@ -118,6 +148,23 @@ export const productSchema = yup.object({
     .min(1, "Please select a category"),
   promotionIds: yup.array().of(yup.string()).optional(),
   defaultVariantId: yup.string().nullable().optional(),
+  specs: yup
+    .object()
+    .test(
+      "specs-key-value",
+      "Specs must be key-value pairs (string keys and string values)",
+      function (value) {
+        if (!value) return true; // Optional field
+        return Object.entries(value).every(
+          ([key, val]) =>
+            typeof key === "string" &&
+            key.trim().length > 0 &&
+            typeof val === "string" &&
+            val.trim().length > 0
+        );
+      }
+    )
+    .optional(),
   variants: yup
     .array()
     .of(productVariantSchema)

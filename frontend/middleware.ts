@@ -32,7 +32,10 @@ import {
   buildLoginRedirect,
   isAuthPage,
   isProtectedPath,
+  isAdminPath,
 } from "./features/auth/routes";
+import { isProductsCategoryOnly, productRoutes } from "./lib/routes";
+
 export function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
@@ -47,6 +50,13 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // /products/category with no slug is ambiguous (could match product slug "category")
+  // Redirect to products list for consistent UX
+  if (isProductsCategoryOnly(pathname)) {
+    const url = new URL(productRoutes.list(), request.url);
+    return NextResponse.redirect(url);
+  }
+
   // Check for authentication cookies (cookie-based auth)
   // Note: httpOnly cookies are accessible in middleware via request.cookies
   // IMPORTANT: We only check for cookie existence, not validity.
@@ -55,11 +65,12 @@ export function middleware(request: NextRequest) {
   const accessToken = request.cookies.get("accessToken");
   const refreshToken = request.cookies.get("refreshToken");
 
-  // For protected routes:
+  // For protected routes (including admin):
   // - If accessToken exists → allow (user is authenticated)
   // - Else if refreshToken exists → allow (let app refresh on load)
   // - Else redirect to login
-  if (isProtectedPath(pathname) && !pathname.startsWith("/profile")) {
+  // Note: Admin role check happens in RequireAdmin component (backend enforces)
+  if (isProtectedPath(pathname)) {
     if (!accessToken && !refreshToken) {
       const fullPath = buildFullPath(pathname, search);
       const loginPath = buildLoginRedirect("/login", fullPath);

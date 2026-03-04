@@ -2,16 +2,26 @@
  * useCheckoutCoupon Hook
  *
  * Manages coupon code validation and discount calculation.
+ * Uses backend API for production-ready validation.
  *
  * Responsibilities:
  * - Coupon code state
- * - Coupon validation
- * - Discount calculation
+ * - Backend coupon validation (POST /api/coupons/validate)
+ * - Discount calculation from server response
  * - Error handling
  */
 
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
+import { couponsApi } from "@/features/coupons/api";
+import { extractErrorInfo } from "@/lib/api/error-handler";
+
+interface UseCheckoutCouponOptions {
+  /** Cart subtotal - required for backend validation (minOrderTotal, discount calc) */
+  subtotal: number;
+  /** Guest email - when provided, enforces perUserLimit for guest checkout */
+  guestEmail?: string;
+}
 
 interface UseCheckoutCouponReturn {
   couponCode: string;
@@ -23,47 +33,55 @@ interface UseCheckoutCouponReturn {
 }
 
 /**
- * Hook for managing checkout coupon functionality
+ * Hook for managing checkout coupon functionality.
+ * Validates coupons against backend; discount applies to cart total.
  */
-export function useCheckoutCoupon(): UseCheckoutCouponReturn {
-  // Coupon state management
+export function useCheckoutCoupon({
+  subtotal,
+  guestEmail,
+}: UseCheckoutCouponOptions): UseCheckoutCouponReturn {
   const [couponCode, setCouponCode] = useState<string>("");
   const [couponDiscount, setCouponDiscount] = useState<number>(0);
   const [couponError, setCouponError] = useState<string>("");
   const [isValidatingCoupon, setIsValidatingCoupon] = useState<boolean>(false);
 
-  const handleApplyCoupon = useCallback(async (code: string) => {
-    setIsValidatingCoupon(true);
-    setCouponError("");
+  const handleApplyCoupon = useCallback(
+    async (code: string) => {
+      const trimmed = code.trim().toUpperCase();
+      if (!trimmed) return;
 
-    try {
-      // Mock coupon validation - in production this would be an API call
+      setIsValidatingCoupon(true);
+      setCouponError("");
 
-      // Simple mock logic - accept "SAVE10", "DISCOUNT20", or "WELCOME15"
-      const validCoupons: Record<string, number> = {
-        SAVE10: 10,
-        DISCOUNT20: 20,
-        WELCOME15: 15,
-      };
-
-      if (validCoupons[code]) {
-        setCouponCode(code);
-        setCouponDiscount(validCoupons[code]);
-        toast.success(
-          `Coupon "${code}" applied! You saved $${validCoupons[code].toFixed(2)}`
+      try {
+        const result = await couponsApi.validateCoupon(
+          trimmed,
+          subtotal,
+          guestEmail
         );
-      } else {
-        throw new Error("Invalid coupon code");
+
+        if (result.valid && result.discount > 0) {
+          setCouponCode(result.code ?? trimmed);
+          setCouponDiscount(result.discount);
+          toast.success(
+            `Coupon "${result.code ?? trimmed}" applied! You save $${result.discount.toFixed(2)}`
+          );
+        } else {
+          const message = result.message ?? "Invalid coupon code";
+          setCouponError(message);
+          toast.error(message);
+        }
+      } catch (error) {
+        const errorInfo = extractErrorInfo(error);
+        const message = errorInfo.message ?? "Failed to apply coupon";
+        setCouponError(message);
+        toast.error(message);
+      } finally {
+        setIsValidatingCoupon(false);
       }
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to apply coupon";
-      setCouponError(message);
-      toast.error(message);
-    } finally {
-      setIsValidatingCoupon(false);
-    }
-  }, []);
+    },
+    [subtotal, guestEmail]
+  );
 
   const handleRemoveCoupon = useCallback(() => {
     setCouponCode("");

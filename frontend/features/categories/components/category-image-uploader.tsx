@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { logError, extractErrorMessage } from "@/lib/errors";
+import { useUploadThing } from "@/lib/uploadthing";
+import { shouldUnoptimizeImage } from "@/lib/utils/image-helpers";
 
 interface CategoryImageUploaderProps {
   value?: string;
@@ -23,7 +25,10 @@ export function CategoryImageUploader({
 }: CategoryImageUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
 
-  // Cleanup blob URLs to prevent memory leaks
+  // Use UploadThing for actual file uploads
+  const { startUpload, isUploading: isUploadThingUploading } = useUploadThing("variantMainImage");
+
+  // Cleanup blob URLs to prevent memory leaks (for any legacy blob URLs)
   React.useEffect(() => {
     return () => {
       if (value && value.startsWith("blob:")) {
@@ -32,19 +37,9 @@ export function CategoryImageUploader({
     };
   }, [value]);
 
-  // Create a blob URL to show the actual uploaded image
-  const uploadFile = useCallback(async (file: File) => {
-    // Simulate upload delay
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    // Create a blob URL from the actual file to show the real image
-    const blobUrl = URL.createObjectURL(file);
-    return blobUrl;
-  }, []);
-
   const handleFileSelect = useCallback(
     async (files: FileList) => {
-      if (disabled || isUploading) return;
+      if (disabled || isUploading || isUploadThingUploading) return;
 
       const file = files[0];
       if (!file) return;
@@ -65,17 +60,25 @@ export function CategoryImageUploader({
       setIsUploading(true);
 
       try {
-        const uploadedUrl = await uploadFile(file);
+        // Upload file using UploadThing
+        const uploadedFiles = await startUpload([file]);
 
-        if (uploadedUrl) {
-          // Clean up previous blob URL if it exists
-          if (value && value.startsWith("blob:")) {
-            URL.revokeObjectURL(value);
+        if (uploadedFiles && uploadedFiles.length > 0) {
+          // Use ufsUrl instead of url (url is deprecated in uploadthing v9)
+          const uploadedUrl = uploadedFiles[0].ufsUrl ?? uploadedFiles[0].url;
+
+          if (uploadedUrl) {
+            // Clean up previous blob URL if it exists
+            if (value && value.startsWith("blob:")) {
+              URL.revokeObjectURL(value);
+            }
+            onChange?.(uploadedUrl);
+            toast.success("Image uploaded successfully!");
+          } else {
+            throw new Error("No valid URL returned from upload");
           }
-          onChange?.(uploadedUrl);
-          toast.success("Image uploaded successfully!");
         } else {
-          throw new Error("No URL returned from upload");
+          throw new Error("No files were uploaded. Please check UploadThing configuration.");
         }
       } catch (error: unknown) {
         logError(error, {
@@ -88,19 +91,30 @@ export function CategoryImageUploader({
           },
         });
 
-        toast.error(extractErrorMessage(error, "Upload failed"));
+        // Provide more helpful error messages
+        const errorMessage = extractErrorMessage(error, "Upload failed. Please try again.");
+        let userMessage = errorMessage;
+
+        if (errorMessage.includes("UPLOADTHING") || errorMessage.includes("configuration") || errorMessage.includes("Unauthorized")) {
+          userMessage = "UploadThing is not configured. Add UPLOADTHING_TOKEN to .env.local (same as products and hero slides). See .env.example.";
+        } else if (errorMessage.includes("Forbidden") || errorMessage.includes("Admin")) {
+          userMessage = "Only admin users can upload images. Please log in as an admin.";
+        }
+
+        toast.error(userMessage);
+        console.error("Upload error details:", error);
       } finally {
         setIsUploading(false);
       }
     },
-    [disabled, isUploading, uploadFile, onChange]
+    [disabled, isUploading, isUploadThingUploading, startUpload, onChange, value]
   );
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      if (disabled || isUploading) return;
+      if (disabled || isUploading || isUploadThingUploading) return;
 
       const files = e.dataTransfer.files;
       if (files && files[0]) {
@@ -136,7 +150,7 @@ export function CategoryImageUploader({
     onChange?.(undefined);
   }, [disabled, onChange, value]);
 
-  const isDisabled = disabled || isUploading;
+  const isDisabled = disabled || isUploading || isUploadThingUploading;
 
   return (
     <div className={cn("space-y-4", className)}>
@@ -150,7 +164,7 @@ export function CategoryImageUploader({
               fill
               className="w-full h-full object-cover"
               sizes="128px"
-              unoptimized={value.startsWith("blob:")}
+              unoptimized={shouldUnoptimizeImage(value)}
             />
           </div>
           <Button
@@ -202,7 +216,7 @@ export function CategoryImageUploader({
             aria-hidden="true"
           />
           <div className="text-center">
-            {isUploading ? (
+            {(isUploading || isUploadThingUploading) ? (
               <>
                 <Loader2 className="mx-auto h-12 w-12 text-primary-500 animate-spin mb-4" />
                 <p className="text-sm text-gray-600 mb-2">Uploading...</p>

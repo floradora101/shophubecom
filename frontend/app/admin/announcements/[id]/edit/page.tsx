@@ -1,29 +1,36 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Heading, Text } from "@/components/ui/typography";
 import { Card } from "@/components/ui/card";
 import { AnnouncementForm } from "../../_components/AnnouncementForm";
-import { mockAnnouncements } from "@/dev/mocks/announcements.mock";
+import { useAnnouncementQuery } from "@/features/announcements/queries";
 
 export default function EditAnnouncementPage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
 
-  const announcement = useMemo(() => {
-    return mockAnnouncements.find((a) => a.id === id);
-  }, [id]);
+  const { data: announcement, isLoading, error } = useAnnouncementQuery(id);
 
-  if (!announcement) {
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+        <Text className="text-warm-gray-500">Loading announcement...</Text>
+      </div>
+    );
+  }
+
+  if (error || !announcement) {
     return (
       <div className="py-20 text-center">
         <Text className="text-warm-gray-500">Announcement not found</Text>
         <Button
-          variant="link"
+          variant="ghost"
           onClick={() => router.push("/admin/announcements")}
           className="mt-4"
         >

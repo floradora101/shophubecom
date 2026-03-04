@@ -1,27 +1,36 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Heading, Text } from "@/components/ui/typography";
 import { CouponForm } from "@/app/admin/coupons/_components/CouponForm";
-import { mockCoupons } from "@/lib/mock-data/mock-data";
+import { useCouponByIdQuery } from "@/features/coupons/queries";
 
 export default function EditCouponPage() {
   const router = useRouter();
   const params = useParams();
   const couponId = params.id as string;
 
-  const coupon = useMemo(() => {
-    return mockCoupons.find((c) => c.id === couponId);
-  }, [couponId]);
+  const { data: coupon, isLoading, error } = useCouponByIdQuery(couponId);
 
-  if (!coupon) {
+  if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <Loader2 className="w-10 h-10 text-primary-500 animate-spin" />
         <Text>Loading coupon details...</Text>
+      </div>
+    );
+  }
+
+  if (error || !coupon) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
+        <Text className="text-red-500">Failed to load coupon. Please try again.</Text>
+        <Button onClick={() => router.push("/admin/coupons")}>
+          Back to Coupons
+        </Button>
       </div>
     );
   }

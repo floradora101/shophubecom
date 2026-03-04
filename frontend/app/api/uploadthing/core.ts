@@ -1,5 +1,14 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 
+// UploadThing v7 uses UPLOADTHING_TOKEN (base64-encoded JSON with apiKey, appId, regions)
+// It is read automatically by the library — no manual passing needed.
+if (!process.env.UPLOADTHING_TOKEN) {
+  console.error(
+    "[UploadThing] UPLOADTHING_TOKEN is missing from environment variables. " +
+    "Set it in .env.local. It should be a base64-encoded JSON: { apiKey, appId, regions }."
+  );
+}
+
 const f = createUploadthing();
 
 /**
@@ -10,6 +19,7 @@ async function authenticateAdmin(req: Request) {
   const cookieHeader = req.headers.get("cookie");
 
   if (!cookieHeader) {
+    console.error("[UploadThing] No authentication cookies found");
     throw new Error("Unauthorized: No authentication cookies found");
   }
 
@@ -26,22 +36,30 @@ async function authenticateAdmin(req: Request) {
     });
 
     if (!response.ok) {
+      console.error(`[UploadThing] Authentication failed: ${response.status}`);
       throw new Error(
         `Unauthorized: Authentication failed (${response.status})`
       );
     }
 
-    const user = await response.json();
+    const responseBody = await response.json();
+
+    // Backend wraps responses in { success, data, timestamp }
+    // Extract the actual user from the wrapper
+    const user = responseBody.data ?? responseBody;
 
     if (user.role !== "ADMIN") {
+      console.error(`[UploadThing] User is not admin. Role: ${user.role}`);
       throw new Error("Forbidden: Admin role required for uploads");
     }
 
     return user;
   } catch (error) {
     if (error instanceof Error) {
+      console.error(`[UploadThing] Auth error:`, error.message);
       throw error;
     }
+    console.error("[UploadThing] Unknown auth error");
     throw new Error("Unauthorized: Authentication request failed");
   }
 }

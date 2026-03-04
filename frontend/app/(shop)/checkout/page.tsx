@@ -2,9 +2,9 @@
 "use client";
 
 import Link from "next/link";
-import { toast } from "sonner";
 import { useForm } from "react-hook-form";
-import { useState, useEffect } from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,14 +17,16 @@ import { Stepper } from "@/components/ui/stepper";
 import { CardRadio } from "@/components/ui/card-radio";
 import { Heading, Text } from "@/components/ui/typography";
 import { BadgedSectionTitle } from "@/components/ui/SectionTitle";
-import { CreditCard, Truck, ShoppingBag, ShieldCheck } from "lucide-react";
+import { CreditCard, Truck, ShoppingBag, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { AddressSelector, OrderSummaryCard } from "@/features/checkout";
 import { CheckoutCardSection } from "@/features/checkout/components/CheckoutCardSection";
 import { useCheckoutAddress } from "./hooks/useCheckoutAddress";
 import { useCheckoutCoupon } from "./hooks/useCheckoutCoupon";
 import { useCheckoutOrder } from "./hooks/useCheckoutOrder";
 import type { CheckoutFormData } from "./types";
+import { checkoutSchema } from "./schemas";
 import { useCart } from "@/features/cart/hooks";
+import { useAuthStore, selectAuthUser } from "@/store/auth-store";
 import { useFormDraft } from "@/lib/forms/useFormDraft";
 import { DEMO_CHECKOUT } from "@/lib/flags";
 import { logger } from "@/lib/logger";
@@ -42,17 +44,20 @@ const steps = [
 export default function CheckoutPage() {
   const {
     items,
+    subtotal,
     clearCart,
     shippingOption: cartShippingOption,
     isLoading,
+    isAuthenticated,
   } = useCart();
-  const isEmpty = !isLoading && items.length === 0;
+  const user = useAuthStore(selectAuthUser);
 
   // Dev-only debug log for demo mode
   logger.debug("DEMO_CHECKOUT:", DEMO_CHECKOUT);
 
 
   const form = useForm<CheckoutFormData>({
+    resolver: yupResolver(checkoutSchema),
     defaultValues: {
       firstName: "",
       lastName: "",
@@ -69,10 +74,24 @@ export default function CheckoutPage() {
   });
 
   const { register, handleSubmit, watch, formState, setValue, reset } = form;
-  const { isSubmitting } = formState;
+  const { isSubmitting, errors } = formState;
   const shippingOption = watch("shippingOption");
 
-  // Extract address selection logic to custom hook
+  // Pre-fill email for logged-in users (form is single source of truth for confirmation email)
+  useEffect(() => {
+    if (isAuthenticated && user?.email) {
+      setValue("email", user.email);
+    }
+  }, [isAuthenticated, user?.email, setValue]);
+
+  // Draft loads first so default address can overwrite it; enabled when cart has items
+  const { clearDraft } = useFormDraft(form, {
+    key: "draft:checkout",
+    storage: "session",
+    enabled: !isLoading && items.length > 0,
+  });
+
+  // Address selection: auto-applies default address from profile to checkout fields
   const {
     addresses,
     selectedAddress,
@@ -81,16 +100,10 @@ export default function CheckoutPage() {
   } = useCheckoutAddress({
     form,
     cartShippingOption,
+    defaultEmail: user?.email ?? "",
   });
 
-  // Enable draft persistence when cart is loaded (not empty)
-  const { clearDraft } = useFormDraft(form, {
-    key: "draft:checkout",
-    storage: "session",
-    enabled: !isEmpty,
-  });
-
-  // Extract coupon management logic to custom hook
+  // Extract coupon management logic to custom hook (requires subtotal for backend validation)
   const {
     couponCode,
     couponDiscount,
@@ -98,15 +111,20 @@ export default function CheckoutPage() {
     isValidatingCoupon,
     handleApplyCoupon,
     handleRemoveCoupon,
-  } = useCheckoutCoupon();
+  } = useCheckoutCoupon({
+    subtotal,
+    guestEmail: !isAuthenticated ? watch("email") || undefined : undefined,
+  });
 
-  // Extract order submission logic to custom hook
-  const { onSubmit } = useCheckoutOrder({
+  const { onSubmit, isOrderPlaced } = useCheckoutOrder({
     items,
     couponDiscount,
+    couponCode,
     clearCart,
     clearDraft,
   });
+
+  const isEmpty = !isLoading && !isOrderPlaced && items.length === 0;
 
   // Loading skeleton for checkout form
   const CheckoutFormSkeleton = () => (
@@ -223,6 +241,47 @@ export default function CheckoutPage() {
     );
   }
 
+  if (isOrderPlaced) {
+    const completedSteps = [
+      { label: "Shopping Cart", href: "/cart", state: "done" as const },
+      { label: "Checkout Details", state: "done" as const },
+      { label: "Order Complete", state: "active" as const },
+    ];
+
+    return (
+      <Section spacing="lg">
+        <Container size="lg">
+          <Stack spacing="xl" align="stretch">
+            <Stack spacing="md" align="center">
+              <div className="w-full max-w-2xl pt-4">
+                <Stepper steps={completedSteps} showLabelsOnMobile />
+              </div>
+            </Stack>
+            <Card className="p-12 text-center border-none shadow-xl shadow-warm-gray-100/50 bg-white/80 backdrop-blur-sm">
+              <Stack spacing="lg" align="center">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-green-100 rounded-full animate-ping opacity-20" />
+                  <div className="relative w-20 h-20 rounded-full bg-green-100 flex items-center justify-center">
+                    <CheckCircle2 className="w-10 h-10 text-green-600" />
+                  </div>
+                </div>
+                <Heading level="h3">Order Placed Successfully!</Heading>
+                <Text className="text-warm-gray-600 max-w-sm">
+                  Redirecting you to your order confirmation...
+                </Text>
+                <div className="flex items-center gap-2 text-warm-gray-400">
+                  <div className="h-2 w-2 rounded-full bg-primary-500 animate-bounce [animation-delay:0ms]" />
+                  <div className="h-2 w-2 rounded-full bg-primary-500 animate-bounce [animation-delay:150ms]" />
+                  <div className="h-2 w-2 rounded-full bg-primary-500 animate-bounce [animation-delay:300ms]" />
+                </div>
+              </Stack>
+            </Card>
+          </Stack>
+        </Container>
+      </Section>
+    );
+  }
+
   return (
     <Section spacing="lg">
       <Container size="lg">
@@ -282,7 +341,9 @@ export default function CheckoutPage() {
                       type="text"
                       label="First name *"
                       autoComplete="given-name"
-                      {...register("firstName", { required: true })}
+                      {...register("firstName")}
+                      error={!!errors.firstName}
+                      errorMessage={errors.firstName?.message}
                       required
                       className="rounded-xl"
                     />
@@ -290,7 +351,9 @@ export default function CheckoutPage() {
                       type="text"
                       label="Last name *"
                       autoComplete="family-name"
-                      {...register("lastName", { required: true })}
+                      {...register("lastName")}
+                      error={!!errors.lastName}
+                      errorMessage={errors.lastName?.message}
                       required
                       className="rounded-xl"
                     />
@@ -300,6 +363,8 @@ export default function CheckoutPage() {
                         label="Email address"
                         autoComplete="email"
                         {...register("email")}
+                        error={!!errors.email}
+                        errorMessage={errors.email?.message}
                         className="rounded-xl"
                       />
                     </div>
@@ -308,7 +373,9 @@ export default function CheckoutPage() {
                         type="tel"
                         label="Phone number *"
                         autoComplete="tel"
-                        {...register("phone", { required: true })}
+                        {...register("phone")}
+                        error={!!errors.phone}
+                        errorMessage={errors.phone?.message}
                         required
                         className="rounded-xl"
                       />
@@ -341,7 +408,9 @@ export default function CheckoutPage() {
                         type="text"
                         label="Country / Region *"
                         autoComplete="country-name"
-                        {...register("country", { required: true })}
+                        {...register("country")}
+                        error={!!errors.country}
+                        errorMessage={errors.country?.message}
                         required
                         className="rounded-xl"
                       />
@@ -349,7 +418,9 @@ export default function CheckoutPage() {
                         type="text"
                         label="City *"
                         autoComplete="address-level2"
-                        {...register("city", { required: true })}
+                        {...register("city")}
+                        error={!!errors.city}
+                        errorMessage={errors.city?.message}
                         required
                         className="rounded-xl"
                       />
@@ -371,7 +442,9 @@ export default function CheckoutPage() {
                       label="Street address *"
                       autoComplete="street-address"
                       placeholder="House number and street name"
-                      {...register("street1", { required: true })}
+                      {...register("street1")}
+                      error={!!errors.street1}
+                      errorMessage={errors.street1?.message}
                       required
                       className="rounded-xl"
                     />

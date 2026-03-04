@@ -27,12 +27,12 @@ export class AllExceptionsFilter implements ExceptionFilter {
     // 1) Normal Nest HttpExceptions (your custom exceptions + ValidationPipe)
     if (exception instanceof HttpException) {
       statusCode = exception.getStatus();
-      const body = exception.getResponse() as any;
+      const body = exception.getResponse();
 
       if (typeof body === 'string') {
         message = body;
-      } else if (body && typeof body === 'object') {
-        const m = body.message;
+      } else if (body && typeof body === 'object' && 'message' in body) {
+        const m = (body as { message?: string | string[] }).message;
 
         if (Array.isArray(m)) {
           errors = m;

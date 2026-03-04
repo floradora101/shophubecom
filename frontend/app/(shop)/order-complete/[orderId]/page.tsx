@@ -11,7 +11,9 @@ import { Card } from "@/components/ui/card";
 import { LoadingSpinner } from "@/components/ui/spinner";
 import { Stepper } from "@/components/ui/stepper";
 import { Heading, Text } from "@/components/ui/typography";
+import { SkeletonBlock, SkeletonText } from "@/components/ui/skeleton";
 import { ordersApi } from "@/features/orders/api";
+import { useAuthStore, selectAuthUser } from "@/store/auth-store";
 import { DEMO_CHECKOUT } from "@/lib/flags";
 import { logger } from "@/lib/logger";
 import { getDemoOrder } from "@/features/orders/demo/demoOrders";
@@ -43,6 +45,10 @@ export default function OrderCompletePage() {
   // For demo mode, load demo order immediately
   const demoOrder = isDemo ? getDemoOrder(orderId!) : null;
 
+  // Guest: skip auth refresh on 401 (no refresh token). Authenticated: allow refresh.
+  const user = useAuthStore(selectAuthUser);
+  const isGuest = !user;
+
   // Fetch order by id (token is in httpOnly cookie, automatically sent by browser)
   const {
     data: order,
@@ -50,8 +56,11 @@ export default function OrderCompletePage() {
     isError,
     error,
   } = useQuery<BackendOrderResponseDto>({
-    queryKey: ["order", orderId],
-    queryFn: () => ordersApi.getOrderByIdRaw(orderId!),
+    queryKey: ["order", orderId, isGuest],
+    queryFn: () =>
+      ordersApi.getOrderByIdRaw(orderId!, {
+        skipAuthRefresh: isGuest,
+      }),
     enabled: !!orderId && !isDemo,
     retry: false, // Don't retry on error for better UX
   });
@@ -59,6 +68,83 @@ export default function OrderCompletePage() {
   // Use demo order if in demo mode, otherwise use backend order (or fallback to demo if backend fails)
   const finalOrder =
     demoOrder || order || (isError ? getDemoOrder(orderId!) : null);
+
+  if (isLoading && !isDemo) {
+    return (
+      <Section spacing="lg">
+        <Container size="lg">
+          <Stack spacing="xl" align="stretch">
+            {/* Header Skeleton */}
+            <div className="text-center space-y-4">
+              <SkeletonBlock className="h-10 w-64 mx-auto rounded-lg" />
+              <SkeletonBlock className="h-4 w-48 mx-auto rounded-lg" />
+            </div>
+
+            {/* Stepper Skeleton */}
+            <div className="hidden sm:block">
+              <div className="flex justify-between items-center max-w-2xl mx-auto px-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex flex-col items-center gap-2">
+                    <SkeletonBlock className="h-10 w-10 rounded-full" />
+                    <SkeletonBlock className="h-3 w-20 rounded-lg" />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Main Content Skeleton */}
+            <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
+              {/* Success Header Skeleton */}
+              <Card className="p-8 border-none shadow-xl shadow-warm-gray-100/50 bg-white/80 backdrop-blur-sm">
+                <Stack spacing="xl" align="center" className="text-center">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-green-100 rounded-full animate-ping opacity-20" />
+                    <SkeletonBlock className="h-20 w-20 rounded-full" />
+                  </div>
+                  <Stack spacing="md" align="center" className="w-full">
+                    <SkeletonBlock className="h-8 w-3/4 rounded-lg" />
+                    <SkeletonBlock className="h-4 w-1/2 rounded-lg" />
+                  </Stack>
+                  <div className="grid grid-cols-2 gap-4 w-full pt-4">
+                    <SkeletonBlock className="h-24 rounded-2xl" />
+                    <SkeletonBlock className="h-24 rounded-2xl" />
+                  </div>
+                </Stack>
+              </Card>
+
+              {/* Order Summary Skeleton */}
+              <div className="lg:sticky lg:top-6 h-fit">
+                <Card className="p-6 space-y-6">
+                  <SkeletonBlock className="h-6 w-32 rounded-lg" />
+                  <div className="space-y-4">
+                    {[1, 2].map((i) => (
+                      <div key={i} className="flex gap-4">
+                        <SkeletonBlock className="h-12 w-12 rounded-lg" />
+                        <div className="flex-1 space-y-2">
+                          <SkeletonBlock className="h-4 w-full rounded-lg" />
+                          <SkeletonBlock className="h-3 w-1/2 rounded-lg" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="pt-4 border-t border-warm-gray-100 space-y-3">
+                    <div className="flex justify-between">
+                      <SkeletonBlock className="h-4 w-16 rounded-lg" />
+                      <SkeletonBlock className="h-4 w-12 rounded-lg" />
+                    </div>
+                    <div className="flex justify-between pt-2">
+                      <SkeletonBlock className="h-6 w-20 rounded-lg" />
+                      <SkeletonBlock className="h-6 w-16 rounded-lg" />
+                    </div>
+                  </div>
+                </Card>
+              </div>
+            </div>
+          </Stack>
+        </Container>
+      </Section>
+    );
+  }
 
   if (!orderId) {
     return (

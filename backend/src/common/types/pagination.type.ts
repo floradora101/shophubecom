@@ -5,12 +5,14 @@ export interface PaginationParams {
   sortOrder?: 'asc' | 'desc';
 }
 
+/**
+ * Paginated response shape used by all list endpoints.
+ * Matches actual service return values (products, orders, categories, etc.).
+ */
 export interface PaginatedResponse<T> {
   data: T[];
-  meta: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }

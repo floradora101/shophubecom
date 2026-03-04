@@ -4,22 +4,25 @@ import React, { useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { ProductForm } from "@/app/admin/products/_components/ProductForm";
 import { Heading, Text } from "@/components/ui/typography";
-import { ChevronLeft, Loader2, Package } from "lucide-react";
+import { ChevronLeft, Loader2, Package, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getAllProducts } from "@/lib/mock-data/mock-data";
+import { useProductByIdQuery } from "@/features/products/queries";
+import type { Product } from "@/features/products/types";
 
 export default function EditProductPage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
 
-  const product = useMemo(() => {
-    const p = getAllProducts().find((item) => item.id === id);
-    if (!p) return null;
+  const { data: product, isLoading, error } = useProductByIdQuery(id);
 
-    // Transform mock data to form data if needed
+  // Transform product data to form data format
+  const formData = useMemo(() => {
+    if (!product) return null;
+
+    // Transform variants to form data format
     // The form expects variants to have an 'options' array of objects
-    const variants = p.variants?.map(v => ({
+    const variants = product.variants?.map(v => ({
       ...v,
       options: Object.entries(v.options || {}).map(([name, value]) => ({
         name,
@@ -28,22 +31,35 @@ export default function EditProductPage() {
     })) || [];
 
     return {
-      ...p,
+      ...product,
       variants: variants.length > 0 ? variants : [{
-        sku: p.id || "",
-        price: p.price,
-        stock: p.stock || 0,
+        sku: product.id || "",
+        price: product.price,
+        stock: product.stock || product.effectiveStock || 0,
         options: []
       }]
     };
-  }, [id]);
+  }, [product]);
 
-  if (!product) {
+  // Loading state
+  if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-32 space-y-4">
-        <Package className="w-16 h-16 text-warm-gray-100" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+        <Text className="text-warm-gray-500">Loading product...</Text>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !product || !formData) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 space-y-4">
+        <AlertCircle className="w-16 h-16 text-red-500" />
         <Heading level="h3">Product not found</Heading>
-        <Text className="text-warm-gray-500">The product you're looking for doesn't exist.</Text>
+        <Text className="text-warm-gray-500">
+          {error instanceof Error ? error.message : "The product you're looking for doesn't exist."}
+        </Text>
         <Button variant="outline" onClick={() => router.push("/admin/products")} className="rounded-lg">
           Back to Products
         </Button>
@@ -71,7 +87,7 @@ export default function EditProductPage() {
       </div>
 
       <ProductForm
-        initialData={product}
+        initialData={formData}
         onSuccess={() => router.push("/admin/products")}
         onCancel={() => router.back()}
       />

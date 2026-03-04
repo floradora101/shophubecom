@@ -3,6 +3,7 @@
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
+import { productRoutes } from "@/lib/routes";
 import {
   Smartphone,
   Tablet,
@@ -23,6 +24,7 @@ import { ProductCard } from "@/components/shared/ProductCard";
 import { ProductCardSkeleton } from "@/components/shared/ProductCardSkeleton";
 import { SectionHeader, SectionTitle } from "@/components/shared/SectionHeader";
 import type { Product, Category } from "@/features/products/types";
+import type { Department } from "@/features/departments";
 import { getDiscountInfo } from "@/lib/utils/products";
 import { SparkleEffect } from "@/components/ui/SparkleEffect";
 import { useHeroRunCounter } from "@/lib/hooks/use-hero-run-counter";
@@ -30,6 +32,8 @@ import { useHeroRunCounter } from "@/lib/hooks/use-hero-run-counter";
 interface DepartmentTabsProps {
   categories: Category[];
   productsByCategory: Record<string, Product[]>;
+  /** When provided, tabs are driven by active departments from admin (overrides category + departmentConfig filter). */
+  departments?: Department[];
 }
 
 // Constant: Same number of cards for every tab
@@ -97,12 +101,22 @@ const departmentConfig: Record<
   },
 };
 
+/** Default config for departments whose parent category slug is not in departmentConfig */
+const defaultDepartmentConfig = {
+  icon: Grid3X3,
+  gradient: "from-primary-500 to-primary-600",
+  bgGradient: "from-primary-50 to-primary-100",
+  description: "Explore this collection",
+  tagline: "Shop the collection",
+};
+
 // Skeleton component extracted to separate server component file
 // See: app/_components/DepartmentTabsSkeleton.tsx
 
 export function DepartmentTabs({
   categories,
   productsByCategory,
+  departments = [],
 }: DepartmentTabsProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -136,14 +150,19 @@ export function DepartmentTabs({
     });
   };
 
-  // Filter to only show main categories (parent categories) that are configured in departmentConfig
+  // Use all main (root) categories for "Shop by Category" so every main category
+  // appears as a tab with latest products from it and its subcategories.
   const mainCategories = useMemo(() => {
     const safeCategories = Array.isArray(categories) ? categories : [];
-    return safeCategories.filter(
-      (category) =>
-        (!category.parentId || category.parentId === null) &&
-        category.slug in departmentConfig
-    );
+    const roots = safeCategories
+      .filter((c) => !c.parentId || c.parentId === null)
+      .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+    return roots.map((c) => ({
+      id: c.id,
+      name: c.name,
+      slug: c.slug,
+      parentId: c.parentId,
+    }));
   }, [categories]);
 
   const [activeTab, setActiveTab] = useState(() => {
@@ -156,7 +175,8 @@ export function DepartmentTabs({
     !!activeTab
   );
 
-  const activeConfig = departmentConfig[activeTab] || departmentConfig.phones;
+  const activeConfig =
+    departmentConfig[activeTab] || defaultDepartmentConfig;
 
   // Build fallback pool from all products across categories (excluding current category)
   const fallbackPool = useMemo(() => {
@@ -248,6 +268,37 @@ export function DepartmentTabs({
   // Calculate how many skeletons we need
   const skeletonCount = Math.max(0, COUNT - selectedProducts.length);
 
+  // Empty state: section is always visible so admins know where departments will show
+  if (mainCategories.length === 0) {
+    return (
+      <Section
+        ref={sectionRef}
+        spacing="md"
+        className="relative overflow-hidden bg-transparent py-16 md:py-24"
+      >
+        <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary-500/5 rounded-full blur-[120px] animate-pulse" />
+        </div>
+        <Container className="relative z-10">
+          <SectionHeader
+            badge={{ icon: Grid3X3, text: "Explore Collections" }}
+            title={{ italic: "Shop by", bold: "Category" }}
+            description="Discover curated collections tailored to your lifestyle"
+          />
+          <div className="rounded-lg border border-dashed border-warm-gray-300 bg-warm-gray-50/50 p-8 text-center">
+            <p className="text-warm-gray-600 text-sm font-medium">
+              No departments to show yet. Add and activate departments in{" "}
+              <Link href="/admin/subcategories" className="text-primary-600 underline hover:no-underline">
+                Admin → Subcategories
+              </Link>{" "}
+              to see them here.
+            </p>
+          </div>
+        </Container>
+      </Section>
+    );
+  }
+
   return (
     <Section
       ref={sectionRef}
@@ -279,7 +330,7 @@ export function DepartmentTabs({
           <div className="flex flex-nowrap sm:flex-wrap overflow-x-auto sm:overflow-x-visible sm:justify-center gap-2 sm:gap-2.5 lg:gap-2 pb-6 px-4 sm:px-0 -mx-4 sm:mx-0 scrollbar-hide hero-item-enter hero-headline">
             {mainCategories.map((category, idx) => {
               const config =
-                departmentConfig[category.slug] || departmentConfig.phones;
+                departmentConfig[category.slug] || defaultDepartmentConfig;
               const Icon = config.icon;
               const isActive = activeTab === category.slug;
 
@@ -340,7 +391,7 @@ export function DepartmentTabs({
                 </div>
               </div>
               <Link
-                href={`/products/category/${activeTab}`}
+                href={productRoutes.category(activeTab)}
                 className="group w-full md:w-auto flex items-center justify-center gap-2.5 sm:gap-3 lg:gap-2.5 px-4 py-2.5 sm:px-5 sm:py-2.5 lg:px-4 lg:py-2.5 bg-white/95 backdrop-blur-sm rounded-lg text-[10px] sm:text-sm lg:text-xs font-black uppercase tracking-widest text-gray-900 hover:bg-red-600 hover:text-white hover:shadow-2xl transition-all duration-500 hover:-translate-y-1"
               >
                 <span>View All</span>

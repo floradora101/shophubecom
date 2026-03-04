@@ -26,12 +26,18 @@
  * - Reusable: used by both middleware and client components
  */
 
-export const PROTECTED_PREFIXES = ["/profile", "/orders"];
+export const PROTECTED_PREFIXES = ["/profile", "/orders", "/admin"];
+
+export const ADMIN_PREFIXES = ["/admin"];
 
 export const AUTH_PAGES = ["/login", "/register"];
 
 export function isProtectedPath(pathname: string): boolean {
   return PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+}
+
+export function isAdminPath(pathname: string): boolean {
+  return ADMIN_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
 
 export function isAuthPage(pathname: string): boolean {

@@ -13,6 +13,7 @@ import { useHeroRunCounter } from "@/lib/hooks/use-hero-run-counter";
 import type { HeroSlide } from "@/lib/types/heroSlides.types";
 import type { Product } from "@/features/products/types";
 import { getDetailedCountdown } from "@/lib/utils/date";
+import { resolveSlidePrimaryCtaHref } from "@/lib/utils/heroSlides.utils";
 
 interface OfferSlideBodyProps {
   slide: HeroSlide & { type: "OFFER" };
@@ -41,7 +42,7 @@ export const OfferSlideBody = memo(function OfferSlideBody({
       await navigator.clipboard.writeText(promoCode);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
+    } catch {
       // Clipboard write failed - user feedback handled by UI state
     }
   };
@@ -148,7 +149,7 @@ export const OfferSlideBody = memo(function OfferSlideBody({
       <HeroItem run={run} animationKey={animationKey}>
         <div className="flex flex-row gap-1.5 mt-1.5 md:mt-6 justify-center lg:justify-start hero-item-enter hero-buttons">
           <Link
-            href={slide.ctaPrimary.href}
+            href={resolveSlidePrimaryCtaHref(slide)}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
           >

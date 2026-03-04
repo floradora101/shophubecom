@@ -14,6 +14,8 @@ import { cn } from "@/lib/utils/cn";
 import { SkeletonBlock } from "@/components/ui/skeleton";
 import type { ComparisonBattleSlide } from "@/lib/types/heroSlides.types";
 import type { Product } from "@/features/products/types";
+import { productRoutes } from "@/lib/routes";
+import { resolveSlidePrimaryCtaHref } from "@/lib/utils/heroSlides.utils";
 
 interface ComparisonBattleSlideBodyProps {
   slide: ComparisonBattleSlide;
@@ -199,7 +201,7 @@ export const ComparisonBattleSlideBody = memo(
                 ? Array.from({ length: 4 }).map((_, i) => (
                     <SkeletonBlock key={i} className="h-12 sm:h-16 rounded-lg" />
                   ))
-                : leftProduct
+                : slide.comparisonPoints && slide.comparisonPoints.length > 0
                 ? slide.comparisonPoints.slice(0, 4).map((point, i) => (
                     <div
                       key={i}
@@ -224,26 +226,28 @@ export const ComparisonBattleSlideBody = memo(
                 : null}
             </div>
 
-            {/* Professional Hero Action */}
+            {/* CTA Button for Left Product */}
             <div className="mt-3 sm:mt-4 lg:mt-6 flex justify-center lg:justify-start">
               {isLeftLoading ? (
                 <SkeletonBlock className="h-7 sm:h-12 lg:h-14 w-full sm:w-40 rounded-xl" />
-              ) : leftProduct ? (
+              ) : (
                 <Link
-                  href={`/products/${leftProduct.slug}`}
+                  href={leftProduct ? productRoutes.detail(leftProduct.slug) : resolveSlidePrimaryCtaHref(slide as any)}
                   className="w-full sm:w-auto"
+                  onMouseEnter={onMouseEnter}
+                  onMouseLeave={onMouseLeave}
                 >
                   <Button
                     size="hero"
                     className="w-full bg-gray-900 hover:bg-black text-white rounded-xl shadow-2xl shadow-gray-900/20 transition-all hover:scale-[1.05] active:scale-[0.95] h-7 sm:h-12 lg:h-14 px-2.5 sm:px-6 lg:px-8"
                   >
                     <span className="font-black uppercase tracking-widest text-[9px] sm:text-sm md:text-base">
-                      View Prototype
+                      {slide.ctaPrimary?.label || "View Product"} A
                     </span>
                     <ArrowRight className="h-2.5 w-2.5 sm:h-4 sm:w-4 ml-1 sm:ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
-              ) : null}
+              )}
             </div>
           </div>
 
@@ -320,7 +324,7 @@ export const ComparisonBattleSlideBody = memo(
                 ? Array.from({ length: 4 }).map((_, i) => (
                     <SkeletonBlock key={i} className="h-12 sm:h-16 rounded-lg" />
                   ))
-                : rightProduct
+                : slide.comparisonPoints && slide.comparisonPoints.length > 0
                 ? slide.comparisonPoints.slice(0, 4).map((point, i) => (
                     <div
                       key={i}
@@ -345,26 +349,28 @@ export const ComparisonBattleSlideBody = memo(
                 : null}
             </div>
 
-            {/* Professional Hero Action */}
+            {/* CTA Button for Right Product */}
             <div className="mt-3 sm:mt-4 lg:mt-6 flex justify-center lg:justify-end">
               {isRightLoading ? (
                 <SkeletonBlock className="h-7 sm:h-12 lg:h-14 w-full sm:w-40 rounded-xl" />
-              ) : rightProduct ? (
+              ) : (
                 <Link
-                  href={`/products/${rightProduct.slug}`}
+                  href={rightProduct ? productRoutes.detail(rightProduct.slug) : resolveSlidePrimaryCtaHref(slide as any)}
                   className="w-full sm:w-auto"
+                  onMouseEnter={onMouseEnter}
+                  onMouseLeave={onMouseLeave}
                 >
                   <Button
                     size="hero"
                     className="w-full bg-red-600 hover:bg-red-700 text-white rounded-xl shadow-2xl shadow-red-600/20 transition-all hover:scale-[1.05] active:scale-[0.95] h-7 sm:h-12 lg:h-14 px-2.5 sm:px-6 lg:px-8"
                   >
                     <span className="font-black uppercase tracking-widest text-[9px] sm:text-sm md:text-base">
-                      Secure Territory
+                      {slide.ctaPrimary?.label || "View Product"} B
                     </span>
                     <ArrowRight className="h-2.5 w-2.5 sm:h-4 sm:w-4 ml-1 sm:ml-2 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
-              ) : null}
+              )}
             </div>
           </div>
         </div>

@@ -1,27 +1,40 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import { useRouter, useParams } from "next/navigation";
 import { PromotionForm } from "@/app/admin/promotions/_components/PromotionForm";
 import { Heading, Text } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Loader2 } from "lucide-react";
-import { getAllPromotions } from "@/lib/mock-data/mock-data";
+import { ChevronLeft, Loader2, AlertCircle } from "lucide-react";
+import { usePromotionQuery } from "@/features/promotions/queries";
 
 export default function EditPromotionPage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
 
-  const promotion = useMemo(() => {
-    return getAllPromotions().find((p) => p.id === id);
-  }, [id]);
+  const { data: promotion, isLoading, error } = usePromotionQuery(id);
 
-  if (!promotion) {
+  if (isLoading) {
     return (
       <div className="py-20 text-center">
         <Loader2 className="w-10 h-10 animate-spin mx-auto text-primary-500 mb-4" />
         <Heading level="h3">Loading promotion...</Heading>
+      </div>
+    );
+  }
+
+  if (error || !promotion) {
+    return (
+      <div className="py-20 text-center space-y-4">
+        <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+        <Heading level="h3">Promotion not found</Heading>
+        <Text className="text-warm-gray-500">
+          {error instanceof Error ? error.message : "The promotion you're looking for doesn't exist."}
+        </Text>
+        <Button onClick={() => router.push("/admin/promotions")} variant="outline">
+          Back to Promotions
+        </Button>
       </div>
     );
   }

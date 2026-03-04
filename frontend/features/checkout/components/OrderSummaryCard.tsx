@@ -271,10 +271,15 @@ export function OrderSummaryCard({
 
             {/* Discount */}
             {couponDiscount > 0 && (
-              <div className="flex items-center justify-between p-3 rounded-xl bg-green-50 border border-green-100">
-                <Text variant="meta" className="text-green-700 font-bold">
-                  Discount ({couponCode})
-                </Text>
+              <div className="flex items-center justify-between p-4 rounded-2xl bg-green-50/50 border border-green-100 shadow-sm shadow-green-100/20">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                    <Package className="h-3 w-3" />
+                  </div>
+                  <Text variant="meta" className="text-green-700 font-bold">
+                    Coupon ({couponCode})
+                  </Text>
+                </div>
                 <Text variant="meta" className="font-black text-green-700">
                   -${couponDiscount.toFixed(2)}
                 </Text>

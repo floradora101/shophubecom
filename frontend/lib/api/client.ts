@@ -31,7 +31,8 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import type { ApiError } from "@/lib/types/api";
 import { emitAuthExpired } from "@/lib/integrations/auth-events";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
+const rawBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+const API_URL = rawBase.endsWith("/api") ? rawBase : `${rawBase.replace(/\/$/, "")}/api`;
 
 /**
  * Check if a URL is an auth endpoint that should NOT trigger token refresh on 401

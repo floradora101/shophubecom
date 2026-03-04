@@ -25,7 +25,6 @@ import {
   Tag,
   Gift
 } from "lucide-react";
-import { mockAnnouncements } from "@/dev/mocks/announcements.mock";
 import { Heading, Text } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,7 +43,9 @@ import {
 import Link from "next/link";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils/cn";
-import { Announcement, AnnouncementIconType } from "@/lib/types/announcements.types";
+import { AnnouncementIconType } from "@/lib/types/announcements.types";
+import { useAnnouncementsQuery, useDeleteAnnouncementMutation } from "@/features/announcements/queries";
+import { Loader2, AlertCircle } from "lucide-react";
 
 type SortOption = "priority-desc" | "priority-asc" | "status";
 type ViewMode = "list" | "grid";
@@ -59,37 +60,57 @@ const iconMap = {
   Gift: Gift
 };
 
+const ANNOUNCEMENTS_PER_PAGE = 20;
+
 export default function AnnouncementsAdminPage() {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("priority-desc");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [page, setPage] = useState(1);
 
-  const announcements = useMemo(() => mockAnnouncements, []);
+  const apiFilters = useMemo(() => {
+    const filters: Record<string, unknown> = {
+      page,
+      limit: ANNOUNCEMENTS_PER_PAGE,
+    };
+    if (search) filters.search = search;
+    switch (sortBy) {
+      case "priority-desc":
+        filters.sortBy = "priority";
+        filters.sortOrder = "desc";
+        break;
+      case "priority-asc":
+        filters.sortBy = "priority";
+        filters.sortOrder = "asc";
+        break;
+      case "status":
+        filters.sortBy = "createdAt";
+        filters.sortOrder = "desc";
+        break;
+    }
+    return filters;
+  }, [search, sortBy, page]);
 
+  const { data, isLoading, error } = useAnnouncementsQuery(apiFilters);
+  const deleteMutation = useDeleteAnnouncementMutation();
+
+  const announcements = data?.data || [];
+
+  // Client-side filtering for status (API doesn't support it yet)
   const filteredAnnouncements = useMemo(() => {
-    let result = announcements.filter(a => {
-      return (
-        a.text.toLowerCase().includes(search.toLowerCase()) ||
-        a.highlight.toLowerCase().includes(search.toLowerCase()) ||
-        a.id.toLowerCase().includes(search.toLowerCase())
-      );
-    });
+    let result = [...announcements];
 
-    result.sort((a, b) => {
-      switch (sortBy) {
-        case "priority-desc": return b.priority - a.priority;
-        case "priority-asc": return a.priority - b.priority;
-        case "status": return (a.isActive === b.isActive) ? 0 : a.isActive ? -1 : 1;
-        default: return 0;
-      }
-    });
+    // Additional client-side sorting for status
+    if (sortBy === "status") {
+      result.sort((a, b) => (a.isActive === b.isActive) ? 0 : a.isActive ? -1 : 1);
+    }
 
     return result;
-  }, [announcements, search, sortBy]);
+  }, [announcements, sortBy]);
 
   const handleDelete = (id: string) => {
     if (window.confirm("Are you sure you want to delete this announcement?")) {
-      toast.success("Announcement deleted (mock)");
+      deleteMutation.mutate(id);
     }
   };
 
@@ -124,7 +145,10 @@ export default function AnnouncementsAdminPage() {
               <Input
                 placeholder="Search announcements..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
                 className="pl-10 bg-white border-warm-gray-200 focus:ring-primary-500 rounded-lg h-10"
               />
             </div>
@@ -132,7 +156,7 @@ export default function AnnouncementsAdminPage() {
 
           <div className="flex items-center gap-3">
             <div className="text-xs text-warm-gray-400 font-medium hidden md:block">
-              {filteredAnnouncements.length} announcements found
+              {data?.total ?? filteredAnnouncements.length} announcements
             </div>
 
             <div className="flex items-center border border-warm-gray-200 rounded-lg bg-white p-1">
@@ -164,7 +188,10 @@ export default function AnnouncementsAdminPage() {
               <DropdownMenuContent align="end" className="w-56 rounded-lg p-2 shadow-2xl border-warm-gray-100">
                 <DropdownMenuLabel className="text-[10px] font-bold text-warm-gray-400 uppercase px-2 py-2">Sort Results</DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-warm-gray-100" />
-                <DropdownMenuRadioGroup value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
+                <DropdownMenuRadioGroup value={sortBy} onValueChange={(v) => {
+              setSortBy(v as SortOption);
+              setPage(1);
+            }}>
                   <DropdownMenuRadioItem value="priority-desc" className="rounded-lg cursor-pointer py-2.5">
                     <SortDesc className="w-4 h-4 mr-2 text-warm-gray-400" />
                     <span>Priority (High to Low)</span>
@@ -185,7 +212,18 @@ export default function AnnouncementsAdminPage() {
 
         {/* Content */}
         <div className="min-h-[400px] bg-white">
-          {filteredAnnouncements.length === 0 ? (
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+              <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+              <Text className="text-warm-gray-500">Loading announcements...</Text>
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+              <AlertCircle className="w-8 h-8 text-red-500" />
+              <Text className="text-warm-gray-500">Failed to load announcements</Text>
+              <Text className="text-warm-gray-400 text-sm">Please try refreshing the page</Text>
+            </div>
+          ) : filteredAnnouncements.length === 0 ? (
             <div className="py-32 text-center">
               <Megaphone className="w-16 h-16 text-warm-gray-100 mx-auto mb-4" />
               <Text className="text-warm-gray-500 font-medium text-lg">No announcements found</Text>
@@ -343,6 +381,35 @@ export default function AnnouncementsAdminPage() {
               })}
             </div>
           )}
+
+        {/* Pagination */}
+        {data && data.totalPages > 1 && (
+          <div className="p-4 border-t border-warm-gray-100 flex items-center justify-between bg-warm-gray-50/30">
+            <Text className="text-xs text-warm-gray-500">
+              Page {page} of {data.totalPages} · {data.total} total
+            </Text>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1 || isLoading}
+                className="rounded-lg"
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
+                disabled={page === data.totalPages || isLoading}
+                className="rounded-lg"
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
         </div>
       </Card>
     </div>

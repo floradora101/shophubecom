@@ -11,7 +11,7 @@
  * - Error handling
  */
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -40,12 +40,14 @@ interface UICartItem {
 interface UseCheckoutOrderProps {
   items: UICartItem[];
   couponDiscount: number;
+  couponCode?: string;
   clearCart: () => Promise<void>;
   clearDraft: () => void;
 }
 
 interface UseCheckoutOrderReturn {
   onSubmit: (data: CheckoutFormData) => Promise<void>;
+  isOrderPlaced: boolean;
 }
 
 /**
@@ -54,11 +56,13 @@ interface UseCheckoutOrderReturn {
 export function useCheckoutOrder({
   items,
   couponDiscount,
+  couponCode,
   clearCart,
   clearDraft,
 }: UseCheckoutOrderProps): UseCheckoutOrderReturn {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const [isOrderPlaced, setIsOrderPlaced] = useState(false);
 
   const onSubmit = useCallback(
     async (data: CheckoutFormData) => {
@@ -129,30 +133,27 @@ export function useCheckoutOrder({
             shippingOption: data.shippingOption,
             shippingCost,
             total,
+            discount: couponDiscount,
+            couponCode: couponCode ?? null,
             shippingAddress,
           });
 
-          // Clear draft on successful order
+          setIsOrderPlaced(true);
           clearDraft();
-
-          // Clear cart client-side
           await clearCart();
-
-          // Redirect to order complete page with demo flag
           router.replace(`/order-complete/${order.id}?demo=1`);
           return;
         }
 
-        // Original backend flow
+        // Backend flow - include couponCode when applied
         const response = await apiClient.post("/checkout/place-order", {
           shippingOption: data.shippingOption,
           shippingAddress,
+          ...(couponCode && couponCode.trim() && { couponCode: couponCode.trim() }),
         });
 
-        // Clear draft on successful order
+        setIsOrderPlaced(true);
         clearDraft();
-
-        // Invalidate cart query cache since backend cleared the cart
         queryClient.invalidateQueries({ queryKey: cartKeys.all });
 
         // Redirect to order complete page
@@ -178,8 +179,8 @@ export function useCheckoutOrder({
         );
       }
     },
-    [items, couponDiscount, clearCart, clearDraft, router, queryClient]
+    [items, couponDiscount, couponCode, clearCart, clearDraft, router, queryClient]
   );
 
-  return { onSubmit };
+  return { onSubmit, isOrderPlaced };
 }

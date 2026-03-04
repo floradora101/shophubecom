@@ -19,6 +19,8 @@ import type { CheckoutFormData } from "../types";
 interface UseCheckoutAddressProps {
   form: UseFormReturn<CheckoutFormData>;
   cartShippingOption: CheckoutFormData["shippingOption"];
+  /** Default email (e.g. from user profile) - used when resetting form for logged-in users */
+  defaultEmail?: string;
 }
 
 interface UseCheckoutAddressReturn {
@@ -35,6 +37,7 @@ interface UseCheckoutAddressReturn {
 export function useCheckoutAddress({
   form,
   cartShippingOption,
+  defaultEmail = "",
 }: UseCheckoutAddressProps): UseCheckoutAddressReturn {
   const { data: addresses = [] } = useAddressesQuery();
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
@@ -73,12 +76,12 @@ export function useCheckoutAddress({
   const handleSelectAddress = (address: Address | null) => {
     setSelectedAddress(address);
     if (!address) {
-      // Reset form when "Use new address" is selected
+      // Reset form when "Use new address" is selected (keep defaultEmail for logged-in users)
       reset({
         firstName: "",
         lastName: "",
         phone: "",
-        email: "",
+        email: defaultEmail,
         country: "Lebanon",
         city: "",
         state: "",
@@ -112,9 +115,10 @@ export function useCheckoutAddress({
       firstName: "",
       lastName: "",
       phone: "",
-      email: "",
+      email: defaultEmail,
       country: "Lebanon",
       city: "",
+      state: "",
       street1: "",
       postalCode: "",
       notes: "",

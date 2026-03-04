@@ -6,7 +6,7 @@ import {
   MaxLength,
   ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 
 export enum ShippingOption {
   PICKUP = 'pickup',
@@ -46,14 +46,19 @@ export class ShippingAddressDto {
   city!: string;
 
   @IsString()
+  @IsOptional()
+  @MaxLength(120)
+  state?: string;
+
+  @IsString()
   @IsNotEmpty()
   @MaxLength(255)
   street1!: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(32)
-  postalCode!: string;
+  postalCode?: string;
 
   @IsString()
   @IsOptional()
@@ -68,4 +73,11 @@ export class PlaceOrderDto {
   @ValidateNested()
   @Type(() => ShippingAddressDto)
   shippingAddress!: ShippingAddressDto;
+
+  @IsString()
+  @IsOptional()
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.trim().toUpperCase() || undefined : undefined,
+  )
+  couponCode?: string;
 }

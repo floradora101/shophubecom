@@ -44,6 +44,7 @@ export class OrderResponseDto {
   tax!: number;
   shipping!: number;
   discount!: number;
+  couponCode?: string | null;
   total!: number;
   currency!: string;
   shippingAddress!: OrderAddressDto;

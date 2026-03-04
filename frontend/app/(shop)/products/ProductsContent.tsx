@@ -11,8 +11,9 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useProductFilters } from "./hooks/useProductFilters";
 import { useFilterUpdates } from "./hooks/useFilterUpdates";
 import { useCategoryTree } from "./hooks/useCategoryTree";
-import { useProductProcessing } from "./hooks/useProductProcessing";
 import { useFilterHelpers } from "./hooks/useFilterHelpers";
+import { useProductsQuery } from "@/features/products/queries";
+import { filtersToApiParams } from "@/features/products/utils/filters";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { Stack } from "@/components/ui/stack";
@@ -24,12 +25,14 @@ import { FiltersSidebar } from "./components/FiltersSidebar";
 import { FiltersDrawer } from "./components/FiltersDrawer";
 import { ActiveFilterChips } from "./components/ActiveFilterChips";
 import { ProductsGrid } from "./components/ProductsGrid";
-import { Pagination } from "./components/Pagination";
+import { Pagination } from "@/components/ui/pagination";
 import { ProductResultsHeader } from "./components/ProductResultsHeader";
 import { ProductsBreadcrumb } from "./components/ProductsBreadcrumb";
 import { cn } from "@/lib/utils/cn";
 import { ITEMS_PER_PAGE } from "./catalog.constants";
 import { CategoryCarousel } from "./components/CategoryCarousel";
+import { extractErrorInfo } from "@/lib/api/error-handler";
+import { productRoutes } from "@/lib/routes";
 
 import { FiltersSidebarSkeleton } from "@/lib/ui/loading";
 
@@ -59,6 +62,7 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
     basePath,
     isCategoryPage,
     isSearchResultsPage,
+    isDealsPage,
     currentCategory,
     currentCategoryTitle,
   } = useProductFilters({
@@ -75,20 +79,24 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
   });
 
 
-  // Extract product processing logic to custom hook
+  // Convert filters to API params format
+  const apiParams = useMemo(() => {
+    return filtersToApiParams(filters, categoryTreeHelpers.categoryIdMap, {
+      limit: ITEMS_PER_PAGE,
+    });
+  }, [filters, categoryTreeHelpers.categoryIdMap]);
+
+  // Fetch products from API
   const {
-    products,
-    totalResults,
-    totalPages,
-    filteredProducts,
+    data: productsData,
     isLoading,
-    productsError,
-  } = useProductProcessing({
-    hasInteracted,
-    filters,
-    categoryTreeHelpers,
-    itemsPerPage: ITEMS_PER_PAGE,
-  });
+    error: productsError,
+  } = useProductsQuery(apiParams);
+
+  const products = productsData?.data ?? [];
+  const totalResults = productsData?.total ?? 0;
+  const totalPages = productsData?.totalPages ?? 0;
+  const filteredProducts = products; // For price range calculation, use same products
 
   const [gridLayout, setGridLayout] = useState<"cozy" | "compact" | "list">(
     "cozy"
@@ -104,6 +112,7 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
     if (
       prevFilters.category !== filters.category ||
       prevFilters.search !== filters.search ||
+      prevFilters.promotionId !== filters.promotionId ||
       prevFilters.minPrice !== filters.minPrice ||
       prevFilters.maxPrice !== filters.maxPrice ||
       prevFilters.inStockOnly !== filters.inStockOnly ||
@@ -150,7 +159,12 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
   const handleRemoveFilter = (filterType: keyof CanonicalFilters) => {
     if (filterType === "category") {
       // Navigate to products page (remove category)
-      router.push("/products");
+      router.push(productRoutes.list());
+      return;
+    }
+    if (filterType === "promotionId") {
+      const newParams = updateSearchParams(searchParams, { promotionId: null, page: 1 });
+      router.push(`${basePath}?${newParams.toString()}`);
       return;
     }
 
@@ -175,13 +189,21 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
     router.push(`${basePath}?${newParams.toString()}`);
   };
 
-  // Handle clear all filters
+  // Handle clear all filters: reset to products list and clear all filter params
   const handleClearAll = () => {
-    if (isCategoryPage && categorySlug) {
-      router.push("/products");
-    } else {
-      router.push("/products");
-    }
+    const newParams = updateSearchParams(searchParams, {
+      page: 1,
+      search: null,
+      promotionId: null,
+      minPrice: null,
+      maxPrice: null,
+      sortBy: "latest",
+      inStockOnly: false,
+      minRating: null,
+      brands: null,
+    });
+    const targetPath = isCategoryPage ? productRoutes.list() : basePath;
+    router.push(`${targetPath}?${newParams.toString()}`);
   };
 
   return (
@@ -201,7 +223,9 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
         {/* Breadcrumb */}
         <ProductsBreadcrumb
           isSearchResultsPage={isSearchResultsPage}
+          isDealsPage={isDealsPage}
           currentCategory={currentCategory}
+          categories={categories}
         />
 
         {/* Immersive Main Content - 2026 Style */}
@@ -281,11 +305,10 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-red-900 mb-2">
-                        Something went wrong
+                        Failed to load products
                       </p>
                       <p className="text-xs text-red-700 mb-4">
-                        We couldn&apos;t load the products. Please check your
-                        connection and try again.
+                        {extractErrorInfo(productsError).message}
                       </p>
                       <Button
                         variant="outline"
@@ -319,6 +342,9 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
                   totalPages={safeTotalPages}
                   onPageChange={updateFilters.setPage}
                   isLoading={isLoading}
+                  totalItems={totalResults}
+                  itemsPerPage={ITEMS_PER_PAGE}
+                  itemName="products"
                 />
               </div>
             </Stack>

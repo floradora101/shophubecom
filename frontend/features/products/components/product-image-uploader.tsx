@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { logError, extractErrorMessage } from "@/lib/errors";
+import { useUploadThing } from "@/lib/uploadthing";
+import { shouldUnoptimizeImage } from "@/lib/utils/image-helpers";
 
 interface ProductImageUploaderProps {
   value?: string[];
@@ -25,7 +27,12 @@ export function ProductImageUploader({
 }: ProductImageUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
 
-  // Cleanup blob URLs to prevent memory leaks
+  // Use UploadThing for actual file uploads
+  // Use variantMainImage for single image, variantGallery for multiple
+  const uploadEndpoint = maxFiles === 1 ? "variantMainImage" : "variantGallery";
+  const { startUpload, isUploading: isUploadThingUploading } = useUploadThing(uploadEndpoint);
+
+  // Cleanup blob URLs to prevent memory leaks (for any legacy blob URLs)
   React.useEffect(() => {
     return () => {
       value.forEach(url => {
@@ -36,19 +43,9 @@ export function ProductImageUploader({
     };
   }, [value]);
 
-  // Simulate upload like CategoryImageUploader
-  const uploadFile = useCallback(async (file: File) => {
-    // Simulate upload delay
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // Create a blob URL from the actual file
-    const blobUrl = URL.createObjectURL(file);
-    return blobUrl;
-  }, []);
-
   const handleFileSelect = useCallback(
     async (files: FileList) => {
-      if (disabled || isUploading) return;
+      if (disabled || isUploading || isUploadThingUploading) return;
 
       const remainingSlots = maxFiles - value.length;
       if (remainingSlots <= 0) {
@@ -58,46 +55,77 @@ export function ProductImageUploader({
 
       const filesToUpload = Array.from(files).slice(0, remainingSlots);
 
-      setIsUploading(true);
-      try {
-        const uploadedUrls: string[] = [];
-
-        for (const file of filesToUpload) {
-          if (!file.type.startsWith("image/")) {
-            toast.error(`${file.name} is not an image file.`);
-            continue;
-          }
-
-          const maxSize = 8 * 1024 * 1024; // 8MB
-          if (file.size > maxSize) {
-            toast.error(`${file.name} is larger than 8MB.`);
-            continue;
-          }
-
-          const url = await uploadFile(file);
-          uploadedUrls.push(url);
+      // Validate files before upload
+      const validFiles: File[] = [];
+      for (const file of filesToUpload) {
+        if (!file.type.startsWith("image/")) {
+          toast.error(`${file.name} is not an image file.`);
+          continue;
         }
 
-        if (uploadedUrls.length > 0) {
-          onChange?.([...value, ...uploadedUrls]);
-          toast.success(`${uploadedUrls.length} image(s) added!`);
+        const maxSize = 8 * 1024 * 1024; // 8MB
+        if (file.size > maxSize) {
+          toast.error(`${file.name} is larger than 8MB.`);
+          continue;
+        }
+
+        validFiles.push(file);
+      }
+
+      if (validFiles.length === 0) {
+        return;
+      }
+
+      setIsUploading(true);
+      try {
+        // Upload files using UploadThing
+        const uploadedFiles = await startUpload(validFiles);
+
+        if (uploadedFiles && uploadedFiles.length > 0) {
+          // Use ufsUrl instead of url (url is deprecated in uploadthing v9)
+          const uploadedUrls = uploadedFiles.map((file) => file.ufsUrl ?? file.url).filter(Boolean);
+
+          // Filter out any existing blob URLs from value before adding new URLs
+          const existingValidUrls = value.filter(url => url && !url.startsWith("blob:"));
+
+          if (uploadedUrls.length > 0) {
+            console.log("Uploaded image URLs:", uploadedUrls); // Debug log
+            onChange?.([...existingValidUrls, ...uploadedUrls]);
+            toast.success(`${uploadedUrls.length} image(s) uploaded successfully!`);
+          } else {
+            throw new Error("No valid URLs returned from upload");
+          }
+        } else {
+          throw new Error("No files were uploaded. Please check UploadThing configuration.");
         }
       } catch (error: unknown) {
         logError(error, {
           component: "ProductImageUploader",
           action: "upload_image",
           metadata: {
-            fileCount: filesToUpload.length,
+            fileCount: validFiles.length,
             maxFiles,
             currentValueLength: value.length,
           },
         });
-        toast.error(extractErrorMessage(error, "Upload failed"));
+
+        // Provide more helpful error messages
+        const errorMessage = extractErrorMessage(error, "Upload failed. Please try again.");
+        let userMessage = errorMessage;
+
+        if (errorMessage.includes("UPLOADTHING") || errorMessage.includes("configuration") || errorMessage.includes("Unauthorized")) {
+          userMessage = "UploadThing is not configured. Add UPLOADTHING_TOKEN to .env.local (same as products and hero slides). See .env.example.";
+        } else if (errorMessage.includes("Forbidden") || errorMessage.includes("Admin")) {
+          userMessage = "Only admin users can upload images. Please log in as an admin.";
+        }
+
+        toast.error(userMessage);
+        console.error("Upload error details:", error);
       } finally {
         setIsUploading(false);
       }
     },
-    [disabled, isUploading, uploadFile, onChange, value, maxFiles]
+    [disabled, isUploading, isUploadThingUploading, startUpload, value, maxFiles]
   );
 
   const handleDrop = useCallback(
@@ -133,14 +161,19 @@ export function ProductImageUploader({
   const removeImage = (indexToRemove: number) => {
     if (disabled) return;
     const urlToRemove = value[indexToRemove];
+    // Clean up blob URLs if any
     if (urlToRemove && urlToRemove.startsWith("blob:")) {
-      URL.revokeObjectURL(urlToRemove);
+      try {
+        URL.revokeObjectURL(urlToRemove);
+      } catch (e) {
+        // Ignore errors when revoking blob URLs
+      }
     }
     const newImages = value.filter((_, index) => index !== indexToRemove);
     onChange?.(newImages);
   };
 
-  const isDisabled = disabled || isUploading;
+  const isDisabled = disabled || isUploading || isUploadThingUploading;
 
   return (
     <div className="space-y-4">
@@ -153,30 +186,45 @@ export function ProductImageUploader({
       {/* Image Preview Grid */}
       {value.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {value.map((url, index) => (
-            <div key={url + index} className="relative group aspect-square">
-              <div className="relative w-full h-full border border-warm-gray-200 rounded-lg overflow-hidden bg-warm-gray-50">
-                <Image
-                  src={url}
-                  alt={`Product image ${index + 1}`}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                  unoptimized={url.startsWith("blob:")}
-                />
+          {value.map((url, index) => {
+            // Filter out blob URLs - they're temporary and shouldn't be displayed
+            if (url && url.startsWith("blob:")) {
+              return null;
+            }
+
+            // Use a stable key based on URL or index
+            const imageKey = url || `image-${index}`;
+
+            return (
+              <div key={imageKey} className="relative group aspect-square">
+                <div className="relative w-full h-full border border-warm-gray-200 rounded-lg overflow-hidden bg-warm-gray-50">
+                  <Image
+                    src={url}
+                    alt={`Product image ${index + 1}`}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                    unoptimized={shouldUnoptimizeImage(url)}
+                    onError={(e) => {
+                      console.error("Failed to load image:", url);
+                      // Hide broken images
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => removeImage(index)}
+                  disabled={disabled}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
               </div>
-              <Button
-                type="button"
-                variant="destructive"
-                size="sm"
-                className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={() => removeImage(index)}
-                disabled={disabled}
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -209,10 +257,10 @@ export function ProductImageUploader({
           />
 
           <div className="text-center">
-            {isUploading ? (
+            {(isUploading || isUploadThingUploading) ? (
               <>
                 <Loader2 className="mx-auto h-10 w-10 text-primary-500 animate-spin mb-3" />
-                <p className="text-sm text-warm-gray-600 font-medium">Adding image(s)...</p>
+                <p className="text-sm text-warm-gray-600 font-medium">Uploading image(s)...</p>
               </>
             ) : (
               <>

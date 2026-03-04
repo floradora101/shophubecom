@@ -2,35 +2,37 @@
 "use client";
 
 import { useMemo } from "react";
-import { Heart, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { ProductCard } from "@/components/shared/ProductCard";
 import { Stack } from "@/components/ui/stack";
 import { getAllProductsSync } from "@/lib/data/products";
+import { useProductsQuery } from "@/features/products/queries";
 import type { Product } from "@/features/products/types";
+import { USE_MOCKS } from "@/lib/flags";
 
 interface YouMayAlsoLikeProps {
   currentProduct: Product;
 }
 
 export function YouMayAlsoLike({ currentProduct }: YouMayAlsoLikeProps) {
+  // Fetch products from same category only (limit 12) - avoids over-fetching 100 products
+  const { data: productsData } = useProductsQuery({
+    categoryId: currentProduct.categoryId || undefined,
+    limit: 12,
+    page: 1,
+    sortBy: "createdAt",
+    sortOrder: "desc",
+  });
+  const allProducts = USE_MOCKS
+    ? getAllProductsSync()
+    : (productsData?.data || []);
+
   const recommendations = useMemo(() => {
-    // Get products from same category or similar price range
-    const relatedProducts = getAllProductsSync()
+    const relatedProducts = allProducts
       .filter((p) => p.id !== currentProduct.id)
-      .filter((product) => {
-        // Same category or similar price range (±20%)
-        const sameCategory = product.categoryId === currentProduct.categoryId;
-        const similarPrice =
-          Math.abs(product.price - currentProduct.price) /
-            currentProduct.price <=
-          0.2;
-
-        return sameCategory || similarPrice;
-      })
-      .slice(0, 4); // Show max 4 recommendations
-
+      .slice(0, 4);
     return relatedProducts;
-  }, [currentProduct]);
+  }, [currentProduct, allProducts]);
 
   if (recommendations.length === 0) return null;
 

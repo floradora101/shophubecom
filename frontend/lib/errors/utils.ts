@@ -67,12 +67,19 @@ export function extractErrorMessage(error: unknown, fallback?: string): string {
 
     const data = error.response.data;
 
-    // Validation array
-    if (Array.isArray(data?.errors) && data.errors.length > 0) {
-      return data.errors[0];
+    // NestJS validation: message can be string[] (ValidationPipe)
+    if (Array.isArray(data?.message) && data.message.length > 0) {
+      const first = data.message[0];
+      return typeof first === "string" ? first : String(first);
     }
 
-    return data?.message || fallback || "Request failed";
+    // Explicit errors array
+    if (Array.isArray(data?.errors) && data.errors.length > 0) {
+      const first = data.errors[0];
+      return typeof first === "string" ? first : String(first);
+    }
+
+    return typeof data?.message === "string" ? data.message : fallback || "Request failed";
   }
 
   // Handle standard Error instances
@@ -123,12 +130,20 @@ export function toAppError(
     const statusCode = error.response.status;
     const data = error.response.data;
 
-    // Extract message
-    const message =
-      (Array.isArray(data?.errors) && data.errors[0]) ||
-      data?.message ||
-      fallbackMessage ||
-      "Request failed";
+    // Extract message (handle NestJS validation array and explicit errors)
+    let message: string;
+    if (Array.isArray(data?.message) && data.message.length > 0) {
+      const first = data.message[0];
+      message = typeof first === "string" ? first : String(first);
+    } else if (Array.isArray(data?.errors) && data.errors.length > 0) {
+      const first = data.errors[0];
+      message = typeof first === "string" ? first : String(first);
+    } else {
+      message =
+        (typeof data?.message === "string" ? data.message : null) ||
+        fallbackMessage ||
+        "Request failed";
+    }
 
     // Determine error type based on status code
     if (statusCode === 401 || statusCode === 403) {

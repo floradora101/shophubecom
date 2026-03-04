@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Prisma, OrderStatus, UserRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { toNumber } from '../common/utils/decimal.util';
 import {
   AdminStatsQueryDto,
   AdminStatsResponseDto,
@@ -55,12 +56,22 @@ export class AdminService {
       this.prisma.user.count({
         where: { role: UserRole.CUSTOMER },
       }),
-      this.prisma.product.count({
-        where: {
-          effectiveStock: { lte: lowStockThreshold },
-          isActive: true,
-        },
-      }),
+      // Count low stock products via SQL aggregation (avoids loading all products into memory)
+      (async () => {
+        const result = await this.prisma.$queryRaw<{ count: number }[]>`
+          SELECT COUNT(*)::int as count FROM (
+            SELECT p.id
+            FROM "Product" p
+            JOIN (
+              SELECT "productId", SUM(stock) as total_stock
+              FROM "ProductVariant"
+              GROUP BY "productId"
+            ) v ON v."productId" = p.id
+            WHERE p."isActive" = true AND v.total_stock <= ${lowStockThreshold}
+          ) sub
+        `;
+        return result[0]?.count ?? 0;
+      })(),
     ]);
 
     const statusCounts: Record<OrderStatus, number> = {
@@ -76,7 +87,7 @@ export class AdminService {
     });
 
     return {
-      totalSales: Number(this.toNumber(salesAggregate._sum.total).toFixed(2)),
+      totalSales: Number(toNumber(salesAggregate._sum.total).toFixed(2)),
       totalOrders: Number(allOrdersCount),
       totalCustomers: Number(totalCustomers),
       lowStockItems: Number(lowStockCount),
@@ -116,7 +127,7 @@ export class AdminService {
         id: order.id,
         orderNumber: order.orderNumber,
         status: order.status,
-        totalAmount: Number(this.toNumber(order.total).toFixed(2)),
+        totalAmount: Number(toNumber(order.total).toFixed(2)),
         createdAt: order.placedAt,
         updatedAt: order.updatedAt,
         itemCount: Number(itemCount),
@@ -137,26 +148,46 @@ export class AdminService {
     const limit = query.limit ?? 20;
     const threshold = query.threshold ?? 5;
 
+    // Fetch all active products with variants and category
     const products = await this.prisma.product.findMany({
       where: {
-        effectiveStock: { lte: threshold },
         isActive: true,
       },
-      orderBy: [{ effectiveStock: 'asc' }, { name: 'asc' }],
-      take: limit,
       include: {
         category: { select: { name: true } },
         variants: {
+          select: { stock: true, image: true, images: true },
           take: 1,
           orderBy: { createdAt: 'asc' },
         },
       },
     });
 
-    return products.map((product) => ({
+    // Compute effectiveStock and filter/sort in memory
+    const productsWithStock = products
+      .map((product) => {
+        const effectiveStock = product.variants.reduce(
+          (sum, v) => sum + v.stock,
+          0,
+        );
+        return {
+          ...product,
+          effectiveStock,
+        };
+      })
+      .filter((p) => p.effectiveStock <= threshold)
+      .sort((a, b) => {
+        if (a.effectiveStock !== b.effectiveStock) {
+          return a.effectiveStock - b.effectiveStock;
+        }
+        return a.name.localeCompare(b.name);
+      })
+      .slice(0, limit);
+
+    return productsWithStock.map((product) => ({
       id: product.id,
       name: product.name,
-      stock: Number(product.effectiveStock ?? 0), // Use effectiveStock (sum of variant stocks)
+      stock: Number(product.effectiveStock),
       category: product.category?.name ?? 'Unassigned',
       image:
         product.variants?.[0]?.image ??
@@ -178,21 +209,8 @@ export class AdminService {
       OrderStatus.DELIVERED,
     ];
 
-    // First, get order IDs for confirmed orders
-    const confirmedOrderIds = await this.prisma.order.findMany({
-      where: {
-        status: { in: confirmedStatuses },
-      },
-      select: { id: true },
-    });
-    const orderIds = confirmedOrderIds.map((o) => o.id);
-
-    // If no confirmed orders, return empty array
-    if (orderIds.length === 0) {
-      return [];
-    }
-
     // Group order items by productId, only from confirmed orders
+    // Use subquery instead of loading all order IDs into memory
     const orderBy =
       sortBy === 'sales'
         ? { _sum: { quantity: 'desc' as const } }
@@ -201,7 +219,9 @@ export class AdminService {
     const grouped = await this.prisma.orderItem.groupBy({
       by: ['productId'],
       where: {
-        orderId: { in: orderIds },
+        order: {
+          status: { in: confirmedStatuses },
+        },
       },
       _sum: { total: true, quantity: true },
       orderBy,
@@ -240,7 +260,7 @@ export class AdminService {
         id: group.productId,
         name: product.name,
         sales: Number(group._sum.quantity ?? 0),
-        revenue: Number(this.toNumber(group._sum.total).toFixed(2)),
+        revenue: Number(toNumber(group._sum.total).toFixed(2)),
         image: product.image,
       };
     });
@@ -288,7 +308,7 @@ export class AdminService {
     orders.forEach((order) => {
       const dateKey = new Date(order.placedAt).toISOString().split('T')[0];
       const existing = salesByDate.get(dateKey) ?? { sales: 0, orders: 0 };
-      const orderTotal = this.toNumber(order.total);
+      const orderTotal = toNumber(order.total);
       salesByDate.set(dateKey, {
         sales: Number((existing.sales + orderTotal).toFixed(2)),
         orders: existing.orders + 1,
@@ -305,10 +325,4 @@ export class AdminService {
       .sort((a, b) => a.date.localeCompare(b.date));
   }
 
-  private toNumber(value?: Prisma.Decimal | number | null): number {
-    if (value === null || value === undefined) {
-      return 0;
-    }
-    return Number(value);
-  }
 }

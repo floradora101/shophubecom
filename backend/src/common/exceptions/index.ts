@@ -8,4 +8,7 @@ export * from './product-not-found.exception';
 export * from './user-already-exists.exception';
 export * from './user-not-found.exception';
 export * from './cart-item-not-found.exception';
+export * from './hero-slide-not-found.exception';
+export * from './coupon-not-found.exception';
+export * from './department-not-found.exception';
 export * from '../../admin/exceptions/admin-access-denied.exception';

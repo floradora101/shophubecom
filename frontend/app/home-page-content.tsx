@@ -125,6 +125,7 @@ export function HomePageContent({ data }: HomePageContentProps) {
           <DepartmentTabs
             categories={data.categories}
             productsByCategory={productsByCategory}
+            departments={Array.isArray(data.departments) ? data.departments : []}
           />
         </LazySection>
 
@@ -157,12 +158,13 @@ export function HomePageContent({ data }: HomePageContentProps) {
           />
         </LazySection>
 
-        {/* Subcategory Showcase - Specialized deep-dive into a specific category tree */}
+        {/* Subcategory Showcase - Department Spotlight: uses first department when available, else laptops */}
         <LazySection fallback={<SubcategoryShowcaseSkeleton />}>
           <SubcategoryShowcase
             categories={data.categories}
             productsByCategory={productsByCategory}
             parentCategorySlug="laptops"
+            departments={Array.isArray(data.departments) ? data.departments : []}
           />
         </LazySection>
 

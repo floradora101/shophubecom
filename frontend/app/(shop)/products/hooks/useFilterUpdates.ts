@@ -17,6 +17,7 @@ import {
   updateSearchParams,
   type CanonicalFilters,
 } from "@/features/products/utils/filters";
+import { productRoutes } from "@/lib/routes";
 
 interface UseFilterUpdatesProps {
   basePath: string;
@@ -52,14 +53,14 @@ export function useFilterUpdates({
             page: 1, // Reset to page 1 when changing category
           });
           router.push(
-            `/products/category/${categorySlug}?${newParams.toString()}`
+            `${productRoutes.category(categorySlug)}?${newParams.toString()}`
           );
         } else {
           // Going to main products page - keep query params
           const newParams = updateSearchParams(searchParams, {
             page: 1, // Reset to page 1 when changing category
           });
-          router.push(`/products?${newParams.toString()}`);
+          router.push(`${productRoutes.list()}?${newParams.toString()}`);
         }
       },
 

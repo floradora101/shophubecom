@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { productRoutes } from "@/lib/routes";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { Badge } from "@/components/ui/badge";
@@ -271,7 +272,7 @@ export function CategorySpotlight({
                         asChild
                         className="bg-white hover:bg-red-600 text-gray-900 hover:text-white rounded-lg px-3 sm:px-12 h-9 sm:h-20 text-xs sm:text-xl font-black transition-all duration-500 hover:scale-105 active:scale-95 shadow-2xl shrink-0"
                       >
-                        <Link href={`/products/${featuredProduct.slug}`}>
+                        <Link href={productRoutes.detail(featuredProduct.slug)}>
                           Explore
                         </Link>
                       </Button>

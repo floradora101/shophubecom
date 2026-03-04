@@ -31,15 +31,16 @@ export interface User {
 
 /**
  * Category entity representing a product category
+ * Aligned with backend CategoryResponseDto
  */
 export interface Category {
   id: string;
   name: string;
   slug: string;
   description: string | null;
-  image?: string | null;
+  image?: string | null; // Legacy field for backward compatibility
   parentId?: string | null;
-  sortOrder?: number;
+  sortOrder?: number; // Legacy field for backward compatibility
   productCount?: number;
   createdAt: string;
   updatedAt: string;
@@ -49,7 +50,7 @@ export interface Category {
     name: string;
     slug: string;
   } | null;
-  // children is never returned by backend - it's built client-side from parentId when needed
+  // children is included when fetching category tree, or built client-side from parentId when needed
   children?: Category[];
 }
 
@@ -159,6 +160,7 @@ export interface ProductFilters {
   minPrice?: number;
   maxPrice?: number;
   search?: string;
+  promotionId?: string;
   sortBy?: "name" | "price" | "createdAt";
   sortOrder?: "asc" | "desc";
   minRating?: number | null;

@@ -10,12 +10,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Stack } from "@/components/ui/stack";
 import { Heading, Text } from "@/components/ui/typography";
 import { toast } from "sonner";
-import { Loader2, Percent, DollarSign, Info, Tag, Package, Layers } from "lucide-react";
+import { Loader2, Percent, DollarSign, Info, Tag, Package, Sparkles } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils/cn";
 import { ProductPicker } from "@/features/products/components/product-picker";
 import { CategoryPicker } from "@/features/categories/components/category-picker";
+import { ProductImageUploader } from "@/features/products/components/product-image-uploader";
+import { promotionsApi } from "@/features/promotions/api";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface PromotionFormProps {
   promotion?: any;
@@ -47,24 +50,53 @@ export function PromotionForm({
       isActive: promotion?.isActive !== false,
       productIds: promotion?.productIds || [],
       categoryIds: promotion?.categoryIds || [],
+      heroImageUrl: promotion?.heroImageUrl ?? "",
+      createHeroSlide: !!promotion?.heroSlideId,
     },
   });
 
   const discountType = watch("type");
+  const createHeroSlide = watch("createHeroSlide");
+  const queryClient = useQueryClient();
 
   const onSubmit = async (data: PromotionFormData) => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const { createHeroSlide: _createHeroSlide, ...rest } = data;
+      const payload = {
+        ...rest,
+        value: Number(data.value),
+        startsAt: data.startsAt?.trim() || undefined,
+        expiresAt: data.expiresAt?.trim() || undefined,
+        // Only send heroImageUrl when "Show on hero" is on; backend uses promotion name/description for slide text
+        heroImageUrl: data.createHeroSlide ? (data.heroImageUrl?.trim() || null) : undefined,
+      };
 
-      toast.success(
-        promotion
-          ? "Promotion updated successfully!"
-          : "Promotion created successfully!"
-      );
+      if (promotion) {
+        await promotionsApi.updatePromotion(promotion.id, payload);
+        toast.success("Promotion updated successfully!");
+      } else {
+        await promotionsApi.createPromotion(payload);
+        toast.success("Promotion created successfully!");
+      }
+
+      queryClient.invalidateQueries({ queryKey: ["promotions"] });
       onSuccess();
-    } catch (error) {
-      toast.error("Failed to save promotion. Please try again.");
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string | string[]; errors?: string[] } }; message?: string };
+      let errorMessage = "Failed to save promotion. Please try again.";
+      if (axiosError?.response?.data) {
+        const d = axiosError.response.data;
+        if (d.errors?.length) {
+          errorMessage = d.errors.join(", ");
+        } else if (Array.isArray(d.message)) {
+          errorMessage = d.message.join(", ");
+        } else if (typeof d.message === "string") {
+          errorMessage = d.message;
+        }
+      } else if (axiosError?.message) {
+        errorMessage = axiosError.message;
+      }
+      toast.error(errorMessage);
     }
   };
 
@@ -169,6 +201,7 @@ export function PromotionForm({
                     render={({ field }) => (
                       <ProductPicker
                         multiple
+                        valueField="id"
                         value={field.value}
                         onChange={field.onChange}
                         placeholder="Search products to add..."
@@ -199,7 +232,7 @@ export function PromotionForm({
                 </div>
 
                 <div className="p-4 bg-amber-50 rounded-lg flex gap-3 border border-amber-100">
-                  <Info className="w-5 h-5 text-amber-600 flex-shrink-0" />
+                  <Info className="w-5 h-5 text-amber-600 shrink-0" />
                   <Text className="text-xs text-amber-700 leading-relaxed">
                     If both products and categories are selected, the promotion will apply to all of them.
                     If none are selected, the promotion will not be applied to any products.
@@ -207,9 +240,51 @@ export function PromotionForm({
                 </div>
               </div>
             </Card>
-          </div>
 
-          {/* Sidebar Config */}
+            <Card className="p-6 border-warm-gray-200 shadow-sm rounded-lg mt-6">
+              <Heading level="h4" className="text-sm font-bold uppercase tracking-wider text-warm-gray-400 mb-6 flex items-center gap-2">
+                <Sparkles className="w-4 h-4" /> Hero slide
+              </Heading>
+              <div className="space-y-6">
+                <div className="flex items-center justify-between p-4 bg-primary-50 rounded-lg border border-primary-100">
+                  <div className="space-y-0.5">
+                    <Text className="text-sm font-bold text-primary-900">Show on homepage hero</Text>
+                    <Text className="text-xs text-primary-600">Create a slide from this promotion. Headline and description come from the fields above; you can add an optional image below.</Text>
+                  </div>
+                  <Controller
+                    name="createHeroSlide"
+                    control={control}
+                    render={({ field }) => (
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    )}
+                  />
+                </div>
+                {createHeroSlide && (
+                  <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <Text className="text-sm font-medium text-warm-gray-700">Slide image (optional)</Text>
+                    <Controller
+                      name="heroImageUrl"
+                      control={control}
+                      render={({ field }) => (
+                        <ProductImageUploader
+                          value={field.value ? [field.value] : []}
+                          onChange={(urls) => field.onChange(urls[0] ?? "")}
+                          maxFiles={1}
+                          label="Hero image"
+                        />
+                      )}
+                    />
+                    <Text className="text-[10px] text-warm-gray-400 px-1 italic">
+                      Landscape recommended (e.g. 1920×800). Headline and description are taken from the promotion name and description above.
+                    </Text>
+                  </div>
+                )}
+              </div>
+            </Card>
+          </div>
           <div className="space-y-6">
             <Card className="p-6 border-warm-gray-200 shadow-sm rounded-lg">
               <Heading level="h4" className="text-sm font-bold uppercase tracking-wider text-warm-gray-400 mb-6">
@@ -254,7 +329,7 @@ export function PromotionForm({
                 </div>
 
                 <div className="p-4 bg-primary-50 rounded-lg flex gap-3">
-                  <Info className="w-5 h-5 text-primary-600 flex-shrink-0" />
+                  <Info className="w-5 h-5 text-primary-600 shrink-0" />
                   <Text className="text-xs text-primary-700 leading-relaxed">
                     Promotions will only be active between these dates. Leave blank for no limit.
                   </Text>

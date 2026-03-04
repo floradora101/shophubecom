@@ -15,8 +15,10 @@ import {
   mockCategories,
   mockCategoryToCategory,
 } from "@/lib/mock-data/mock-data";
+import { useCategoriesTreeQuery } from "@/features/categories/queries";
 import type { Category } from "@/features/products/types";
 import type { CategoryTreeHelpers } from "@/features/products/utils/productFiltering";
+import { USE_MOCKS } from "@/lib/flags";
 
 interface UseCategoryTreeProps {
   hasInteracted?: boolean;
@@ -30,17 +32,45 @@ interface UseCategoryTreeReturn {
 }
 
 /**
+ * Flatten a hierarchical category tree into a flat list
+ * Recursively extracts all categories including nested children
+ */
+export function flattenCategoryTree(
+  tree: Category[],
+  result: Category[] = []
+): Category[] {
+  for (const category of tree) {
+    // Add the category itself
+    result.push(category);
+
+    // Recursively flatten children if they exist
+    if ((category as any).children && Array.isArray((category as any).children)) {
+      flattenCategoryTree((category as any).children, result);
+    }
+  }
+  return result;
+}
+
+/**
  * Hook for managing category tree and related helpers
  */
 export function useCategoryTree({
   hasInteracted = true,
   categorySlug,
 }: UseCategoryTreeProps): UseCategoryTreeReturn {
-  // Use mock categories - only compute when user has interacted
+  // Fetch categories from API
+  const { data: apiCategories = [], isLoading: categoriesLoading } = useCategoriesTreeQuery();
+
+  // Flatten categories tree into a flat list for filtering and lookup
+  // Use mock categories if mocks are enabled, otherwise flatten API categories tree
   const categories = useMemo(() => {
     if (!hasInteracted) return [];
-    return mockCategories.map(mockCategoryToCategory);
-  }, [hasInteracted]);
+    if (USE_MOCKS) {
+      return mockCategories.map(mockCategoryToCategory);
+    }
+    // Flatten the hierarchical tree structure into a flat list
+    return flattenCategoryTree(apiCategories);
+  }, [hasInteracted, apiCategories]);
 
   // Build category tree helpers for filtering - only when user has interacted
   const categoryTreeHelpers = useMemo((): CategoryTreeHelpers => {
@@ -48,8 +78,8 @@ export function useCategoryTree({
       return { categoryIdMap: new Map(), getDescendantIds: () => new Set() };
     }
 
-    // Compute categories internally to avoid dependency issues
-    const computedCategories = mockCategories.map(mockCategoryToCategory);
+    // Use flattened categories list (either API or mocks)
+    const computedCategories = categories;
     const categoryIdMap = new Map<string, string>();
     const childrenByParentId = new Map<string, string[]>();
 
@@ -81,7 +111,7 @@ export function useCategoryTree({
     };
 
     return { categoryIdMap, getDescendantIds };
-  }, [hasInteracted]);
+  }, [hasInteracted, categories]);
 
   // Get current category by slug
   const currentCategory = useMemo(() => {

@@ -19,8 +19,9 @@ const CartSidebar = dynamic(
   { ssr: false }
 );
 import * as NavigationMenu from "@radix-ui/react-navigation-menu";
-import { getAllCategories } from "@/lib/data/categories";
+import { useCategoriesTreeQuery } from "@/features/categories/queries";
 import type { Category } from "@/features/products/types";
+import { productRoutes } from "@/lib/routes";
 import { motion } from "@/lib/ui-tokens";
 import { AnnouncementBar } from "./AnnouncementBar";
 import { cn } from "@/lib/utils";
@@ -71,7 +72,7 @@ const buildCategoryTree = (categories: Category[]): CategoryNode[] => {
 const MegaMenu = ({ categoryTree }: { categoryTree: CategoryNode[] }) => {
   const pathname = usePathname();
   const isCategoryActive = (slug: string) =>
-    pathname === `/products/category/${slug}`;
+    pathname === productRoutes.category(slug);
 
   return (
     <nav
@@ -89,7 +90,7 @@ const MegaMenu = ({ categoryTree }: { categoryTree: CategoryNode[] }) => {
           <div key={category.id} className={cn("min-w-0", MENU_SECTION_GAP)}>
             <h3 className="m-0 p-0">
               <Link
-                href={`/products/category/${category.slug}`}
+                href={productRoutes.category(category.slug)}
                 className={cn(
                   MENU_HEADING_LINK_CLASS,
                   isCategoryActive(category.slug) && "text-primary-600"
@@ -104,7 +105,7 @@ const MegaMenu = ({ categoryTree }: { categoryTree: CategoryNode[] }) => {
                 {category.children.map((child) => (
                   <li key={child.id} className="m-0 p-0">
                     <Link
-                      href={`/products/category/${child.slug}`}
+                      href={productRoutes.category(child.slug)}
                       className={cn(
                         MENU_ITEM_LINK_CLASS,
                         isCategoryActive(child.slug) &&
@@ -164,28 +165,20 @@ export function Header() {
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Category data - with loading state to prevent flash of incomplete content
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [categoriesLoading, setCategoriesLoading] = useState(true);
-  useEffect(() => {
-    getAllCategories()
-      .then((data) => {
-        setCategories(data);
-        setCategoriesLoading(false);
-      })
-      .catch((error) => {
-        // Silent error handling for mock environments
-        if (process.env.NEXT_PUBLIC_USE_MOCKS !== "false") {
-          // Silently ignore expected errors in mock mode
-        } else {
-          // Error logged silently in production - categories are non-critical
-        }
-        setCategoriesLoading(false);
-      });
-  }, []);
+  // Fetch categories tree from API (already hierarchical with children)
+  const { data: categoriesTreeData = [], isLoading: categoriesLoading } = useCategoriesTreeQuery();
+
+  // API returns tree structure already, but buildCategoryTree can handle both flat and tree structures
   const categoryTree = useMemo(
-    () => buildCategoryTree(categories),
-    [categories]
+    () => {
+      // If categories already have children, use them directly
+      if (categoriesTreeData.length > 0 && categoriesTreeData[0]?.children !== undefined) {
+        return categoriesTreeData as CategoryNode[];
+      }
+      // Otherwise build tree from flat list
+      return buildCategoryTree(categoriesTreeData);
+    },
+    [categoriesTreeData]
   );
 
   const isActive = (path: string) => {
@@ -303,7 +296,7 @@ export function Header() {
                               >
                                 <div className={MENU_SECTION_GAP}>
                                   <Link
-                                    href={`/products/category/${category.slug}`}
+                                    href={productRoutes.category(category.slug)}
                                     className={MENU_HEADING_LINK_CLASS}
                                   >
                                     {category.name.toUpperCase()}
@@ -313,7 +306,7 @@ export function Header() {
                                     {category.children.map((child) => (
                                       <Link
                                         key={child.id}
-                                        href={`/products/category/${child.slug}`}
+                                        href={productRoutes.category(child.slug)}
                                         className={cn(
                                           MENU_ITEM_LINK_CLASS,
                                           isCategoryActive(child.slug) &&
@@ -331,7 +324,7 @@ export function Header() {
                         ) : (
                           <NavigationMenu.Link asChild>
                             <Link
-                              href={`/products/category/${category.slug}`}
+                              href={productRoutes.category(category.slug)}
                               className={cn(
                                 "flex h-10 items-center px-4 text-[13px] font-semibold text-muted-fg transition-all duration-300 rounded-lg hover:bg-gray-50 hover:text-fg cursor-pointer",
                                 isCategoryActive(category.slug) &&
@@ -500,7 +493,7 @@ export function Header() {
                       {categoryTree.map((category) => (
                         <div key={category.id} className="space-y-3">
                           <Link
-                            href={`/products/category/${category.slug}`}
+                            href={productRoutes.category(category.slug)}
                             className={cn(
                               "block px-4 py-2 text-sm font-bold tracking-widest text-fg hover:text-primary-600 transition-all uppercase",
                               isCategoryActive(category.slug) &&
@@ -516,7 +509,7 @@ export function Header() {
                               {category.children.map((child) => (
                                 <Link
                                   key={child.id}
-                                  href={`/products/category/${child.slug}`}
+                                  href={productRoutes.category(child.slug)}
                                   className={cn(
                                     "block px-4 py-2 text-[13px] text-muted-fg hover:text-primary-600 hover:translate-x-1 transition-all rounded-lg",
                                     isCategoryActive(child.slug) &&

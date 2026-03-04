@@ -36,6 +36,8 @@ export const promotionSchema = yup.object({
   isActive: yup.boolean().default(true),
   productIds: yup.array().of(yup.string().required()).default([]),
   categoryIds: yup.array().of(yup.string().required()).default([]),
+  heroImageUrl: yup.string().nullable().default(null),
+  createHeroSlide: yup.boolean().default(false),
 });
 
 export type PromotionFormData = yup.InferType<typeof promotionSchema>;

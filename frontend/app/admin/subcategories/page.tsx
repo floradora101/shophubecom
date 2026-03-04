@@ -11,12 +11,9 @@ import {
   ArrowUpDown,
   SortAsc,
   SortDesc,
-  ChevronRight,
   Eye,
   EyeOff
 } from "lucide-react";
-import { getAllDepartments, MockDepartment } from "@/lib/mock-data/departments";
-import { getAllCategories } from "@/lib/mock-data/mock-data";
 import { Heading, Text } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,8 +30,8 @@ import {
   DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { toast } from "sonner";
-import { cn } from "@/lib/utils/cn";
+import { useDeleteDepartmentMutation, useDepartmentsQuery } from "@/features/departments/queries";
+import type { Department } from "@/features/departments";
 
 type SortOption = "name-asc" | "name-desc" | "newest" | "oldest";
 
@@ -42,8 +39,14 @@ export default function DepartmentsPage() {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
 
-  const departments = getAllDepartments();
-  const categories = getAllCategories();
+  const { data: departmentsResponse, isLoading, error } = useDepartmentsQuery({
+    limit: 1000,
+    sortBy: "createdAt",
+    sortOrder: "desc",
+  });
+  const deleteMutation = useDeleteDepartmentMutation();
+
+  const departments: Department[] = departmentsResponse?.data || [];
 
   const filteredAndSortedDepartments = useMemo(() => {
     let result = departments.filter(dept =>
@@ -65,13 +68,70 @@ export default function DepartmentsPage() {
 
   const handleDelete = (id: string) => {
     if (window.confirm("Are you sure you want to delete this subcategory?")) {
-      toast.success("Subcategory deleted (mock)");
+      deleteMutation.mutate(id);
     }
   };
 
-  const getParentCategoryName = (id: string) => {
-    return categories.find(c => c.id === id)?.name || "Unknown";
-  };
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <Heading level="h2">Subcategories</Heading>
+            <Text className="text-warm-gray-500">
+              Manage your homepage subcategory spotlight sections.
+            </Text>
+          </div>
+          <Link href="/admin/subcategories/new">
+            <Button className="rounded-lg shadow-md hover:shadow-lg transition-all duration-200 bg-primary-600 hover:bg-primary-700">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Subcategory
+            </Button>
+          </Link>
+        </div>
+
+        <Card className="border-warm-gray-200 shadow-sm overflow-hidden bg-white">
+          <div className="p-12 text-center">
+            <Text className="text-warm-gray-500">Loading subcategories...</Text>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <Heading level="h2">Subcategories</Heading>
+            <Text className="text-warm-gray-500">
+              Manage your homepage subcategory spotlight sections.
+            </Text>
+          </div>
+          <Link href="/admin/subcategories/new">
+            <Button className="rounded-lg shadow-md hover:shadow-lg transition-all duration-200 bg-primary-600 hover:bg-primary-700">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Subcategory
+            </Button>
+          </Link>
+        </div>
+
+        <Card className="border-warm-gray-200 shadow-sm overflow-hidden bg-white">
+          <div className="p-12 text-center space-y-4">
+            <Text className="text-warm-gray-500">
+              {error instanceof Error
+                ? error.message
+                : "Failed to load subcategories"}
+            </Text>
+            <Button onClick={() => window.location.reload()} variant="outline">
+              Retry
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -167,14 +227,14 @@ export default function DepartmentsPage() {
                   </td>
                   <td className="py-4 px-4">
                     <Badge variant="outline" className="bg-white text-warm-gray-600 border-warm-gray-200 font-medium text-[10px]">
-                      {getParentCategoryName(dept.parentCategoryId)}
+                      {dept.parentCategory?.name || "Unknown"}
                     </Badge>
                   </td>
                   <td className="py-4 px-4">
                     <div className="flex flex-wrap gap-1 max-w-[200px]">
-                      {dept.highlightedSubCategoryIds.map(subId => (
-                        <Badge key={subId} className="bg-primary-50 text-primary-700 hover:bg-primary-100 border-none text-[9px] px-1.5 py-0">
-                          {categories.find(c => c.id === subId)?.name || subId}
+                      {dept.highlightedSubcategories.map((sub) => (
+                        <Badge key={sub.id} className="bg-primary-50 text-primary-700 hover:bg-primary-100 border-none text-[9px] px-1.5 py-0">
+                          {sub.name}
                         </Badge>
                       ))}
                     </div>
@@ -208,7 +268,11 @@ export default function DepartmentsPage() {
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator className="bg-warm-gray-100" />
-                        <DropdownMenuItem onClick={() => handleDelete(dept.id)} className="rounded-lg cursor-pointer flex items-center gap-2 px-2 py-2 text-red-600 focus:text-red-600 focus:bg-red-50">
+                        <DropdownMenuItem
+                          onClick={() => handleDelete(dept.id)}
+                          disabled={deleteMutation.isPending}
+                          className="rounded-lg cursor-pointer flex items-center gap-2 px-2 py-2 text-red-600 focus:text-red-600 focus:bg-red-50"
+                        >
                           <Trash2 className="w-4 h-4" />
                           <span>Delete</span>
                         </DropdownMenuItem>

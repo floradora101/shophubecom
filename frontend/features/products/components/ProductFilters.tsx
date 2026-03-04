@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { productRoutes } from "@/lib/routes";
 import type { Category } from "../types";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -67,7 +68,7 @@ export function ProductFilters({
     return (
       <li key={cat.id} className="space-y-1">
         <Link
-          href={`/products/category/${cat.slug}`}
+          href={productRoutes.category(cat.slug)}
           onClick={(e) => {
             e.preventDefault();
             onCategoryChange(cat.slug);

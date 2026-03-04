@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { CategoryForm } from "@/app/admin/categories/_components/CategoryForm";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getAllCategories } from "@/lib/mock-data/mock-data";
+import { useCategoryQuery } from "@/features/categories/queries";
 
 interface EditCategoryPageProps {
   params: Promise<{ id: string }>;
@@ -16,15 +16,24 @@ interface EditCategoryPageProps {
 export default function EditCategoryPage({ params }: EditCategoryPageProps) {
   const router = useRouter();
   const { id } = use(params);
+  const { data: category, isLoading, error } = useCategoryQuery(id);
 
-  // Find category from mock data
-  const categories = getAllCategories();
-  const category = categories.find(c => c.id === id);
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+        <Text className="text-warm-gray-500">Loading category...</Text>
+      </div>
+    );
+  }
 
-  if (!category) {
+  if (error || !category) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <Heading level="h3">Category not found</Heading>
+        <Text className="text-warm-gray-500">
+          The category you're looking for doesn't exist or has been deleted.
+        </Text>
         <Button onClick={() => router.push("/admin/categories")}>
           Return to Categories
         </Button>
@@ -46,7 +55,7 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
         <div>
           <Heading level="h2">Edit Category: {category.name}</Heading>
           <Text className="text-warm-gray-500">
-            Update category details, images, or its position in the hierarchy.
+            Update category details or its position in the hierarchy.
           </Text>
         </div>
       </div>

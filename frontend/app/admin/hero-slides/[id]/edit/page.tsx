@@ -1,29 +1,42 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import { useRouter, useParams } from "next/navigation";
 import { HeroSlideForm } from "@/app/admin/hero-slides/_components/HeroSlideForm";
 import { Heading, Text } from "@/components/ui/typography";
-import { ChevronLeft, Loader2 } from "lucide-react";
+import { ChevronLeft, Loader2, AlertCircle } from "lucide-react";
 import Link from "next/link";
-import { mockHeroSlides } from "@/dev/mocks/heroSlides.mock";
+import { useHeroSlideQuery } from "@/features/hero-slides/queries";
+import { Button } from "@/components/ui/button";
 
 export default function EditHeroSlidePage() {
   const router = useRouter();
   const params = useParams();
   const slideId = params.id as string;
 
-  // Find the slide from mock data
-  const slide = useMemo(() => {
-    return mockHeroSlides.find((s) => s.id === slideId);
-  }, [slideId]);
+  const { data: slide, isLoading, error } = useHeroSlideQuery(slideId);
 
-  if (!slide) {
+  if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
         <Heading level="h3">Loading Slide...</Heading>
         <Text className="text-neutral-500">Retrieving slide data for {slideId}</Text>
+      </div>
+    );
+  }
+
+  if (error || !slide) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <AlertCircle className="w-10 h-10 text-red-500 mb-4" />
+        <Heading level="h3">Slide Not Found</Heading>
+        <Text className="text-neutral-500 mb-6">
+          {error instanceof Error ? error.message : "The slide you're looking for doesn't exist."}
+        </Text>
+        <Button onClick={() => router.push("/admin/hero-slides")} variant="outline">
+          Back to Hero Slides
+        </Button>
       </div>
     );
   }
@@ -56,3 +69,4 @@ export default function EditHeroSlidePage() {
     </div>
   );
 }
+

@@ -4,7 +4,6 @@ import type { User } from "@/features/auth/types";
 export interface UpdateProfileData {
   firstName?: string;
   lastName?: string;
-  email?: string;
 }
 
 export interface ChangePasswordData {

@@ -9,6 +9,8 @@ import { getLandscapeTheme } from "@/lib/utils/landscape-style-resolver";
 import { HeroItem } from "../shared/hero-item";
 import { useHeroRunCounter } from "@/lib/hooks/use-hero-run-counter";
 import { cn } from "@/lib/utils";
+import { shouldUnoptimizeImage } from "@/lib/utils/image-helpers";
+import { PLACEHOLDER_IMAGE } from "@/lib/utils";
 
 /**
  * Landscape Hero Slide Body (2026 Edition)
@@ -30,13 +32,23 @@ export const LandscapeHeroSlideBody = memo(function LandscapeHeroSlideBody({
   onMouseEnter,
   onMouseLeave,
 }: LandscapeHeroSlideBodyProps) {
-  const theme = getLandscapeTheme(slide.theme);
+  // Ensure theme exists, default to glass-red if missing
+  const slideTheme = slide.theme || "glass-red";
+  const theme = getLandscapeTheme(slideTheme);
   const { run, animationKey } = useHeroRunCounter(isActive || false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  const actionHref =
+    slide.actionButton?.href && slide.actionButton.href.trim() !== "#"
+      ? slide.actionButton.href
+      : "/products";
 
   // Reset loading state when slide changes
   useEffect(() => {
+    // This is a deliberate state reset when the image src changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setImageLoaded(false);
+    setImageError(false);
   }, [slide.media.imageUrl]);
 
   // Handle image load completion - use both onLoad and onLoadingComplete for reliability
@@ -52,30 +64,47 @@ export const LandscapeHeroSlideBody = memo(function LandscapeHeroSlideBody({
       {/* Background Layer */}
       <div className="absolute inset-0 z-0 bg-gray-900">
         {/* Skeleton loader - shows while image is loading */}
-        {!imageLoaded && (
+        {!imageLoaded && !imageError && (
           <div className="absolute inset-0 z-[5]">
             <SkeletonBlock className="w-full h-full rounded-none" />
           </div>
         )}
 
-        <Image
-          src={slide.media.imageUrl}
-          alt={slide.media.alt || slide.content.headline || "Hero image"}
-          fill
-          className={cn(
-            "object-cover transition-opacity duration-500",
-            imageLoaded ? "opacity-100" : "opacity-0",
-            "group-hover:scale-110 transition-transform duration-2000"
-          )}
-          style={{
-            objectPosition:
-              objectPosition !== "center" ? objectPosition : undefined,
-          }}
-          sizes="100vw"
-          priority={isActive}
-          onLoad={handleImageLoad}
-          onLoadingComplete={handleImageLoad}
-        />
+        {slide.media.imageUrl && slide.media.imageUrl.trim() && !imageError ? (
+          <Image
+            src={slide.media.imageUrl}
+            alt={slide.media.alt || slide.content.headline || "Hero image"}
+            fill
+            className={cn(
+              "object-cover transition-opacity duration-500",
+              imageLoaded ? "opacity-100" : "opacity-0",
+              "group-hover:scale-110 transition-transform duration-2000"
+            )}
+            style={{
+              objectPosition:
+                objectPosition !== "center" ? objectPosition : undefined,
+            }}
+            sizes="100vw"
+            priority={isActive}
+            onLoad={handleImageLoad}
+            onError={() => setImageError(true)}
+            unoptimized={shouldUnoptimizeImage(slide.media.imageUrl)}
+          />
+        ) : imageError || !slide.media.imageUrl || !slide.media.imageUrl.trim() ? (
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center overflow-hidden">
+            {imageError ? (
+              <Image
+                src={PLACEHOLDER_IMAGE}
+                alt=""
+                fill
+                className="object-cover opacity-80"
+                unoptimized
+              />
+            ) : (
+              <p className="text-gray-400 text-sm relative z-10">No image uploaded</p>
+            )}
+          </div>
+        ) : null}
         {/* Theme-defined Overlay */}
         <div
           className={cn(
@@ -142,7 +171,7 @@ export const LandscapeHeroSlideBody = memo(function LandscapeHeroSlideBody({
                   onMouseEnter={onMouseEnter}
                   onMouseLeave={onMouseLeave}
                 >
-                  <a href={slide.actionButton.href}>
+                  <a href={actionHref}>
                     {slide.actionButton.label}
                   </a>
                 </Button>

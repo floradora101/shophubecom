@@ -1,3 +1,5 @@
+import type { PrismaClient } from '@prisma/client';
+
 /**
  * Utility functions for generating URL-friendly slugs
  */
@@ -50,4 +52,65 @@ export function ensureUniqueSlug(
   }
 
   return uniqueSlug;
+}
+
+/**
+ * Generates a unique slug by checking the database directly (O(1) instead of O(n)).
+ * Uses the database unique constraint to efficiently check for existing slugs.
+ *
+ * @param prisma - Prisma client instance
+ * @param baseSlug - The base slug to make unique
+ * @param model - The Prisma model to check (e.g., 'product', 'category')
+ * @param excludeId - Optional ID to exclude from uniqueness check (for updates)
+ * @returns A unique slug
+ */
+export async function ensureUniqueSlugInDb(
+  prisma: PrismaClient,
+  baseSlug: string,
+  model: 'product' | 'category',
+  excludeId?: string,
+): Promise<string> {
+  // Use type assertion to handle dynamic model access
+  type ModelClient = {
+    findFirst: (args: {
+      where: { slug: string; id?: { not: string } };
+      select: { id: true };
+    }) => Promise<{ id: string } | null>;
+  };
+
+  const modelClient = (model === 'product' ? prisma.product : prisma.category) as unknown as ModelClient;
+
+  // Check if base slug exists
+  const exists = await modelClient.findFirst({
+    where: {
+      slug: baseSlug,
+      ...(excludeId ? { id: { not: excludeId } } : {}),
+    },
+    select: { id: true },
+  });
+
+  if (!exists) {
+    return baseSlug;
+  }
+
+  // Find unique slug by incrementing counter
+  let counter = 1;
+  let uniqueSlug = `${baseSlug}-${counter}`;
+
+  while (true) {
+    const slugExists = await modelClient.findFirst({
+      where: {
+        slug: uniqueSlug,
+        ...(excludeId ? { id: { not: excludeId } } : {}),
+      },
+      select: { id: true },
+    });
+
+    if (!slugExists) {
+      return uniqueSlug;
+    }
+
+    counter++;
+    uniqueSlug = `${baseSlug}-${counter}`;
+  }
 }

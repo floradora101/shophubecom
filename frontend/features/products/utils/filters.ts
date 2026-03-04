@@ -17,6 +17,8 @@ export interface ProductFilters {
   // URL-based filters (always in URL) - category is now route-based
   search?: string | null;
   page?: number;
+  /** When set, show only products in this promotion (from hero "Shop Now") */
+  promotionId?: string | null;
 
   // Optional filters (only in URL when set)
   minPrice?: number | null;
@@ -30,6 +32,7 @@ export interface ProductFilters {
 export interface CanonicalFilters {
   category: string | null;
   search: string | null;
+  promotionId: string | null;
   page: number;
   minPrice: number | null;
   maxPrice: number | null;
@@ -42,6 +45,7 @@ export interface CanonicalFilters {
 const DEFAULT_FILTERS: CanonicalFilters = {
   category: null,
   search: null,
+  promotionId: null,
   page: 1,
   minPrice: null,
   maxPrice: null,
@@ -78,6 +82,12 @@ export function parseFiltersFromSearchParams(
   const pageRaw = searchParams.get("page");
   const page = pageRaw ? parseInt(pageRaw, 10) : 1;
   const pageNum = Math.max(1, isNaN(page) ? 1 : page);
+
+  const promotionIdRaw = searchParams.get("promotionId");
+  const promotionId =
+    promotionIdRaw && promotionIdRaw.trim().length > 0
+      ? promotionIdRaw.trim()
+      : null;
 
   const minPriceRaw = searchParams.get("minPrice");
   let minPrice = minPriceRaw
@@ -136,6 +146,7 @@ export function parseFiltersFromSearchParams(
   return {
     category,
     search,
+    promotionId,
     page: pageNum,
     minPrice,
     maxPrice,
@@ -165,6 +176,7 @@ export function normalizeFilters(params: {
   sortBy?: "price" | "name" | "createdAt" | string | null;
   sortOrder?: "asc" | "desc" | string | null;
   inStockOnly?: boolean | string | null;
+  promotionId?: string | null;
 }): {
   page: number;
   limit: number;
@@ -175,6 +187,7 @@ export function normalizeFilters(params: {
   sortBy: "price" | "name" | "createdAt";
   sortOrder: "asc" | "desc";
   inStockOnly?: boolean;
+  promotionId?: string;
 } {
   // Normalize page
   const page =
@@ -295,6 +308,15 @@ export function normalizeFilters(params: {
       ? params.inStockOnly
       : undefined;
 
+  const promotionId =
+    params.promotionId === undefined ||
+    params.promotionId === null ||
+    params.promotionId === ""
+      ? undefined
+      : typeof params.promotionId === "string"
+      ? params.promotionId.trim() || undefined
+      : undefined;
+
   const result: {
     page: number;
     limit: number;
@@ -305,6 +327,7 @@ export function normalizeFilters(params: {
     sortBy: "price" | "name" | "createdAt";
     sortOrder: "asc" | "desc";
     inStockOnly?: boolean;
+    promotionId?: string;
   } = {
     page,
     limit,
@@ -327,8 +350,17 @@ export function normalizeFilters(params: {
   if (inStockOnly !== undefined) {
     result.inStockOnly = inStockOnly;
   }
+  if (promotionId !== undefined) {
+    result.promotionId = promotionId;
+  }
 
   return result;
+}
+
+/** Options for filtersToApiParams */
+export interface FiltersToApiParamsOptions {
+  /** Items per page (default: 20) */
+  limit?: number;
 }
 
 /**
@@ -336,7 +368,8 @@ export function normalizeFilters(params: {
  */
 export function filtersToApiParams(
   filters: CanonicalFilters,
-  categoryIdMap: Map<string, string> // Map category slug -> category ID
+  categoryIdMap: Map<string, string>,
+  options?: FiltersToApiParamsOptions
 ): {
   page: number;
   limit: number;
@@ -347,17 +380,20 @@ export function filtersToApiParams(
   sortBy: "price" | "name" | "createdAt";
   sortOrder: "asc" | "desc";
   inStockOnly?: boolean;
+  promotionId?: string;
 } {
-  // Use normalizeFilters to ensure canonical form
+  const limit = options?.limit ?? 20;
+
   const normalized = normalizeFilters({
     page: filters.page,
-    limit: 20,
+    limit,
     categoryId: filters.category
       ? categoryIdMap.get(filters.category)
       : undefined,
     search: filters.search,
     minPrice: filters.minPrice,
     maxPrice: filters.maxPrice,
+    promotionId: filters.promotionId,
     sortBy: (() => {
       switch (filters.sortBy) {
         case "price-low":
@@ -480,6 +516,16 @@ export function updateSearchParams(
       params.set("brands", updates.brands.join(","));
     } else {
       params.delete("brands");
+    }
+  }
+
+  // Update promotionId - delete when null/undefined/""
+  if (updates.promotionId !== undefined) {
+    const v = updates.promotionId?.trim();
+    if (v && v.length > 0) {
+      params.set("promotionId", v);
+    } else {
+      params.delete("promotionId");
     }
   }
 

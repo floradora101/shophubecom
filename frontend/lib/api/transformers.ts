@@ -33,7 +33,8 @@ function extractApiErrorMessage(error: unknown): string {
 }
 
 /**
- * Paginated response structure from backend
+ * Paginated response structure from backend.
+ * Use extractPaginatedData from response-transformer for API responses.
  */
 export interface PaginatedResponse<T> {
   data: T[];
@@ -41,79 +42,6 @@ export interface PaginatedResponse<T> {
   page: number;
   limit: number;
   totalPages: number;
-}
-
-/**
- * Frontend paginated response structure
- */
-export interface PaginatedResult<T> {
-  data: T[];
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  };
-}
-
-/**
- * Transform paginated response from backend format to frontend format
- *
- * Backend: { data: T[], total, page, limit, totalPages }
- * Frontend: { data: T[], meta: { total, page, limit, totalPages } }
- *
- * @param response - Backend paginated response
- * @param transform - Optional transform function for each item
- * @returns Transformed paginated result
- */
-export function transformPaginatedResponse<T, R = T>(
-  response: PaginatedResponse<T>,
-  transform?: (item: T) => R
-): PaginatedResult<R> {
-  const data = transform
-    ? response.data.map(transform)
-    : (response.data as unknown as R[]);
-
-  return {
-    data,
-    meta: {
-      total: response.total,
-      page: response.page,
-      limit: response.limit,
-      totalPages: response.totalPages,
-    },
-  };
-}
-
-/**
- * Flatten paginated response to a simpler structure
- * Returns data array with meta fields at the top level
- *
- * @param response - Backend paginated response
- * @param transform - Optional transform function for each item
- * @returns Flattened result with meta fields at top level
- */
-export function flattenPaginatedResponse<T, R = T>(
-  response: PaginatedResponse<T>,
-  transform?: (item: T) => R
-): {
-  data: R[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-} {
-  const data = transform
-    ? response.data.map(transform)
-    : (response.data as unknown as R[]);
-
-  return {
-    data,
-    total: response.total,
-    page: response.page,
-    limit: response.limit,
-    totalPages: response.totalPages,
-  };
 }
 
 /**
@@ -187,7 +115,7 @@ export function pickAndTransform<
     const value = obj[from];
     result[targetKey as keyof R] = transform
       ? (transform(value) as R[keyof R])
-      : (value as R[keyof R]);
+      : (value as unknown as R[keyof R]);
   });
 
   return result;

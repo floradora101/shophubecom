@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Stack } from "@/components/ui/stack";
 import { Heading, Text } from "@/components/ui/typography";
 import { formatPrice } from "@/lib/utils";
-import { ShoppingBag, Truck } from "lucide-react";
+import { ShoppingBag, Truck, Tag } from "lucide-react";
 import type { BackendOrderResponseDto } from "../api";
 
 interface OrderSummaryCardProps {
@@ -15,6 +15,16 @@ interface OrderSummaryCardProps {
 
 export function OrderSummaryCard({ order }: OrderSummaryCardProps) {
   const hasItems = order.items && order.items.length > 0;
+
+  // Ensure discount is visible: use backend value or derive from totals (subtotal + shipping - total)
+  const displayDiscount =
+    order.discount > 0
+      ? order.discount
+      : Math.max(
+          0,
+          order.subtotal + Number(order.shipping) - order.total
+        );
+  const hasDiscount = displayDiscount > 0.001;
 
   return (
     <Card className="p-6">
@@ -113,6 +123,35 @@ export function OrderSummaryCard({ order }: OrderSummaryCardProps) {
                 : "Free"}
             </Text>
           </div>
+
+          {/* Discount / Coupon - show whenever total is reduced; always show discount code name when present */}
+          {hasDiscount && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm p-3 rounded-lg bg-green-50 border border-green-200">
+                <div className="flex items-center gap-2">
+                  <Tag className="h-4 w-4 text-green-600 shrink-0" />
+                  <Text className="text-green-700 font-medium">
+                    {order.couponCode
+                      ? `Discount code: ${order.couponCode}`
+                      : "Discount"}
+                  </Text>
+                </div>
+                <Text className="font-bold text-green-700">
+                  -{formatPrice(displayDiscount, { alwaysShowDecimals: true })}
+                </Text>
+              </div>
+              {order.couponCode && (
+                <div className="flex items-center justify-between text-sm py-2 px-3 rounded-md bg-warm-gray-50 border border-warm-gray-200">
+                  <Text className="text-warm-gray-600 font-medium">
+                    Code used
+                  </Text>
+                  <span className="font-mono font-bold text-warm-gray-900 uppercase tracking-wider text-xs">
+                    {order.couponCode}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Total */}
           <div className="flex items-center justify-between pt-2 border-t border-gray-200">

@@ -1,4 +1,4 @@
-﻿import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { cn } from "@/lib/utils/cn";
 
 export interface TabItem {
@@ -22,6 +22,7 @@ interface TabsProps {
 /**
  * Modern Tabs Component - 2026 Design Trends
  * Features glassmorphism effects, smooth animations, and premium styling
+ * Syncs with defaultTab when it changes (e.g. URL-driven tab on profile page).
  */
 export function Tabs({
   tabs,
@@ -31,7 +32,20 @@ export function Tabs({
   variant = "default",
   size = "md",
 }: TabsProps) {
-  const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.id || "");
+  const resolvedInitial = defaultTab && tabs.some((t) => t.id === defaultTab)
+    ? defaultTab
+    : tabs[0]?.id || "";
+  const [activeTab, setActiveTab] = useState(resolvedInitial);
+
+  // Keep active tab in sync with URL/defaultTab (e.g. profile?tab=orders)
+  useEffect(() => {
+    const next = defaultTab && tabs.some((t) => t.id === defaultTab)
+      ? defaultTab
+      : tabs[0]?.id || "";
+    if (next) {
+      setActiveTab((current) => (current === next ? current : next));
+    }
+  }, [defaultTab, tabs]);
 
   const handleTabChange = useCallback(
     (tabId: string) => {
@@ -84,7 +98,7 @@ export function Tabs({
     }
   };
 
-  const activeTabData = tabs.find((tab) => tab.id === activeTab);
+  const activeTabData = tabs.find((tab) => tab.id === activeTab) ?? tabs[0];
   const activeContent = activeTabData?.content;
   const isActiveTabHidden = activeTabData?.hiddenOnLarge || false;
 
@@ -99,6 +113,7 @@ export function Tabs({
             return (
               <button
                 key={tab.id}
+                type="button"
                 onClick={() => handleTabChange(tab.id)}
                 className={cn(
                   tabButtonClasses,

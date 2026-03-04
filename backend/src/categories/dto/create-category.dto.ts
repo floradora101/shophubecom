@@ -1,4 +1,11 @@
-import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUrl,
+  MaxLength,
+} from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class CreateCategoryDto {
   @IsString()
@@ -10,6 +17,15 @@ export class CreateCategoryDto {
   @IsOptional()
   @MaxLength(500)
   description?: string;
+
+  @IsOptional()
+  @Transform(({ value }) =>
+    value === '' || value === null ? undefined : value,
+  )
+  @IsString()
+  @IsUrl({ protocols: ['http', 'https'] })
+  @MaxLength(2048)
+  image?: string | null;
 
   @IsString()
   @IsOptional()

@@ -18,7 +18,7 @@
  * - If invalid, returns 400 Bad Request with validation errors
  */
 import { Transform } from 'class-transformer';
-import { IsEmail, IsString, IsNotEmpty } from 'class-validator';
+import { IsEmail, IsString, IsNotEmpty, MaxLength } from 'class-validator';
 
 export class LoginDto {
   @Transform(({ value }: { value: unknown }) =>
@@ -29,5 +29,6 @@ export class LoginDto {
 
   @IsString()
   @IsNotEmpty({ message: 'Password is required' })
+  @MaxLength(128, { message: 'Password must not exceed 128 characters' })
   password!: string;
 }

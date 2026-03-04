@@ -23,6 +23,7 @@ import { Section } from "@/components/ui/section";
 import { Stack } from "@/components/ui/stack";
 import { Badge } from "@/components/ui/badge";
 import { ui } from "@/lib/ui-tokens";
+import { productRoutes } from "@/lib/routes";
 
 const steps: Step[] = [
   { label: "Shopping Cart", state: "active" as const },
@@ -205,7 +206,7 @@ export default function CartPage() {
                             <div className="space-y-1">
                               <div className="flex justify-between items-start gap-4">
                                 <Link
-                                  href={`/products/${item.slug}`}
+                                  href={productRoutes.detail(item.slug)}
                                   className="text-lg font-bold text-fg hover:text-primary-600 transition-colors line-clamp-1"
                                 >
                                   {item.name}

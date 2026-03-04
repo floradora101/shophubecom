@@ -8,6 +8,7 @@ import { AlertTriangle, Settings, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { extractErrorMessage } from "@/lib/utils/error-handler";
+import { productRoutes } from "@/lib/routes";
 import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/ui/container";
 import { useCart } from "@/features/cart/hooks";
@@ -27,6 +28,8 @@ import {
 import { useStickyBar } from "./hooks/useStickyBar";
 import { useProductGallery } from "./hooks/useProductGallery";
 import { useProductDetail } from "./hooks/useProductDetail";
+import { useCategoriesTreeQuery } from "@/features/categories/queries";
+import { flattenCategoryTree } from "../hooks/useCategoryTree";
 import { useVariantSelection } from "./hooks/useVariantSelection";
 import { useVariantLogic } from "./hooks/useVariantLogic";
 import { useProductPricing } from "./hooks/useProductPricing";
@@ -53,6 +56,13 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
 
   // Extract product and category loading to custom hook
   const { product, category } = useProductDetail({ slug });
+
+  // Categories for breadcrumb ancestry (nested category support)
+  const { data: categoryTree = [] } = useCategoriesTreeQuery();
+  const categories = useMemo(
+    () => flattenCategoryTree(categoryTree),
+    [categoryTree]
+  );
 
   const [quantity, setQuantity] = useState(1);
   const [showSelectionError, setShowSelectionError] = useState(false);
@@ -260,7 +270,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
               The product you&apos;re looking for doesn&apos;t exist or may have
               been removed.
             </p>
-            <Button onClick={() => router.push("/products")} variant="outline">
+            <Button onClick={() => router.push(productRoutes.list())} variant="outline">
               Browse Products
             </Button>
           </div>
@@ -275,7 +285,11 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
   return (
     <div className="min-h-screen relative">
       {/* Breadcrumb */}
-      <ProductBreadcrumb product={product} category={category} />
+      <ProductBreadcrumb
+        product={product}
+        category={category}
+        categories={categories}
+      />
 
       {/* Main Content */}
       <Container className="py-6 sm:py-8 lg:py-12 pb-24 lg:pb-0">

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { productSchema, type ProductFormData } from "@/features/products/schemas";
@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils/cn";
+import { useCreateProductMutation, useUpdateProductMutation } from "@/features/products/queries";
 
 interface ProductFormProps {
   initialData?: any;
@@ -50,6 +51,9 @@ export function ProductForm({
   onCancel,
 }: ProductFormProps) {
   const [expandedVariants, setExpandedVariants] = useState<Set<number>>(new Set([0]));
+  const createMutation = useCreateProductMutation();
+  const updateMutation = useUpdateProductMutation();
+  const isEditMode = !!initialData?.id;
 
   const {
     register,
@@ -59,11 +63,14 @@ export function ProductForm({
     watch,
     formState: { errors, isSubmitting },
   } = useForm<ProductFormData>({
-    // resolver: yupResolver(productSchema), // Temporarily disabled for build
+    resolver: yupResolver(productSchema) as any,
     defaultValues: initialData || {
       name: "",
+      description: "",
       currency: "USD",
       isOnSale: false,
+      categoryId: "",
+      specs: {},
       variants: [
         {
           sku: "",
@@ -74,6 +81,31 @@ export function ProductForm({
       ],
     },
   });
+
+  // Cleanup blob URLs from form values before submission
+  // This ensures we never send blob URLs to the backend
+  const cleanupBlobUrls = useCallback((variants: ProductFormData["variants"]) => {
+    return variants.map((variant) => {
+      const cleanedVariant = { ...variant };
+
+      // Remove blob URLs from image
+      if (cleanedVariant.image && cleanedVariant.image.startsWith("blob:")) {
+        cleanedVariant.image = undefined;
+      }
+
+      // Remove blob URLs from images array
+      if (cleanedVariant.images && Array.isArray(cleanedVariant.images)) {
+        cleanedVariant.images = cleanedVariant.images.filter(
+          (img) => img && !img.startsWith("blob:")
+        );
+        if (cleanedVariant.images.length === 0) {
+          cleanedVariant.images = undefined;
+        }
+      }
+
+      return cleanedVariant;
+    });
+  }, []);
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -106,19 +138,165 @@ export function ProductForm({
 
   const onSubmit = async (data: ProductFormData) => {
     try {
-      // Transform data if needed for API
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Validate: Check for blob URLs before processing
+      const hasBlobUrls = data.variants.some((variant) => {
+        const hasBlobImage = variant.image && variant.image.startsWith("blob:");
+        const hasBlobImages = variant.images && variant.images.some((img) => img && img.startsWith("blob:"));
+        return hasBlobImage || hasBlobImages;
+      });
 
-      toast.success(initialData ? "Product updated!" : "Product created!");
+      if (hasBlobUrls) {
+        toast.error("Please wait for images to finish uploading before submitting. Blob URLs cannot be saved.");
+        return;
+      }
+
+      // Clean up any blob URLs before processing (safety check)
+      const cleanedVariants = cleanupBlobUrls(data.variants);
+
+      // Transform variant options from array format to Record<string, string>
+      const transformedVariants = cleanedVariants.map((variant) => {
+        const optionsRecord: Record<string, string> = {};
+        if (variant.options && Array.isArray(variant.options)) {
+          variant.options.forEach((opt) => {
+            if (opt.name && opt.value) {
+              optionsRecord[opt.name] = opt.value;
+            }
+          });
+        }
+
+        const transformedVariant: {
+          id?: string;
+          sku: string;
+          price: number;
+          stock: number;
+          image?: string;
+          images?: string[];
+          options?: Record<string, string>;
+        } = {
+          sku: variant.sku,
+          price: variant.price,
+          stock: variant.stock,
+          // Filter out blob URLs - only use permanent URLs (UploadThing URLs)
+          image: variant.image &&
+                 variant.image.trim() !== "" &&
+                 !variant.image.startsWith("blob:")
+                 ? variant.image : undefined,
+          images: variant.images && variant.images.length > 0
+                 ? variant.images.filter((img): img is string =>
+                     !!img &&
+                     img.trim() !== "" &&
+                     !img.startsWith("blob:")
+                   )
+                 : undefined,
+          options: Object.keys(optionsRecord).length > 0 ? optionsRecord : undefined,
+        };
+
+        // Include variant ID when updating (backend needs it to identify existing variants)
+        if (isEditMode && variant.id) {
+          transformedVariant.id = variant.id;
+        }
+
+        return transformedVariant;
+      });
+
+      // Prepare the payload matching backend CreateProductDto
+      const payload = {
+        name: data.name,
+        description: data.description, // Required field, validated by schema
+        currency: data.currency || "USD",
+        isOnSale: data.isOnSale || false,
+        discountType: data.isOnSale ? (data.discountType || null) : null,
+        discountValue: data.isOnSale && data.discountValue ? data.discountValue : null,
+        saleStartsAt: data.saleStartsAt || null,
+        saleEndsAt: data.saleEndsAt || null,
+        categoryId: data.categoryId,
+        isActive: true, // Default to active
+        isFeatured: false, // Default to not featured
+        // Only include specs if it has valid entries (non-empty keys and values)
+        ...(data.specs && Object.keys(data.specs).length > 0
+          ? (() => {
+              const filteredSpecs = Object.fromEntries(
+                Object.entries(data.specs).filter(
+                  ([key, value]) =>
+                    typeof key === "string" &&
+                    typeof value === "string" &&
+                    key.trim() !== "" &&
+                    value.trim() !== ""
+                )
+              );
+              // Only include specs if filtered object has entries
+              return Object.keys(filteredSpecs).length > 0 ? { specs: filteredSpecs } : {};
+            })()
+          : {}),
+        variants: transformedVariants,
+      };
+
+      if (isEditMode && initialData?.id) {
+        // Update existing product
+        await updateMutation.mutateAsync({
+          id: initialData.id,
+          data: payload,
+        });
+      } else {
+        // Create new product
+        await createMutation.mutateAsync(payload);
+      }
       onSuccess();
     } catch (error) {
-      toast.error("Failed to save product");
+      // Error handling is done in the mutation hook
     }
   };
 
+  // Collect all validation errors for display
+  const hasErrors = Object.keys(errors).length > 0;
+  const errorMessages: string[] = [];
+
+  if (errors.name) errorMessages.push(`Product Name: ${errors.name.message}`);
+  if (errors.description) errorMessages.push(`Description: ${errors.description.message}`);
+  if (errors.categoryId) errorMessages.push(`Category: ${errors.categoryId.message}`);
+  if (errors.currency) errorMessages.push(`Currency: ${errors.currency.message}`);
+  if (errors.variants) {
+    if (Array.isArray(errors.variants)) {
+      errors.variants.forEach((variantError: any, index: number) => {
+        if (variantError) {
+          if (variantError.sku) errorMessages.push(`Variant ${index + 1} - SKU: ${variantError.sku.message}`);
+          if (variantError.price) errorMessages.push(`Variant ${index + 1} - Price: ${variantError.price.message}`);
+          if (variantError.stock) errorMessages.push(`Variant ${index + 1} - Stock: ${variantError.stock.message}`);
+          if (variantError.image) errorMessages.push(`Variant ${index + 1} - Image: ${variantError.image.message}`);
+          if (variantError.images) errorMessages.push(`Variant ${index + 1} - Images: ${variantError.images.message}`);
+        }
+      });
+    } else if (errors.variants.message) {
+      errorMessages.push(`Variants: ${errors.variants.message}`);
+    }
+  }
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 pb-20">
+      {/* Error Summary */}
+      {(hasErrors || createMutation.isError) && (
+        <Card className="p-4 border-red-200 bg-red-50 shadow-sm">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+            <div className="flex-1 space-y-2">
+              <Text className="font-semibold text-red-900">Please fix the following errors:</Text>
+              <ul className="list-disc list-inside space-y-1">
+                {errorMessages.map((msg, idx) => (
+                  <li key={idx} className="text-sm text-red-700">{msg}</li>
+                ))}
+                {createMutation.isError && (
+                  <li className="text-sm text-red-700 font-medium">
+                    {createMutation.error?.response?.data?.message ||
+                     createMutation.error?.message ||
+                     "Failed to create product. Please check all fields and try again."}
+                  </li>
+                )}
+              </ul>
+            </div>
+          </div>
+        </Card>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column - Main Info */}
         <div className="lg:col-span-2 space-y-8">
@@ -130,13 +308,18 @@ export function ProductForm({
             </div>
 
             <div className="space-y-6">
-              <Input
-                label="Product Name *"
-                placeholder="e.g. iPhone 15 Pro Max"
-                {...register("name")}
-                error={!!errors.name}
-                className="h-11"
-              />
+              <div className="space-y-2">
+                <Input
+                  label="Product Name *"
+                  placeholder="e.g. iPhone 15 Pro Max"
+                  {...register("name")}
+                  error={!!errors.name}
+                  className="h-11"
+                />
+                {errors.name && (
+                  <Text className="text-xs text-red-600 mt-1">{errors.name.message}</Text>
+                )}
+              </div>
 
               <div className="space-y-2">
                 <Textarea
@@ -146,6 +329,40 @@ export function ProductForm({
                   {...register("description")}
                   error={errors.description?.message}
                   className="resize-none"
+                />
+              </div>
+
+              {/* Specifications Section */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between border-b border-warm-gray-100 pb-2">
+                  <div className="flex items-center gap-2">
+                    <Settings2 className="w-4 h-4 text-primary-500" />
+                    <Text className="text-sm font-semibold text-warm-gray-800">Specifications</Text>
+                    <Text className="text-xs text-warm-gray-400">(Optional)</Text>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-[10px] font-bold uppercase tracking-wider text-primary-600 hover:bg-primary-50 px-2"
+                    onClick={() => {
+                      const currentSpecs = watch("specs") || {};
+                      // Use a temporary unique key that will be replaced when user types
+                      const tempKey = `__temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                      setValue("specs", { ...currentSpecs, [tempKey]: "" }, { shouldDirty: true });
+                    }}
+                  >
+                    <Plus className="w-3 h-3 mr-1" />
+                    Add Spec
+                  </Button>
+                </div>
+
+                <SpecsFields
+                  control={control}
+                  register={register}
+                  errors={errors}
+                  watch={watch}
+                  setValue={setValue}
                 />
               </div>
 
@@ -162,22 +379,27 @@ export function ProductForm({
                         value={field.value}
                         onChange={field.onChange}
                         placeholder="Select category"
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || createMutation.isPending}
                       />
                     )}
                   />
                   {errors.categoryId && (
-                    <Text className="text-xs text-red-500">{errors.categoryId.message}</Text>
+                    <Text className="text-xs text-red-600 mt-1">{errors.categoryId.message}</Text>
                   )}
                 </div>
 
-                <Input
-                  label="Currency *"
-                  {...register("currency")}
-                  error={!!errors.currency}
-                  className="h-11 font-mono uppercase"
-                  placeholder="USD"
-                />
+                <div className="space-y-2">
+                  <Input
+                    label="Currency *"
+                    {...register("currency")}
+                    error={!!errors.currency}
+                    className="h-11 font-mono uppercase"
+                    placeholder="USD"
+                  />
+                  {errors.currency && (
+                    <Text className="text-xs text-red-600 mt-1">{errors.currency.message}</Text>
+                  )}
+                </div>
               </div>
             </div>
           </Card>
@@ -273,14 +495,21 @@ export function ProductForm({
                     <div className="p-6 space-y-8 animate-in slide-in-from-top-2 duration-200">
                       {/* SKU, Price, Stock */}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <Input
-                          label="SKU *"
-                          placeholder="e.g. IP15PM-BLK-256"
-                          {...register(`variants.${index}.sku`)}
-                          error={!!errors.variants?.[index]?.sku}
-                          className="h-11"
-                        />
-                        <div className="relative">
+                        <div className="space-y-2">
+                          <Input
+                            label="SKU *"
+                            placeholder="e.g. IP15PM-BLK-256"
+                            {...register(`variants.${index}.sku`)}
+                            error={!!errors.variants?.[index]?.sku}
+                            className="h-11"
+                          />
+                          {errors.variants?.[index]?.sku && (
+                            <Text className="text-xs text-red-600 mt-1">
+                              {errors.variants[index].sku?.message}
+                            </Text>
+                          )}
+                        </div>
+                        <div className="relative space-y-2">
                           <Input
                             label="Price *"
                             type="number"
@@ -291,8 +520,13 @@ export function ProductForm({
                             className="h-11 pl-9"
                           />
                           <CircleDollarSign className="absolute left-3 top-[38px] w-4 h-4 text-warm-gray-400" />
+                          {errors.variants?.[index]?.price && (
+                            <Text className="text-xs text-red-600 mt-1 ml-9">
+                              {errors.variants[index].price?.message}
+                            </Text>
+                          )}
                         </div>
-                        <div className="relative">
+                        <div className="relative space-y-2">
                           <Input
                             label="Stock *"
                             type="number"
@@ -302,6 +536,11 @@ export function ProductForm({
                             className="h-11 pl-9"
                           />
                           <Package className="absolute left-3 top-[38px] w-4 h-4 text-warm-gray-400" />
+                          {errors.variants?.[index]?.stock && (
+                            <Text className="text-xs text-red-600 mt-1 ml-9">
+                              {errors.variants[index].stock?.message}
+                            </Text>
+                          )}
                         </div>
                       </div>
 
@@ -333,12 +572,14 @@ export function ProductForm({
                                   value={field.value ? [field.value] : []}
                                   onChange={(urls) => field.onChange(urls[0])}
                                   maxFiles={1}
-                                  disabled={isSubmitting}
+                                  disabled={isSubmitting || createMutation.isPending}
                                 />
                               )}
                             />
                             {errors.variants?.[index]?.image && (
-                              <Text className="text-xs text-red-500">{errors.variants[index].image?.message}</Text>
+                              <Text className="text-xs text-red-600 mt-1">
+                                {errors.variants[index].image?.message}
+                              </Text>
                             )}
                           </div>
 
@@ -352,7 +593,7 @@ export function ProductForm({
                                   value={(field.value || []).filter((v): v is string => v != null)}
                                   onChange={field.onChange}
                                   maxFiles={8}
-                                  disabled={isSubmitting}
+                                  disabled={isSubmitting || createMutation.isPending}
                                 />
                               )}
                             />
@@ -442,13 +683,13 @@ export function ProductForm({
               <div className="pt-6 border-t border-warm-gray-100 space-y-3">
                 <Button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || createMutation.isPending}
                   className="w-full rounded-lg h-11 bg-primary-600 hover:bg-primary-700 shadow-md hover:shadow-lg transition-all duration-200"
                 >
-                  {isSubmitting ? (
+                  {(isSubmitting || createMutation.isPending) ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Saving Product...
+                      Creating Product...
                     </>
                   ) : (
                     initialData ? "Update Product" : "Create Product"
@@ -458,6 +699,7 @@ export function ProductForm({
                   type="button"
                   variant="ghost"
                   onClick={onCancel}
+                  disabled={isSubmitting || createMutation.isPending}
                   className="w-full rounded-lg h-11 text-warm-gray-500"
                 >
                   Cancel
@@ -598,6 +840,161 @@ function VariantValueSuggestions({ name, onSelect }: { name: string, onSelect: (
           </button>
         ))}
       </div>
+    </div>
+  );
+}
+
+function SpecsFields({
+  control,
+  register,
+  errors,
+  watch,
+  setValue
+}: {
+  control: any;
+  register: any;
+  errors: any;
+  watch: any;
+  setValue: any;
+}) {
+  const specs = watch("specs") || {};
+
+  // Use a ref to track stable IDs that don't change when keys update
+  const idCounterRef = React.useRef(0);
+  const keyToIdRef = React.useRef<Map<string, string>>(new Map());
+  const idToKeyRef = React.useRef<Map<string, string>>(new Map());
+
+  // Initialize mappings for existing specs
+  React.useEffect(() => {
+    const currentKeys = Object.keys(specs);
+    const existingKeys = Array.from(keyToIdRef.current.keys());
+
+    // Add mappings for new keys
+    currentKeys.forEach(key => {
+      if (!keyToIdRef.current.has(key)) {
+        const id = `spec-${idCounterRef.current++}`;
+        keyToIdRef.current.set(key, id);
+        idToKeyRef.current.set(id, key);
+      }
+    });
+
+    // Remove mappings for deleted keys
+    existingKeys.forEach(key => {
+      if (!currentKeys.includes(key)) {
+        const id = keyToIdRef.current.get(key);
+        if (id) {
+          keyToIdRef.current.delete(key);
+          idToKeyRef.current.delete(id);
+        }
+      }
+    });
+  }, [specs]);
+
+  // Convert specs object to array with stable IDs
+  const specEntries = useMemo(() => {
+    return Object.entries(specs).map(([key, value]) => {
+      let id = keyToIdRef.current.get(key);
+      if (!id) {
+        id = `spec-${idCounterRef.current++}`;
+        keyToIdRef.current.set(key, id);
+        idToKeyRef.current.set(id, key);
+      }
+      return {
+        id,
+        key,
+        value: value as string,
+      };
+    });
+  }, [specs]);
+
+  const updateSpecKey = (id: string, newKey: string) => {
+    const oldKey = idToKeyRef.current.get(id);
+    if (!oldKey) return;
+
+    const currentSpecs = { ...specs };
+    const value = currentSpecs[oldKey] || "";
+
+    // Remove old key
+    delete currentSpecs[oldKey];
+    keyToIdRef.current.delete(oldKey);
+
+    // Add new key with same ID
+    if (newKey.trim()) {
+      currentSpecs[newKey] = value;
+      keyToIdRef.current.set(newKey, id);
+      idToKeyRef.current.set(id, newKey);
+    } else {
+      idToKeyRef.current.delete(id);
+    }
+
+    setValue("specs", currentSpecs, { shouldDirty: true });
+  };
+
+  const updateSpecValue = (id: string, newValue: string) => {
+    const key = idToKeyRef.current.get(id);
+    if (!key) return;
+
+    const currentSpecs = { ...specs };
+    currentSpecs[key] = newValue;
+    setValue("specs", currentSpecs, { shouldDirty: true });
+  };
+
+  const removeSpec = (id: string) => {
+    const key = idToKeyRef.current.get(id);
+    if (!key) return;
+
+    const currentSpecs = { ...specs };
+    delete currentSpecs[key];
+    keyToIdRef.current.delete(key);
+    idToKeyRef.current.delete(id);
+    setValue("specs", currentSpecs, { shouldDirty: true });
+  };
+
+  return (
+    <div className="space-y-3">
+      {specEntries.length === 0 ? (
+        <div className="py-4 text-center border-2 border-dashed border-warm-gray-100 rounded-lg bg-warm-gray-50/30">
+          <Text className="text-xs text-warm-gray-400">No specifications added yet. Click "Add Spec" to add product specifications.</Text>
+        </div>
+      ) : (
+        specEntries.map((entry) => (
+          <div key={entry.id} className="flex gap-3 items-start animate-in fade-in slide-in-from-left-2 duration-200">
+            <div className="flex-1 grid grid-cols-2 gap-3 p-3 bg-white rounded-lg border border-warm-gray-100 shadow-sm">
+              <div className="space-y-1">
+                <Text className="text-[10px] font-bold text-warm-gray-400 uppercase ml-1">Spec Name</Text>
+                <Input
+                  placeholder="e.g. Weight, Dimensions, Material"
+                  value={entry.key}
+                  onChange={(e) => {
+                    updateSpecKey(entry.id, e.target.value);
+                  }}
+                  className="h-9 border-none bg-warm-gray-50/50 focus-visible:ring-1"
+                />
+              </div>
+              <div className="space-y-1">
+                <Text className="text-[10px] font-bold text-warm-gray-400 uppercase ml-1">Value</Text>
+                <Input
+                  placeholder="e.g. 200g, 10x5x2cm, Aluminum"
+                  value={entry.value}
+                  onChange={(e) => {
+                    updateSpecValue(entry.id, e.target.value);
+                  }}
+                  className="h-9 border-none bg-warm-gray-50/50 focus-visible:ring-1"
+                />
+              </div>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="mt-6 h-8 w-8 p-0 text-warm-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full"
+              onClick={() => removeSpec(entry.id)}
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+        ))
+      )}
     </div>
   );
 }

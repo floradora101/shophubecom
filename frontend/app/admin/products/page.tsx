@@ -17,9 +17,10 @@ import {
   ExternalLink,
   Eye,
   LayoutGrid,
-  List as ListIcon
+  List as ListIcon,
+  Loader2,
+  AlertCircle
 } from "lucide-react";
-import { getAllProducts, getAllCategories } from "@/lib/mock-data/mock-data";
 import { Heading, Text } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,52 +38,89 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils/cn";
+import { shouldUnoptimizeImage } from "@/lib/utils/image-helpers";
+import { useProductsQuery, useDeleteProductMutation } from "@/features/products/queries";
+import { useCategoriesQuery } from "@/features/categories/queries";
+import { getProductImage } from "@/features/products/utils/product-images";
+import type { Product } from "@/features/products/types";
+import { productRoutes } from "@/lib/routes";
 
 type SortOption = "name-asc" | "name-desc" | "price-desc" | "price-asc" | "stock-desc";
 type ViewMode = "grid" | "list";
 
 export default function ProductsAdminPage() {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("name-asc");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [page, setPage] = useState(1);
+  const limit = 50; // Fetch more products per page for admin view
 
-  const products = useMemo(() => {
-    return getAllProducts().map(p => ({
-      ...p,
-      categoryName: getAllCategories().find(c => c.slug === p.categorySlug)?.name || "Uncategorized"
-    }));
-  }, []);
-
-  const filteredProducts = useMemo(() => {
-    let result = products.filter(p =>
-      p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.id?.toLowerCase().includes(search.toLowerCase())
-    );
-
-    if (selectedCategory !== "all") {
-      result = result.filter(p => p.categorySlug === selectedCategory);
+  // Map frontend sort option to backend sortBy and sortOrder
+  const backendSort = useMemo(() => {
+    switch (sortBy) {
+      case "name-asc":
+        return { sortBy: "name" as const, sortOrder: "asc" as const };
+      case "name-desc":
+        return { sortBy: "name" as const, sortOrder: "desc" as const };
+      case "price-asc":
+        return { sortBy: "price" as const, sortOrder: "asc" as const };
+      case "price-desc":
+        return { sortBy: "price" as const, sortOrder: "desc" as const };
+      case "stock-desc":
+        // Stock sorting not directly supported by backend, will sort client-side
+        return { sortBy: "createdAt" as const, sortOrder: "desc" as const };
+      default:
+        return { sortBy: "name" as const, sortOrder: "asc" as const };
     }
+  }, [sortBy]);
 
-    result.sort((a, b) => {
-      switch (sortBy) {
-        case "name-asc": return a.name.localeCompare(b.name);
-        case "name-desc": return b.name.localeCompare(a.name);
-        case "price-desc": return b.price - a.price;
-        case "price-asc": return a.price - b.price;
-        case "stock-desc": return (b.stock || 0) - (a.stock || 0);
-        default: return 0;
-      }
-    });
+  // Fetch categories for dropdown
+  const { data: categoriesResponse } = useCategoriesQuery({
+    limit: 1000,
+    sortBy: "name",
+    sortOrder: "asc",
+  });
+  const categories = categoriesResponse?.data || [];
 
-    return result;
-  }, [products, search, sortBy, selectedCategory]);
+  // Find selected category ID
+  const selectedCategoryId = useMemo(() => {
+    if (selectedCategory === "all") return undefined;
+    const category = categories.find((c) => c.slug === selectedCategory);
+    return category?.id;
+  }, [selectedCategory, categories]);
+
+  // Fetch products from backend
+  const { data: productsResponse, isLoading, error } = useProductsQuery({
+    page,
+    limit,
+    search: search || undefined,
+    categoryId: selectedCategoryId,
+    ...backendSort,
+  });
+
+  const deleteMutation = useDeleteProductMutation();
+
+  // Extract products from response
+  const products: Product[] = productsResponse?.data || [];
+
+  // Client-side sort for stock (backend doesn't support stock sorting directly)
+  const sortedProducts = useMemo(() => {
+    if (sortBy === "stock-desc") {
+      return [...products].sort(
+        (a, b) => (b.stock || b.effectiveStock || 0) - (a.stock || a.effectiveStock || 0)
+      );
+    }
+    return products;
+  }, [products, sortBy]);
 
   const handleDelete = (id: string) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
-      toast.success("Product deleted (mock)");
+      deleteMutation.mutate(id);
     }
   };
 
@@ -95,12 +133,13 @@ export default function ProductsAdminPage() {
             Manage your inventory, variants, and pricing.
           </Text>
         </div>
-        <Link href="/admin/products/new">
-          <Button className="rounded-lg shadow-md hover:shadow-lg transition-all duration-200 bg-primary-600 hover:bg-primary-700">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Product
-          </Button>
-        </Link>
+        <Button
+          onClick={() => router.push("/admin/products/new")}
+          className="rounded-lg shadow-md hover:shadow-lg transition-all duration-200 bg-primary-600 hover:bg-primary-700"
+        >
+          <Plus className="w-4 h-4 mr-2" />
+          Add Product
+        </Button>
       </div>
 
       <Card className="border-warm-gray-200 shadow-sm overflow-hidden bg-white">
@@ -112,7 +151,10 @@ export default function ProductsAdminPage() {
               <Input
                 placeholder="Search products by name or ID..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1); // Reset to first page when search changes
+                }}
                 className="pl-10 bg-white border-warm-gray-200 focus:ring-primary-500 rounded-lg h-10"
               />
             </div>
@@ -124,7 +166,7 @@ export default function ProductsAdminPage() {
                     <Layers className="w-4 h-4 text-warm-gray-400" />
                     <span className="text-sm font-medium text-warm-gray-700">
                       {selectedCategory === "all" ? "All Categories" :
-                        getAllCategories().find(c => c.slug === selectedCategory)?.name}
+                        categories.find(c => c.slug === selectedCategory)?.name}
                     </span>
                   </div>
                   <ChevronDown className="w-4 h-4 opacity-50" />
@@ -133,11 +175,14 @@ export default function ProductsAdminPage() {
               <DropdownMenuContent align="start" className="w-56 rounded-lg p-2 shadow-2xl border-warm-gray-100">
                 <DropdownMenuLabel className="text-[10px] font-bold text-warm-gray-400 uppercase px-2 py-2">Filter Category</DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-warm-gray-100" />
-                <DropdownMenuRadioGroup value={selectedCategory} onValueChange={setSelectedCategory}>
+                <DropdownMenuRadioGroup value={selectedCategory} onValueChange={(value) => {
+                  setSelectedCategory(value);
+                  setPage(1); // Reset to first page when category changes
+                }}>
                   <DropdownMenuRadioItem value="all" className="rounded-lg cursor-pointer py-2.5">
                     All Categories
                   </DropdownMenuRadioItem>
-                  {getAllCategories().map(cat => (
+                  {categories.map(cat => (
                     <DropdownMenuRadioItem key={cat.id} value={cat.slug} className="rounded-lg cursor-pointer py-2.5">
                       {cat.name}
                     </DropdownMenuRadioItem>
@@ -149,7 +194,7 @@ export default function ProductsAdminPage() {
 
           <div className="flex items-center gap-3">
             <div className="text-xs text-warm-gray-400 font-medium hidden md:block">
-              {filteredProducts.length} products found
+              {productsResponse?.total ?? sortedProducts.length} {productsResponse?.total === 1 ? 'product' : 'products'} found
             </div>
 
             <div className="flex items-center border border-warm-gray-200 rounded-lg bg-white p-1">
@@ -181,7 +226,10 @@ export default function ProductsAdminPage() {
               <DropdownMenuContent align="end" className="w-56 rounded-lg p-2 shadow-2xl border-warm-gray-100">
                 <DropdownMenuLabel className="text-[10px] font-bold text-warm-gray-400 uppercase px-2 py-2">Sort Results</DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-warm-gray-100" />
-                <DropdownMenuRadioGroup value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
+                <DropdownMenuRadioGroup value={sortBy} onValueChange={(v) => {
+                  setSortBy(v as SortOption);
+                  setPage(1); // Reset to first page when sort changes
+                }}>
                   <DropdownMenuRadioItem value="name-asc" className="rounded-lg cursor-pointer py-2.5">
                     <SortAsc className="w-4 h-4 mr-2 text-warm-gray-400" />
                     <span>Name (A-Z)</span>
@@ -210,7 +258,23 @@ export default function ProductsAdminPage() {
 
         {/* Content */}
         <div className="min-h-[600px] bg-white">
-          {filteredProducts.length === 0 ? (
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+              <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+              <Text className="text-warm-gray-500">Loading products...</Text>
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+              <AlertCircle className="w-12 h-12 text-red-500" />
+              <Heading level="h3">Failed to load products</Heading>
+              <Text className="text-warm-gray-500 text-center max-w-md">
+                {error instanceof Error ? error.message : "An error occurred while fetching products. Please try again."}
+              </Text>
+              <Button onClick={() => window.location.reload()} variant="outline">
+                Retry
+              </Button>
+            </div>
+          ) : sortedProducts.length === 0 ? (
             <div className="py-32 text-center">
               <Package className="w-16 h-16 text-warm-gray-100 mx-auto mb-4" />
               <Text className="text-warm-gray-500 font-medium text-lg">No products found</Text>
@@ -218,7 +282,11 @@ export default function ProductsAdminPage() {
               <Button
                 variant="outline"
                 className="mt-6 rounded-lg border-warm-gray-200"
-                onClick={() => {setSearch(""); setSelectedCategory("all");}}
+                onClick={() => {
+                  setSearch("");
+                  setSelectedCategory("all");
+                  setPage(1);
+                }}
               >
                 Clear All Filters
               </Button>
@@ -234,17 +302,18 @@ export default function ProductsAdminPage() {
                 </div>
               </div>
 
-              {filteredProducts.map((product) => (
+              {sortedProducts.map((product) => (
                 <div key={product.id} className="group flex items-center py-4 px-6 hover:bg-warm-gray-50 transition-all duration-200">
                   <div className="flex items-center gap-4 flex-1 min-w-0">
                     <div className="relative w-14 h-14 rounded-lg overflow-hidden border border-warm-gray-100 flex-shrink-0 bg-warm-gray-50 group-hover:shadow-md transition-shadow">
-                      {product.image || (product.images && product.images[0]) ? (
+                      {getProductImage(product) ? (
                         <Image
-                          src={product.image || product.images![0]}
+                          src={getProductImage(product)!}
                           alt={product.name}
                           fill
                           className="object-cover"
                           sizes="56px"
+                          unoptimized={shouldUnoptimizeImage(getProductImage(product)!)}
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-warm-gray-300">
@@ -264,7 +333,7 @@ export default function ProductsAdminPage() {
                       </Text>
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="text-[9px] py-0 h-4 bg-warm-gray-50 text-warm-gray-500 border-warm-gray-100">
-                          {product.categoryName}
+                          {product.category?.name || "Uncategorized"}
                         </Badge>
                         <code className="text-[9px] text-warm-gray-300 font-mono">ID: {product.id}</code>
                       </div>
@@ -288,10 +357,10 @@ export default function ProductsAdminPage() {
                         variant="secondary"
                         className={cn(
                           "font-mono text-[10px] px-2 py-0.5 rounded-lg",
-                          (product.stock || 0) < 5 ? "bg-red-50 text-red-600" : "bg-warm-gray-50 text-warm-gray-600"
+                          (product.stock || product.effectiveStock || 0) < 5 ? "bg-red-50 text-red-600" : "bg-warm-gray-50 text-warm-gray-600"
                         )}
                       >
-                        {product.stock || 0} in stock
+                        {product.stock || product.effectiveStock || 0} in stock
                       </Badge>
                     </div>
 
@@ -311,7 +380,7 @@ export default function ProductsAdminPage() {
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
-                            <Link href={`/products/${product.slug}`} target="_blank" className="rounded-lg cursor-pointer flex items-center gap-2 px-3 py-2.5">
+                            <Link href={productRoutes.detail(product.slug)} target="_blank" className="rounded-lg cursor-pointer flex items-center gap-2 px-3 py-2.5">
                               <Eye className="w-4 h-4 text-warm-gray-400" />
                               <span className="text-sm">View on Store</span>
                             </Link>
@@ -334,16 +403,17 @@ export default function ProductsAdminPage() {
           ) : (
             /* Grid View */
             <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredProducts.map((product) => (
+              {sortedProducts.map((product) => (
                 <Card key={product.id} className="group overflow-hidden border-warm-gray-200 hover:shadow-xl transition-all duration-300 rounded-lg">
                   <div className="relative aspect-square bg-warm-gray-50">
-                    {product.image || (product.images && product.images[0]) ? (
+                    {getProductImage(product) ? (
                       <Image
-                        src={product.image || product.images![0]}
+                        src={getProductImage(product)!}
                         alt={product.name}
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-110"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                        unoptimized={shouldUnoptimizeImage(getProductImage(product)!)}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-warm-gray-200">
@@ -354,7 +424,7 @@ export default function ProductsAdminPage() {
                        {product.isOnSale && (
                         <Badge className="bg-red-500 hover:bg-red-500 text-white border-none shadow-lg">SALE</Badge>
                       )}
-                      <Badge className="bg-white/90 backdrop-blur-sm text-warm-gray-900 border-none shadow-sm">{product.categoryName}</Badge>
+                      <Badge className="bg-white/90 backdrop-blur-sm text-warm-gray-900 border-none shadow-sm">{product.category?.name || "Uncategorized"}</Badge>
                     </div>
 
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
@@ -387,7 +457,7 @@ export default function ProductsAdminPage() {
                         )}
                       </div>
                       <Badge variant="outline" className="text-[9px] h-5 bg-warm-gray-50">
-                        {product.stock} in stock
+                        {product.stock || product.effectiveStock || 0} in stock
                       </Badge>
                     </div>
                   </div>
@@ -395,6 +465,44 @@ export default function ProductsAdminPage() {
               ))}
             </div>
           )}
+
+        {/* Pagination */}
+        {productsResponse && productsResponse.totalPages > 1 && (
+          <div className="p-4 border-t border-warm-gray-100 flex items-center justify-between bg-warm-gray-50/30">
+            <Text className="text-xs text-warm-gray-500">
+              Page <span className="font-bold text-warm-gray-900">{page}</span> of{" "}
+              <span className="font-bold text-warm-gray-900">{productsResponse.totalPages}</span>
+              {" · "}
+              {productsResponse.total} total
+            </Text>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1 || isLoading}
+                className="rounded-lg"
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setPage((p) =>
+                    Math.min(productsResponse.totalPages, p + 1)
+                  )
+                }
+                disabled={
+                  page === productsResponse.totalPages || isLoading
+                }
+                className="rounded-lg"
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
         </div>
       </Card>
     </div>

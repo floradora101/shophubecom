@@ -30,6 +30,12 @@ export function SuccessHeader({ order, isDemo }: SuccessHeaderProps) {
           <Text className="max-w-md">
             Your order has been received and is being processed.
           </Text>
+          <div className="mt-2 rounded-full bg-green-50 px-4 py-1.5 border border-green-100">
+            <Text variant="meta" className="text-green-700 font-medium flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+              A confirmation email has been sent to your inbox
+            </Text>
+          </div>
         </Stack>
 
         {/* Demo Mode Badge */}

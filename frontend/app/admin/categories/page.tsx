@@ -13,9 +13,10 @@ import {
   ArrowUpDown,
   SortAsc,
   SortDesc,
-  BarChart3
+  BarChart3,
+  Loader2,
+  AlertCircle
 } from "lucide-react";
-import { getAllCategories } from "@/lib/mock-data/mock-data";
 import { Heading, Text } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,16 +32,16 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
-import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils/cn";
+import { useCategoriesQuery, useDeleteCategoryMutation } from "@/features/categories/queries";
+import type { Category } from "@/features/products/types";
 
 interface CategoryTreeNode {
   id: string;
   name: string;
   slug: string;
-  image?: string;
   productCount: number;
   parentId: string | null;
   children: CategoryTreeNode[];
@@ -53,8 +54,17 @@ export default function CategoriesPage() {
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [sortBy, setSortBy] = useState<SortOption>("name-asc");
 
-  // Build the tree structure from flat mock data
-  const categories = getAllCategories();
+  // Fetch categories - tree view requires full hierarchy (limit 200 covers most stores)
+  const { data: categoriesResponse, isLoading, error } = useCategoriesQuery({
+    limit: 200,
+    sortBy: "name",
+    sortOrder: "asc",
+  });
+
+  const deleteMutation = useDeleteCategoryMutation();
+
+  // Extract categories array from response, default to empty array
+  const categories: Category[] = categoriesResponse?.data || [];
 
   const treeData = useMemo(() => {
     const map = new Map<string, CategoryTreeNode>();
@@ -66,7 +76,6 @@ export default function CategoriesPage() {
         id: cat.id,
         name: cat.name,
         slug: cat.slug,
-        image: cat.image,
         productCount: cat.productCount || 0,
         parentId: cat.parentId || null,
         children: []
@@ -115,7 +124,7 @@ export default function CategoriesPage() {
 
   const handleDelete = (id: string) => {
     if (window.confirm("Are you sure you want to delete this category and all its subcategories?")) {
-      toast.success("Category deleted (mock)");
+      deleteMutation.mutate(id);
     }
   };
 
@@ -157,22 +166,6 @@ export default function CategoriesPage() {
             ) : (
               <div className="w-6" /> // Spacer for alignment
             )}
-
-            <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-warm-gray-100 flex-shrink-0 bg-white">
-              {node.image ? (
-                <Image
-                  src={node.image}
-                  alt={node.name}
-                  fill
-                  className="object-cover"
-                  sizes="40px"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-warm-gray-300">
-                  <Layers className="w-5 h-5" />
-                </div>
-              )}
-            </div>
 
             <div className="min-w-0">
               <Text className="font-semibold text-warm-gray-900 group-hover:text-primary-700 transition-colors text-sm truncate">
@@ -217,6 +210,70 @@ export default function CategoriesPage() {
     );
   };
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <Heading level="h2">Categories</Heading>
+            <Text className="text-warm-gray-500">
+              Manage your product hierarchy with a smart tree view.
+            </Text>
+          </div>
+          <Link href="/admin/categories/new">
+            <Button className="rounded-lg shadow-md hover:shadow-lg transition-all duration-200 bg-primary-600 hover:bg-primary-700">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Category
+            </Button>
+          </Link>
+        </div>
+
+        <Card className="border-warm-gray-200 shadow-sm overflow-hidden bg-white">
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
+            <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+            <Text className="text-warm-gray-500">Loading categories...</Text>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="space-y-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <Heading level="h2">Categories</Heading>
+            <Text className="text-warm-gray-500">
+              Manage your product hierarchy with a smart tree view.
+            </Text>
+          </div>
+          <Link href="/admin/categories/new">
+            <Button className="rounded-lg shadow-md hover:shadow-lg transition-all duration-200 bg-primary-600 hover:bg-primary-700">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Category
+            </Button>
+          </Link>
+        </div>
+
+        <Card className="border-warm-gray-200 shadow-sm overflow-hidden bg-white">
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
+            <AlertCircle className="w-12 h-12 text-red-500" />
+            <Heading level="h3">Failed to load categories</Heading>
+            <Text className="text-warm-gray-500 text-center max-w-md">
+              {error instanceof Error ? error.message : "An error occurred while fetching categories. Please try again."}
+            </Text>
+            <Button onClick={() => window.location.reload()} variant="outline">
+              Retry
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -248,7 +305,7 @@ export default function CategoriesPage() {
 
           <div className="flex items-center gap-3">
             <div className="text-xs text-warm-gray-400 font-medium hidden md:block">
-              {categories.length} categories
+              {categoriesResponse?.total ?? categories.length} {categoriesResponse?.total === 1 ? 'category' : 'categories'}
             </div>
 
             <DropdownMenu>

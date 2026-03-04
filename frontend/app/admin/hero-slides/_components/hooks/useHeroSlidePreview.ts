@@ -35,7 +35,38 @@ export function useHeroSlidePreview({
       // If validation fails during real-time mapping, return current or default
       return slide || fromFormValues(getDefaultHeroSlideFormValues());
     }
-  }, [formValues, slide]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    // Use JSON.stringify for complex objects to prevent unnecessary re-renders
+    // Only re-compute when actual values change, not on every render
+    JSON.stringify({
+      type: formValues.type,
+      mediaKind: formValues.mediaKind,
+      mediaImageUrl: formValues.mediaImageUrl,
+      mediaProductSlug: formValues.mediaProductSlug,
+      mediaAlt: formValues.mediaAlt,
+      mediaPosition: formValues.mediaPosition,
+      mediaAspect: formValues.mediaAspect,
+      headline: formValues.headline,
+      description: formValues.description,
+      badgeText: formValues.badgeText,
+      highlight: formValues.highlight,
+      categorySlug: formValues.categorySlug,
+      categoryBullets: formValues.categoryBullets,
+      productSlugs: formValues.productSlugs,
+      editorNote: formValues.editorNote,
+      leftProductSlug: formValues.leftProductSlug,
+      rightProductSlug: formValues.rightProductSlug,
+      comparisonPoints: formValues.comparisonPoints,
+      priority: formValues.priority,
+      isActive: formValues.isActive,
+      startsAt: formValues.startsAt,
+      endsAt: formValues.endsAt,
+      ctaPrimaryLabel: formValues.ctaPrimaryLabel,
+      ctaPrimaryHref: formValues.ctaPrimaryHref,
+    }),
+    slide?.id, // Only watch slide ID, not entire slide object
+  ]);
 
   return previewSlide;
 }

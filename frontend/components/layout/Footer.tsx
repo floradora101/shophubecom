@@ -25,10 +25,10 @@ import { Heading, Text } from "@/components/ui/typography";
 import Image from "next/image";
 import { ui } from "@/lib/ui-tokens";
 import { cn } from "@/lib/utils/cn";
-import { getMainCategories } from "@/lib/data/categories";
-import { getSubcategories } from "@/lib/mock-data/mock-data";
+import { useCategoriesTreeQuery } from "@/features/categories/queries";
 import { SparkleEffect } from "@/components/ui/SparkleEffect";
 import type { Category } from "@/features/products/types";
+import { productRoutes } from "@/lib/routes";
 
 export function Footer() {
   const [email, setEmail] = useState("");
@@ -38,35 +38,10 @@ export function Footer() {
   // Accordion state for mobile
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
-  // Get categories from data layer - deferred loading for performance
-  // Footer categories are non-critical, so we load them after page is interactive
-  const [mainCategories, setMainCategories] = useState<Category[]>([]);
-
-  useEffect(() => {
-    // Defer loading until after page is interactive (reduces initial API calls)
-    // Use requestIdleCallback if available, otherwise fallback to setTimeout
-    const loadCategories = () => {
-      getMainCategories()
-        .then(setMainCategories)
-        .catch((error) => {
-          // Silent error handling for mock environments
-          if (process.env.NEXT_PUBLIC_USE_MOCKS !== "false") {
-            // Silently ignore expected errors in mock mode
-          } else {
-            console.error("Failed to load categories:", error);
-          }
-        });
-    };
-
-    if (typeof window !== "undefined" && "requestIdleCallback" in window) {
-      // Use requestIdleCallback to defer until browser is idle
-      requestIdleCallback(loadCategories, { timeout: 2000 });
-    } else {
-      // Fallback: defer by 100ms to allow critical resources to load first
-      const timeoutId = setTimeout(loadCategories, 100);
-      return () => clearTimeout(timeoutId);
-    }
-  }, []);
+  // Fetch categories from API (tree query returns root categories with children)
+  const { data: categoriesTree = [] } = useCategoriesTreeQuery();
+  // Extract main categories (root level categories)
+  const mainCategories = categoriesTree.filter(cat => !cat.parentId) || [];
 
   const toggleSection = (section: string) => {
     setOpenSections((prev) => ({
@@ -294,7 +269,7 @@ export function Footer() {
               {mainCategories.map((category) => (
                 <Link
                   key={category.id}
-                  href={`/products/category/${category.slug}`}
+                  href={productRoutes.category(category.slug)}
                   className="flex items-center text-sm text-warm-gray-600 hover:text-primary-600 transition-colors focus:outline-none rounded-xl px-1 py-1 -my-1"
                 >
                   {category.name}
@@ -452,7 +427,7 @@ export function Footer() {
                   {mainCategories.map((category) => (
                     <li key={category.id}>
                       <Link
-                        href={`/products/category/${category.slug}`}
+                        href={productRoutes.category(category.slug)}
                         className="flex items-center text-sm text-warm-gray-600 hover:text-primary-600 transition-colors focus:outline-none rounded-xl px-1 py-1 -my-1"
                       >
                         {category.name}

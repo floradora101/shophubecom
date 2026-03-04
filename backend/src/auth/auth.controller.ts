@@ -323,10 +323,10 @@ export class AuthController {
   /**
    * @route POST /api/auth/forgot-password
    * @description Initiates password reset flow.
+   * Always returns same message to prevent email enumeration.
    *
    * @param forgotPasswordDto - Contains user email
-   * @returns Success message
-   * @throws UserNotFoundException - If email not found
+   * @returns Success message (same whether email exists or not)
    */
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
@@ -347,6 +347,7 @@ export class AuthController {
    */
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 requests per minute - prevents token brute-force
   resetPassword(
     @Body() resetPasswordDto: ResetPasswordDto,
   ): Promise<{ message: string }> {

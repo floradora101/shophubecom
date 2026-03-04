@@ -13,6 +13,7 @@
 
 import { useMemo } from "react";
 import { useSearchParams, usePathname } from "next/navigation";
+import { productRoutes, isProductCategoryPath } from "@/lib/routes";
 import {
   parseFiltersFromSearchParams,
   type CanonicalFilters,
@@ -29,6 +30,7 @@ interface UseProductFiltersReturn {
   basePath: string;
   isCategoryPage: boolean;
   isSearchResultsPage: boolean;
+  isDealsPage: boolean;
   currentCategory: Category | undefined;
   currentCategoryTitle: {
     italic: string;
@@ -47,7 +49,7 @@ export function useProductFilters({
   const pathname = usePathname();
 
   // Derived values (non-hook computations)
-  const isCategoryPage = pathname?.startsWith("/products/category/") ?? false;
+  const isCategoryPage = isProductCategoryPath(pathname ?? "") ?? false;
   const isSearchResultsPage = pathname?.startsWith("/search/results") ?? false;
 
   // Parse filters from URL (single source of truth)
@@ -65,9 +67,9 @@ export function useProductFilters({
   // Build the base path for navigation (either /products or /products/category/[slug])
   const basePath = useMemo(() => {
     if (isCategoryPage && categorySlug) {
-      return `/products/category/${categorySlug}`;
+      return productRoutes.category(categorySlug);
     }
-    return "/products";
+    return productRoutes.list();
   }, [isCategoryPage, categorySlug]);
 
   // Get current category name for breadcrumb and title
@@ -75,8 +77,14 @@ export function useProductFilters({
     return categories.find((c) => c.slug === filters.category);
   }, [categories, filters.category]);
 
-  // Get current category title for carousel
+  // Deals/promotion mode: when promotionId is in URL
+  const isDealsPage = Boolean(filters.promotionId?.trim());
+
+  // Get current category title for carousel (or "Deals" when promotion filter is active)
   const currentCategoryTitle = useMemo(() => {
+    if (isDealsPage) {
+      return { italic: "Deals", bold: "Promotion" };
+    }
     if (isCategoryPage && currentCategory) {
       return {
         italic: "Category",
@@ -87,13 +95,14 @@ export function useProductFilters({
       italic: "Advanced",
       bold: "Hardware",
     };
-  }, [isCategoryPage, currentCategory]);
+  }, [isCategoryPage, currentCategory, isDealsPage]);
 
   return {
     filters,
     basePath,
     isCategoryPage,
     isSearchResultsPage,
+    isDealsPage,
     currentCategory,
     currentCategoryTitle,
   };

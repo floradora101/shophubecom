@@ -1,6 +1,6 @@
 // Product detail page - server component shell
 import type { Metadata } from "next";
-import { getProductBySlugSync } from "@/lib/data/products";
+import { getProductBySlugForServer } from "@/lib/data/products";
 import { ProductDetailClient } from "./ProductDetailClient";
 
 interface PageProps {
@@ -15,8 +15,7 @@ export async function generateMetadata({
     ? resolvedParams.slug[0]
     : resolvedParams.slug;
 
-  // Find product using data layer
-  const product = getProductBySlugSync(slug);
+  const product = await getProductBySlugForServer(slug);
 
   if (product) {
     return {

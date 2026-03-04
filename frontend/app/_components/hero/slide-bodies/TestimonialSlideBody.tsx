@@ -11,6 +11,7 @@ import { HeroItem } from "../shared/hero-item";
 import { useHeroRunCounter } from "@/lib/hooks/use-hero-run-counter";
 import type { HeroSlide } from "@/lib/types/heroSlides.types";
 import type { Product } from "@/features/products/types";
+import { resolveSlidePrimaryCtaHref } from "@/lib/utils/heroSlides.utils";
 
 // Helper to sanitize quotes by stripping wrapping quotes
 function sanitizeQuote(quote: string): string {
@@ -177,7 +178,7 @@ export const TestimonialSlideBody = memo(function TestimonialSlideBody({
             <HeroItem run={run} animationKey={animationKey}>
               <div className="flex flex-row gap-1.5 mt-1.5 md:mt-4 hero-item-enter hero-buttons text-gray-900">
                 <Link
-                  href={slide.ctaPrimary.href}
+                  href={resolveSlidePrimaryCtaHref(slide)}
                   onMouseEnter={onMouseEnter}
                   onMouseLeave={onMouseLeave}
                 >

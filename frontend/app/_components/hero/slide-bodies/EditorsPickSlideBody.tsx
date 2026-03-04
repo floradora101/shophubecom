@@ -14,7 +14,9 @@ import Image from "next/image";
 import { cn } from "@/lib/utils/cn";
 import type { EditorsPickSlide } from "@/lib/types/heroSlides.types";
 import type { Product } from "@/features/products/types";
+import { productRoutes } from "@/lib/routes";
 import { getProductImageWithPlaceholder } from "@/lib/utils/products";
+import { resolveSlidePrimaryCtaHref } from "@/lib/utils/heroSlides.utils";
 
 interface EditorsPickSlideBodyProps {
   slide: EditorsPickSlide;
@@ -73,7 +75,7 @@ export const EditorsPickSlideBody = memo(function EditorsPickSlideBody({
             {editorProducts.length === 1 ? (
               // Single featured product - large display
               <Link
-                href={`/products/${editorProducts[0].slug}`}
+                href={productRoutes.detail(editorProducts[0].slug)}
                 className="block relative h-full w-full rounded-lg overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800 group/product"
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={onMouseLeave}
@@ -130,7 +132,7 @@ export const EditorsPickSlideBody = memo(function EditorsPickSlideBody({
                 {editorProducts.map((product, idx) => (
                   <Link
                     key={product.id}
-                    href={`/products/${product.slug}`}
+                    href={productRoutes.detail(product.slug)}
                     className="relative rounded-lg overflow-hidden bg-white border border-gray-200 group/product-card hover:shadow-xl transition-all duration-300"
                     onMouseEnter={onMouseEnter}
                     onMouseLeave={onMouseLeave}
@@ -318,7 +320,7 @@ export const EditorsPickSlideBody = memo(function EditorsPickSlideBody({
             <HeroItem run={run} animationKey={animationKey}>
               <div className="flex flex-row gap-1.5 mt-1.5 md:mt-4 justify-center lg:justify-start hero-item-enter hero-buttons text-gray-900">
                 <Link
-                  href={slide.ctaPrimary.href}
+                  href={resolveSlidePrimaryCtaHref(slide)}
                   onMouseEnter={onMouseEnter}
                   onMouseLeave={onMouseLeave}
                 >

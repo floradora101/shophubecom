@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "../hooks";
 import { formatPrice } from "@/lib/utils";
 import { cn } from "@/lib/utils/cn";
+import { productRoutes } from "@/lib/routes";
 
 export function CartSidebar() {
   const {
@@ -195,7 +196,7 @@ export function CartSidebar() {
                     <div>
                       <div className="flex items-start justify-between gap-2">
                         <Link
-                          href={`/products/${item.slug}`}
+                          href={productRoutes.detail(item.slug)}
                           className="text-sm font-bold text-gray-900 hover:text-primary-600 transition-colors line-clamp-1"
                           onClick={() => toggleCart(false)}
                         >

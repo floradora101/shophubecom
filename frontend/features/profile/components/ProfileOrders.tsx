@@ -3,7 +3,8 @@
 
 import Link from "next/link";
 import { toast } from "sonner";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useOrdersQuery } from "@/features/orders/queries";
 import { LoadingSpinner } from "@/components/ui/spinner";
 import { extractErrorMessage } from "@/lib/utils/error-handler";
@@ -17,9 +18,12 @@ import {
   CheckCircle2,
   Clock,
   ChevronRight,
-  Search
+  ChevronLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { productRoutes } from "@/lib/routes";
+
+const ORDERS_PER_PAGE = 10;
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -38,49 +42,44 @@ const statusConfig: Record<string, { variant: any; icon: any }> = {
   CANCELLED: { variant: "destructive", icon: Clock },
 };
 
-// Mock orders for high-quality preview when backend is not available
-const mockOrders = [
-  {
-    id: "ord-1",
-    orderNumber: "SH-99281",
-    createdAt: "2024-01-10T10:00:00.000Z",
-    status: "DELIVERED",
-    totalAmount: 129.99,
-    items: [
-      { id: "item-1", productName: "Sony WF-1000XM5 Premium Edition", productSlug: "sony-wf-1000xm5-premium", quantity: 1, price: 129.99 }
-    ],
-    address: { name: "Alex Thompson", city: "New York", state: "NY" }
-  },
-  {
-    id: "ord-2",
-    orderNumber: "SH-99102",
-    createdAt: "2024-01-12T14:30:00.000Z",
-    status: "PROCESSING",
-    totalAmount: 45.00,
-    items: [
-      { id: "item-2", productName: "OtterBox Defender iPhone Case", productSlug: "otterbox-defender-iphone-case", quantity: 1, price: 45.00 }
-    ],
-    address: { name: "Alex Thompson", city: "New York", state: "NY" }
-  }
-];
-
 export function ProfileOrders() {
-  // React Query hook - automatically cached and deduplicated
-  const {
-    data: ordersData,
-    isLoading,
-    error,
-  } = useOrdersQuery({
-    limit: 50, // Get more orders for profile page
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const page = useMemo(() => {
+    const p = searchParams.get("page");
+    const num = p ? parseInt(p, 10) : 1;
+    return isNaN(num) || num < 1 ? 1 : num;
+  }, [searchParams]);
+
+  const setPage = (newPage: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (newPage <= 1) {
+      params.delete("page");
+    } else {
+      params.set("page", newPage.toString());
+    }
+    router.replace(`/profile?${params.toString()}`, { scroll: false });
+  };
+
+  const { data: ordersData, isLoading, error } = useOrdersQuery({
+    page,
+    limit: ORDERS_PER_PAGE,
   });
 
-  // Extract data from query result or fallback to mock for design preview
-  const orders = ordersData?.data?.length ? ordersData.data : mockOrders;
+  const orders = ordersData?.data ?? [];
+  const totalPages = ordersData?.totalPages ?? 0;
+  const total = ordersData?.total ?? 0;
 
   // Show error toast if query fails
   useEffect(() => {
     if (error) {
-      toast.error(extractErrorMessage(error, "Showing preview orders (failed to load real ones)"));
+      toast.error(
+        extractErrorMessage(
+          error,
+          "Failed to load your orders. Please try again."
+        )
+      );
     }
   }, [error]);
 
@@ -92,7 +91,7 @@ export function ProfileOrders() {
     );
   }
 
-  if (orders.length === 0) {
+  if (!isLoading && orders.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-border/40 bg-surface-muted/20 p-20 text-center space-y-6">
         <div className="w-20 h-20 rounded-full bg-surface-muted flex items-center justify-center mx-auto">
@@ -113,19 +112,9 @@ export function ProfileOrders() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
-        <div>
-          <h2 className="text-2xl font-bold text-fg tracking-tight">Order History</h2>
-          <p className="text-muted-fg text-sm font-medium">Manage and track your recent purchases</p>
-        </div>
-        <div className="relative max-w-xs w-full sm:w-64">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-fg/60" />
-          <input
-            type="text"
-            placeholder="Search orders..."
-            className="w-full pl-10 pr-4 py-2 text-sm rounded-xl border border-border/40 bg-surface-muted/20 focus:outline-none focus:ring-2 focus:ring-primary-500/10 transition-all"
-          />
-        </div>
+      <div className="mb-2">
+        <h2 className="text-2xl font-bold text-fg tracking-tight">Order History</h2>
+        <p className="text-muted-fg text-sm font-medium">Manage and track your recent purchases</p>
       </div>
 
       <div className="grid grid-cols-1 gap-6">
@@ -164,11 +153,6 @@ export function ProfileOrders() {
                       <StatusIcon className="w-3.5 h-3.5 mr-2 opacity-70" />
                       {order.status}
                     </Badge>
-                    <Link href={`/profile/orders/${order.id}`}>
-                      <Button variant="outline" size="sm" className="h-9 px-4 rounded-xl font-bold text-xs uppercase tracking-widest">
-                        Details <ChevronRight className="ml-1.5 w-3.5 h-3.5" />
-                      </Button>
-                    </Link>
                   </div>
                 </div>
 
@@ -187,7 +171,7 @@ export function ProfileOrders() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <Link
-                              href={`/products/${item.productSlug}`}
+                              href={productRoutes.detail(item.productSlug)}
                               className="block font-bold text-sm text-fg hover:text-primary-600 transition-colors truncate"
                             >
                               {item.productName}
@@ -229,6 +213,40 @@ export function ProfileOrders() {
           );
         })}
       </div>
+
+      {/* Pagination - only when we have real API data and multiple pages */}
+      {ordersData && totalPages > 1 && (
+        <div className="mt-8 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-sm text-muted-fg font-medium">
+            Showing {(page - 1) * ORDERS_PER_PAGE + 1}–{Math.min(page * ORDERS_PER_PAGE, total)} of {total} orders
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(page - 1)}
+              disabled={page <= 1 || isLoading}
+              className="rounded-xl gap-1.5"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Previous
+            </Button>
+            <span className="text-sm font-medium text-fg px-2">
+              Page {page} of {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(page + 1)}
+              disabled={page >= totalPages || isLoading}
+              className="rounded-xl gap-1.5"
+            >
+              Next
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

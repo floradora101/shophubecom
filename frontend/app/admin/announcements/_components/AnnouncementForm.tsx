@@ -21,6 +21,7 @@ import {
 import { cn } from "@/lib/utils/cn";
 import { Announcement, AnnouncementIconType, CreateAnnouncementInput } from "@/lib/types/announcements.types";
 import { Switch } from "@/components/ui/switch";
+import { useCreateAnnouncementMutation, useUpdateAnnouncementMutation } from "@/features/announcements/queries";
 
 interface AnnouncementFormProps {
   announcement?: Announcement;
@@ -43,11 +44,14 @@ export function AnnouncementForm({
   onSuccess,
   onCancel,
 }: AnnouncementFormProps) {
+  const createMutation = useCreateAnnouncementMutation();
+  const updateMutation = useUpdateAnnouncementMutation();
+
   const {
     register,
     handleSubmit,
     control,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<CreateAnnouncementInput>({
     defaultValues: {
       text: announcement?.text || "",
@@ -58,19 +62,24 @@ export function AnnouncementForm({
     },
   });
 
-  const onSubmit = async (data: CreateAnnouncementInput) => {
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+  const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
-      toast.success(
-        announcement
-          ? "Announcement updated successfully!"
-          : "Announcement created successfully!"
+  const onSubmit = async (data: CreateAnnouncementInput) => {
+    if (announcement) {
+      updateMutation.mutate(
+        { id: announcement.id, data },
+        {
+          onSuccess: () => {
+            onSuccess();
+          },
+        }
       );
-      onSuccess();
-    } catch (error) {
-      toast.error("Failed to save announcement. Please try again.");
+    } else {
+      createMutation.mutate(data, {
+        onSuccess: () => {
+          onSuccess();
+        },
+      });
     }
   };
 

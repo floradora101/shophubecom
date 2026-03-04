@@ -27,14 +27,16 @@ export function AppProviders({ children }: AppProvidersProps) {
   );
 
   return (
-    <BackgroundProvider variant="vibrant">
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>{children}</AuthProvider>
-        {process.env.NODE_ENV === "development" && (
-          <ReactQueryDevtools initialIsOpen={false} />
-        )}
-        <Toaster />
-      </QueryClientProvider>
-    </BackgroundProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <BackgroundProvider variant="vibrant">
+          {children}
+        </BackgroundProvider>
+      </AuthProvider>
+      {process.env.NODE_ENV === "development" && (
+        <ReactQueryDevtools initialIsOpen={false} />
+      )}
+      <Toaster />
+    </QueryClientProvider>
   );
 }

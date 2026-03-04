@@ -8,6 +8,7 @@ import Image from "next/image";
 import { ShoppingCart, Heart } from "lucide-react";
 import { toast } from "sonner";
 import type { Product } from "@/features/products/types";
+import { productRoutes } from "@/lib/routes";
 import {
   getEffectiveStock,
   LOW_STOCK_THRESHOLD,
@@ -23,6 +24,7 @@ import { getAllProductImages } from "@/features/products/utils/product-images";
 import { StarRating } from "@/components/ui/star-rating";
 import { cn } from "@/lib/utils/cn";
 import { logError, extractErrorMessage } from "@/lib/errors";
+import { shouldUnoptimizeImage } from "@/lib/utils/image-helpers";
 
 interface ProductCardProps {
   product: Product & {
@@ -109,7 +111,7 @@ export function ProductCard({
 
     if (requiresSelection) {
       // Multiple variants or no variants - navigate to product detail page
-      router.push(`/products/${product.slug}`);
+      router.push(productRoutes.detail(product.slug));
     } else {
       // Exactly 1 variant - quick add with that variant
       const variant = product.variants![0];
@@ -157,7 +159,7 @@ export function ProductCard({
         <div className={cn("flex-1 space-y-1.5", compact && "space-y-1")}>
           {/* Product Name */}
           <Link
-            href={`/products/${product.slug}`}
+            href={productRoutes.detail(product.slug)}
             className="block group/title"
           >
             <h3
@@ -263,7 +265,7 @@ export function ProductCard({
                 )}
                 sizes={compact ? "96px" : "25vw"}
                 onError={() => setImageError(true)}
-                unoptimized={displayImage.startsWith("data:")}
+                unoptimized={shouldUnoptimizeImage(displayImage)}
               />
               {/* Hover Image */}
               {showHoverImage && (
@@ -276,14 +278,14 @@ export function ProductCard({
                     "p-0"
                   )}
                   sizes={compact ? "96px" : "25vw"}
-                  unoptimized={hoverImage.startsWith("data:")}
+                  unoptimized={shouldUnoptimizeImage(hoverImage)}
                 />
               )}
             </div>
           </div>
         ) : (
           <Link
-            href={`/products/${product.slug}`}
+            href={productRoutes.detail(product.slug)}
             className="relative block w-full h-full rounded-xl overflow-hidden bg-warm-gray-50/60 transition-all duration-300 ease-out group-hover/card-container:bg-warm-gray-100/70 group/card"
           >
             {/* Image - edge to edge, minimal padding */}
@@ -302,7 +304,7 @@ export function ProductCard({
                 )}
                 sizes={compact ? "96px" : "25vw"}
                 onError={() => setImageError(true)}
-                unoptimized={displayImage.startsWith("data:")}
+                unoptimized={shouldUnoptimizeImage(displayImage)}
               />
               {/* Hover Image */}
               {showHoverImage && (
@@ -315,7 +317,7 @@ export function ProductCard({
                     "p-0"
                   )}
                   sizes={compact ? "96px" : "25vw"}
-                  unoptimized={hoverImage.startsWith("data:")}
+                  unoptimized={shouldUnoptimizeImage(hoverImage)}
                 />
               )}
             </div>
@@ -470,7 +472,7 @@ export function ProductCard({
         <div className={cn("mt-3 space-y-1.5", compact && "mt-2 space-y-1")}>
           {/* Product Name */}
           <Link
-            href={`/products/${product.slug}`}
+            href={productRoutes.detail(product.slug)}
             className="block group/title"
           >
             <h3

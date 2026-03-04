@@ -1,14 +1,9 @@
 import * as yup from "yup";
 
 export const categorySchema = yup.object({
-  name: yup.string().trim().required().min(2).max(80),
-  slug: yup.string().trim()
-    .required()
-    .matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase letters, numbers, and dashes"),
+  name: yup.string().trim().required("Category name is required").min(2, "Name must be at least 2 characters").max(100, "Name must be at most 100 characters"),
+  description: yup.string().trim().max(500, "Description must be at most 500 characters").optional().nullable(),
   parentId: yup.string().nullable().optional(),
-  description: yup.string().trim().max(600).optional(),
-  image: yup.string().trim().url().optional(),
-  sortOrder: yup.number().integer().min(0).max(9999).optional(),
 });
 
 export type CategoryFormData = yup.InferType<typeof categorySchema>;

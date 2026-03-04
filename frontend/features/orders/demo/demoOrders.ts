@@ -30,6 +30,10 @@ interface DemoOrderInput {
   shippingOption: "pickup" | "beirut" | "outside";
   shippingCost: number;
   total: number;
+  /** Discount amount (e.g. from coupon) so order summary shows correct breakdown */
+  discount?: number;
+  /** Coupon/discount code used so order summary can show the name */
+  couponCode?: string | null;
   shippingAddress: {
     firstName: string;
     lastName: string;
@@ -89,7 +93,8 @@ export function createDemoOrder(
     subtotal: input.subtotal,
     tax: 0,
     shipping: input.shippingCost,
-    discount: 0,
+    discount: input.discount ?? 0,
+    couponCode: input.couponCode ?? null,
     total: input.total,
     currency: "USD",
     shippingAddress: {

@@ -20,9 +20,9 @@ import {
   SortDesc,
   Presentation,
   Grid,
-  List as ListIcon
+  List as ListIcon,
+  Loader2
 } from "lucide-react";
-import { mockHeroSlides } from "@/dev/mocks/heroSlides.mock";
 import { Heading, Text } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,6 +43,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils/cn";
 import { HeroSlideType } from "@/lib/types/heroSlides.types";
+import { useHeroSlidesQuery, useDeleteHeroSlideMutation } from "@/features/hero-slides/queries";
 
 type SortOption = "priority-desc" | "priority-asc" | "type" | "status";
 type ViewMode = "grid" | "list";
@@ -53,38 +54,66 @@ export default function HeroSlidesAdminPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [selectedType, setSelectedType] = useState<string>("all");
 
-  const slides = useMemo(() => mockHeroSlides, []);
+  // Build API filters
+  const apiFilters = useMemo(() => {
+    const filters: any = {
+      page: 1,
+      limit: 100, // Backend max is 100
+    };
 
-  const filteredSlides = useMemo(() => {
-    let result = slides.filter(s => {
-      const headline = ("content" in s ? s.content?.headline : s.headline) || "";
-      const id = s.id || "";
-      return (
-        headline.toLowerCase().includes(search.toLowerCase()) ||
-        id.toLowerCase().includes(search.toLowerCase())
-      );
-    });
-
-    if (selectedType !== "all") {
-      result = result.filter(s => s.type === selectedType);
+    if (search) {
+      filters.search = search;
     }
 
-    result.sort((a, b) => {
-      switch (sortBy) {
-        case "priority-desc": return b.priority - a.priority;
-        case "priority-asc": return a.priority - b.priority;
-        case "type": return a.type.localeCompare(b.type);
-        case "status": return (a.isActive === b.isActive) ? 0 : a.isActive ? -1 : 1;
-        default: return 0;
-      }
-    });
+    if (selectedType !== "all") {
+      filters.type = selectedType as HeroSlideType;
+    }
+
+    // Map sortBy to API sortBy
+    switch (sortBy) {
+      case "priority-desc":
+        filters.sortBy = "priority";
+        filters.sortOrder = "desc";
+        break;
+      case "priority-asc":
+        filters.sortBy = "priority";
+        filters.sortOrder = "asc";
+        break;
+      case "type":
+        filters.sortBy = "createdAt"; // Fallback
+        filters.sortOrder = "asc";
+        break;
+      case "status":
+        filters.sortBy = "createdAt"; // Fallback
+        filters.sortOrder = "desc";
+        break;
+    }
+
+    return filters;
+  }, [search, selectedType, sortBy]);
+
+  const { data, isLoading, error } = useHeroSlidesQuery(apiFilters);
+  const deleteMutation = useDeleteHeroSlideMutation();
+
+  const slides = data?.data || [];
+
+  // Client-side filtering for status (API doesn't support it yet)
+  const filteredSlides = useMemo(() => {
+    let result = [...slides];
+
+    // Additional client-side sorting for type and status
+    if (sortBy === "type") {
+      result.sort((a, b) => a.type.localeCompare(b.type));
+    } else if (sortBy === "status") {
+      result.sort((a, b) => (a.isActive === b.isActive) ? 0 : a.isActive ? -1 : 1);
+    }
 
     return result;
-  }, [slides, search, sortBy, selectedType]);
+  }, [slides, sortBy]);
 
   const handleDelete = (id: string) => {
     if (window.confirm("Are you sure you want to delete this hero slide?")) {
-      toast.success("Slide deleted (mock)");
+      deleteMutation.mutate(id);
     }
   };
 
@@ -163,7 +192,7 @@ export default function HeroSlidesAdminPage() {
 
           <div className="flex items-center gap-3">
             <div className="text-xs text-warm-gray-400 font-medium hidden md:block">
-              {filteredSlides.length} slides found
+              {isLoading ? "Loading..." : `${data?.total || filteredSlides.length} slides found`}
             </div>
 
             <div className="flex items-center border border-warm-gray-200 rounded-lg bg-white p-1">
@@ -220,7 +249,18 @@ export default function HeroSlidesAdminPage() {
 
         {/* Content */}
         <div className="min-h-[600px] bg-white">
-          {filteredSlides.length === 0 ? (
+          {isLoading ? (
+            <div className="py-32 text-center">
+              <Loader2 className="w-16 h-16 text-primary-600 mx-auto mb-4 animate-spin" />
+              <Text className="text-warm-gray-500 font-medium text-lg">Loading slides...</Text>
+            </div>
+          ) : error ? (
+            <div className="py-32 text-center">
+              <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+              <Text className="text-warm-gray-500 font-medium text-lg">Failed to load slides</Text>
+              <Text className="text-warm-gray-400 text-sm mt-1">Please try refreshing the page.</Text>
+            </div>
+          ) : filteredSlides.length === 0 ? (
             <div className="py-32 text-center">
               <Presentation className="w-16 h-16 text-warm-gray-100 mx-auto mb-4" />
               <Text className="text-warm-gray-500 font-medium text-lg">No slides found</Text>

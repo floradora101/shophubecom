@@ -43,11 +43,13 @@ export function useHeroSlideTabs({
     ];
 
     // Media Tab - conditionally shown based on slide type
+    // Show Media tab for all types EXCEPT: EDITORS_PICK, PRODUCT_SPOTLIGHT, COMPARISON_BATTLE, CATEGORY_SPOTLIGHT
     if (
-      formValues.type !== "CATEGORY_SPOTLIGHT" &&
       formValues.type !== "EDITORS_PICK" &&
       formValues.type !== "PRODUCT_SPOTLIGHT" &&
-      formValues.type !== "COMPARISON_BATTLE"
+      formValues.type !== "COMPARISON_BATTLE" &&
+      formValues.type !== "CATEGORY_SPOTLIGHT" &&
+      formValues.type !== "PROMOTION"
     ) {
       tabItems.push({
         id: "media",

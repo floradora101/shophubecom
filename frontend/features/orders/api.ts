@@ -60,6 +60,7 @@ export interface BackendOrderResponseDto {
   tax: number;
   shipping: number;
   discount: number;
+  couponCode?: string | null;
   total: number;
   currency: string;
   shippingAddress: {
@@ -176,14 +177,17 @@ export const ordersApi = {
     totalPages: number;
   }> {
     try {
+      const page = params?.page ?? 1;
+      const limit = params?.limit ?? 20;
+
       const queryParams = new URLSearchParams();
+      queryParams.append("page", page.toString());
+      queryParams.append("limit", limit.toString());
       if (params?.status) queryParams.append("status", params.status);
       if (params?.paymentStatus)
         queryParams.append("paymentStatus", params.paymentStatus);
       if (params?.fulfillmentStatus)
         queryParams.append("fulfillmentStatus", params.fulfillmentStatus);
-      if (params?.page) queryParams.append("page", params.page.toString());
-      if (params?.limit) queryParams.append("limit", params.limit.toString());
 
       const response = await apiClient.get<
         BackendResponse<PaginatedOrderResponse>
@@ -222,15 +226,22 @@ export const ordersApi = {
   /**
    * Get a single order by ID (returns raw backend response with subtotal/shipping)
    * @param id - Order ID
+   * @param options.skipAuthRefresh - When true (guest order view), skip 401 refresh to avoid
+   *   failed refresh + authExpired. When false/undefined (authenticated user), allow refresh.
    * @note For guest orders, the token is automatically sent via httpOnly cookie
    */
-  async getOrderByIdRaw(id: string): Promise<BackendOrderResponseDto> {
+  async getOrderByIdRaw(
+    id: string,
+    options?: { skipAuthRefresh?: boolean }
+  ): Promise<BackendOrderResponseDto> {
     try {
       const response = await apiClient.get<
         BackendResponse<BackendOrderResponseDto>
       >(`/orders/${id}`, {
-        _skipAuthRefresh: true,
-      } as ExtendedAxiosRequestConfig);
+        ...(options?.skipAuthRefresh && {
+          _skipAuthRefresh: true,
+        } as ExtendedAxiosRequestConfig),
+      });
       return extractResponseData(response);
     } catch (error: unknown) {
       throw error;
@@ -249,5 +260,41 @@ export const ordersApi = {
     } catch (error: unknown) {
       throw error;
     }
+  },
+
+  /**
+   * Admin: Get all orders across all users
+   */
+  async getAdminOrders(params?: {
+    status?: OrderStatus;
+    userId?: string;
+    page?: number;
+    limit?: number;
+    search?: string;
+  }): Promise<{
+    data: BackendOrderResponseDto[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    const response = await apiClient.get<BackendResponse<PaginatedOrderResponse>>(
+      "/admin/orders",
+      { params }
+    );
+    return extractPaginatedData(response);
+  },
+
+  /**
+   * Admin: Update order status
+   */
+  async updateOrderStatus(
+    id: string,
+    data: { status: OrderStatus; notes?: string }
+  ): Promise<BackendOrderResponseDto> {
+    const response = await apiClient.patch<
+      BackendResponse<BackendOrderResponseDto>
+    >(`/admin/orders/${id}/status`, data);
+    return extractResponseData(response);
   },
 };

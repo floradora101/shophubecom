@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { productRoutes } from "@/lib/routes";
 import type {
   HeroSlide,
   HeroSlideType,
@@ -18,6 +19,7 @@ const baseHeroSlideSchema = z.object({
     "CATEGORY_SPOTLIGHT",
     "EDITORS_PICK",
     "COMPARISON_BATTLE",
+    "PROMOTION",
   ] as const),
 
   priority: z.number().int().min(0).default(0),
@@ -35,7 +37,7 @@ const baseHeroSlideSchema = z.object({
 
   // CTA
   ctaPrimaryLabel: z.string().min(1, "Primary CTA label is required").max(20),
-  ctaPrimaryHref: z.string().min(1, "Primary CTA link is required"),
+  ctaPrimaryHref: z.string().optional().or(z.literal("")), // URL removed from UI, will use default
 
   // Media
   mediaKind: z.enum(["product", "image", "video", "none"]),
@@ -81,11 +83,70 @@ const baseHeroSlideSchema = z.object({
   leftProductSlug: z.string().optional().or(z.literal("")),
   rightProductSlug: z.string().optional().or(z.literal("")),
   comparisonPoints: z.string().optional().or(z.literal("")), // Comma separated for form input
+
+  // PROMOTION
+  promotionId: z.string().optional().or(z.literal("")),
+  promotionBgColor: z.string().optional().or(z.literal("")),
+  promotionTextColor: z.string().optional().or(z.literal("")),
 });
 
 export const HeroSlideFormSchema = baseHeroSlideSchema;
 
 export type HeroSlideFormValues = z.infer<typeof HeroSlideFormSchema>;
+
+function parseFirstSlugFromCommaList(value?: string): string | undefined {
+  const first = (value || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)[0];
+  return first || undefined;
+}
+
+function derivePrimaryCtaHrefFromFormValues(values: HeroSlideFormValues): string {
+  // If some legacy flows still populate a real href, keep it.
+  const raw = (values.ctaPrimaryHref || "").trim();
+  if (raw && raw !== "#") return raw;
+
+  // Product-first: if the slide references a product, link to it.
+  if (values.mediaKind === "product" && values.mediaProductSlug?.trim()) {
+    return productRoutes.detail(values.mediaProductSlug.trim());
+  }
+
+  switch (values.type) {
+    case "PRODUCT_SPOTLIGHT": {
+      if (values.mediaProductSlug?.trim()) {
+        return productRoutes.detail(values.mediaProductSlug.trim());
+      }
+      return productRoutes.list();
+    }
+    case "CATEGORY_SPOTLIGHT": {
+      if (values.categorySlug?.trim()) {
+        return productRoutes.category(values.categorySlug.trim());
+      }
+      return productRoutes.list();
+    }
+    case "EDITORS_PICK": {
+      const first = parseFirstSlugFromCommaList(values.productSlugs);
+      return first ? productRoutes.detail(first) : productRoutes.list();
+    }
+    case "COMPARISON_BATTLE": {
+      // Comparison has two CTAs in the UI; storing a single href is only a fallback.
+      if (values.leftProductSlug?.trim()) {
+        return productRoutes.detail(values.leftProductSlug.trim());
+      }
+      if (values.rightProductSlug?.trim()) {
+        return productRoutes.detail(values.rightProductSlug.trim());
+      }
+      return productRoutes.list();
+    }
+    case "OFFER":
+    case "TESTIMONIAL":
+    case "PROMOTION":
+    case "LANDSCAPE_IMAGE":
+    default:
+      return productRoutes.list();
+  }
+}
 
 export function getDefaultHeroSlideFormValues(type?: HeroSlideType): HeroSlideFormValues {
   const selectedType = type || "PRODUCT_SPOTLIGHT";
@@ -101,7 +162,12 @@ export function getDefaultHeroSlideFormValues(type?: HeroSlideType): HeroSlideFo
     description: "",
     ctaPrimaryLabel: "",
     ctaPrimaryHref: "",
-    mediaKind: selectedType === "PRODUCT_SPOTLIGHT" ? "product" : "none",
+    mediaKind:
+      selectedType === "PRODUCT_SPOTLIGHT"
+        ? "product"
+        : selectedType === "LANDSCAPE_IMAGE" || selectedType === "OFFER" || selectedType === "TESTIMONIAL"
+        ? "image"
+        : "none",
     mediaProductSlug: "",
     mediaImageUrl: "",
     mediaAlt: "",
@@ -124,6 +190,9 @@ export function getDefaultHeroSlideFormValues(type?: HeroSlideType): HeroSlideFo
     leftProductSlug: "",
     rightProductSlug: "",
     comparisonPoints: "",
+    promotionId: "",
+    promotionBgColor: "",
+    promotionTextColor: "",
   };
 }
 
@@ -160,7 +229,27 @@ export function toFormValues(slide: HeroSlide): HeroSlideFormValues {
   const otherValues = { ...baseValues };
   if (slide.type === "OFFER") {
     (otherValues as any).offerLabel = slide.offerLabel;
-    (otherValues as any).offerEndsAt = slide.offerEndsAt;
+    // Convert ISO date to datetime-local format for input field
+    if (slide.offerEndsAt) {
+      try {
+        const date = new Date(slide.offerEndsAt);
+        if (!isNaN(date.getTime())) {
+          // Format as YYYY-MM-DDTHH:mm for datetime-local input
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, "0");
+          const day = String(date.getDate()).padStart(2, "0");
+          const hours = String(date.getHours()).padStart(2, "0");
+          const minutes = String(date.getMinutes()).padStart(2, "0");
+          (otherValues as any).offerEndsAt = `${year}-${month}-${day}T${hours}:${minutes}`;
+        } else {
+          (otherValues as any).offerEndsAt = "";
+        }
+      } catch (e) {
+        (otherValues as any).offerEndsAt = "";
+      }
+    } else {
+      (otherValues as any).offerEndsAt = "";
+    }
     (otherValues as any).promoCode = slide.promoCode;
   } else if (slide.type === "TESTIMONIAL") {
     (otherValues as any).quote = slide.quote;
@@ -179,6 +268,10 @@ export function toFormValues(slide: HeroSlide): HeroSlideFormValues {
     (otherValues as any).comparisonPoints = (slide.comparisonPoints || [])
       .map((p) => `${p.label}|${p.leftValue}|${p.rightValue}`)
       .join(", ");
+  } else if (slide.type === "PROMOTION") {
+    (otherValues as any).promotionId = slide.promotionId;
+    (otherValues as any).promotionBgColor = slide.customColors?.bg || "";
+    (otherValues as any).promotionTextColor = slide.customColors?.text || "";
   }
 
   return otherValues as HeroSlideFormValues;
@@ -186,6 +279,7 @@ export function toFormValues(slide: HeroSlide): HeroSlideFormValues {
 
 export function fromFormValues(values: HeroSlideFormValues, existingId?: string): HeroSlide {
   const id = existingId || crypto.randomUUID();
+  const derivedHref = derivePrimaryCtaHrefFromFormValues(values);
 
   if (values.type === "LANDSCAPE_IMAGE") {
     return {
@@ -204,13 +298,13 @@ export function fromFormValues(values: HeroSlideFormValues, existingId?: string)
       },
       media: {
         kind: "image",
-        imageUrl: values.mediaImageUrl || "",
-        alt: values.mediaAlt || "",
+        imageUrl: values.mediaImageUrl?.trim() || undefined,
+        alt: values.mediaAlt?.trim() || undefined,
         position: values.mediaPosition,
       },
       actionButton: {
         label: values.ctaPrimaryLabel,
-        href: values.ctaPrimaryHref,
+        href: derivedHref,
       },
     } as LandscapeImageSlide;
   }
@@ -229,13 +323,14 @@ export function fromFormValues(values: HeroSlideFormValues, existingId?: string)
     description: values.description,
     ctaPrimary: {
       label: values.ctaPrimaryLabel,
-      href: values.ctaPrimaryHref,
+      href: derivedHref,
     },
     media: {
       kind: values.mediaKind,
-      productSlug: values.mediaProductSlug || undefined,
-      imageUrl: values.mediaImageUrl || undefined,
-      alt: values.mediaAlt || undefined,
+      productSlug: values.mediaProductSlug?.trim() || undefined,
+      imageUrl: values.mediaImageUrl?.trim() || undefined,
+      videoUrl: undefined, // Not in form yet
+      alt: values.mediaAlt?.trim() || undefined,
       position: values.mediaPosition,
       aspect: values.mediaAspect,
     },
@@ -295,8 +390,19 @@ export function fromFormValues(values: HeroSlideFormValues, existingId?: string)
               leftValue: leftValue || "",
               rightValue: rightValue || "",
             };
-          }),
+          })
+          .filter((point) => point.label && point.leftValue && point.rightValue), // Filter out incomplete points
         media: { kind: "none" },
+      };
+    case "PROMOTION":
+      return {
+        ...baseSlide,
+        type: "PROMOTION",
+        promotionId: values.promotionId || "",
+        customColors: {
+          bg: values.promotionBgColor || undefined,
+          text: values.promotionTextColor || undefined,
+        },
       };
     default:
       return baseSlide as HeroSlide;

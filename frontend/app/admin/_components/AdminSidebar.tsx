@@ -14,7 +14,8 @@ import {
   Ticket,
   LayoutGrid,
   Megaphone,
-  Bell
+  Bell,
+  ShoppingCart
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Heading, Text } from "@/components/ui/typography";
@@ -25,6 +26,11 @@ const menuItems = [
     title: "Dashboard",
     icon: LayoutDashboard,
     href: "/admin",
+  },
+  {
+    title: "Orders",
+    icon: ShoppingCart,
+    href: "/admin/orders",
   },
   {
     title: "Categories",

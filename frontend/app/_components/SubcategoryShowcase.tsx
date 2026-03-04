@@ -19,9 +19,10 @@ import {
   Star,
   Zap,
   ShieldCheck,
-  ArrowRight
+  ArrowUpRight
 } from "lucide-react";
 import Link from "next/link";
+import { productRoutes } from "@/lib/routes";
 import Image from "next/image";
 import { cn } from "@/lib/utils/cn";
 import { SparkleEffect } from "@/components/ui/SparkleEffect";
@@ -36,7 +37,10 @@ import { extractErrorMessage } from "@/lib/utils/error-handler";
 interface SubcategoryShowcaseProps {
   categories: Category[];
   productsByCategory: Record<string, Product[]>;
+  /** Parent category slug (e.g. "laptops"). Ignored when departments provided. */
   parentCategorySlug: string;
+  /** When provided, uses first department's parent + highlighted subcategories for the spotlight. */
+  departments?: Array<{ parentCategory: { slug: string; name: string }; highlightedSubcategories: Array<{ slug: string; name: string }> }>;
 }
 
 /**
@@ -56,7 +60,7 @@ function FeaturedProductDisplay({ product }: { product: Product }) {
 
     const variant = product.variants?.[0];
     if (!variant?.id) {
-      router.push(`/products/${product.slug}`);
+      router.push(productRoutes.detail(product.slug));
       return;
     }
 
@@ -90,7 +94,7 @@ function FeaturedProductDisplay({ product }: { product: Product }) {
             </div>
             {hasDiscount && (
               <div className="bg-red-600 text-white text-[10px] font-black uppercase tracking-[0.2em] px-4 py-2 rounded-lg shadow-xl shadow-red-500/20 self-start pointer-events-auto">
-                {discountPercent}% OFF
+                -{discountPercent}% OFF
               </div>
             )}
           </div>
@@ -114,7 +118,7 @@ function FeaturedProductDisplay({ product }: { product: Product }) {
 
         {/* Product Image Section */}
         <Link
-          href={`/products/${product.slug}`}
+          href={productRoutes.detail(product.slug)}
           className="relative flex-1 min-h-[350px] group/img-link"
         >
           <div className="absolute inset-0 p-12 flex items-center justify-center">
@@ -139,7 +143,7 @@ function FeaturedProductDisplay({ product }: { product: Product }) {
               <span className="text-[10px] font-black tracking-widest uppercase">Best in Class</span>
             </div>
 
-            <Link href={`/products/${product.slug}`}>
+            <Link href={productRoutes.detail(product.slug)}>
               <h3 className="text-xl xs:text-2xl md:text-3xl font-black text-gray-900 tracking-tight leading-tight hover:text-red-600 transition-colors">
                 {product.name}
               </h3>
@@ -195,6 +199,7 @@ export function SubcategoryShowcase({
   categories,
   productsByCategory,
   parentCategorySlug,
+  departments = [],
 }: SubcategoryShowcaseProps) {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
@@ -214,19 +219,49 @@ export function SubcategoryShowcase({
     return () => observer.disconnect();
   }, []);
 
-  // Find the parent category
-  const parentCategory = useMemo(() => {
-    return categories.find((c) => c.slug === parentCategorySlug);
-  }, [categories, parentCategorySlug]);
+  // When departments provided: use first department's parent + highlighted subcategories
+  // Otherwise: derive from categories (tree or flat)
+  const { parentCategory, subCategories } = useMemo(() => {
+    if (Array.isArray(departments) && departments.length > 0) {
+      const dept = departments[0];
+      const resolvedParent = categories.find((c) => c.slug === dept.parentCategory.slug);
+      const parent = resolvedParent ?? {
+        id: "",
+        name: dept.parentCategory.name,
+        slug: dept.parentCategory.slug,
+        description: null,
+        createdAt: "",
+        updatedAt: "",
+      };
+      const subs = dept.highlightedSubcategories
+        .filter((s) => (productsByCategory[s.slug]?.length || 0) >= 1)
+        .map((s) => ({
+          id: s.slug,
+          name: s.name,
+          slug: s.slug,
+          description: null,
+          parentId: parent.id,
+          createdAt: "",
+          updatedAt: "",
+          sortOrder: 0,
+        }));
+      return { parentCategory: parent, subCategories: subs };
+    }
 
-  // Find subcategories of this parent that contain more than 1 product
-  const subCategories = useMemo(() => {
-    if (!parentCategory) return [];
-    return categories
-      .filter((c) => c.parentId === parentCategory.id)
-      .filter((c) => (productsByCategory[c.slug]?.length || 0) > 1)
+    const parent = categories.find((c) => c.slug === parentCategorySlug);
+    if (!parent) return { parentCategory: null, subCategories: [] };
+
+    // Tree structure: children nested; flat: filter by parentId
+    const children = parent.children?.length
+      ? parent.children
+      : categories.filter((c) => c.parentId === parent.id);
+
+    const subs = children
+      .filter((c) => (productsByCategory[c.slug]?.length || 0) >= 1)
       .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
-  }, [categories, parentCategory, productsByCategory]);
+
+    return { parentCategory: parent, subCategories: subs };
+  }, [categories, parentCategorySlug, productsByCategory, departments]);
 
   const [activeSubSlug, setActiveSubSlug] = useState(() => {
     return subCategories.length > 0 ? subCategories[0].slug : "";
@@ -280,11 +315,11 @@ export function SubcategoryShowcase({
             description={`A curated deep-dive into our premium ${parentCategory.name.toLowerCase()} collections. Switch between series below to explore specialized performance and design.`}
             actions={
               <Link
-                href={`/products/category/${parentCategorySlug}`}
-                className="group w-full md:w-auto flex items-center justify-center gap-2.5 sm:gap-3 lg:gap-2.5 px-4 py-2.5 sm:px-5 sm:py-2.5 lg:px-4 lg:py-2.5 bg-white/95 backdrop-blur-sm rounded-lg text-[10px] sm:text-sm lg:text-xs font-black uppercase tracking-widest text-gray-900 hover:bg-red-600 hover:text-white hover:shadow-2xl transition-all duration-500 hover:-translate-y-1"
+                href={productRoutes.category(parentCategorySlug)}
+                className="group flex items-center gap-4 px-6 py-3 bg-white/95 backdrop-blur-md border border-gray-100 rounded-lg text-[10px] font-black uppercase tracking-[0.25em] text-gray-900 hover:border-red-600 shadow-sm hover:shadow-2xl hover:shadow-red-500/10 transition-all duration-500"
               >
                 <span>Full Experience</span>
-                <ArrowRight className="h-3.5 w-3.5 lg:h-3 lg:w-3 group-hover:translate-x-1 transition-transform duration-500" />
+                <ArrowUpRight className="h-4 w-4 text-red-600 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
               </Link>
             }
           />
@@ -365,7 +400,6 @@ export function SubcategoryShowcase({
                   ))
                 )}
               </div>
-
             </div>
           </div>
         </div>

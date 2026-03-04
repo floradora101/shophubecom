@@ -1,22 +1,17 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Cron } from '@nestjs/schedule';
+import { Prisma } from '@prisma/client';
 import { Request, Response } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   CartItemNotFoundException,
   ProductVariantNotFoundException,
 } from '../common/exceptions';
+import type { PrismaTransactionClient } from '../common/types/prisma-transaction.client';
 import { AddCartItemDto, CartResponseDto, UpdateCartItemDto } from './dto';
 import { CartIdentityService } from './cart-identity.service';
-
-/**
- * Transaction client type for Prisma operations within transactions.
- * Omits methods that shouldn't be used within a transaction context.
- */
-type PrismaTransactionClient = Omit<
-  PrismaClient,
-  '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
->;
+import { toNumber } from '../common/utils/decimal.util';
+import { transformVariantOptions } from '../common/utils/variant.util';
 
 /**
  * Type for cart with all necessary relations loaded (items, products, variants, variant options).
@@ -26,7 +21,11 @@ type CartWithRelations = Prisma.CartGetPayload<{
   include: {
     items: {
       include: {
-        product: true;
+        product: {
+          include: {
+            variants: { select: { price: true } };
+          };
+        };
         variant: { include: { options: true } };
       };
     };
@@ -39,7 +38,11 @@ export class CartService {
   private readonly cartInclude = {
     items: {
       include: {
-        product: true,
+        product: {
+          include: {
+            variants: { select: { price: true } },
+          },
+        },
         variant: { include: { options: true } },
       },
     },
@@ -127,7 +130,7 @@ export class CartService {
       }
 
       // unitPrice = variant.price
-      const unitPrice = this.toNumber(freshVariant.price);
+      const unitPrice = toNumber(freshVariant.price);
 
       // Upsert cart item using @@unique([cartId, productId, variantId])
       if (existingItem) {
@@ -217,7 +220,7 @@ export class CartService {
         where: { id: item.id },
         data: {
           quantity: dto.quantity,
-          unitPrice: this.toNumber(variant.price),
+          unitPrice: toNumber(variant.price),
         },
       });
 
@@ -302,6 +305,35 @@ export class CartService {
       `Cart cleared ${reqUserId ? `for user ${reqUserId}` : 'for guest'}`,
     );
     return this.toCartResponse(updatedCart);
+  }
+
+  /**
+   * Scheduled job: clean up expired guest cart sessions and orphaned carts.
+   * Runs daily at 03:00 UTC.
+   */
+  @Cron('0 3 * * *')
+  async handleExpiredCartCleanup(): Promise<void> {
+    const expiredSessions = await this.prisma.cartSession.findMany({
+      where: { expiresAt: { lt: new Date() } },
+      select: { cartId: true },
+    });
+    const expiredCartIds = expiredSessions.map((s) => s.cartId);
+    if (expiredCartIds.length === 0) return;
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.cartSession.deleteMany({
+        where: { expiresAt: { lt: new Date() } },
+      });
+      await tx.cart.deleteMany({
+        where: {
+          id: { in: expiredCartIds },
+          userId: null,
+        },
+      });
+    });
+    this.logger.log(
+      `Scheduled cleanup: removed ${expiredCartIds.length} expired guest cart(s)`,
+    );
   }
 
   /**
@@ -421,6 +453,27 @@ export class CartService {
     const expiresAt = this.cartIdentityService.getSessionExpirationDate();
 
     const newCart = await this.prisma.$transaction(async (tx) => {
+      // Clean up expired cart sessions and their orphaned guest carts
+      const expiredSessions = await tx.cartSession.findMany({
+        where: { expiresAt: { lt: new Date() } },
+        select: { cartId: true },
+      });
+      const expiredCartIds = expiredSessions.map((s) => s.cartId);
+      if (expiredCartIds.length > 0) {
+        await tx.cartSession.deleteMany({
+          where: { expiresAt: { lt: new Date() } },
+        });
+        await tx.cart.deleteMany({
+          where: {
+            id: { in: expiredCartIds },
+            userId: null,
+          },
+        });
+        this.logger.log(
+          `Cleaned up ${expiredCartIds.length} expired guest cart(s)`,
+        );
+      }
+
       // Create cart with userId: null for guest
       const cart = await tx.cart.create({
         data: {
@@ -564,7 +617,7 @@ export class CartService {
         continue;
       }
 
-      const unitPrice = this.toNumber(currentPrice);
+      const unitPrice = toNumber(currentPrice);
 
       // All items have variants - use upsert with composite unique key
       await tx.cartItem.upsert({
@@ -610,7 +663,7 @@ export class CartService {
   private toCartResponse(cart: CartWithRelations): CartResponseDto {
     // Calculate cart subtotal: sum of (unitPrice * quantity) for all items
     const subtotal = cart.items.reduce(
-      (sum, item) => sum + this.toNumber(item.unitPrice) * item.quantity,
+      (sum, item) => sum + toNumber(item.unitPrice) * item.quantity,
       0,
     );
     // Calculate total quantity: sum of all item quantities
@@ -628,13 +681,15 @@ export class CartService {
         productId: item.productId,
         variantId: item.variantId,
         quantity: item.quantity,
-        unitPrice: this.toNumber(item.unitPrice),
+        unitPrice: toNumber(item.unitPrice),
         product: item.product
           ? {
               id: item.product.id,
               name: item.product.name,
               slug: item.product.slug,
-              price: this.toNumber(item.product.price),
+              price: item.product.variants && item.product.variants.length > 0
+                ? toNumber(Math.min(...item.product.variants.map(v => Number(v.price))))
+                : toNumber(item.variant?.price ?? 0),
               currency: item.product.currency,
             }
           : undefined,
@@ -642,19 +697,12 @@ export class CartService {
           ? {
               id: item.variant.id,
               sku: item.variant.sku,
-              price: this.toNumber(item.variant.price),
+              price: toNumber(item.variant.price),
               stock: item.variant.stock,
               image: item.variant.image,
               images: item.variant.images ?? [],
               // Transform variant options array to object: [{name: "Color", value: "Red"}] -> {Color: "Red"}
-              options:
-                item.variant.options?.reduce<Record<string, string>>(
-                  (acc, option) => {
-                    acc[option.name] = option.value;
-                    return acc;
-                  },
-                  {},
-                ) ?? undefined,
+              options: transformVariantOptions(item.variant.options) || undefined,
             }
           : undefined,
       })),
@@ -665,10 +713,4 @@ export class CartService {
     };
   }
 
-  private toNumber(value?: Prisma.Decimal | number | null): number {
-    if (value === null || value === undefined) {
-      return 0;
-    }
-    return Number(value);
-  }
 }

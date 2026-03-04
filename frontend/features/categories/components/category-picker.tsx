@@ -18,10 +18,10 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { categoryRepository } from "../categoryRepository";
 import type { Category } from "@/features/products/types";
 import { Text } from "@/components/ui/typography";
-import { logError } from "@/lib/errors";
+import { useCategoriesQuery } from "../queries";
+import { Loader2 } from "lucide-react";
 
 interface CategoryPickerProps {
   value?: string | string[];
@@ -51,36 +51,17 @@ export function CategoryPicker({
 }: CategoryPickerProps) {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [categories, setCategories] = useState<Category[]>([]);
 
-  // Load categories on mount
-  React.useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        const data = await categoryRepository.listCategories();
-        // Filter out the current category and its descendants to prevent cycles
-        let filteredData = data;
-        if (excludeId) {
-          const descendants = getDescendantIds(data, excludeId);
-          filteredData = data.filter(cat => cat.id !== excludeId && !descendants.includes(cat.id));
-        }
-        setCategories(filteredData);
-      } catch (error: unknown) {
-        logError(error, {
-          component: "CategoryPicker",
-          action: "load_categories",
-          metadata: {
-            excludeId,
-          },
-        });
-      }
-    };
-
-    loadCategories();
-  }, [excludeId]);
+  // Fetch categories from backend API
+  // Use a high limit to get all categories for the picker
+  const { data: categoriesResponse, isLoading, error } = useCategoriesQuery({
+    limit: 200,
+    sortBy: "name",
+    sortOrder: "asc",
+  });
 
   // Helper to get descendant IDs
-  const getDescendantIds = (allCats: Category[], categoryId: string): string[] => {
+  const getDescendantIds = React.useCallback((allCats: Category[], categoryId: string): string[] => {
     const descendants: string[] = [];
     const stack = [categoryId];
     while (stack.length > 0) {
@@ -92,7 +73,24 @@ export function CategoryPicker({
       });
     }
     return descendants;
-  };
+  }, []);
+
+  // Extract categories from response and filter out excluded category and its descendants
+  const categories = React.useMemo(() => {
+    if (!categoriesResponse?.data) return [];
+
+    let filteredData = categoriesResponse.data;
+
+    // Filter out the current category and its descendants to prevent cycles
+    if (excludeId) {
+      const descendants = getDescendantIds(categoriesResponse.data, excludeId);
+      filteredData = categoriesResponse.data.filter(
+        cat => cat.id !== excludeId && !descendants.includes(cat.id)
+      );
+    }
+
+    return filteredData;
+  }, [categoriesResponse?.data, excludeId, getDescendantIds]);
 
   // Build hierarchical options
   const categoryOptions = useMemo(() => {
@@ -180,6 +178,51 @@ export function CategoryPicker({
     return selectedOptions[0]?.path || placeholder;
   };
 
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className={cn("w-full", className)}>
+        <Button
+          variant="outline"
+          disabled
+          className={cn(
+            "w-full justify-between h-11 px-4 rounded-lg",
+            "text-warm-gray-400 font-normal",
+            disabled && "cursor-not-allowed opacity-50",
+            className
+          )}
+        >
+          <div className="flex items-center gap-2">
+            <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
+            <span>Loading categories...</span>
+          </div>
+        </Button>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className={cn("w-full", className)}>
+        <Button
+          variant="outline"
+          disabled
+          className={cn(
+            "w-full justify-between h-11 px-4 rounded-lg",
+            "text-red-400 font-normal",
+            className
+          )}
+        >
+          <div className="flex items-center gap-2">
+            <Layers className="w-4 h-4 shrink-0" />
+            <span>Failed to load categories</span>
+          </div>
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className={cn("w-full", className)}>
       <Popover open={open} onOpenChange={setOpen}>
@@ -195,7 +238,7 @@ export function CategoryPicker({
               disabled && "cursor-not-allowed opacity-50",
               className
             )}
-            disabled={disabled}
+            disabled={disabled || isLoading}
           >
             <div className="flex items-center gap-2 truncate">
               {selectedOptions.length > 0 ? (
@@ -221,7 +264,11 @@ export function CategoryPicker({
             </div>
             <CommandList className="max-h-[300px] overflow-y-auto p-1">
               <CommandEmpty className="py-6 text-center">
-                <Text className="text-sm text-warm-gray-400 italic">No categories found.</Text>
+                <Text className="text-sm text-warm-gray-400 italic">
+                  {categories.length === 0
+                    ? "No categories available."
+                    : "No categories found matching your search."}
+                </Text>
               </CommandEmpty>
               <CommandGroup>
                 {!multiple && (

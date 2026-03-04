@@ -55,6 +55,7 @@ export function useFilterHelpers({
     return !!(
       filters.search ||
       filters.category ||
+      filters.promotionId ||
       filters.minPrice ||
       filters.maxPrice ||
       filters.inStockOnly ||

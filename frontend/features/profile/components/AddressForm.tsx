@@ -84,105 +84,137 @@ export function AddressForm({
   };
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">
-        {address ? "Edit Address" : "Add New Address"}
-      </h3>
+    <div className="space-y-10">
+      <div className="space-y-2">
+        <Badge variant="primary" size="sm" className="bg-primary-500/10 text-primary-600 border-none font-black tracking-widest text-[9px] px-3">
+          {address ? "UPDATE_ENTRY" : "NEW_ENTRY"}
+        </Badge>
+        <h3 className="text-3xl font-black text-fg tracking-tighter">
+          {address ? "Modify Address" : "Register Location"}
+        </h3>
+        <p className="text-sm font-bold text-muted-fg/60 uppercase tracking-widest">
+          {address ? "Update your saved destination details" : "Initialize a new delivery destination"}
+        </p>
+      </div>
 
       <form
         onSubmit={handleSubmit(onSubmit, handleValidationError)}
-        className="space-y-4"
+        className="space-y-8"
         noValidate
         aria-label={address ? "Edit address form" : "Add new address form"}
       >
         <FormErrorAlert error={formError} onDismiss={clearError} dismissible />
 
-        <FormField label="Name" required error={errors.name?.message}>
-          <Input
-            placeholder="e.g., Home, Work"
-            {...register("name")}
-            error={!!errors.name}
-          />
-        </FormField>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <FormField label="Identifier Name" required error={errors.name?.message}>
+            <Input
+              placeholder="e.g., Home, Office, Summer House"
+              {...register("name")}
+              error={!!errors.name}
+              className="rounded-2xl h-14 bg-white/50 border-warm-gray-200 focus:bg-white transition-all font-bold"
+            />
+          </FormField>
+
+          <FormField label="Category Label" error={errors.label?.message}>
+            <Input
+              placeholder="e.g., Residential, Commercial"
+              {...register("label")}
+              error={!!errors.label}
+              className="rounded-2xl h-14 bg-white/50 border-warm-gray-200 focus:bg-white transition-all font-bold"
+            />
+          </FormField>
+        </div>
 
         <FormField
-          label="Street / Area"
+          label="Street Address / Detailed Area"
           required
           error={errors.street?.message}
         >
           <Input
-            placeholder="e.g., Hamra Street, Achrafieh, Badaro"
+            placeholder="e.g., Building Name, Street Number, Floor"
             {...register("street")}
             error={!!errors.street}
+            className="rounded-2xl h-14 bg-white/50 border-warm-gray-200 focus:bg-white transition-all font-bold"
           />
         </FormField>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <FormField label="City" required error={errors.city?.message}>
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+          <FormField label="City / Region" required error={errors.city?.message}>
             <Input
-              placeholder="e.g., Beirut, Tripoli, Sidon"
+              placeholder="e.g., Beirut, Tripoli"
               {...register("city")}
               error={!!errors.city}
+              className="rounded-2xl h-14 bg-white/50 border-warm-gray-200 focus:bg-white transition-all font-bold"
             />
           </FormField>
 
           <FormField
-            label="District / Governorate"
+            label="State / Governorate"
             required
             error={errors.state?.message}
           >
             <Input
-              placeholder="e.g., Beirut, Mount Lebanon, North Lebanon"
+              placeholder="e.g., Mount Lebanon, North"
               {...register("state")}
               error={!!errors.state}
+              className="rounded-2xl h-14 bg-white/50 border-warm-gray-200 focus:bg-white transition-all font-bold"
             />
           </FormField>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
           <FormField
-            label="Postal Code"
+            label="Postal Code (Optional)"
             error={errors.zipCode?.message}
-            helpText="Optional"
           >
             <Input
-              placeholder="Optional"
+              placeholder="e.g., 1107, 2011"
               {...register("zipCode")}
               error={!!errors.zipCode}
+              className="rounded-2xl h-14 bg-white/50 border-warm-gray-200 focus:bg-white transition-all font-bold"
             />
           </FormField>
 
-          <FormField label="Phone" required error={errors.phone?.message}>
+          <FormField label="Contact Number" required error={errors.phone?.message}>
             <Input
-              placeholder="+961 3 123 456 or 03 123 456"
+              placeholder="+961 03 123 456"
               {...register("phone")}
               error={!!errors.phone}
+              className="rounded-2xl h-14 bg-white/50 border-warm-gray-200 focus:bg-white transition-all font-bold"
             />
           </FormField>
         </div>
 
-        <Checkbox
-          id="isDefault"
-          label="Set as default address"
-          {...register("isDefault")}
-        />
+        <div className="flex items-center space-x-3 p-6 rounded-2xl bg-primary-50/50 border border-primary-100/50">
+          <Checkbox
+            id="isDefault"
+            {...register("isDefault")}
+            className="w-5 h-5 rounded-lg border-primary-200 data-[state=checked]:bg-primary-600"
+          />
+          <label 
+            htmlFor="isDefault" 
+            className="text-sm font-black text-primary-900 uppercase tracking-widest cursor-pointer select-none"
+          >
+            Set as Default Delivery Destination
+          </label>
+        </div>
 
-        <div className="flex gap-4 pt-4">
+        <div className="flex flex-col sm:flex-row gap-4 pt-6">
           <LoadingButton
             type="submit"
             loading={isSubmitting}
-            className="flex-1"
+            className="flex-2 h-14 rounded-2xl bg-primary-600 hover:bg-primary-700 text-white font-black uppercase tracking-widest text-xs shadow-xl shadow-primary-500/20"
           >
-            {address ? "Update Address" : "Add Address"}
+            {address ? "Update_Registry" : "Commit_Address"}
           </LoadingButton>
           <Button
             type="button"
-            variant="outline"
+            variant="ghost"
             onClick={onCancel}
             disabled={isSubmitting}
-            className="flex-1"
+            className="flex-1 h-14 rounded-2xl font-black uppercase tracking-widest text-xs"
           >
-            Cancel
+            Cancel_Op
           </Button>
         </div>
       </form>

@@ -20,6 +20,8 @@ import Image from "next/image";
 import type { CategorySpotlightSlide } from "@/lib/types/heroSlides.types";
 import type { Category, Product } from "@/features/products/types";
 import { getProductImageWithPlaceholder } from "@/lib/utils/products";
+import { shouldUnoptimizeImage } from "@/lib/utils/image-helpers";
+import { resolveSlidePrimaryCtaHref } from "@/lib/utils/heroSlides.utils";
 
 interface CategorySpotlightSlideBodyProps {
   slide: CategorySpotlightSlide;
@@ -78,13 +80,15 @@ export const CategorySpotlightSlideBody = memo(
           { label: "Design", value: "Aesthetic Core", icon: TrendingUp, isCustom: false },
         ];
 
-    // Media content: Product grid
+    // Media content: Product grid from category
     const mediaContent = (
       <div className="relative h-full w-full">
         <div className="relative h-full w-full rounded-lg overflow-hidden border ring-1 shadow-xl bg-white/50 backdrop-blur-sm">
           <div className="absolute inset-0 bg-gradient-to-br from-red-50/30 via-transparent to-gray-50/30" />
 
+          {/* Product Grid */}
           {featuredProduct ? (
+            /* First Product Image - Priority 2 */
             <div className="relative h-full w-full p-2 sm:p-4">
               {/* Featured Product - Large Display */}
               <div className="relative h-full w-full rounded-lg overflow-hidden bg-gray-900 group/product">
@@ -155,16 +159,6 @@ export const CategorySpotlightSlideBody = memo(
                 <Grid3x3 className="w-12 h-12 text-gray-300 mx-auto mb-2" />
                 <p className="text-sm text-gray-500">Products coming soon</p>
               </div>
-            </div>
-          )}
-
-          {/* Floating badge */}
-          {categoryProducts.length > 0 && (
-            <div className="absolute top-2 right-2 z-20">
-              <Badge variant="destructive" size="default" className="text-[8px] sm:text-xs">
-                <Sparkles className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
-                {categoryProducts.length} Items
-              </Badge>
             </div>
           )}
         </div>
@@ -266,7 +260,7 @@ export const CategorySpotlightSlideBody = memo(
               <HeroItem run={run} animationKey={animationKey}>
                 <div className="flex flex-row gap-1.5 mt-1.5 md:mt-4 justify-center lg:justify-start hero-item-enter hero-buttons text-gray-900">
                   <Link
-                    href={slide.ctaPrimary.href}
+                    href={resolveSlidePrimaryCtaHref(slide)}
                     onMouseEnter={onMouseEnter}
                     onMouseLeave={onMouseLeave}
                   >

@@ -25,13 +25,17 @@ async function bootstrap() {
   // Cookie parser: Required to read httpOnly cookies in requests
   app.use(cookieParser());
 
-  // CORS configuration
-  const frontendUrl = configService.get<string>(
+  // CORS configuration - supports comma-separated origins (e.g. https://shop.com,https://www.shop.com)
+  const frontendUrlRaw = configService.get<string>(
     'FRONTEND_URL',
     'http://localhost:3000',
   );
+  const corsOrigins = frontendUrlRaw
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
   app.enableCors({
-    origin: frontendUrl,
+    origin: corsOrigins.length === 1 ? corsOrigins[0] : corsOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-request-id'],
@@ -41,14 +45,13 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   // Global validation pipe
+  // Note: enableImplicitConversion removed - use explicit @Type() or @Transform() in DTOs
+  // to avoid type coercion bypassing validation (NestJS security best practice)
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
-      transformOptions: {
-        enableImplicitConversion: true,
-      },
     }),
   );
 

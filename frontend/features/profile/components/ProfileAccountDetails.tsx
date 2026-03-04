@@ -1,9 +1,8 @@
 // Profile section showing account details.
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import type { UpdateProfileData, ChangePasswordData } from "../api";
-import { mockUser } from "@/dev/mocks/mockProfile";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { updateProfileSchema, changePasswordSchema } from "../schemas";
@@ -14,12 +13,14 @@ import { FormField } from "@/components/ui/form-field";
 import { extractErrorMessage } from "@/lib/utils/error-handler";
 import { Heading, Text } from "@/components/ui/typography";
 import { User, Lock, Mail, Shield, ShieldCheck, Bell } from "lucide-react";
+import { useProfileQuery, useUpdateProfileMutation, useChangePasswordMutation } from "../queries";
 
 export function ProfileAccountDetails() {
-  const user = mockUser;
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const { data: profileResponse, isLoading: isProfileLoading } = useProfileQuery();
+  const user = profileResponse?.data;
+  
+  const updateProfileMutation = useUpdateProfileMutation();
+  const changePasswordMutation = useChangePasswordMutation();
 
   const {
     register,
@@ -32,37 +33,24 @@ export function ProfileAccountDetails() {
     defaultValues: {
       firstName: user?.firstName || "",
       lastName: user?.lastName || "",
-      email: user?.email || "",
     },
   });
 
-  // Initialize form with mock user data
+  // Initialize form with real user data when available
   useEffect(() => {
     if (user) {
       reset({
         firstName: user.firstName,
         lastName: user.lastName,
-        email: user.email,
       });
     }
   }, [user, reset]);
 
-  const onSubmit = async (_data: UpdateProfileData) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      setSuccess(false);
-
-      // Mock update - just simulate success
-      setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000);
-    } catch (err) {
-      setError(
-        extractErrorMessage(err, "Failed to update profile. Please try again.")
-      );
-    } finally {
-      setIsLoading(false);
-    }
+  const onSubmit = async (data: UpdateProfileData) => {
+    updateProfileMutation.mutate({
+      firstName: data.firstName,
+      lastName: data.lastName,
+    });
   };
 
   // Password form
@@ -81,29 +69,34 @@ export function ProfileAccountDetails() {
     },
   });
 
-  const [isPasswordLoading, setIsPasswordLoading] = useState(false);
-  const [passwordError, setPasswordError] = useState<string | null>(null);
-  const [passwordSuccess, setPasswordSuccess] = useState(false);
-
-  const onPasswordSubmit = async (_data: ChangePasswordData) => {
-    try {
-      setIsPasswordLoading(true);
-      setPasswordError(null);
-      setPasswordSuccess(false);
-
-      // Mock password update - just simulate success
-      setPasswordSuccess(true);
-      resetPassword();
-      setTimeout(() => setPasswordSuccess(false), 3000);
-    } catch (err) {
-      setPasswordError(
-        extractErrorMessage(err, "Failed to change password. Please try again.")
-      );
-    } finally {
-      setIsPasswordLoading(false);
-    }
+  const onPasswordSubmit = async (data: ChangePasswordData) => {
+    changePasswordMutation.mutate({
+      currentPassword: data.currentPassword,
+      newPassword: data.newPassword,
+    }, {
+      onSuccess: () => resetPassword()
+    });
   };
 
+  if (isProfileLoading) {
+    return (
+      <div className="space-y-10 animate-pulse">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          <div className="lg:col-span-4 space-y-8">
+            <div className="h-20 bg-gray-100 rounded-2xl" />
+            <div className="space-y-4">
+              <div className="h-16 bg-gray-100 rounded-2xl" />
+              <div className="h-16 bg-gray-100 rounded-2xl" />
+            </div>
+          </div>
+          <div className="lg:col-span-8 space-y-8">
+            <div className="h-64 bg-gray-100 rounded-2xl" />
+            <div className="h-64 bg-gray-100 rounded-2xl" />
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
@@ -119,7 +112,7 @@ export function ProfileAccountDetails() {
           <div className="space-y-4">
             {[
               { icon: ShieldCheck, title: "Account Verified", desc: "Your identity is confirmed" },
-              { icon: Mail, title: "Primary Email", desc: user?.email || "alex@example.com" },
+              { icon: Mail, title: "Primary Email", desc: user?.email ?? "" },
               { icon: Bell, title: "Notifications", desc: "Email alerts are active" },
             ].map((item, i) => (
               <div key={i} className="flex items-start gap-4 p-4 rounded-2xl bg-surface-muted/30 border border-border/20">
@@ -150,19 +143,6 @@ export function ProfileAccountDetails() {
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              {error && (
-                <Alert variant="destructive" className="rounded-xl border-red-100 bg-red-50">
-                  <AlertDescription className="text-xs font-bold">{error}</AlertDescription>
-                </Alert>
-              )}
-
-              {success && (
-                <Alert className="bg-emerald-50 text-emerald-800 border-emerald-100 rounded-xl">
-                  <ShieldCheck className="h-4 w-4 text-emerald-600" />
-                  <AlertDescription className="text-xs font-bold">Profile updated successfully!</AlertDescription>
-                </Alert>
-              )}
-
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <FormField
                   label="First Name"
@@ -189,19 +169,10 @@ export function ProfileAccountDetails() {
                 </FormField>
               </div>
 
-              <FormField label="Email Address" required error={errors.email?.message}>
-                <Input
-                  type="email"
-                  {...register("email")}
-                  error={!!errors.email}
-                  className="h-12 rounded-xl border-border/60 bg-surface-muted/20 focus:bg-white transition-all"
-                />
-              </FormField>
-
               <div className="pt-4">
                 <LoadingButton
                   type="submit"
-                  loading={isLoading}
+                  loading={updateProfileMutation.isPending}
                   className="rounded-xl h-12 px-8 font-bold uppercase tracking-widest text-[11px] shadow-lg shadow-primary-500/10"
                 >
                   Save Profile Changes
@@ -226,21 +197,6 @@ export function ProfileAccountDetails() {
               onSubmit={handleSubmitPassword(onPasswordSubmit)}
               className="space-y-6"
             >
-              {passwordError && (
-                <Alert variant="destructive" className="rounded-xl border-red-100 bg-red-50">
-                  <AlertDescription className="text-xs font-bold">{passwordError}</AlertDescription>
-                </Alert>
-              )}
-
-              {passwordSuccess && (
-                <Alert className="bg-emerald-50 text-emerald-800 border-emerald-100 rounded-xl">
-                  <ShieldCheck className="h-4 w-4 text-emerald-600" />
-                  <AlertDescription className="text-xs font-bold">
-                    Password changed successfully!
-                  </AlertDescription>
-                </Alert>
-              )}
-
               <FormField
                 label="Current Password"
                 required
@@ -285,7 +241,7 @@ export function ProfileAccountDetails() {
               <div className="pt-4">
                 <LoadingButton
                   type="submit"
-                  loading={isPasswordLoading}
+                  loading={changePasswordMutation.isPending}
                   className="rounded-xl h-12 px-8 font-bold uppercase tracking-widest text-[11px] shadow-lg shadow-amber-500/10 bg-amber-600 hover:bg-amber-700 border-none"
                 >
                   Update Password

@@ -1,5 +1,6 @@
 import type { HeroSlide } from "@/lib/types/heroSlides.types";
 import type { Product } from "@/features/products/types";
+import { productRoutes } from "@/lib/routes";
 import { mockHeroSlides, getHeroSlides } from "@/dev/mocks/heroSlides.mock";
 import { getDiscountInfo } from "@/lib/utils/products";
 
@@ -47,6 +48,62 @@ export function resolveSlideProduct(
   }
 
   return productsBySlug?.[slide.media.productSlug];
+}
+
+function isPlaceholderHref(href?: string | null): boolean {
+  const v = (href || "").trim();
+  return !v || v === "#";
+}
+
+/**
+ * Resolve the primary CTA href for a slide.
+ *
+ * Admin slides historically stored `ctaPrimary.href` as "#" (placeholder).
+ * This function treats that as "unset" and derives a useful link from the slide's target
+ * (product/category/etc.) so the CTA always navigates somewhere meaningful.
+ */
+export function resolveSlidePrimaryCtaHref(slide: HeroSlide): string {
+  // Keep a real, non-placeholder href if present (backward-compatible override).
+  if (!isPlaceholderHref((slide as any)?.ctaPrimary?.href)) {
+    return (slide as any).ctaPrimary.href;
+  }
+
+  // Category spotlight: go to category listing route.
+  if (slide.type === "CATEGORY_SPOTLIGHT") {
+    const slug = (slide as any).categorySlug?.trim();
+    return slug ? productRoutes.category(slug) : productRoutes.list();
+  }
+
+  // Promotion: go to products filtered by this promotion (discount products).
+  if (slide.type === "PROMOTION") {
+    const promotionId = (slide as any).promotionId?.trim();
+    if (promotionId) {
+      return `${productRoutes.list()}?promotionId=${encodeURIComponent(promotionId)}`;
+    }
+  }
+
+  // Editor's pick: go to the first product.
+  if (slide.type === "EDITORS_PICK") {
+    const first = ((slide as any).productSlugs || [])[0];
+    return first ? productRoutes.detail(first) : productRoutes.list();
+  }
+
+  // Comparison battle: store only as a fallback; CTAs should usually go to each side's product.
+  if (slide.type === "COMPARISON_BATTLE") {
+    const left = (slide as any).leftProductSlug?.trim();
+    const right = (slide as any).rightProductSlug?.trim();
+    if (left) return productRoutes.detail(left);
+    if (right) return productRoutes.detail(right);
+    return productRoutes.list();
+  }
+
+  // Most other slides can derive from media product slug if available.
+  if (slide.media?.kind === "product" && slide.media.productSlug?.trim()) {
+    return productRoutes.detail(slide.media.productSlug.trim());
+  }
+
+  // Safe fallback.
+  return productRoutes.list();
 }
 
 /**
@@ -122,7 +179,7 @@ export function buildSlidesFromFeaturedProducts(
 
     ctaPrimary: {
       label: "Shop Now",
-      href: `/products/${product.slug}`,
+      href: productRoutes.detail(product.slug),
     },
 
     media: {

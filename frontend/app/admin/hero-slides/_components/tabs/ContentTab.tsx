@@ -23,6 +23,8 @@ import {
 } from "@/components/ui/select";
 import { CategoryPicker } from "@/features/categories/components/category-picker";
 import { ProductPicker } from "@/features/products/components/product-picker";
+import { useQuery } from "@tanstack/react-query";
+import { promotionsApi } from "@/features/promotions/api";
 import type { UseFormReturn } from "react-hook-form";
 import type { HeroSlideFormValues } from "@/lib/hero-slides/admin/form";
 
@@ -40,6 +42,15 @@ export function ContentTab({ form }: ContentTabProps) {
   } = form;
 
   const formValues = watch();
+
+  // Fetch promotions for the picker
+  const { data: promotionsResponse, isLoading: isLoadingPromotions } = useQuery({
+    queryKey: ["promotions"],
+    queryFn: () => promotionsApi.getPromotions(),
+    enabled: formValues.type === "PROMOTION",
+  });
+
+  const promotions = promotionsResponse || [];
 
   return (
     <div className="space-y-6">
@@ -73,6 +84,7 @@ export function ContentTab({ form }: ContentTabProps) {
                     <SelectItem value="COMPARISON_BATTLE">
                       Comparison Battle
                     </SelectItem>
+                    <SelectItem value="PROMOTION">Promotion</SelectItem>
                   </SelectContent>
                 </Select>
               )}
@@ -99,19 +111,21 @@ export function ContentTab({ form }: ContentTabProps) {
             {...register("badgeText")}
             error={!!errors.badgeText}
           />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={formValues.type === "COMPARISON_BATTLE" ? "grid grid-cols-1 gap-4" : "grid grid-cols-1 md:grid-cols-2 gap-4"}>
             <Input
               label="Headline *"
               placeholder="Enter main headline"
               {...register("headline")}
               error={!!errors.headline}
             />
-            <Input
-              label="Highlight Text"
-              placeholder="e.g. Redefined, 50% Off"
-              {...register("highlight")}
-              error={!!errors.highlight}
-            />
+            {formValues.type !== "COMPARISON_BATTLE" && (
+              <Input
+                label="Highlight Text"
+                placeholder="e.g. Redefined, 50% Off"
+                {...register("highlight")}
+                error={!!errors.highlight}
+              />
+            )}
           </div>
           <Textarea
             label="Description *"
@@ -128,7 +142,8 @@ export function ContentTab({ form }: ContentTabProps) {
         formValues.type === "EDITORS_PICK" ||
         formValues.type === "OFFER" ||
         formValues.type === "TESTIMONIAL" ||
-        formValues.type === "COMPARISON_BATTLE") && (
+        formValues.type === "COMPARISON_BATTLE" ||
+        formValues.type === "PROMOTION") && (
         <FormSection
           title="Type-Specific Details"
           description="Additional fields required for this specific slide type."
@@ -150,9 +165,6 @@ export function ContentTab({ form }: ContentTabProps) {
                         // Auto-fill fields if empty
                         if (val) {
                           setValue("mediaKind", "product");
-                          if (!watch("ctaPrimaryHref")) {
-                            setValue("ctaPrimaryHref", `/products/${val}`);
-                          }
                           if (!watch("ctaPrimaryLabel")) {
                             setValue("ctaPrimaryLabel", "Shop Now");
                           }
@@ -227,9 +239,6 @@ export function ContentTab({ form }: ContentTabProps) {
                           field.onChange(val);
                           // Auto-fill fields if empty
                           if (val) {
-                            if (!watch("ctaPrimaryHref")) {
-                              setValue("ctaPrimaryHref", `/categories/${val}`);
-                            }
                             if (!watch("ctaPrimaryLabel")) {
                               setValue("ctaPrimaryLabel", "Explore Category");
                             }
@@ -253,10 +262,10 @@ export function ContentTab({ form }: ContentTabProps) {
                         <Input
                           placeholder={`Highlight ${index + 1} (e.g., Premium Selection, Top Rated)`}
                           {...field}
-                          error={
+                          error={!!(
                             errors.categoryBullets?.[index]?.message ||
                             (errors.categoryBullets?.message && index === 0 ? errors.categoryBullets.message : undefined)
-                          }
+                          )}
                         />
                       )}
                     />
@@ -313,18 +322,26 @@ export function ContentTab({ form }: ContentTabProps) {
             )}
 
             {formValues.type === "OFFER" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Input
+                    label="Offer Label *"
+                    placeholder="e.g. UP TO 50% OFF"
+                    {...register("offerLabel")}
+                    error={!!errors.offerLabel}
+                  />
+                  <Input
+                    label="Promo Code"
+                    placeholder="e.g. SAVE50"
+                    {...register("promoCode")}
+                    error={!!errors.promoCode}
+                  />
+                </div>
                 <Input
-                  label="Offer Label"
-                  placeholder="e.g. UP TO 50% OFF"
-                  {...register("offerLabel")}
-                  error={!!errors.offerLabel}
-                />
-                <Input
-                  label="Promo Code"
-                  placeholder="e.g. SAVE50"
-                  {...register("promoCode")}
-                  error={!!errors.promoCode}
+                  label="Offer Ends At *"
+                  type="datetime-local"
+                  {...register("offerEndsAt")}
+                  error={!!errors.offerEndsAt}
                 />
               </div>
             )}
@@ -356,13 +373,61 @@ export function ContentTab({ form }: ContentTabProps) {
                 </div>
               </>
             )}
+            {formValues.type === "PROMOTION" && (
+              <>
+                <FormField
+                  label="Link to Promotion *"
+                  error={errors.promotionId?.message}
+                >
+                  <Controller
+                    name="promotionId"
+                    control={control}
+                    render={({ field }) => (
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <SelectTrigger>
+                          <SelectValue placeholder={isLoadingPromotions ? "Loading promotions..." : "Select promotion"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {promotions.map((promo: any) => (
+                            <SelectItem key={promo.id} value={promo.id}>
+                              {promo.name} ({promo.type === 'PERCENTAGE' ? `${promo.value}%` : `$${promo.value}`})
+                            </SelectItem>
+                          ))}
+                          {promotions.length === 0 && !isLoadingPromotions && (
+                            <SelectItem value="none" disabled>No promotions found</SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </FormField>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Input
+                    label="Background Color (Hex)"
+                    placeholder="#f3f4f6"
+                    {...register("promotionBgColor")}
+                    error={!!errors.promotionBgColor}
+                  />
+                  <Input
+                    label="Text Color (Hex)"
+                    placeholder="#111827"
+                    {...register("promotionTextColor")}
+                    error={!!errors.promotionTextColor}
+                  />
+                </div>
+              </>
+            )}
           </Stack>
         </FormSection>
       )}
 
       <FormSection
         title="Action Button (CTA)"
-        description="The primary call-to-action button for the slide."
+        description={
+          formValues.type === "COMPARISON_BATTLE"
+            ? "This label will appear on both product buttons with 'A' and 'B' suffixes."
+            : "The primary call-to-action button for the slide."
+        }
       >
         <div className="space-y-4 p-4 rounded-lg bg-primary/5 border border-primary/10 max-w-md">
           <Text variant="caption" className="font-bold text-primary">
@@ -374,12 +439,11 @@ export function ContentTab({ form }: ContentTabProps) {
             {...register("ctaPrimaryLabel")}
             error={!!errors.ctaPrimaryLabel}
           />
-          <Input
-            label="Link (URL) *"
-            placeholder="e.g. /products/..."
-            {...register("ctaPrimaryHref")}
-            error={!!errors.ctaPrimaryHref}
-          />
+          {formValues.type === "COMPARISON_BATTLE" && (
+            <Text variant="caption" className="text-gray-500 italic">
+              Left button: "{watch("ctaPrimaryLabel") || "Label"} A" | Right button: "{watch("ctaPrimaryLabel") || "Label"} B"
+            </Text>
+          )}
         </div>
       </FormSection>
     </div>

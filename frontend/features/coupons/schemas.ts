@@ -4,10 +4,11 @@ export const couponSchema = yup.object({
   code: yup
     .string()
     .trim()
+    .transform((value) => (typeof value === "string" ? value.toUpperCase().trim() : value))
     .min(3, "Coupon code must be at least 3 characters")
     .max(50, "Coupon code must be less than 50 characters")
     .required("Coupon code is required")
-    .matches(/^[A-Z0-9_-]+$/, "Code must be uppercase alphanumeric, underscores, or hyphens"),
+    .matches(/^[A-Z0-9_-]+$/, "Code must be uppercase letters, numbers, underscores, or hyphens only"),
   description: yup
     .string()
     .trim()
