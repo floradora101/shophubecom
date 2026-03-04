@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -57,7 +57,7 @@ export default function CheckoutPage() {
 
 
   const form = useForm<CheckoutFormData>({
-    resolver: yupResolver(checkoutSchema),
+    resolver: yupResolver(checkoutSchema) as Resolver<CheckoutFormData>,
     defaultValues: {
       firstName: "",
       lastName: "",

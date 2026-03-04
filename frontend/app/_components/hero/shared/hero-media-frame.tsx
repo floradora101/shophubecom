@@ -39,7 +39,7 @@ export function HeroMediaFrame({
   useEffect(() => {
     setProductImageError(false);
     setUrlImageError(false);
-  }, [slide.media.kind, product?.id, slide.media.imageUrl]);
+  }, [slide.media.kind, product?.id, "imageUrl" in slide.media ? slide.media.imageUrl : undefined]);
 
   // 1 Prefetch next slide image when this slide becomes active
   useEffect(() => {
