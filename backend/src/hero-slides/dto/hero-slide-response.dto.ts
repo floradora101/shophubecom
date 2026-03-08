@@ -1,4 +1,4 @@
-import { HeroSlideType, MediaKind, LandscapeTheme } from '@prisma/client';
+import { HeroSlideType, MediaKind, LandscapeTheme, Prisma } from '@prisma/client';
 
 export interface MediaResponse {
   kind: MediaKind;
@@ -29,7 +29,7 @@ export class HeroSlideResponseDto {
   ctaPrimary!: CtaResponse;
   media!: MediaResponse;
   promotionId?: string | null;
-  typeSpecificData!: any; // JSON data specific to slide type
+  typeSpecificData!: Prisma.JsonValue | null;
   createdAt!: Date;
   updatedAt!: Date;
 }

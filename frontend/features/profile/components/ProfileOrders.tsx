@@ -7,7 +7,7 @@ import { useEffect, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useOrdersQuery } from "@/features/orders/queries";
 import { LoadingSpinner } from "@/components/ui/spinner";
-import { extractErrorMessage } from "@/lib/utils/error-handler";
+import { extractErrorMessage } from "@/lib/api/error-handler";
 import { formatPrice } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import {

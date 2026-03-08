@@ -5,7 +5,7 @@
 
 import { useState, useCallback } from "react";
 import { FieldErrors } from "react-hook-form";
-import { extractErrorMessage } from "@/lib/utils/error-handler";
+import { extractErrorMessage } from "@/lib/api/error-handler";
 import { logError } from "@/lib/errors/logger";
 
 export interface UseFormErrorHandlerOptions {

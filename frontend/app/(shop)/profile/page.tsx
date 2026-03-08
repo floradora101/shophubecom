@@ -11,14 +11,14 @@ import { ProfileAddresses } from "@/features/profile/components/ProfileAddresses
 import { ProfileAccountDetails } from "@/features/profile/components/ProfileAccountDetails";
 import { BadgedSectionTitle } from "@/components/ui/SectionTitle";
 import { Tabs, TabItem } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { useProfileQuery } from "@/features/profile/queries";
 import { useOrderStatsQuery } from "@/features/orders/queries";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { Stack } from "@/components/ui/stack";
 import { Card } from "@/components/ui/card";
-import { formatPrice } from "@/lib/utils";
+import { USE_MOCKS } from "@/lib/flags";
+import { RequireAuth } from "@/features/auth";
 
 type ProfileTab = "dashboard" | "orders" | "addresses" | "account";
 
@@ -26,7 +26,7 @@ function ProfileContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  const { data: profileResponse, isLoading: isProfileLoading } = useProfileQuery();
+  const { data: profileResponse } = useProfileQuery();
   const { data: stats } = useOrderStatsQuery();
   const realUser = profileResponse?.data;
 
@@ -163,6 +163,25 @@ function ProfileContent() {
 }
 
 export default function ProfilePage() {
+  if (USE_MOCKS) {
+    return (
+      <Section spacing="lg" className="bg-surface-muted/30">
+        <Container>
+          <Card className="p-10 text-center">
+            <Stack spacing="md" align="center">
+              <BadgedSectionTitle
+                badgeText="Backend Required"
+                title="Profile Unavailable In Mock Mode"
+                subtitle="Account, orders, and saved addresses still require backend auth."
+                icon={User}
+              />
+            </Stack>
+          </Card>
+        </Container>
+      </Section>
+    );
+  }
+
   return (
     <Suspense
       fallback={
@@ -171,7 +190,9 @@ export default function ProfilePage() {
         </div>
       }
     >
-      <ProfileContent />
+      <RequireAuth>
+        <ProfileContent />
+      </RequireAuth>
     </Suspense>
   );
 }

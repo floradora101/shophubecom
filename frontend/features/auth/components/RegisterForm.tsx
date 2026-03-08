@@ -31,6 +31,7 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import type { Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useShallow } from "zustand/react/shallow";
@@ -64,7 +65,7 @@ export function RegisterForm({ onSuccess, redirectUrl }: RegisterFormProps) {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormData>({
-    resolver: yupResolver(registerSchema),
+    resolver: yupResolver(registerSchema) as Resolver<RegisterFormData>,
   });
 
   const { formError, handleError, handleValidationError, clearError } =
@@ -105,6 +106,35 @@ export function RegisterForm({ onSuccess, redirectUrl }: RegisterFormProps) {
       <FormErrorAlert error={formError} onDismiss={clearError} dismissible />
 
       <div className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <FormField
+            label="First name"
+            error={errors.firstName?.message}
+            className="group"
+          >
+            <Input
+              type="text"
+              placeholder="John"
+              {...register("firstName")}
+              error={!!errors.firstName}
+              className="h-12 px-4 rounded-lg border-warm-gray-200 group-hover:border-warm-gray-300 focus:border-primary-500 transition-all duration-200"
+            />
+          </FormField>
+          <FormField
+            label="Last name"
+            error={errors.lastName?.message}
+            className="group"
+          >
+            <Input
+              type="text"
+              placeholder="Doe"
+              {...register("lastName")}
+              error={!!errors.lastName}
+              className="h-12 px-4 rounded-lg border-warm-gray-200 group-hover:border-warm-gray-300 focus:border-primary-500 transition-all duration-200"
+            />
+          </FormField>
+        </div>
+
         <FormField
           label="Email address"
           required

@@ -1,4 +1,4 @@
-import { Injectable, ExecutionContext } from '@nestjs/common';
+import { Injectable, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -25,20 +25,23 @@ export class OptionalJwtAuthGuard extends AuthGuard('jwt') {
     // If it fails, we catch and allow guest access
     const result = super.canActivate(context);
 
-    // If result is a Promise, catch errors and allow guest access
+    // If result is a Promise, catch auth errors and allow guest access
     if (result instanceof Promise) {
       return result.catch((err) => {
         // Token missing, invalid, or expired - allow as guest
-        // Don't log or throw - this is expected for guest access
-        return true;
+        if (err instanceof UnauthorizedException) return true;
+        // Other errors (DB, config, etc.) - propagate
+        throw err;
       });
     }
 
     // If result is Observable, handle it
     if (result instanceof Observable) {
       return result.pipe(
-        // On error, return true to allow guest access
-        catchError(() => of(true)),
+        catchError((err) => {
+          if (err instanceof UnauthorizedException) return of(true);
+          throw err;
+        }),
       );
     }
 
@@ -53,7 +56,7 @@ export class OptionalJwtAuthGuard extends AuthGuard('jwt') {
    * This method is called by Passport after authentication attempt.
    * We return undefined (guest) instead of throwing for any auth errors.
    */
-  handleRequest(err: any, user: any, info: any) {
+  handleRequest(err: any, user: any, info?: any) {
     // Always allow guest access if there's an error or no user
     // This prevents 401 responses for guest requests with invalid/expired tokens
     if (err || !user) {

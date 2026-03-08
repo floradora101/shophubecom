@@ -1,6 +1,4 @@
-import { apiClient } from "@/lib/api/client";
-import type { BackendResponse } from "@/lib/types/api";
-import { extractResponseData } from "@/lib/api/response-transformer";
+import { apiGet, apiGetWithParams } from "@/lib/api/request";
 
 export interface AdminStats {
   totalSales: number;
@@ -52,27 +50,22 @@ export interface SalesData {
 
 export const adminApi = {
   async getStats(params?: { lowStockThreshold?: number }): Promise<AdminStats> {
-    const response = await apiClient.get<BackendResponse<AdminStats>>("/admin/stats", { params });
-    return extractResponseData(response);
+    return apiGetWithParams<AdminStats>("/admin/stats", params);
   },
 
   async getRecentOrders(params?: { limit?: number }): Promise<AdminOrderSummary[]> {
-    const response = await apiClient.get<BackendResponse<AdminOrderSummary[]>>("/admin/orders/recent", { params });
-    return extractResponseData(response);
+    return apiGetWithParams<AdminOrderSummary[]>("/admin/orders/recent", params);
   },
 
   async getLowStockProducts(params?: { threshold?: number; limit?: number }): Promise<LowStockProduct[]> {
-    const response = await apiClient.get<BackendResponse<LowStockProduct[]>>("/admin/products/low-stock", { params });
-    return extractResponseData(response);
+    return apiGetWithParams<LowStockProduct[]>("/admin/products/low-stock", params);
   },
 
   async getTopProducts(params?: { limit?: number; sortBy?: "sales" | "revenue" }): Promise<TopProduct[]> {
-    const response = await apiClient.get<BackendResponse<TopProduct[]>>("/admin/products/top", { params });
-    return extractResponseData(response);
+    return apiGetWithParams<TopProduct[]>("/admin/products/top", params);
   },
 
   async getSalesData(params?: { days?: number }): Promise<SalesData[]> {
-    const response = await apiClient.get<BackendResponse<SalesData[]>>("/admin/sales-data", { params });
-    return extractResponseData(response);
+    return apiGetWithParams<SalesData[]>("/admin/sales-data", params);
   },
 };

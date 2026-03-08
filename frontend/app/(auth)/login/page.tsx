@@ -7,8 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { LoadingSpinner } from "@/components/ui/spinner";
 import { LoginForm } from "@/features/auth";
 
-import { ShieldCheck, ArrowRight, Zap, Globe, Sparkles } from "lucide-react";
-import { SparkleEffect } from "@/components/ui/SparkleEffect";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { SectionTitle } from "@/components/shared/SectionHeader";
 

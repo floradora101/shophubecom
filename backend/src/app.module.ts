@@ -21,6 +21,11 @@ import { CouponsModule } from './coupons/coupons.module';
 import { PromotionsModule } from './promotions/promotions.module';
 import { DepartmentsModule } from './departments/departments.module';
 import { EmailModule } from './email/email.module';
+import { FavoritesModule } from './favorites/favorites.module';
+import { ReviewsModule } from './reviews/reviews.module';
+import { CsrfGuard } from './common/guards/csrf.guard';
+import { RolesGuard } from './common/guards/roles.guard';
+import { AuthUserCacheModule } from './common/cache/auth-user-cache.module';
 import { validate } from './config/env.validation';
 
 @Module({
@@ -39,6 +44,7 @@ import { validate } from './config/env.validation';
       },
     ]),
     PrismaModule,
+    AuthUserCacheModule,
     AuthModule,
     UsersModule,
     CategoriesModule,
@@ -54,6 +60,8 @@ import { validate } from './config/env.validation';
     PromotionsModule,
     DepartmentsModule,
     EmailModule,
+    FavoritesModule,
+    ReviewsModule,
   ],
   controllers: [AppController],
   providers: [
@@ -62,6 +70,16 @@ import { validate } from './config/env.validation';
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    // CSRF guard - active only when ENABLE_CSRF=true (cross-origin deployments)
+    {
+      provide: APP_GUARD,
+      useClass: CsrfGuard,
+    },
+    // Roles guard - enforces @Roles() metadata; no-op when no roles required
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
     },
   ],
 })

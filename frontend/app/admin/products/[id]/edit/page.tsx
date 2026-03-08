@@ -2,11 +2,12 @@
 
 import React, { useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { ProductForm } from "@/app/admin/products/_components/ProductForm";
+import { ProductForm, type ProductFormInitialData } from "@/app/admin/products/_components/ProductForm";
 import { Heading, Text } from "@/components/ui/typography";
 import { ChevronLeft, Loader2, Package, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useProductByIdQuery } from "@/features/products/queries";
+import { extractErrorMessage } from "@/lib/api/error-handler";
 import type { Product } from "@/features/products/types";
 
 export default function EditProductPage() {
@@ -21,7 +22,6 @@ export default function EditProductPage() {
     if (!product) return null;
 
     // Transform variants to form data format
-    // The form expects variants to have an 'options' array of objects
     const variants = product.variants?.map(v => ({
       ...v,
       options: Object.entries(v.options || {}).map(([name, value]) => ({
@@ -30,15 +30,25 @@ export default function EditProductPage() {
       }))
     })) || [];
 
+    // Normalize null → undefined for form compatibility (ProductFormInitialData expects undefined, not null)
+    const nullToUndef = <T,>(v: T | null | undefined): T | undefined =>
+      v === null ? undefined : v;
+
     return {
       ...product,
+      description: nullToUndef(product.description),
+      discountValue: nullToUndef(product.discountValue),
+      saleStartsAt: nullToUndef(product.saleStartsAt),
+      saleEndsAt: nullToUndef(product.saleEndsAt),
+      defaultVariantId: nullToUndef(product.defaultVariantId),
+      brand: nullToUndef(product.brand),
       variants: variants.length > 0 ? variants : [{
         sku: product.id || "",
         price: product.price,
         stock: product.stock || product.effectiveStock || 0,
         options: []
       }]
-    };
+    } as ProductFormInitialData;
   }, [product]);
 
   // Loading state
@@ -58,7 +68,7 @@ export default function EditProductPage() {
         <AlertCircle className="w-16 h-16 text-red-500" />
         <Heading level="h3">Product not found</Heading>
         <Text className="text-warm-gray-500">
-          {error instanceof Error ? error.message : "The product you're looking for doesn't exist."}
+          {extractErrorMessage(error, "The product you're looking for doesn't exist.")}
         </Text>
         <Button variant="outline" onClick={() => router.push("/admin/products")} className="rounded-lg">
           Back to Products

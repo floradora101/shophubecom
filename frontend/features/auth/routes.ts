@@ -30,7 +30,7 @@ export const PROTECTED_PREFIXES = ["/profile", "/orders", "/admin"];
 
 export const ADMIN_PREFIXES = ["/admin"];
 
-export const AUTH_PAGES = ["/login", "/register"];
+export const AUTH_PAGES = ["/login", "/register", "/forgot-password", "/reset-password"];
 
 export function isProtectedPath(pathname: string): boolean {
   return PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));

@@ -3,6 +3,7 @@ import { announcementsApi, type AnnouncementFilters, type AnnouncementsResponse 
 import type { Announcement, CreateAnnouncementInput } from "@/lib/types/announcements.types";
 import { announcementKeys } from "./query-keys";
 import { toast } from "sonner";
+import { extractErrorMessage } from "@/lib/api/error-handler";
 
 export function useAnnouncementsQuery(filters?: AnnouncementFilters) {
   return useQuery<AnnouncementsResponse>({
@@ -22,10 +23,11 @@ export function useAnnouncementQuery(id: string) {
   });
 }
 
-export function useActiveAnnouncementsQuery() {
+export function useActiveAnnouncementsQuery(options?: { enabled?: boolean }) {
   return useQuery<Announcement[]>({
     queryKey: announcementKeys.active(),
     queryFn: () => announcementsApi.getActiveAnnouncements(),
+    enabled: options?.enabled !== false,
     staleTime: 30_000, // 30 seconds
   });
 }
@@ -39,12 +41,13 @@ export function useCreateAnnouncementMutation() {
       queryClient.invalidateQueries({ queryKey: announcementKeys.all });
       toast.success("Announcement created successfully!");
     },
-    onError: (error: any) => {
-      const errorMessage =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed to create announcement. Please try again.";
-      toast.error(errorMessage);
+    onError: (error: unknown) => {
+      toast.error(
+        extractErrorMessage(
+          error,
+          "Failed to create announcement. Please try again."
+        )
+      );
     },
   });
 }
@@ -62,12 +65,13 @@ export function useUpdateAnnouncementMutation() {
       });
       toast.success("Announcement updated successfully!");
     },
-    onError: (error: any) => {
-      const errorMessage =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed to update announcement. Please try again.";
-      toast.error(errorMessage);
+    onError: (error: unknown) => {
+      toast.error(
+        extractErrorMessage(
+          error,
+          "Failed to update announcement. Please try again."
+        )
+      );
     },
   });
 }
@@ -81,12 +85,13 @@ export function useDeleteAnnouncementMutation() {
       queryClient.invalidateQueries({ queryKey: announcementKeys.all });
       toast.success("Announcement deleted successfully!");
     },
-    onError: (error: any) => {
-      const errorMessage =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed to delete announcement. Please try again.";
-      toast.error(errorMessage);
+    onError: (error: unknown) => {
+      toast.error(
+        extractErrorMessage(
+          error,
+          "Failed to delete announcement. Please try again."
+        )
+      );
     },
   });
 }

@@ -7,36 +7,28 @@
  *
  * Features:
  * - Automatic extraction of data from BackendResponse<T>
- * - Consistent error handling
+ * - Consistent error handling (throws ApiRequestError with statusCode, errors)
  * - Type-safe responses
- * - Optional response transformation
  *
  * @see NEXT_REFACTORING_STRATEGIC_ROADMAP.md - Phase 3.3: API Layer Standardization
  */
 
-import { AxiosError, AxiosRequestConfig } from "axios";
-import { apiClient, type ExtendedAxiosRequestConfig } from "./client";
-import type { BackendResponse, ApiError } from "@/lib/types/api";
+import { AxiosRequestConfig } from "axios";
+import { apiClient } from "./client";
 
-/**
- * Extract error message from an API error
- */
-function extractApiErrorMessage(error: unknown): string {
-  if (error instanceof AxiosError) {
-    const apiError = error.response?.data as ApiError | undefined;
-    if (apiError?.message) {
-      return apiError.message;
-    }
-    if (apiError?.errors && apiError.errors.length > 0) {
-      return apiError.errors[0];
-    }
-    return error.message || "An error occurred";
-  }
-  if (error instanceof Error) {
-    return error.message;
-  }
-  return "An unexpected error occurred";
-}
+/** Config for API wrappers - AxiosRequestConfig plus optional custom flags */
+export type ApiRequestConfig = AxiosRequestConfig & {
+  _skipAuthRefresh?: boolean;
+  _retry?: boolean;
+};
+import type { BackendResponse } from "@/lib/types/api";
+import {
+  extractErrorInfo,
+  buildErrorInfoFromResponse,
+  ApiRequestError,
+} from "./error-handler";
+
+export { ApiRequestError };
 
 /**
  * Standardized GET request wrapper
@@ -48,19 +40,22 @@ function extractApiErrorMessage(error: unknown): string {
  */
 export async function apiGet<T>(
   url: string,
-  config?: AxiosRequestConfig & ExtendedAxiosRequestConfig
+  config?: ApiRequestConfig
 ): Promise<T> {
   try {
     const response = await apiClient.get<BackendResponse<T>>(url, config);
 
     if (!response.data.success) {
-      throw new Error("API request failed");
+      const errorData = response.data as { message?: string | string[]; code?: string; errors?: string[] };
+      const info = buildErrorInfoFromResponse(response.status, errorData);
+      throw new ApiRequestError(info);
     }
 
     return response.data.data;
   } catch (error) {
-    const message = extractApiErrorMessage(error);
-    throw new Error(message);
+    if (error instanceof ApiRequestError) throw error;
+    const info = extractErrorInfo(error);
+    throw new ApiRequestError(info);
   }
 }
 
@@ -76,19 +71,22 @@ export async function apiGet<T>(
 export async function apiPost<T, D = unknown>(
   url: string,
   data?: D,
-  config?: AxiosRequestConfig & ExtendedAxiosRequestConfig
+  config?: ApiRequestConfig
 ): Promise<T> {
   try {
     const response = await apiClient.post<BackendResponse<T>>(url, data, config);
 
     if (!response.data.success) {
-      throw new Error("API request failed");
+      const errorData = response.data as { message?: string | string[]; code?: string; errors?: string[] };
+      const info = buildErrorInfoFromResponse(response.status, errorData);
+      throw new ApiRequestError(info);
     }
 
     return response.data.data;
   } catch (error) {
-    const message = extractApiErrorMessage(error);
-    throw new Error(message);
+    if (error instanceof ApiRequestError) throw error;
+    const info = extractErrorInfo(error);
+    throw new ApiRequestError(info);
   }
 }
 
@@ -104,19 +102,22 @@ export async function apiPost<T, D = unknown>(
 export async function apiPut<T, D = unknown>(
   url: string,
   data?: D,
-  config?: AxiosRequestConfig & ExtendedAxiosRequestConfig
+  config?: ApiRequestConfig
 ): Promise<T> {
   try {
     const response = await apiClient.put<BackendResponse<T>>(url, data, config);
 
     if (!response.data.success) {
-      throw new Error("API request failed");
+      const errorData = response.data as { message?: string | string[]; code?: string; errors?: string[] };
+      const info = buildErrorInfoFromResponse(response.status, errorData);
+      throw new ApiRequestError(info);
     }
 
     return response.data.data;
   } catch (error) {
-    const message = extractApiErrorMessage(error);
-    throw new Error(message);
+    if (error instanceof ApiRequestError) throw error;
+    const info = extractErrorInfo(error);
+    throw new ApiRequestError(info);
   }
 }
 
@@ -132,19 +133,22 @@ export async function apiPut<T, D = unknown>(
 export async function apiPatch<T, D = unknown>(
   url: string,
   data?: D,
-  config?: AxiosRequestConfig & ExtendedAxiosRequestConfig
+  config?: ApiRequestConfig
 ): Promise<T> {
   try {
     const response = await apiClient.patch<BackendResponse<T>>(url, data, config);
 
     if (!response.data.success) {
-      throw new Error("API request failed");
+      const errorData = response.data as { message?: string | string[]; code?: string; errors?: string[] };
+      const info = buildErrorInfoFromResponse(response.status, errorData);
+      throw new ApiRequestError(info);
     }
 
     return response.data.data;
   } catch (error) {
-    const message = extractApiErrorMessage(error);
-    throw new Error(message);
+    if (error instanceof ApiRequestError) throw error;
+    const info = extractErrorInfo(error);
+    throw new ApiRequestError(info);
   }
 }
 
@@ -158,19 +162,22 @@ export async function apiPatch<T, D = unknown>(
  */
 export async function apiDelete<T>(
   url: string,
-  config?: AxiosRequestConfig & ExtendedAxiosRequestConfig
+  config?: ApiRequestConfig
 ): Promise<T> {
   try {
     const response = await apiClient.delete<BackendResponse<T>>(url, config);
 
     if (!response.data.success) {
-      throw new Error("API request failed");
+      const errorData = response.data as { message?: string | string[]; code?: string; errors?: string[] };
+      const info = buildErrorInfoFromResponse(response.status, errorData);
+      throw new ApiRequestError(info);
     }
 
     return response.data.data;
   } catch (error) {
-    const message = extractApiErrorMessage(error);
-    throw new Error(message);
+    if (error instanceof ApiRequestError) throw error;
+    const info = extractErrorInfo(error);
+    throw new ApiRequestError(info);
   }
 }
 
@@ -183,10 +190,10 @@ export async function apiDelete<T>(
  * @param config - Additional Axios request config
  * @returns Extracted data from BackendResponse
  */
-export async function apiGetWithParams<T, P = Record<string, unknown>>(
+export async function apiGetWithParams<T, P extends object = object>(
   url: string,
   params?: P,
-  config?: AxiosRequestConfig & ExtendedAxiosRequestConfig
+  config?: ApiRequestConfig
 ): Promise<T> {
   try {
     const response = await apiClient.get<BackendResponse<T>>(url, {
@@ -195,12 +202,15 @@ export async function apiGetWithParams<T, P = Record<string, unknown>>(
     });
 
     if (!response.data.success) {
-      throw new Error("API request failed");
+      const errorData = response.data as { message?: string | string[]; code?: string; errors?: string[] };
+      const info = buildErrorInfoFromResponse(response.status, errorData);
+      throw new ApiRequestError(info);
     }
 
     return response.data.data;
   } catch (error) {
-    const message = extractApiErrorMessage(error);
-    throw new Error(message);
+    if (error instanceof ApiRequestError) throw error;
+    const info = extractErrorInfo(error);
+    throw new ApiRequestError(info);
   }
 }

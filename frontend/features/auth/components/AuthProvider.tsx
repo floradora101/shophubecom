@@ -5,8 +5,11 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useShallow } from "zustand/react/shallow";
 import { useAuthStore } from "@/store/auth-store";
+import { useFavoritesStore } from "@/store/favorites-store";
+import { authApi } from "@/features/auth/api";
 import { cartKeys } from "@/features/cart/query-keys";
 import { onAuthExpired } from "@/lib/integrations/auth-events";
+import { USE_MOCKS } from "@/lib/flags";
 import {
   buildFullPath,
   buildLoginRedirect,
@@ -53,23 +56,30 @@ function AuthProviderContent({ children }: AuthProviderProps) {
   const previousUserIdRef = useRef<string | null>(null);
   const hasTrackedFirstRender = useRef(false);
   const didRunBootstrapRef = useRef(false);
-  const { user, bootstrap, setUser, logout } = useAuthStore(
+  const { user, bootstrap, setUser } = useAuthStore(
     useShallow((state) => ({
       user: state.user,
       bootstrap: state.bootstrap,
       setUser: state.setUser,
-      logout: state.logout,
     }))
   );
 
-  // Bootstrap auth ONCE on mount
+  // Fetch CSRF token and bootstrap auth ONCE on mount
   useEffect(() => {
     // Prevent double bootstraps
     if (didRunBootstrapRef.current) return;
     didRunBootstrapRef.current = true;
 
-    bootstrap();
-  }, [bootstrap]);
+    if (USE_MOCKS) {
+      setUser(null);
+      return;
+    }
+
+    // Fetch CSRF token first (for cross-origin when ENABLE_CSRF=true)
+    authApi.fetchCsrfToken().finally(() => {
+      bootstrap();
+    });
+  }, [bootstrap, setUser]);
 
   // Invalidate cart when user id changes (login: null->id, logout: id->null)
   useEffect(() => {
@@ -80,12 +90,20 @@ function AuthProviderContent({ children }: AuthProviderProps) {
     if (!hasTrackedFirstRender.current) {
       hasTrackedFirstRender.current = true;
       previousUserIdRef.current = currentUserId;
+      // Sync favorites on mount if user already authenticated (e.g. persisted session)
+      if (currentUserId && !USE_MOCKS) {
+        useFavoritesStore.getState().mergeAndSync();
+      }
       return;
     }
 
     // Invalidate if user id changed (null->id or id->null)
     if (previousUserId !== currentUserId) {
       queryClient.invalidateQueries({ queryKey: cartKeys.all });
+      // Sync favorites when user becomes authenticated (login, register, bootstrap)
+      if (currentUserId && !USE_MOCKS) {
+        useFavoritesStore.getState().mergeAndSync();
+      }
     }
 
     // Update ref for next comparison

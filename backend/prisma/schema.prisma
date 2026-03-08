@@ -90,17 +90,56 @@ model User {
   lastName            String
   phone               String?              @db.VarChar(32)
   role                UserRole             @default(CUSTOMER)
-  refreshToken        String?
   addresses           Address[]
   orders              Order[]
   cart                Cart?
   reviews             ProductReview[]
   auditLogs           AuditLog[]
   passwordResetTokens PasswordResetToken[]
+  favorites           UserFavorite[]
+  refreshTokens        RefreshToken[]
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
 
   @@index([email])
+}
+
+/// Multi-session refresh tokens: one row per device/tab. Enables multiple concurrent sessions.
+model RefreshToken {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique // SHA-256 hash of the JWT for lookup and revocation
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+/// Account lockout after repeated failed logins. Keyed by email (lowercase).
+model LoginLockout {
+  id           String   @id @default(cuid())
+  email        String   @unique // Normalized lowercase email
+  attemptCount Int      @default(0)
+  lockedUntil  DateTime?
+  updatedAt    DateTime @updatedAt
+
+  @@index([email])
+  @@index([lockedUntil])
+}
+
+model UserFavorite {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@index([productId])
 }
 
 model Address {
@@ -117,6 +156,8 @@ model Address {
   isDefault  Boolean  @default(false)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model Category {
@@ -165,6 +206,7 @@ model Product {
   orderItems        OrderItem[]
   promotionProducts PromotionProduct[]
   variants          ProductVariant[]
+  userFavorites     UserFavorite[]
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
 
@@ -204,6 +246,8 @@ model VariantOption {
   productVariantId String
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
+
+  @@index([productVariantId])
 }
 
 model Cart {
@@ -242,6 +286,7 @@ model CartItem {
 
   // Unique constraint: can't have same product+variant combination in cart
   @@unique([cartId, productId, variantId])
+  @@index([cartId])
   @@index([productId])
 }
 
@@ -292,6 +337,8 @@ model OrderItem {
   createdAt  DateTime       @default(now())
 
   @@index([orderId])
+  @@index([productId])
+  @@index([variantId])
 }
 
 model AuditLog {

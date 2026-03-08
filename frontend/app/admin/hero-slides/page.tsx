@@ -42,6 +42,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils/cn";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { HeroSlideType } from "@/lib/types/heroSlides.types";
 import { useHeroSlidesQuery, useDeleteHeroSlideMutation } from "@/features/hero-slides/queries";
 
@@ -111,9 +112,14 @@ export default function HeroSlidesAdminPage() {
     return result;
   }, [slides, sortBy]);
 
-  const handleDelete = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this hero slide?")) {
-      deleteMutation.mutate(id);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const handleDelete = (id: string) => setDeleteId(id);
+
+  const handleConfirmDelete = () => {
+    if (deleteId) {
+      deleteMutation.mutate(deleteId);
+      setDeleteId(null);
     }
   };
 
@@ -458,6 +464,17 @@ export default function HeroSlidesAdminPage() {
           )}
         </div>
       </Card>
+
+      <ConfirmDialog
+        open={deleteId !== null}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+        title="Delete hero slide"
+        description="Are you sure you want to delete this hero slide?"
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="destructive"
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }

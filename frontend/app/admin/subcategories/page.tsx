@@ -19,6 +19,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { extractErrorMessage } from "@/lib/api/error-handler";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,7 +41,7 @@ export default function DepartmentsPage() {
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
 
-  const { data: departmentsResponse, isLoading, error } = useDepartmentsQuery({
+  const { data: departmentsResponse, isLoading, error, refetch } = useDepartmentsQuery({
     limit: 1000,
     sortBy: "createdAt",
     sortOrder: "desc",
@@ -66,9 +68,14 @@ export default function DepartmentsPage() {
     return result;
   }, [departments, search, sortBy]);
 
-  const handleDelete = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this subcategory?")) {
-      deleteMutation.mutate(id);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const handleDelete = (id: string) => setDeleteId(id);
+
+  const handleConfirmDelete = () => {
+    if (deleteId) {
+      deleteMutation.mutate(deleteId);
+      setDeleteId(null);
     }
   };
 
@@ -120,11 +127,9 @@ export default function DepartmentsPage() {
         <Card className="border-warm-gray-200 shadow-sm overflow-hidden bg-white">
           <div className="p-12 text-center space-y-4">
             <Text className="text-warm-gray-500">
-              {error instanceof Error
-                ? error.message
-                : "Failed to load subcategories"}
+              {extractErrorMessage(error, "Failed to load subcategories")}
             </Text>
-            <Button onClick={() => window.location.reload()} variant="outline">
+            <Button onClick={() => refetch()} variant="outline">
               Retry
             </Button>
           </div>
@@ -294,6 +299,17 @@ export default function DepartmentsPage() {
           </table>
         </div>
       </Card>
+
+      <ConfirmDialog
+        open={deleteId !== null}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+        title="Delete subcategory"
+        description="Are you sure you want to delete this subcategory?"
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="destructive"
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }

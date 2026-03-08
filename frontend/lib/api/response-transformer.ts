@@ -8,6 +8,19 @@
 import type { BackendResponse } from "@/lib/types/api";
 import type { AxiosResponse } from "axios";
 
+/** Error thrown when response structure is invalid; includes cause for debugging */
+export class InvalidResponseError extends Error {
+  constructor(
+    message: string,
+    public readonly status?: number,
+    public readonly url?: string,
+    public readonly responseData?: unknown
+  ) {
+    super(message);
+    this.name = "InvalidResponseError";
+  }
+}
+
 /**
  * Extract data from BackendResponse
  * Handles both direct data and nested data structures
@@ -22,8 +35,12 @@ export function extractResponseData<T>(
     return backendResponse.data;
   }
 
-  // Fallback: if data is directly in response (shouldn't happen but handle gracefully)
-  throw new Error("Invalid API response structure");
+  throw new InvalidResponseError(
+    "Invalid API response structure: missing or invalid data",
+    response.status,
+    response.config?.url,
+    backendResponse
+  );
 }
 
 /**
@@ -51,5 +68,10 @@ export function extractPaginatedData<T>(
     return backendResponse.data;
   }
 
-  throw new Error("Invalid paginated API response structure");
+  throw new InvalidResponseError(
+    "Invalid paginated API response structure: missing or invalid data",
+    response.status,
+    response.config?.url,
+    backendResponse
+  );
 }

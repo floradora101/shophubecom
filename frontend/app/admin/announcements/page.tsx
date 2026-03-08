@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Plus,
   Search,
@@ -43,9 +43,12 @@ import {
 import Link from "next/link";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils/cn";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { AnnouncementIconType } from "@/lib/types/announcements.types";
 import { useAnnouncementsQuery, useDeleteAnnouncementMutation } from "@/features/announcements/queries";
 import { Loader2, AlertCircle } from "lucide-react";
+import { Pagination } from "@/components/ui/pagination";
+import { useAdminPagination } from "../_hooks/useAdminPagination";
 
 type SortOption = "priority-desc" | "priority-asc" | "status";
 type ViewMode = "list" | "grid";
@@ -63,10 +66,10 @@ const iconMap = {
 const ANNOUNCEMENTS_PER_PAGE = 20;
 
 export default function AnnouncementsAdminPage() {
+  const { page, setPage } = useAdminPagination();
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("priority-desc");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
-  const [page, setPage] = useState(1);
 
   const apiFilters = useMemo(() => {
     const filters: Record<string, unknown> = {
@@ -91,12 +94,19 @@ export default function AnnouncementsAdminPage() {
     return filters;
   }, [search, sortBy, page]);
 
-  const { data, isLoading, error } = useAnnouncementsQuery(apiFilters);
+  const { data, isLoading, error, refetch } = useAnnouncementsQuery(apiFilters);
   const deleteMutation = useDeleteAnnouncementMutation();
 
   const announcements = data?.data || [];
 
-  // Client-side filtering for status (API doesn't support it yet)
+  // Clamp page when totalPages shrinks - same as frontstore
+  useEffect(() => {
+    if (data && data.totalPages > 0 && page > data.totalPages) {
+      setPage(data.totalPages);
+    }
+  }, [data?.totalPages, page, setPage]);
+
+  // Client-side filtering for status
   const filteredAnnouncements = useMemo(() => {
     let result = [...announcements];
 
@@ -108,9 +118,14 @@ export default function AnnouncementsAdminPage() {
     return result;
   }, [announcements, sortBy]);
 
-  const handleDelete = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this announcement?")) {
-      deleteMutation.mutate(id);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const handleDelete = (id: string) => setDeleteId(id);
+
+  const handleConfirmDelete = () => {
+    if (deleteId) {
+      deleteMutation.mutate(deleteId);
+      setDeleteId(null);
     }
   };
 
@@ -382,36 +397,33 @@ export default function AnnouncementsAdminPage() {
             </div>
           )}
 
-        {/* Pagination */}
-        {data && data.totalPages > 1 && (
-          <div className="p-4 border-t border-warm-gray-100 flex items-center justify-between bg-warm-gray-50/30">
-            <Text className="text-xs text-warm-gray-500">
-              Page {page} of {data.totalPages} · {data.total} total
-            </Text>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1 || isLoading}
-                className="rounded-lg"
-              >
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
-                disabled={page === data.totalPages || isLoading}
-                className="rounded-lg"
-              >
-                Next
-              </Button>
-            </div>
+        {/* Pagination - same component as frontstore, URL-based page */}
+        {data && data.totalPages > 0 && (
+          <div className="p-4 border-t border-warm-gray-100 bg-warm-gray-50/30">
+            <Pagination
+              currentPage={page}
+              totalPages={Math.max(1, data.totalPages)}
+              onPageChange={setPage}
+              isLoading={isLoading}
+              totalItems={data.total}
+              itemsPerPage={ANNOUNCEMENTS_PER_PAGE}
+              itemName="announcements"
+            />
           </div>
         )}
         </div>
       </Card>
+
+      <ConfirmDialog
+        open={deleteId !== null}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+        title="Delete announcement"
+        description="Are you sure you want to delete this announcement?"
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="destructive"
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }

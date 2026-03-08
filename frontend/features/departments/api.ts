@@ -1,9 +1,10 @@
-import { apiClient } from "@/lib/api/client";
-import type { BackendResponse } from "@/lib/types/api";
 import {
-  extractPaginatedData,
-  extractResponseData,
-} from "@/lib/api/response-transformer";
+  apiGet,
+  apiGetWithParams,
+  apiPost,
+  apiPut,
+  apiDelete,
+} from "@/lib/api/request";
 import type { Department } from "./types";
 
 export const departmentsApi = {
@@ -12,10 +13,8 @@ export const departmentsApi = {
    * No auth required.
    */
   async getActiveDepartments(): Promise<Department[]> {
-    const response = await apiClient.get<BackendResponse<Department[]>>(
-      "/departments/active"
-    );
-    return extractResponseData(response) ?? [];
+    const data = await apiGet<Department[]>("/departments/active");
+    return data ?? [];
   },
 
   async getDepartments(params?: {
@@ -32,23 +31,11 @@ export const departmentsApi = {
     limit: number;
     totalPages: number;
   }> {
-    const response = await apiClient.get<
-      BackendResponse<{
-        data: Department[];
-        total: number;
-        page: number;
-        limit: number;
-        totalPages: number;
-      }>
-    >("/departments", { params });
-    return extractPaginatedData(response);
+    return apiGetWithParams("/departments", params);
   },
 
   async getDepartment(id: string): Promise<Department> {
-    const response = await apiClient.get<BackendResponse<Department>>(
-      `/departments/${id}`
-    );
-    return extractResponseData(response);
+    return apiGet<Department>(`/departments/${id}`);
   },
 
   async createDepartment(data: {
@@ -57,11 +44,7 @@ export const departmentsApi = {
     highlightedSubCategoryIds: string[];
     isActive: boolean;
   }): Promise<Department> {
-    const response = await apiClient.post<BackendResponse<Department>>(
-      "/departments",
-      data
-    );
-    return extractResponseData(response);
+    return apiPost<Department>("/departments", data);
   },
 
   async updateDepartment(
@@ -73,15 +56,11 @@ export const departmentsApi = {
       isActive: boolean;
     }>
   ): Promise<Department> {
-    const response = await apiClient.put<BackendResponse<Department>>(
-      `/departments/${id}`,
-      data
-    );
-    return extractResponseData(response);
+    return apiPut<Department>(`/departments/${id}`, data);
   },
 
   async deleteDepartment(id: string): Promise<void> {
-    await apiClient.delete(`/departments/${id}`);
+    await apiDelete<void>(`/departments/${id}`);
   },
 };
 

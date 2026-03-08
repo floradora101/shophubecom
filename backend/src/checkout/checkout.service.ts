@@ -55,8 +55,8 @@ export class CheckoutService {
     // Compute shipping cost based on shipping option
     const shippingCost = this.calculateShipping(dto.shippingOption);
 
-    // Generate unique order number
-    const orderNumber = generateOrderNumber();
+    // Generate unique order number (sequential via PostgreSQL sequence)
+    const orderNumber = await generateOrderNumber(this.prisma);
 
     // Generate order access token for guest checkout (32+ bytes base64url)
     const orderAccessToken = this.generateOrderAccessToken();
@@ -144,7 +144,6 @@ export class CheckoutService {
 
       // For each cart item, decrement ProductVariant.stock atomically
       // with a conditional update (stock >= qty) or throw
-      const affectedProductIds = new Set<string>();
       for (const cartItem of cartItems) {
         if (!cartItem.variantId) {
           throw new BadRequestException(
@@ -167,14 +166,6 @@ export class CheckoutService {
             `Insufficient stock for variant ${cartItem.variant.sku}`,
           );
         }
-
-        // Track affected products for effectiveStock recomputation
-        affectedProductIds.add(cartItem.productId);
-      }
-
-      // Recompute effectiveStock for all affected products
-      for (const productId of affectedProductIds) {
-        await this.productsService.recomputeProductDerivedFields(tx, productId);
       }
 
       // Create Order + OrderItems (attributes from variant options).
@@ -296,8 +287,6 @@ export class CheckoutService {
     const response = new PlaceOrderResponseDto();
     response.orderId = result.order.id;
     response.orderNumber = orderNumber;
-    // Don't return token in response body for guest orders (it's in httpOnly cookie)
-    response.orderAccessToken = undefined; // Never return token in response
     response.total = result.total;
     response.shipping = shippingCost;
     response.subtotal = result.subtotal;

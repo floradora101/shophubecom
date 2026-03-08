@@ -1,22 +1,18 @@
+# ShopHub Backend - NestJS API
+# Build context: repository root (parent of backend/)
+#
+# Required env vars at runtime:
+#   DATABASE_URL, JWT_ACCESS_SECRET, JWT_REFRESH_SECRET,
+#   JWT_ACCESS_EXPIRY, JWT_REFRESH_EXPIRY, FRONTEND_URL
+# Optional: SMTP_* for email, PORT (default 3001)
+
 FROM node:20-alpine AS base
-
-# Install dependencies only when needed
-FROM base AS deps
 RUN apk add --no-cache libc6-compat
-WORKDIR /app
 
-# Copy package files from backend
-COPY backend/package*.json ./
-COPY backend/prisma ./prisma/
-
-# Install dependencies
-RUN npm ci
-
-# Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
 
-# Copy package files and install deps in backend
+# Copy package files and prisma (includes backend's own mock-data for seed)
 COPY backend/package*.json ./
 COPY backend/prisma ./prisma/
 RUN npm ci
@@ -26,9 +22,6 @@ COPY backend/src ./src
 COPY backend/tsconfig*.json ./
 COPY backend/nest-cli.json ./
 COPY backend/eslint.config.mjs ./
-
-# Copy frontend mock data for seed script (copy to a location seed can import from)
-COPY frontend/lib/mock-data/mock-data.ts ./prisma/mock-data.ts
 
 # Generate Prisma Client
 RUN npx prisma generate

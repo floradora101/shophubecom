@@ -225,56 +225,54 @@ export function toFormValues(slide: HeroSlide): HeroSlideFormValues {
     } as HeroSlideFormValues;
   }
 
-  // Handle other types...
-  const otherValues = { ...baseValues };
+  // Handle other types - build type-specific fields (slide narrowed by conditionals)
+  const otherValues: HeroSlideFormValues = { ...baseValues } as HeroSlideFormValues;
   if (slide.type === "OFFER") {
-    (otherValues as any).offerLabel = slide.offerLabel;
-    // Convert ISO date to datetime-local format for input field
+    otherValues.offerLabel = slide.offerLabel;
     if (slide.offerEndsAt) {
       try {
         const date = new Date(slide.offerEndsAt);
         if (!isNaN(date.getTime())) {
-          // Format as YYYY-MM-DDTHH:mm for datetime-local input
           const year = date.getFullYear();
           const month = String(date.getMonth() + 1).padStart(2, "0");
           const day = String(date.getDate()).padStart(2, "0");
           const hours = String(date.getHours()).padStart(2, "0");
           const minutes = String(date.getMinutes()).padStart(2, "0");
-          (otherValues as any).offerEndsAt = `${year}-${month}-${day}T${hours}:${minutes}`;
+          otherValues.offerEndsAt = `${year}-${month}-${day}T${hours}:${minutes}`;
         } else {
-          (otherValues as any).offerEndsAt = "";
+          otherValues.offerEndsAt = "";
         }
-      } catch (e) {
-        (otherValues as any).offerEndsAt = "";
+      } catch {
+        otherValues.offerEndsAt = "";
       }
     } else {
-      (otherValues as any).offerEndsAt = "";
+      otherValues.offerEndsAt = "";
     }
-    (otherValues as any).promoCode = slide.promoCode;
+    otherValues.promoCode = slide.promoCode;
   } else if (slide.type === "TESTIMONIAL") {
-    (otherValues as any).quote = slide.quote;
-    (otherValues as any).authorName = slide.authorName;
-    (otherValues as any).rating = slide.rating;
-    (otherValues as any).testimonialStats = slide.stats;
+    otherValues.quote = slide.quote;
+    otherValues.authorName = slide.authorName;
+    otherValues.rating = slide.rating;
+    otherValues.testimonialStats = slide.stats;
   } else if (slide.type === "CATEGORY_SPOTLIGHT") {
-    (otherValues as any).categorySlug = slide.categorySlug;
-    (otherValues as any).categoryBullets = slide.categoryBullets || [];
+    otherValues.categorySlug = slide.categorySlug;
+    otherValues.categoryBullets = slide.categoryBullets || [];
   } else if (slide.type === "EDITORS_PICK") {
-    (otherValues as any).editorNote = slide.editorNote;
-    (otherValues as any).productSlugs = slide.productSlugs.join(", ");
+    otherValues.editorNote = slide.editorNote;
+    otherValues.productSlugs = slide.productSlugs.join(", ");
   } else if (slide.type === "COMPARISON_BATTLE") {
-    (otherValues as any).leftProductSlug = slide.leftProductSlug;
-    (otherValues as any).rightProductSlug = slide.rightProductSlug;
-    (otherValues as any).comparisonPoints = (slide.comparisonPoints || [])
+    otherValues.leftProductSlug = slide.leftProductSlug;
+    otherValues.rightProductSlug = slide.rightProductSlug;
+    otherValues.comparisonPoints = (slide.comparisonPoints || [])
       .map((p) => `${p.label}|${p.leftValue}|${p.rightValue}`)
       .join(", ");
   } else if (slide.type === "PROMOTION") {
-    (otherValues as any).promotionId = slide.promotionId;
-    (otherValues as any).promotionBgColor = slide.customColors?.bg || "";
-    (otherValues as any).promotionTextColor = slide.customColors?.text || "";
+    otherValues.promotionId = slide.promotionId;
+    otherValues.promotionBgColor = slide.customColors?.bg || "";
+    otherValues.promotionTextColor = slide.customColors?.text || "";
   }
 
-  return otherValues as HeroSlideFormValues;
+  return otherValues;
 }
 
 export function fromFormValues(values: HeroSlideFormValues, existingId?: string): HeroSlide {

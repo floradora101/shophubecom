@@ -5,10 +5,8 @@ import { useMemo } from "react";
 import { Sparkles } from "lucide-react";
 import { ProductCard } from "@/components/shared/ProductCard";
 import { Stack } from "@/components/ui/stack";
-import { getAllProductsSync } from "@/lib/data/products";
 import { useProductsQuery } from "@/features/products/queries";
 import type { Product } from "@/features/products/types";
-import { USE_MOCKS } from "@/lib/flags";
 
 interface YouMayAlsoLikeProps {
   currentProduct: Product;
@@ -23,16 +21,12 @@ export function YouMayAlsoLike({ currentProduct }: YouMayAlsoLikeProps) {
     sortBy: "createdAt",
     sortOrder: "desc",
   });
-  const allProducts = USE_MOCKS
-    ? getAllProductsSync()
-    : (productsData?.data || []);
-
   const recommendations = useMemo(() => {
-    const relatedProducts = allProducts
+    const allProducts = productsData?.data ?? [];
+    return allProducts
       .filter((p) => p.id !== currentProduct.id)
       .slice(0, 4);
-    return relatedProducts;
-  }, [currentProduct, allProducts]);
+  }, [currentProduct.id, productsData?.data]);
 
   if (recommendations.length === 0) return null;
 

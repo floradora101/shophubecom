@@ -17,6 +17,9 @@ export const metadata = {
   description: "Browse our products by category to find exactly what you're looking for.",
 };
 
+/** Skip static generation – categories are fetched from API at request time */
+export const dynamic = "force-dynamic";
+
 async function CategoriesContent() {
   const categories = await getMainCategories();
 

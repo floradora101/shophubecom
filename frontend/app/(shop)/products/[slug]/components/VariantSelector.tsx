@@ -30,11 +30,6 @@ const COLOR_MAP: Record<string, string> = {
   gold: "#D97706",
 };
 
-function getColorHex(colorName: string): string {
-  const normalized = colorName.toLowerCase().replace(/\s+/g, "");
-  return COLOR_MAP[normalized] || "#6B7280";
-}
-
 export function VariantSelector({
   optionKeys,
   allOptionValues,
@@ -154,6 +149,7 @@ export function VariantSelector({
                         }
                       `}
                       aria-label={`Select ${value} color`}
+                      aria-pressed={isSelected}
                     >
                       <span className="relative z-10 truncate max-w-20 sm:max-w-none">
                         {value}
@@ -177,12 +173,14 @@ export function VariantSelector({
                     </button>
                   );
                 } else {
-                  // Modern Rectangle Buttons
+                  // Modern Rectangle Buttons (size, storage, style, etc.)
                   return (
                     <button
                       key={value}
                       onClick={() => !isDisabled && onOptionSelect(key, value)}
                       disabled={isDisabled}
+                      aria-label={`Select ${value} ${key}`}
+                      aria-pressed={isSelected}
                       className={`
                         group relative px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-lg border transition-all duration-200 ease-in-out
                         ${

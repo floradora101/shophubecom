@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { useForm, useFieldArray, Controller, type Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { productSchema, type ProductFormData } from "@/features/products/schemas";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Text, Heading } from "@/components/ui/typography";
+import { extractErrorMessage } from "@/lib/api/error-handler";
 import { CategoryPicker } from "@/features/categories/components/category-picker";
 import { ProductImageUploader } from "@/features/products/components/product-image-uploader";
 import {
@@ -32,8 +33,11 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils/cn";
 import { useCreateProductMutation, useUpdateProductMutation } from "@/features/products/queries";
 
+/** Product data for edit mode - form fields plus optional id for updates */
+export type ProductFormInitialData = Partial<ProductFormData> & { id?: string };
+
 interface ProductFormProps {
-  initialData?: any;
+  initialData?: ProductFormInitialData;
   onSuccess: () => void;
   onCancel: () => void;
 }
@@ -63,7 +67,7 @@ export function ProductForm({
     watch,
     formState: { errors, isSubmitting },
   } = useForm<ProductFormData>({
-    resolver: yupResolver(productSchema) as any,
+    resolver: yupResolver(productSchema) as Resolver<ProductFormData>,
     defaultValues: initialData || {
       name: "",
       description: "",
@@ -286,9 +290,7 @@ export function ProductForm({
                 ))}
                 {createMutation.isError && (
                   <li className="text-sm text-red-700 font-medium">
-                    {createMutation.error?.response?.data?.message ||
-                     createMutation.error?.message ||
-                     "Failed to create product. Please check all fields and try again."}
+                    {extractErrorMessage(createMutation.error, "Failed to create product. Please check all fields and try again.")}
                   </li>
                 )}
               </ul>
@@ -348,7 +350,7 @@ export function ProductForm({
                     onClick={() => {
                       const currentSpecs = watch("specs") || {};
                       // Use a temporary unique key that will be replaced when user types
-                      const tempKey = `__temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                      const tempKey = `__temp_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
                       setValue("specs", { ...currentSpecs, [tempKey]: "" }, { shouldDirty: true });
                     }}
                   >
@@ -402,6 +404,36 @@ export function ProductForm({
                 </div>
               </div>
             </div>
+          </Card>
+
+          {/* Product Image - Syncs with first variant's main image */}
+          <Card className="p-6 border-warm-gray-200 shadow-sm overflow-hidden">
+            <div className="flex items-center gap-2 mb-6 border-b border-warm-gray-100 pb-4">
+              <ImageIcon className="w-5 h-5 text-primary-500" />
+              <Heading level="h3" className="text-lg">Product Image</Heading>
+              <Text className="text-xs text-warm-gray-500">(Required — used as main display image)</Text>
+            </div>
+            <Controller
+              name="variants.0.image"
+              control={control}
+              render={({ field }) => (
+                <ProductImageUploader
+                  value={field.value ? [field.value] : []}
+                  onChange={(urls) => field.onChange(urls[0])}
+                  maxFiles={1}
+                  label="Main product photo"
+                  disabled={isSubmitting || createMutation.isPending}
+                />
+              )}
+            />
+            {errors.variants?.[0]?.image && (
+              <Text className="text-xs text-red-600 mt-2">
+                {errors.variants[0].image?.message}
+              </Text>
+            )}
+            <p className="text-xs text-warm-gray-500 mt-3">
+              This image will be used as the main product photo. Add more photos in the Variant Photos section below.
+            </p>
           </Card>
 
           {/* Variants Section */}

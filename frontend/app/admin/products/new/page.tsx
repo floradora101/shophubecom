@@ -24,7 +24,7 @@ export default function NewProductPage() {
         <div>
           <Heading level="h2">Add New Product</Heading>
           <Text className="text-warm-gray-500">
-            Create a new product with multiple variants and high-quality photos.
+            Create a new product with image, variants, and inventory. Start by adding a product image.
           </Text>
         </div>
       </div>

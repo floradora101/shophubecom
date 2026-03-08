@@ -38,6 +38,8 @@ export interface LoginFormData {
 
 export interface RegisterFormData {
   email: string;
+  firstName?: string;
+  lastName?: string;
   password: string;
   confirmPassword: string;
 }

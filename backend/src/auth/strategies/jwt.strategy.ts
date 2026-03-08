@@ -31,10 +31,11 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
-import { LRUCache } from 'lru-cache';
 import { PrismaService } from '../../prisma/prisma.service';
 import { JwtPayload } from '../../common/interfaces/jwt-payload.interface';
 import { AuthenticatedUser } from '../../common/interfaces/authenticated-user.interface';
+import { AuthUserCacheService } from '../../common/cache/auth-user-cache.service';
+import { ACCESS_TOKEN_COOKIE } from '../constants/auth-cookies';
 
 interface StrategyOptions {
   jwtFromRequest?: (req: Request) => string | null;
@@ -49,15 +50,11 @@ interface RequestWithCookies extends Request {
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   private readonly logger = new Logger(JwtStrategy.name);
-  /** Bounded LRU cache - max 1000 entries, 5min TTL. Prevents unbounded memory growth. */
-  private readonly userCache = new LRUCache<string, AuthenticatedUser>({
-    max: 1000,
-    ttl: 5 * 60 * 1000, // 5 minutes
-  });
 
   constructor(
     private configService: ConfigService,
     private prisma: PrismaService,
+    private authUserCache: AuthUserCacheService,
   ) {
     const jwtSecret = configService.get<string>('JWT_ACCESS_SECRET');
     if (!jwtSecret) {
@@ -68,8 +65,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       // Web-only: Read access token ONLY from httpOnly cookie
       // This prevents XSS attacks that could intercept tokens from Authorization header
       // Security: httpOnly cookies cannot be accessed by JavaScript, providing XSS protection
-      if (request?.cookies?.accessToken) {
-        return request.cookies.accessToken;
+      if (request?.cookies?.[ACCESS_TOKEN_COOKIE]) {
+        return request.cookies[ACCESS_TOKEN_COOKIE];
       }
       return null;
     };
@@ -112,8 +109,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: JwtPayload): Promise<AuthenticatedUser> {
     const userId = payload.sub;
 
-    // Try to get from LRU cache first (performance optimization)
-    const cached = this.userCache.get(userId);
+    // Try to get from shared cache first (performance optimization)
+    const cached = this.authUserCache.get(userId);
     if (cached) {
       return cached;
     }
@@ -139,19 +136,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('User not found');
     }
 
-    // Cache the user (LRU auto-evicts when max size reached)
-    this.userCache.set(userId, user);
+    // Cache the user (LRU auto-evicts when max size reached via AuthUserCacheService)
+    this.authUserCache.set(userId, user);
 
     return user;
-  }
-
-  /**
-   * Invalidates the cache for a specific user.
-   * Call this when user data is updated to ensure fresh data on next request.
-   *
-   * @param userId - The user ID to invalidate
-   */
-  invalidateUserCache(userId: string): void {
-    this.userCache.delete(userId);
   }
 }

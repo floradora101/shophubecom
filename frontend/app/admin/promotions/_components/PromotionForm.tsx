@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, type Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { promotionSchema, type PromotionFormData } from "@/features/promotions/schemas";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,7 @@ export function PromotionForm({
     watch,
     formState: { errors, isSubmitting },
   } = useForm<PromotionFormData>({
-    resolver: yupResolver(promotionSchema) as any,
+    resolver: yupResolver(promotionSchema) as Resolver<PromotionFormData>,
     defaultValues: {
       name: promotion?.name || "",
       description: promotion?.description || "",

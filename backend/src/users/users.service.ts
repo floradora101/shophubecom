@@ -5,6 +5,7 @@ import { hash, compare } from 'bcrypt';
 import { UserAlreadyExistsException } from '../common/exceptions/user-already-exists.exception';
 import { UserNotFoundException } from '../common/exceptions/user-not-found.exception';
 import { InvalidCredentialsException } from '../common/exceptions/invalid-credentials.exception';
+import { AuthUserCacheService } from '../common/cache/auth-user-cache.service';
 import { UpdateProfileDto, ChangePasswordDto } from './dto';
 import { UserEntity } from './entities/user.entity';
 
@@ -12,7 +13,7 @@ import { UserEntity } from './entities/user.entity';
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private authUserCache: AuthUserCacheService) {}
 
   async findByEmail(email: string): Promise<User | null> {
     return await this.prisma.user.findUnique({ where: { email } });
@@ -42,15 +43,16 @@ export class UsersService {
   }
 
   async update(id: string, data: Prisma.UserUpdateInput): Promise<User> {
-    return this.updateUser(id, data);
-  }
-
-  async updateUser(id: string, data: Prisma.UserUpdateInput): Promise<User> {
     try {
-      return await this.prisma.user.update({
+      const updated = await this.prisma.user.update({
         where: { id },
         data,
       });
+      // Invalidate auth user cache when role or other sensitive fields change
+      if (data.role !== undefined || data.email !== undefined) {
+        this.authUserCache.invalidate(id);
+      }
+      return updated;
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -115,10 +117,8 @@ export class UsersService {
     }
 
     try {
-      const updated = await this.prisma.user.update({
-        where: { id },
-        data,
-      });
+      // update() invalidates auth cache when email/role changes
+      const updated = await this.update(id, data);
       return new UserEntity(updated);
     } catch (error) {
       if (
@@ -128,10 +128,6 @@ export class UsersService {
         this.logger.warn(`Email already exists: ${updateProfileDto.email}`);
         throw new UserAlreadyExistsException('Email is already in use');
       }
-      this.logger.error(
-        'Unexpected error updating profile',
-        (error as Error)?.stack,
-      );
       throw error;
     }
   }

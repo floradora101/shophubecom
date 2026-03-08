@@ -1,7 +1,7 @@
 // Order complete page - shows thank you message and order details
 "use client";
 
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { Section } from "@/components/ui/section";
@@ -11,7 +11,7 @@ import { Card } from "@/components/ui/card";
 import { LoadingSpinner } from "@/components/ui/spinner";
 import { Stepper } from "@/components/ui/stepper";
 import { Heading, Text } from "@/components/ui/typography";
-import { SkeletonBlock, SkeletonText } from "@/components/ui/skeleton";
+import { SkeletonBlock } from "@/components/ui/skeleton";
 import { ordersApi } from "@/features/orders/api";
 import { useAuthStore, selectAuthUser } from "@/store/auth-store";
 import { DEMO_CHECKOUT } from "@/lib/flags";
@@ -29,8 +29,7 @@ const steps = [
 
 export default function OrderCompletePage() {
   const params = useParams();
-  const searchParams = useSearchParams();
-  const isDemo = DEMO_CHECKOUT || searchParams?.get("demo") === "1";
+  const isDemo = DEMO_CHECKOUT;
   const orderIdParam = params?.orderId;
   const orderId = Array.isArray(orderIdParam) ? orderIdParam[0] : orderIdParam;
 
@@ -42,8 +41,8 @@ export default function OrderCompletePage() {
     isDemo
   );
 
-  // For demo mode, load demo order immediately
-  const demoOrder = isDemo ? getDemoOrder(orderId!) : null;
+  // Demo orders are only valid when demo mode is explicitly active.
+  const demoOrder = isDemo && orderId ? getDemoOrder(orderId) : null;
 
   // Guest: skip auth refresh on 401 (no refresh token). Authenticated: allow refresh.
   const user = useAuthStore(selectAuthUser);
@@ -65,9 +64,8 @@ export default function OrderCompletePage() {
     retry: false, // Don't retry on error for better UX
   });
 
-  // Use demo order if in demo mode, otherwise use backend order (or fallback to demo if backend fails)
-  const finalOrder =
-    demoOrder || order || (isError ? getDemoOrder(orderId!) : null);
+  // Never fall back to demo data in real mode; failed backend lookups must stay visible.
+  const finalOrder = isDemo ? demoOrder : order ?? null;
 
   if (isLoading && !isDemo) {
     return (

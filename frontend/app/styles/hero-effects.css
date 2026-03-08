@@ -1,0 +1,559 @@
+/* ============================================================================
+   HERO EFFECTS - Extracted from globals.css for maintainability
+   ============================================================================
+   Used by hero slide bodies: text effects, animations, entry effects.
+   Depends on: --hero-landscape-accent (defined in globals.css :root)
+   ============================================================================ */
+
+/* Red-Neon Glow Effect */
+.red-neon-glow {
+  color: white;
+  text-shadow: 0 0 10px #fa0603, 0 0 20px #fa0603, 0 0 30px #fa0603, 0 0 40px #fa0603;
+  animation: neon-pulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes neon-pulse {
+  from {
+    text-shadow: 0 0 10px #fa0603, 0 0 20px #fa0603, 0 0 30px #fa0603;
+  }
+  to {
+    text-shadow: 0 0 15px #fa0603, 0 0 25px #fa0603, 0 0 35px #fa0603, 0 0 45px #fa0603;
+  }
+}
+
+/* Ensure consistent button centering */
+.hero-item-enter.hero-buttons {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
+/* Landscape Text Decoration Effects */
+.outline-text {
+  -webkit-text-stroke: 2px var(--hero-landscape-accent);
+  color: white;
+}
+
+.outline-fill-text {
+  -webkit-text-stroke: 2px var(--hero-landscape-accent);
+  color: transparent;
+  background: white;
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+.red-accent-text {
+  position: relative;
+  color: white;
+}
+
+.red-accent-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: var(--hero-landscape-accent);
+  background: linear-gradient(
+    45deg,
+    transparent,
+    var(--hero-landscape-accent),
+    transparent
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  mix-blend-mode: overlay;
+  opacity: 0.8;
+}
+
+.hero-gradient-text {
+  background: linear-gradient(
+    90deg,
+    white,
+    var(--hero-landscape-accent),
+    white
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Text Decoration Styles */
+.double-underline {
+  position: relative;
+  display: inline-block;
+}
+
+.double-underline::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--hero-landscape-accent),
+    var(--hero-landscape-accent)
+  );
+  border-radius: 2px;
+}
+
+.double-underline::before {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--hero-landscape-accent),
+    var(--hero-landscape-accent)
+  );
+  opacity: 0.6;
+  border-radius: 1px;
+}
+
+.wavy-underline {
+  position: relative;
+  display: inline-block;
+}
+
+.wavy-underline::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(
+    90deg,
+    var(--hero-landscape-accent),
+    transparent,
+    var(--hero-landscape-accent)
+  );
+  border-radius: 50% 50% 50% 50% / 100% 100% 0% 0%;
+  animation: wave-flow 2s ease-in-out infinite;
+}
+
+@keyframes wave-flow {
+  0%, 100% {
+    transform: scaleX(1);
+  }
+  50% {
+    transform: scaleX(1.05);
+  }
+}
+
+.animated-underline {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+}
+
+.animated-underline::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: -100%;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--hero-landscape-accent),
+    var(--hero-landscape-accent)
+  );
+  border-radius: 2px;
+  animation: slide-in-underline 1.5s ease-out 0.5s forwards;
+}
+
+@keyframes slide-in-underline {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 0;
+  }
+}
+
+.boxed {
+  position: relative;
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border: 2px solid var(--hero-landscape-accent);
+  border-radius: 8px;
+  background: rgba(250, 6, 3, 0.05);
+  backdrop-filter: blur(10px);
+}
+
+.shadow {
+  text-shadow: 2px 2px 0px rgba(250, 6, 3, 0.3),
+    4px 4px 0px rgba(250, 6, 3, 0.2), 6px 6px 10px rgba(250, 6, 3, 0.1);
+}
+
+.metallic {
+  background: linear-gradient(
+    135deg,
+    white 0%,
+    #f8f8f8 25%,
+    var(--hero-landscape-accent) 50%,
+    #f8f8f8 75%,
+    white 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 20px rgba(250, 6, 3, 0.3);
+}
+
+/* Glitch Effect */
+.glitch {
+  position: relative;
+  color: white;
+  animation: glitch-main 0.3s linear infinite;
+}
+
+.glitch::before {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--hero-landscape-accent);
+  background: transparent;
+  animation: glitch-red 0.2s linear infinite;
+  clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+  transform: translate(0);
+}
+
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  color: #00ffff;
+  background: transparent;
+  animation: glitch-blue 0.25s linear infinite;
+  clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+  transform: translate(0);
+}
+
+@keyframes glitch-main {
+  0%, 100% { transform: translate(0); }
+  10% { transform: translate(-1px, 1px); }
+  20% { transform: translate(1px, -1px); }
+  30% { transform: translate(-1px, -1px); }
+  40% { transform: translate(1px, 1px); }
+  50% { transform: translate(-1px, 1px); }
+  60% { transform: translate(1px, -1px); }
+  70% { transform: translate(-1px, -1px); }
+  80% { transform: translate(1px, 1px); }
+  90% { transform: translate(-1px, 1px); }
+}
+
+@keyframes glitch-red {
+  0%, 100% { transform: translate(0); }
+  10% { transform: translate(-2px, 0); }
+  20% { transform: translate(2px, 0); }
+  30% { transform: translate(0, -1px); }
+  40% { transform: translate(0, 1px); }
+  50% { transform: translate(-1px, -1px); }
+  60% { transform: translate(1px, 1px); }
+  70% { transform: translate(-2px, 0); }
+  80% { transform: translate(2px, 0); }
+  90% { transform: translate(0, -1px); }
+}
+
+@keyframes glitch-blue {
+  0%, 100% { transform: translate(0); }
+  15% { transform: translate(1px, 0); }
+  30% { transform: translate(-1px, 0); }
+  45% { transform: translate(0, 1px); }
+  60% { transform: translate(0, -1px); }
+  75% { transform: translate(1px, 1px); }
+  90% { transform: translate(-1px, -1px); }
+}
+
+.stripe {
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(250, 6, 3, 0.1) 10px,
+    rgba(250, 6, 3, 0.1) 20px
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: white;
+  text-shadow: 0 0 10px rgba(250, 6, 3, 0.5);
+}
+
+/* Metallic/Silver Effects */
+.silver-glow {
+  color: white;
+  text-shadow: 0 0 5px rgba(192, 192, 192, 0.5),
+    0 0 10px rgba(192, 192, 192, 0.3), 0 0 15px rgba(192, 192, 192, 0.2),
+    0 0 20px rgba(192, 192, 192, 0.1);
+}
+
+.chrome {
+  background: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    #f8f8f8 25%,
+    #e0e0e0 50%,
+    #f8f8f8 75%,
+    #ffffff 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.silver-outline {
+  color: white;
+  -webkit-text-stroke: 1px #c0c0c0;
+  text-shadow: 0 0 5px rgba(192, 192, 192, 0.8),
+    0 0 10px rgba(192, 192, 192, 0.4);
+}
+
+.ice-glow {
+  color: #e0f6ff;
+  text-shadow: 0 0 5px rgba(224, 246, 255, 0.8),
+    0 0 10px rgba(224, 246, 255, 0.6), 0 0 15px rgba(224, 246, 255, 0.4),
+    0 0 20px rgba(192, 224, 255, 0.2);
+  background: linear-gradient(
+    135deg,
+    rgba(224, 246, 255, 0.1) 0%,
+    transparent 50%,
+    rgba(192, 224, 255, 0.1) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+.platinum {
+  background: linear-gradient(
+    145deg,
+    #ffffff 0%,
+    #f5f5f5 20%,
+    #e8e8e8 40%,
+    #d3d3d3 60%,
+    #e8e8e8 80%,
+    #ffffff 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
+    0 0 20px rgba(245, 245, 245, 0.4), 0 1px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Highlight Effects */
+.highlight-pulse {
+  animation: highlight-pulse 2s ease-in-out infinite;
+}
+
+@keyframes highlight-pulse {
+  0%, 100% {
+    text-shadow: 0 0 10px var(--hero-landscape-accent);
+    transform: scale(1);
+  }
+  50% {
+    text-shadow: 0 0 20px var(--hero-landscape-accent),
+      0 0 30px var(--hero-landscape-accent);
+    transform: scale(1.02);
+  }
+}
+
+.highlight-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.highlight-shimmer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.8),
+    transparent
+  );
+  animation: shimmer-effect 2s ease-in-out infinite;
+}
+
+@keyframes shimmer-effect {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.highlight-bounce {
+  animation: highlight-bounce 1.5s ease-in-out infinite;
+}
+
+@keyframes highlight-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(-3px);
+  }
+  50% {
+    transform: translateY(0);
+  }
+  75% {
+    transform: translateY(-1px);
+  }
+}
+
+/* Landscape Text Animation Effects */
+@media (prefers-reduced-motion: no-preference) {
+  .landscape-mask-reveal {
+    clip-path: inset(0 100% 0 0);
+    animation: landscape-mask-reveal 1.2s cubic-bezier(0.5, 1, 0.89, 1) forwards;
+    letter-spacing: 0.1em;
+    animation-fill-mode: both;
+  }
+
+  .landscape-tracking-tighten {
+    animation: landscape-tracking-tighten 0.8s ease-out forwards;
+    animation-fill-mode: both;
+  }
+
+  .landscape-highlight-underline::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    width: 0;
+    height: 6px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--hero-landscape-accent),
+      transparent
+    );
+    filter: blur(2px);
+    transform: translateX(-50%);
+    animation: landscape-highlight-glow 1.5s ease-out 1s forwards;
+    animation-fill-mode: both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landscape-highlight-underline::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    width: 100%;
+    height: 6px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--hero-landscape-accent),
+      transparent
+    );
+    filter: blur(2px);
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes landscape-mask-reveal {
+  0% {
+    clip-path: inset(0 100% 0 0);
+    letter-spacing: 0.1em;
+  }
+  60% {
+    clip-path: inset(0 0% 0 0);
+    letter-spacing: 0.05em;
+  }
+  100% {
+    clip-path: inset(0 0% 0 0);
+    letter-spacing: 0em;
+  }
+}
+
+@keyframes landscape-tracking-tighten {
+  0% {
+    letter-spacing: 0.1em;
+  }
+  100% {
+    letter-spacing: 0em;
+  }
+}
+
+@keyframes landscape-highlight-glow {
+  0% {
+    width: 0;
+    opacity: 0;
+  }
+  50% {
+    width: 120%;
+    opacity: 1;
+  }
+  100% {
+    width: 100%;
+    opacity: 1;
+  }
+}
+
+/* Hero Item Entry Animations */
+[data-run] .hero-item-enter {
+  animation: hero-item-enter 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  opacity: 0;
+  transform: translate3d(0, 12px, 0);
+  will-change: transform, opacity;
+}
+
+@media (max-width: 768px) {
+  [data-run] .hero-item-enter {
+    animation-duration: 0.4s;
+    transform: translate3d(0, 8px, 0);
+  }
+}
+
+[data-run] .hero-item-enter.hero-badge { animation-delay: 0ms; }
+[data-run] .hero-item-enter.hero-subtitle { animation-delay: 100ms; }
+[data-run] .hero-item-enter.hero-headline { animation-delay: 200ms; }
+[data-run] .hero-item-enter.hero-description { animation-delay: 300ms; }
+[data-run] .hero-item-enter.hero-buttons { animation-delay: 400ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-run] .hero-item-enter {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Sparkle/Glitter Effect for Hero Slides */
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(0.6) rotate(0deg) translate3d(0, 0, 0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1) rotate(180deg) translate3d(0, -15px, 0);
+  }
+}
+
+.animate-sparkle {
+  animation: sparkle ease-in-out infinite;
+  will-change: transform, opacity;
+}

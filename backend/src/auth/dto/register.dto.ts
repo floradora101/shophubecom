@@ -24,6 +24,7 @@ import {
   MinLength,
   MaxLength,
   IsStrongPassword,
+  IsOptional,
 } from 'class-validator';
 
 export class RegisterDto {
@@ -32,6 +33,16 @@ export class RegisterDto {
   )
   @IsEmail({}, { message: 'Invalid email format' })
   email!: string;
+
+  @IsString()
+  @MaxLength(64, { message: 'First name must not exceed 64 characters' })
+  @IsOptional()
+  firstName?: string;
+
+  @IsString()
+  @MaxLength(64, { message: 'Last name must not exceed 64 characters' })
+  @IsOptional()
+  lastName?: string;
 
   @IsString()
   @MinLength(8, { message: 'Password must be at least 8 characters' })

@@ -39,7 +39,7 @@ export function useHeroSlideSubmission({
 
   const onSubmit = useCallback(
     async (values: HeroSlideFormValues) => {
-      let apiData: any = null;
+      let apiData: Record<string, unknown> | null = null;
       try {
         // Check for blob URLs - they can't be saved to the backend
         if (values.mediaImageUrl && values.mediaImageUrl.startsWith("blob:")) {
@@ -54,44 +54,48 @@ export function useHeroSlideSubmission({
         apiData = transformToApiFormat(heroSlide);
 
         // Validate required fields before submission
-        if (apiData.media.kind === "IMAGE" && !apiData.media.imageUrl) {
+        const media = apiData.media as { kind?: string; imageUrl?: string; productSlug?: string; videoUrl?: string };
+        if (media.kind === "IMAGE" && !media.imageUrl) {
           toast.error("Please upload an image for this slide.");
           return;
         }
-        if (apiData.media.kind === "PRODUCT" && !apiData.media.productSlug) {
+        if (media.kind === "PRODUCT" && !media.productSlug) {
           toast.error("Please select a product for this slide.");
           return;
         }
-        if (apiData.media.kind === "VIDEO" && !apiData.media.videoUrl) {
+        if (media.kind === "VIDEO" && !media.videoUrl) {
           toast.error("Please provide a video URL for this slide.");
           return;
         }
+        const offerData = apiData.offerData as { offerLabel?: string; offerEndsAt?: string } | undefined;
         if (apiData.type === "OFFER") {
-          if (!apiData.offerData?.offerLabel || !apiData.offerData.offerLabel.trim()) {
+          if (!offerData?.offerLabel || !offerData.offerLabel.trim()) {
             toast.error("Please provide an offer label.");
             return;
           }
-          if (!apiData.offerData?.offerEndsAt) {
+          if (!offerData?.offerEndsAt) {
             toast.error("Please provide an offer end date.");
             return;
           }
         }
+        const editorsPickData = apiData.editorsPickData as { productSlugs?: string[] } | undefined;
         if (apiData.type === "EDITORS_PICK") {
-          if (!apiData.editorsPickData?.productSlugs || apiData.editorsPickData.productSlugs.length === 0) {
+          if (!editorsPickData?.productSlugs || editorsPickData.productSlugs.length === 0) {
             toast.error("Please provide at least one product slug for Editor's Pick slides.");
             return;
           }
         }
+        const comparisonData = apiData.comparisonBattleData as { leftProductSlug?: string; rightProductSlug?: string; comparisonPoints?: unknown[] } | undefined;
         if (apiData.type === "COMPARISON_BATTLE") {
-          if (!apiData.comparisonBattleData?.leftProductSlug) {
+          if (!comparisonData?.leftProductSlug) {
             toast.error("Please provide a left product slug for Comparison Battle slides.");
             return;
           }
-          if (!apiData.comparisonBattleData?.rightProductSlug) {
+          if (!comparisonData?.rightProductSlug) {
             toast.error("Please provide a right product slug for Comparison Battle slides.");
             return;
           }
-          if (!apiData.comparisonBattleData?.comparisonPoints || apiData.comparisonBattleData.comparisonPoints.length === 0) {
+          if (!comparisonData?.comparisonPoints || comparisonData.comparisonPoints.length === 0) {
             toast.error("Please provide at least one comparison point for Comparison Battle slides.");
             return;
           }
@@ -104,12 +108,13 @@ export function useHeroSlideSubmission({
         }
 
         // Log for debugging (remove in production)
+        const logMedia = apiData.media as { kind?: string; imageUrl?: string } | undefined;
         console.log("Submitting hero slide:", {
           isUpdate: !!slide?.id,
           slideId: slide?.id,
           type: apiData.type,
-          mediaKind: apiData.media?.kind,
-          imageUrl: apiData.media?.imageUrl,
+          mediaKind: logMedia?.kind,
+          imageUrl: logMedia?.imageUrl,
           data: JSON.stringify(apiData, null, 2),
         });
 
@@ -132,12 +137,13 @@ export function useHeroSlideSubmission({
         }
 
         onSuccess();
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Failed to save hero slide:", error);
-        if (error?.response) {
-          console.error("Full error response:", JSON.stringify(error.response, null, 2));
-          console.error("Error response data:", error.response.data);
-          console.error("Error response status:", error.response.status);
+        const err = error as { response?: { data?: unknown; status?: number }; message?: string };
+        if (err?.response) {
+          console.error("Full error response:", JSON.stringify(err.response, null, 2));
+          console.error("Error response data:", err.response.data);
+          console.error("Error response status:", err.response.status);
         }
         if (apiData) {
           console.error("Request payload that failed:", JSON.stringify(apiData, null, 2));
@@ -146,8 +152,11 @@ export function useHeroSlideSubmission({
         // Extract validation errors from backend
         let errorMessage = "Failed to save hero slide. Please check the form for errors.";
 
-        if (error?.response?.data) {
-          const responseData = error.response.data;
+        if (err?.response?.data) {
+          const responseData = err.response.data as {
+            errors?: string[];
+            message?: string | string[];
+          };
           console.error("Parsed response data:", responseData);
 
           // Backend returns { success: false, message: string | string[], errors?: string[] }
@@ -171,8 +180,8 @@ export function useHeroSlideSubmission({
               errorMessage = errorDetails;
             }
           }
-        } else if (error?.message) {
-          errorMessage = error.message;
+        } else if (err?.message) {
+          errorMessage = err.message;
         }
 
         toast.error(errorMessage);
@@ -188,7 +197,7 @@ export function useHeroSlideSubmission({
 /**
  * Transform HeroSlide to API format (CreateHeroSlideDto)
  */
-function transformToApiFormat(slide: HeroSlide): any {
+function transformToApiFormat(slide: HeroSlide): Record<string, unknown> {
   // Map frontend media kind (lowercase) to backend enum (uppercase)
   const mediaKindMap: Record<string, string> = {
     product: "PRODUCT",
@@ -215,7 +224,6 @@ function transformToApiFormat(slide: HeroSlide): any {
 
   // LANDSCAPE_IMAGE has a different structure - content and actionButton are nested
   if (slide.type === "LANDSCAPE_IMAGE") {
-    const landscapeSlide = slide as any;
     const themeMap: Record<string, string> = {
       "glass-red": "GLASS_RED",
       "minimal-white": "MINIMAL_WHITE",
@@ -226,8 +234,8 @@ function transformToApiFormat(slide: HeroSlide): any {
     };
 
     // Extract from content object or use direct properties
-    const content = landscapeSlide.content || {};
-    const actionButton = landscapeSlide.actionButton || landscapeSlide.ctaPrimary || {};
+    const content = slide.content || {};
+    const actionButton = slide.actionButton || {};
 
     return {
       type: slide.type,
@@ -236,10 +244,10 @@ function transformToApiFormat(slide: HeroSlide): any {
       startsAt: cleanValue(slide.startsAt),
       endsAt: cleanValue(slide.endsAt),
       // Base fields - extract from content for LANDSCAPE_IMAGE
-      headline: content.headline || landscapeSlide.headline || "",
-      description: content.description || landscapeSlide.description || "",
-      highlight: cleanValue(content.highlight || landscapeSlide.highlight),
-      badgeText: cleanValue(content.badge || landscapeSlide.badgeText),
+      headline: content.headline || "",
+      description: content.description || "",
+      highlight: cleanValue(content.highlight),
+      badgeText: cleanValue(content.badge),
       ctaPrimary: {
         label: actionButton.label || "",
         href: actionButton.href?.trim() || "/products",
@@ -251,12 +259,12 @@ function transformToApiFormat(slide: HeroSlide): any {
         position: slide.media.position,
       },
       landscapeImageData: {
-        theme: themeMap[landscapeSlide.theme] || landscapeSlide.theme?.toUpperCase().replace(/-/g, "_") || "GLASS_RED",
+        theme: themeMap[slide.theme] || slide.theme?.toUpperCase().replace(/-/g, "_") || "GLASS_RED",
         content: {
           badge: content.badge || "",
-          headline: content.headline || landscapeSlide.headline || "",
+          headline: content.headline || "",
           highlight: content.highlight || "",
-          description: content.description || landscapeSlide.description || "",
+          description: content.description || "",
         },
         actionButton: {
           label: actionButton.label || "",
@@ -267,7 +275,7 @@ function transformToApiFormat(slide: HeroSlide): any {
   }
 
   // For all other types, use standard structure
-  const baseData: any = {
+  const baseData: Record<string, unknown> = {
     type: slide.type,
     priority: slide.priority,
     isActive: slide.isActive,
@@ -295,11 +303,11 @@ function transformToApiFormat(slide: HeroSlide): any {
     },
   };
 
-  // Add type-specific data
+  // Add type-specific data (slide is narrowed by switch)
   switch (slide.type) {
     case "PRODUCT_SPOTLIGHT":
       baseData.productSpotlightData = {
-        features: (slide as any).features || [],
+        features: slide.features || [],
       };
       break;
 
@@ -307,7 +315,7 @@ function transformToApiFormat(slide: HeroSlide): any {
       // Convert offerEndsAt to ISO 8601 format
       // The form sends datetime-local format (YYYY-MM-DDTHH:mm) which needs to be converted to ISO 8601
       let offerEndsAtValue: string = "";
-      const offerEndsAt = (slide as any).offerEndsAt;
+      const offerEndsAt = slide.offerEndsAt;
       if (offerEndsAt && offerEndsAt.trim()) {
         try {
           // datetime-local format: "2024-12-31T23:59" -> convert to ISO 8601
@@ -346,30 +354,30 @@ function transformToApiFormat(slide: HeroSlide): any {
       }
 
       baseData.offerData = {
-        offerLabel: (slide as any).offerLabel || "",
+        offerLabel: slide.offerLabel || "",
         offerEndsAt: offerEndsAtValue,
-        promoCode: cleanValue((slide as any).promoCode),
+        promoCode: cleanValue(slide.promoCode),
       };
       break;
 
     case "TESTIMONIAL":
       baseData.testimonialData = {
-        quote: (slide as any).quote || "",
-        authorName: (slide as any).authorName || "",
-        rating: (slide as any).rating || 5,
-        stats: (slide as any).stats || [],
+        quote: slide.quote || "",
+        authorName: slide.authorName || "",
+        rating: slide.rating || 5,
+        stats: slide.stats || [],
       };
       break;
 
     case "CATEGORY_SPOTLIGHT":
       baseData.categorySpotlightData = {
-        categorySlug: (slide as any).categorySlug || "",
-        categoryBullets: (slide as any).categoryBullets || [],
+        categorySlug: slide.categorySlug || "",
+        categoryBullets: slide.categoryBullets || [],
       };
       break;
 
     case "EDITORS_PICK":
-      const productSlugs = (slide as any).productSlugs || [];
+      const productSlugs = slide.productSlugs || [];
       // Ensure productSlugs is an array and filter out empty strings
       const validProductSlugs = Array.isArray(productSlugs)
         ? productSlugs.filter((slug: string) => slug && slug.trim())
@@ -381,14 +389,14 @@ function transformToApiFormat(slide: HeroSlide): any {
 
       baseData.editorsPickData = {
         productSlugs: validProductSlugs,
-        editorNote: cleanValue((slide as any).editorNote),
+        editorNote: cleanValue(slide.editorNote),
       };
       break;
 
     case "COMPARISON_BATTLE":
-      const leftProductSlug = cleanValue((slide as any).leftProductSlug);
-      const rightProductSlug = cleanValue((slide as any).rightProductSlug);
-      const comparisonPoints = (slide as any).comparisonPoints || [];
+      const leftProductSlug = cleanValue(slide.leftProductSlug);
+      const rightProductSlug = cleanValue(slide.rightProductSlug);
+      const comparisonPoints = slide.comparisonPoints || [];
 
       if (!leftProductSlug) {
         throw new Error("Left product slug is required for Comparison Battle slides.");
@@ -398,18 +406,22 @@ function transformToApiFormat(slide: HeroSlide): any {
       }
 
       // Ensure comparisonPoints is an array of valid objects
-      let validComparisonPoints: any[] = [];
+      type ComparisonPoint = { label: string; leftValue: string; rightValue: string };
+      const isComparisonPoint = (p: unknown): p is ComparisonPoint =>
+        p != null &&
+        typeof p === "object" &&
+        "label" in p &&
+        "leftValue" in p &&
+        "rightValue" in p &&
+        typeof (p as ComparisonPoint).label === "string" &&
+        (p as ComparisonPoint).label.trim().length > 0 &&
+        typeof (p as ComparisonPoint).leftValue === "string" &&
+        (p as ComparisonPoint).leftValue.trim().length > 0 &&
+        typeof (p as ComparisonPoint).rightValue === "string" &&
+        (p as ComparisonPoint).rightValue.trim().length > 0;
+      let validComparisonPoints: ComparisonPoint[] = [];
       if (Array.isArray(comparisonPoints)) {
-        validComparisonPoints = comparisonPoints.filter((point: any) =>
-          point &&
-          typeof point === 'object' &&
-          point.label &&
-          point.label.trim() &&
-          point.leftValue &&
-          point.leftValue.trim() &&
-          point.rightValue &&
-          point.rightValue.trim()
-        );
+        validComparisonPoints = comparisonPoints.filter(isComparisonPoint);
       }
 
       if (validComparisonPoints.length === 0) {
@@ -427,10 +439,10 @@ function transformToApiFormat(slide: HeroSlide): any {
       break;
 
     case "PROMOTION":
-      baseData.promotionId = (slide as any).promotionId;
+      baseData.promotionId = slide.promotionId;
       baseData.promotionData = {
-        promotionId: (slide as any).promotionId,
-        customColors: (slide as any).customColors,
+        promotionId: slide.promotionId,
+        customColors: slide.customColors,
       };
       break;
   }

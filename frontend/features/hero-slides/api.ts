@@ -1,10 +1,11 @@
-import { apiClient } from "@/lib/api/client";
-import type { BackendResponse } from "@/lib/types/api";
-import type { HeroSlide } from "@/lib/types/heroSlides.types";
 import {
-  extractPaginatedData,
-  extractResponseData,
-} from "@/lib/api/response-transformer";
+  apiGet,
+  apiGetWithParams,
+  apiPost,
+  apiPut,
+  apiDelete,
+} from "@/lib/api/request";
+import type { HeroSlide } from "@/lib/types/heroSlides.types";
 
 export interface HeroSlideFilters {
   search?: string;
@@ -202,10 +203,7 @@ export const heroSlidesApi = {
    * Returns only active slides within their date range
    */
   async getActiveSlides(): Promise<HeroSlide[]> {
-    const response = await apiClient.get<BackendResponse<any[]>>(
-      "/hero-slides/active"
-    );
-    const slides = extractResponseData(response);
+    const slides = await apiGet<any[]>("/hero-slides/active");
     return slides.map(transformBackendSlide);
   },
 
@@ -215,17 +213,13 @@ export const heroSlidesApi = {
   async getHeroSlides(
     filters?: HeroSlideFilters
   ): Promise<HeroSlidesResponse> {
-    const response = await apiClient.get<
-      BackendResponse<{
-        data: any[];
-        total: number;
-        page: number;
-        limit: number;
-        totalPages: number;
-      }>
-    >("/hero-slides", { params: filters });
-
-    const result = extractPaginatedData(response);
+    const result = await apiGetWithParams<{
+      data: any[];
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    }>("/hero-slides", filters);
     return {
       ...result,
       data: result.data.map(transformBackendSlide),
@@ -236,10 +230,7 @@ export const heroSlidesApi = {
    * Get a single hero slide by ID (admin)
    */
   async getHeroSlideById(id: string): Promise<HeroSlide> {
-    const response = await apiClient.get<BackendResponse<any>>(
-      `/hero-slides/${id}`
-    );
-    const slide = extractResponseData(response);
+    const slide = await apiGet<any>(`/hero-slides/${id}`);
     return transformBackendSlide(slide);
   },
 
@@ -247,11 +238,7 @@ export const heroSlidesApi = {
    * Create a new hero slide (admin)
    */
   async createHeroSlide(data: any): Promise<HeroSlide> {
-    const response = await apiClient.post<BackendResponse<any>>(
-      "/hero-slides",
-      data
-    );
-    const slide = extractResponseData(response);
+    const slide = await apiPost<any>("/hero-slides", data);
     return transformBackendSlide(slide);
   },
 
@@ -259,11 +246,7 @@ export const heroSlidesApi = {
    * Update a hero slide (admin)
    */
   async updateHeroSlide(id: string, data: any): Promise<HeroSlide> {
-    const response = await apiClient.put<BackendResponse<any>>(
-      `/hero-slides/${id}`,
-      data
-    );
-    const slide = extractResponseData(response);
+    const slide = await apiPut<any>(`/hero-slides/${id}`, data);
     return transformBackendSlide(slide);
   },
 
@@ -271,6 +254,6 @@ export const heroSlidesApi = {
    * Delete a hero slide (admin)
    */
   async deleteHeroSlide(id: string): Promise<void> {
-    await apiClient.delete(`/hero-slides/${id}`);
+    await apiDelete<void>(`/hero-slides/${id}`);
   },
 };

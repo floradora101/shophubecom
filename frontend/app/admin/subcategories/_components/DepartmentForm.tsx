@@ -11,7 +11,7 @@ import {
   Layers,
   CheckCircle2
 } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,7 +61,7 @@ export function DepartmentForm({ initialData }: DepartmentFormProps) {
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<DepartmentFormData>({
-    resolver: yupResolver(departmentSchema) as any,
+    resolver: yupResolver(departmentSchema) as Resolver<DepartmentFormData>,
     defaultValues: {
       name: initialData?.name || "",
       parentCategoryId: initialData?.parentCategory?.id || "",

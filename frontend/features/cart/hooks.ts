@@ -30,6 +30,7 @@ import {
 } from "./queries";
 import type { Product } from "@/features/products/types";
 import type { CartItem as ServerCartItem } from "./api";
+import { PLACEHOLDER_IMAGE } from "@/lib/utils/products";
 
 interface AddItemOptions {
   quantity?: number;
@@ -70,10 +71,7 @@ function serverItemToUIItem(serverItem: ServerCartItem) {
     name: product?.name ?? "Unknown Product",
     price: serverItem.unitPrice,
     quantity: serverItem.quantity,
-    image:
-      variant?.image ??
-      variant?.images?.[0] ??
-      "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23f3f4f6' width='200' height='200'/%3E%3Ctext fill='%239ca3af' font-family='sans-serif' font-size='14' x='50%25' y='50%25' text-anchor='middle' dominant-baseline='middle'%3ENo Image%3C/text%3E%3C/svg%3E",
+    image: variant?.image ?? variant?.images?.[0] ?? PLACEHOLDER_IMAGE,
     color: variant?.options?.color,
     storage: variant?.options?.storage,
     variantId: serverItem.variantId,
@@ -104,7 +102,7 @@ export function useCart() {
   const setShippingOption = useCartStore((state) => state.setShippingOption);
 
   // Cart data from React Query (single source of truth)
-  const { data: cart, isLoading } = useCartQuery();
+  const { data: cart, isLoading, isError, error, refetch } = useCartQuery();
 
   // Mutations
   const addItemMutation = useAddCartItemMutation();
@@ -181,6 +179,9 @@ export function useCart() {
     totalItems,
     subtotal,
     isLoading,
+    isError,
+    error,
+    refetch,
     isAuthenticated,
     shippingOption,
 

@@ -1,7 +1,7 @@
 // Modern Purchase Panel - Clean 2026 Design
 "use client";
 
-import { Minus, Plus, Truck, RotateCcw, ShieldCheck, Clock } from "lucide-react";
+import { Minus, Plus, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/lib/utils";
@@ -42,9 +42,9 @@ interface ProductPurchasePanelProps {
 }
 
 export function ProductPurchasePanel({
-  product,
-  category,
-  selectedVariant,
+  product: _product,
+  category: _category,
+  selectedVariant: _selectedVariant,
   effectivePrice,
   hasDiscount,
   discountPercent,

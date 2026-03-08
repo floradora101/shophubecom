@@ -51,7 +51,7 @@ export interface MockCoupon {
   minOrderTotal?: number;
   startsAt?: string;
   expiresAt?: string;
-  usageLimit?: number;
+  usageLimit?: number | null;
   usedCount: number;
   isActive: boolean;
   createdAt: string;
@@ -576,7 +576,7 @@ export const mockCoupons: MockCoupon[] = [
     minOrderTotal: 0,
     startsAt: "2025-01-01T00:00:00.000Z",
     expiresAt: "2026-12-31T23:59:59.000Z",
-    usageLimit: null as any,
+    usageLimit: null,
     usedCount: 890,
     isActive: true,
     createdAt: "2025-01-01T00:00:00.000Z",
@@ -1425,7 +1425,7 @@ export const mockProducts: MockProduct[] = [
     images: [
       "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400&h=400&fit=crop",
     ],
-    categorySlug: "google-pixel",
+    categorySlug: "other-phones",
     description:
       "AI-powered Pixel with exceptional camera and pure Android experience.",
     isActive: true,
@@ -1451,7 +1451,7 @@ export const mockProducts: MockProduct[] = [
     images: [
       "https://images.unsplash.com/photo-1605236453806-6ff36851218e?w=400&h=400&fit=crop",
     ],
-    categorySlug: "other-brands",
+    categorySlug: "other-phones",
     description: "Fast charging flagship with Hasselblad camera system.",
     isActive: true,
     specs: [
@@ -1545,34 +1545,6 @@ export const mockProducts: MockProduct[] = [
   },
 
   // Additional Wearables
-  {
-    id: "samsung-galaxy-watch-6",
-    name: "Samsung Galaxy Watch 6",
-    slug: "samsung-galaxy-watch-6",
-    price: 399.99,
-    originalPrice: 449.99,
-    stock: 35,
-    images: [
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop",
-    ],
-    categorySlug: "smart-watches",
-    description:
-      "Advanced health monitoring with comprehensive fitness tracking.",
-    isActive: true,
-    isOnSale: true,
-    discountType: "PERCENTAGE",
-    discountValue: 11,
-    specs: [
-      { label: "Display", value: "40mm Super AMOLED" },
-      { label: "Battery", value: "Up to 40 hours" },
-      { label: "Health", value: "ECG, blood oxygen, sleep tracking" },
-      { label: "Water Resistance", value: "50m" },
-      { label: "Compatibility", value: "Android & iOS" },
-    ],
-    rating: 4.3,
-    reviewCount: 789,
-  },
-
   // Additional Gaming Products
 
   // Additional Accessories
@@ -1731,7 +1703,7 @@ export const mockProducts: MockProduct[] = [
     images: [
       "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=400&fit=crop",
     ],
-    categorySlug: "other-brands",
+    categorySlug: "other-phones",
     description: "Premium Android phone with curved display and fast charging.",
     isActive: true,
     specs: [
@@ -1756,7 +1728,7 @@ export const mockProducts: MockProduct[] = [
     images: [
       "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=400&fit=crop",
     ],
-    categorySlug: "other-brands",
+    categorySlug: "other-phones",
     description:
       "Unique design Android phone with Glyph interface and clean software.",
     isActive: true,
@@ -1782,7 +1754,7 @@ export const mockProducts: MockProduct[] = [
     images: [
       "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=400&fit=crop",
     ],
-    categorySlug: "other-brands-tablets",
+    categorySlug: "other-tablets",
     description:
       "Affordable Android tablet with Alexa integration and parental controls.",
     isActive: true,
@@ -1808,7 +1780,7 @@ export const mockProducts: MockProduct[] = [
     images: [
       "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&h=400&fit=crop",
     ],
-    categorySlug: "other-brands-tablets",
+    categorySlug: "other-tablets",
     description: "Android tablet with OLED display and precision pen support.",
     isActive: true,
     specs: [
@@ -1822,6 +1794,68 @@ export const mockProducts: MockProduct[] = [
     reviewCount: 567,
   },
 ];
+
+function normalizeMockProductId(product: MockProduct): string {
+  return (
+    product.id ||
+    product.name
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "")
+  );
+}
+
+function normalizeMockProductSlug(product: MockProduct): string {
+  return product.slug || normalizeMockProductId(product);
+}
+
+function assertUniqueValue(
+  seen: Set<string>,
+  value: string,
+  label: string
+): void {
+  if (seen.has(value)) {
+    throw new Error(`[mock-data] Duplicate ${label} detected: "${value}"`);
+  }
+
+  seen.add(value);
+}
+
+/**
+ * Validates mock catalog referential integrity.
+ * Throws if duplicate ids/slugs or invalid category references are found.
+ * Called at module load; also exported for explicit validation (e.g. tests, CI).
+ */
+export function validateMockCatalogIntegrity(): void {
+  const categoryIds = new Set<string>();
+  const categorySlugs = new Set<string>();
+
+  for (const category of mockCategories) {
+    assertUniqueValue(categoryIds, category.id, "category id");
+    assertUniqueValue(categorySlugs, category.slug, "category slug");
+  }
+
+  const productIds = new Set<string>();
+  const productSlugs = new Set<string>();
+
+  for (const product of mockProducts) {
+    assertUniqueValue(productIds, normalizeMockProductId(product), "product id");
+    assertUniqueValue(
+      productSlugs,
+      normalizeMockProductSlug(product),
+      "product slug"
+    );
+
+    if (product.categorySlug && !categorySlugs.has(product.categorySlug)) {
+      throw new Error(
+        `[mock-data] Product "${normalizeMockProductSlug(product)}" references missing category slug "${product.categorySlug}".`
+      );
+    }
+  }
+}
+
+// Run validation at module load
+validateMockCatalogIntegrity();
 
 // Helper functions to get data by category
 export function getMainCategories(): MockCategory[] {

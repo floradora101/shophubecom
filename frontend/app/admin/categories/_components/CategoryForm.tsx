@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, type Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { categorySchema, type CategoryFormData } from "@/features/categories/schemas";
 import { Button } from "@/components/ui/button";
@@ -34,7 +34,7 @@ export function CategoryForm({
     control,
     formState: { errors, isSubmitting },
   } = useForm<CategoryFormData>({
-    resolver: yupResolver(categorySchema) as any,
+    resolver: yupResolver(categorySchema) as Resolver<CategoryFormData>,
     defaultValues: {
       name: category?.name || "",
       description: category?.description || "",

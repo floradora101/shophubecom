@@ -1,6 +1,4 @@
-import { apiClient } from "@/lib/api/client";
-import type { BackendResponse } from "@/lib/types/api";
-import { extractResponseData } from "@/lib/api/response-transformer";
+import { apiGet, apiPost, apiPatch, apiDelete } from "@/lib/api/request";
 
 export interface CartItemVariant {
   id: string;
@@ -56,19 +54,14 @@ export const cartApi = {
    * Get current cart
    */
   async getCart(): Promise<Cart> {
-    const response = await apiClient.get<BackendResponse<Cart>>("/cart");
-    return extractResponseData(response);
+    return apiGet<Cart>("/cart");
   },
 
   /**
    * Add item to cart
    */
   async addItem(params: AddCartItemParams): Promise<Cart> {
-    const response = await apiClient.post<BackendResponse<Cart>>(
-      "/cart/items",
-      params
-    );
-    return extractResponseData(response);
+    return apiPost<Cart>("/cart/items", params);
   },
 
   /**
@@ -78,28 +71,20 @@ export const cartApi = {
     itemId: string,
     params: UpdateCartItemParams
   ): Promise<Cart> {
-    const response = await apiClient.patch<BackendResponse<Cart>>(
-      `/cart/items/${itemId}`,
-      params
-    );
-    return extractResponseData(response);
+    return apiPatch<Cart>(`/cart/items/${itemId}`, params);
   },
 
   /**
    * Remove item from cart
    */
   async removeItem(itemId: string): Promise<Cart> {
-    const response = await apiClient.delete<BackendResponse<Cart>>(
-      `/cart/items/${itemId}`
-    );
-    return extractResponseData(response);
+    return apiDelete<Cart>(`/cart/items/${itemId}`);
   },
 
   /**
    * Clear entire cart
    */
   async clearCart(): Promise<Cart> {
-    const response = await apiClient.delete<BackendResponse<Cart>>("/cart");
-    return extractResponseData(response);
+    return apiDelete<Cart>("/cart");
   },
 };

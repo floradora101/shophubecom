@@ -1,4 +1,5 @@
 // Shopping cart page for reviewing items.
+// Backend-required: cart is server-owned (guest + user sessions).
 "use client";
 
 import Image from "next/image";
@@ -14,7 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/features/cart/hooks";
 import { formatPrice } from "@/lib/utils";
-import { SkeletonBlock, SkeletonText } from "@/components/ui/skeleton";
+import { SkeletonBlock } from "@/components/ui/skeleton";
 import { BadgedSectionTitle } from "@/components/ui/SectionTitle";
 import { Stepper, type Step } from "@/components/ui/stepper";
 import { Card } from "@/components/ui/card";
@@ -22,8 +23,10 @@ import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { Stack } from "@/components/ui/stack";
 import { Badge } from "@/components/ui/badge";
-import { ui } from "@/lib/ui-tokens";
 import { productRoutes } from "@/lib/routes";
+import { ErrorState } from "@/components/ui/error-state";
+import { extractErrorMessage } from "@/lib/api/error-handler";
+import { USE_MOCKS } from "@/lib/flags";
 
 const steps: Step[] = [
   { label: "Shopping Cart", state: "active" as const },
@@ -96,24 +99,43 @@ const CartSummarySkeleton = () => (
 export default function CartPage() {
   const {
     items,
+    subtotal,
     updateQuantity,
     removeItem,
     clearCart,
     shippingOption,
     setShippingOption,
     isLoading,
+    isError,
+    error,
+    refetch,
   } = useCart();
-
-  const subtotal = items.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
   const shippingCost =
     shippingOption === "pickup" ? 0 : shippingOption === "beirut" ? 0 : 5;
   const total = subtotal + shippingCost;
 
   const formatOptionLabel = (key: string) =>
     key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+
+  if (USE_MOCKS) {
+    return (
+      <Section spacing="lg">
+        <Container>
+          <Card className="p-10 text-center border-dashed">
+            <div className="mx-auto w-20 h-20 bg-warm-gray-100 rounded-full flex items-center justify-center mb-6">
+              <ShoppingBag className="h-10 w-10 text-warm-gray-400" />
+            </div>
+            <h2 className="text-2xl font-bold text-fg mb-2">
+              Cart requires backend
+            </h2>
+            <p className="text-muted-fg max-w-sm mx-auto">
+              Shopping cart is server-backed. Disable mock mode to use cart and checkout.
+            </p>
+          </Card>
+        </Container>
+      </Section>
+    );
+  }
 
   // Show loading state
   if (isLoading) {
@@ -124,6 +146,22 @@ export default function CartPage() {
             <CartLoadingSkeleton />
             <CartSummarySkeleton />
           </div>
+        </Container>
+      </Section>
+    );
+  }
+
+  // Show error state
+  if (isError) {
+    return (
+      <Section spacing="lg">
+        <Container>
+          <ErrorState
+            title="Unable to Load Cart"
+            description={extractErrorMessage(error, "We couldn't load your cart. This might be due to a temporary issue.")}
+            onRetry={() => refetch()}
+            retryText="Try Again"
+          />
         </Container>
       </Section>
     );
@@ -155,7 +193,7 @@ export default function CartPage() {
                 Your cart is currently empty
               </h2>
               <p className="text-muted-fg mb-8 max-w-sm mx-auto">
-                Looks like you haven't added anything to your cart yet.
+                Looks like you haven&apos;t added anything to your cart yet.
               </p>
               <Link href="/products">
                 <Button size="lg" className="rounded-lg px-8 gap-2">
@@ -248,7 +286,11 @@ export default function CartPage() {
 
                             <div className="flex items-center justify-between mt-6">
                               {/* Quantity Selector */}
-                              <div className="inline-flex items-center rounded-xl border border-warm-gray-200 bg-white shadow-sm overflow-hidden">
+                              <div
+                                className="inline-flex items-center rounded-xl border border-warm-gray-200 bg-white shadow-sm overflow-hidden"
+                                role="group"
+                                aria-label={`Quantity for ${item.name}`}
+                              >
                                 <button
                                   type="button"
                                   onClick={() =>
@@ -260,7 +302,11 @@ export default function CartPage() {
                                 >
                                   <Minus className="h-4 w-4" />
                                 </button>
-                                <span className="w-10 text-center text-sm font-bold text-fg border-x border-warm-gray-100 py-2 bg-warm-gray-50/30">
+                                <span
+                                  className="w-10 text-center text-sm font-bold text-fg border-x border-warm-gray-100 py-2 bg-warm-gray-50/30"
+                                  aria-live="polite"
+                                  aria-atomic="true"
+                                >
                                   {item.quantity}
                                 </span>
                                 <button
@@ -383,7 +429,7 @@ export default function CartPage() {
                       <Link href="/checkout">
                         <Button
                           className="w-full h-12 bg-primary-600 hover:bg-primary-700 text-white font-bold tracking-[0.05em] uppercase rounded-lg shadow-sm hover:shadow-md transition-all duration-300 gap-2"
-                          variant="destructive"
+                          variant="default"
                         >
                           Proceed to Checkout
                           <ArrowRight className="w-5 h-5" />

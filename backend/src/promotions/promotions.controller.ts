@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { PromotionsService } from './promotions.service';
@@ -15,6 +16,7 @@ import {
   CreatePromotionDto,
   UpdatePromotionDto,
   PromotionResponseDto,
+  FilterPromotionsDto,
 } from './dto';
 import { UserRole } from '@prisma/client';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -26,8 +28,16 @@ export class PromotionsController {
   constructor(private readonly promotionsService: PromotionsService) {}
 
   @Get()
-  findAll(): Promise<PromotionResponseDto[]> {
-    return this.promotionsService.findAll();
+  findAll(
+    @Query() filters: FilterPromotionsDto,
+  ): Promise<{
+    data: PromotionResponseDto[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    return this.promotionsService.findAll(filters);
   }
 
   @Get(':id')

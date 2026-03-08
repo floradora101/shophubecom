@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
@@ -38,7 +39,7 @@ async function bootstrap() {
     origin: corsOrigins.length === 1 ? corsOrigins[0] : corsOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-request-id'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'x-request-id', 'x-csrf-token'],
   });
 
   // Global prefix
@@ -63,6 +64,19 @@ async function bootstrap() {
 
   // Global exception filters
   app.useGlobalFilters(new AllExceptionsFilter());
+
+  // OpenAPI / Swagger docs (only when enabled)
+  if (configService.get<string>('ENABLE_SWAGGER') === 'true') {
+    const config = new DocumentBuilder()
+      .setTitle('ShopHub API')
+      .setDescription('REST API for ShopHub e-commerce platform')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .addCookieAuth('cart_token')
+      .build();
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api/docs', app, document);
+  }
 
   const port = configService.get<number>('PORT', 3001);
   await app.listen(port);

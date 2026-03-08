@@ -1,10 +1,11 @@
-import { apiClient } from "@/lib/api/client";
-import type { BackendResponse } from "@/lib/types/api";
-import type { Category } from "@/features/products/types";
 import {
-  extractPaginatedData,
-  extractResponseData,
-} from "@/lib/api/response-transformer";
+  apiGet,
+  apiGetWithParams,
+  apiPost,
+  apiPut,
+  apiDelete,
+} from "@/lib/api/request";
+import type { Category } from "@/features/products/types";
 
 export const categoriesApi = {
   /**
@@ -24,16 +25,7 @@ export const categoriesApi = {
     limit: number;
     totalPages: number;
   }> {
-    const response = await apiClient.get<
-      BackendResponse<{
-        data: Category[];
-        total: number;
-        page: number;
-        limit: number;
-        totalPages: number;
-      }>
-    >("/categories", { params });
-    return extractPaginatedData(response);
+    return apiGetWithParams("/categories", params);
   },
 
   /**
@@ -42,20 +34,14 @@ export const categoriesApi = {
    * Useful for navigation menus and category pickers
    */
   async getCategoriesTree(): Promise<Category[]> {
-    const response = await apiClient.get<BackendResponse<Category[]>>(
-      "/categories/tree"
-    );
-    return extractResponseData(response);
+    return apiGet<Category[]>("/categories/tree");
   },
 
   /**
    * Get a single category by ID or slug
    */
   async getCategoryByIdOrSlug(idOrSlug: string): Promise<Category> {
-    const response = await apiClient.get<BackendResponse<Category>>(
-      `/categories/${idOrSlug}`
-    );
-    return extractResponseData(response);
+    return apiGet<Category>(`/categories/${idOrSlug}`);
   },
 
   /**
@@ -67,11 +53,7 @@ export const categoriesApi = {
     description?: string | null;
     parentId?: string | null;
   }): Promise<Category> {
-    const response = await apiClient.post<BackendResponse<Category>>(
-      "/categories",
-      data
-    );
-    return extractResponseData(response);
+    return apiPost<Category>("/categories", data);
   },
 
   /**
@@ -86,11 +68,7 @@ export const categoriesApi = {
       parentId?: string | null;
     }
   ): Promise<Category> {
-    const response = await apiClient.put<BackendResponse<Category>>(
-      `/categories/${id}`,
-      data
-    );
-    return extractResponseData(response);
+    return apiPut<Category>(`/categories/${id}`, data);
   },
 
   /**
@@ -98,6 +76,6 @@ export const categoriesApi = {
    * Admin-only endpoint
    */
   async deleteCategory(id: string): Promise<void> {
-    await apiClient.delete(`/categories/${id}`);
+    await apiDelete<void>(`/categories/${id}`);
   },
 };

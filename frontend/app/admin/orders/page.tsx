@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Search,
   MoreHorizontal,
   ChevronDown,
-  ArrowUpDown,
   ShoppingCart,
   Clock,
   CheckCircle2,
@@ -35,20 +34,30 @@ import {
 import { cn } from "@/lib/utils/cn";
 import { format } from "date-fns";
 import { useAdminOrdersQuery, useUpdateOrderStatusMutation } from "@/features/orders/queries";
+import { extractErrorMessage } from "@/lib/api/error-handler";
 import type { OrderStatus } from "@/features/orders/api";
+import { Pagination } from "@/components/ui/pagination";
+import { useAdminPagination } from "../_hooks/useAdminPagination";
 
 export default function AdminOrdersPage() {
+  const { page, setPage } = useAdminPagination();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "ALL">("ALL");
-  const [page, setPage] = useState(1);
   const limit = 20;
 
-  const { data, isLoading, error } = useAdminOrdersQuery({
+  const { data, isLoading, error, refetch } = useAdminOrdersQuery({
     page,
     limit,
     status: statusFilter === "ALL" ? undefined : statusFilter,
     search: search || undefined,
   });
+
+  // Clamp page when totalPages shrinks - same as frontstore
+  useEffect(() => {
+    if (data && data.totalPages > 0 && page > data.totalPages) {
+      setPage(data.totalPages);
+    }
+  }, [data?.totalPages, page, setPage]);
 
   const updateStatusMutation = useUpdateOrderStatusMutation();
 
@@ -153,9 +162,9 @@ export default function AdminOrdersPage() {
               <AlertCircle className="w-12 h-12 text-red-500" />
               <Heading level="h3">Failed to load orders</Heading>
               <Text className="text-warm-gray-500">
-                {error instanceof Error ? error.message : "An error occurred while fetching orders."}
+                {extractErrorMessage(error, "An error occurred while fetching orders.")}
               </Text>
-              <Button onClick={() => window.location.reload()} variant="outline">Retry</Button>
+              <Button onClick={() => refetch()} variant="outline">Retry</Button>
             </div>
           ) : data?.data.length === 0 ? (
             <div className="py-32 text-center">
@@ -273,32 +282,18 @@ export default function AdminOrdersPage() {
           )}
         </div>
 
-        {/* Pagination */}
-        {data && data.totalPages > 1 && (
-          <div className="p-4 border-t border-warm-gray-100 flex items-center justify-between bg-warm-gray-50/30">
-            <Text className="text-xs text-warm-gray-500">
-              Showing page <span className="font-bold text-warm-gray-900">{page}</span> of <span className="font-bold text-warm-gray-900">{data.totalPages}</span>
-            </Text>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="rounded-lg"
-              >
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage(p => Math.min(data.totalPages, p + 1))}
-                disabled={page === data.totalPages}
-                className="rounded-lg"
-              >
-                Next
-              </Button>
-            </div>
+        {/* Pagination - same component as frontstore, URL-based page, disabled when loading */}
+        {data && data.totalPages > 0 && (
+          <div className="p-4 border-t border-warm-gray-100 bg-warm-gray-50/30">
+            <Pagination
+              currentPage={page}
+              totalPages={Math.max(1, data.totalPages)}
+              onPageChange={setPage}
+              isLoading={isLoading}
+              totalItems={data.total}
+              itemsPerPage={limit}
+              itemName="orders"
+            />
           </div>
         )}
       </Card>

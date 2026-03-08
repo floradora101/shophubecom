@@ -31,9 +31,11 @@ import {
   Res,
   Req,
 } from '@nestjs/common';
+import { randomBytes } from 'node:crypto';
 import { Throttle } from '@nestjs/throttler';
 import { ConfigService } from '@nestjs/config';
 import type { Response, Request } from 'express';
+import { JwtService } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
 import {
   RegisterDto,
@@ -46,9 +48,11 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { UserResponseDto } from '../users/dto';
 import type { AuthenticatedUser } from '../common/interfaces/authenticated-user.interface';
-
-const ACCESS_TOKEN_COOKIE = 'accessToken';
-const REFRESH_TOKEN_COOKIE = 'refreshToken';
+import {
+  ACCESS_TOKEN_COOKIE,
+  REFRESH_TOKEN_COOKIE,
+  CSRF_TOKEN_COOKIE,
+} from './constants/auth-cookies';
 
 /**
  * Authentication Controller
@@ -59,6 +63,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
   ) {}
 
   private parseDurationToMs(value: string | undefined, fallbackMs: number) {
@@ -355,19 +360,61 @@ export class AuthController {
   }
 
   /**
+   * @route GET /api/auth/csrf
+   * @description Returns CSRF token for cross-origin deployments.
+   * Only needed when ENABLE_CSRF=true. Sets cookie and returns token in body.
+   */
+  @Get('csrf')
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
+  getCsrfToken(@Res({ passthrough: true }) res: Response): { csrfToken: string } {
+    const token = randomBytes(32).toString('hex');
+    const isProd = this.configService.get<string>('NODE_ENV') === 'production';
+    res.cookie(CSRF_TOKEN_COOKIE, token, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: 'strict',
+      path: '/',
+      maxAge: 60 * 60 * 1000, // 1 hour
+    });
+    return { csrfToken: token };
+  }
+
+  /**
    * @route GET /api/auth/me
    * @description Returns the current authenticated user's profile.
    *
    * Security: Uses JwtAuthGuard which reads accessToken from httpOnly cookie.
    *
    * @param user - Current user (injected by JwtAuthGuard)
-   * @returns User profile data (without password)
+   * @param req - Request (to read accessToken cookie for actual TTL)
+   * @returns User profile data and expiresIn (actual remaining seconds) for proactive token refresh
    */
   @Get('me')
   @UseGuards(JwtAuthGuard)
   @Throttle({ default: { limit: 30, ttl: 60000 } }) // Mild throttling: 30 requests per minute
-  getMe(@CurrentUser() user: AuthenticatedUser): UserResponseDto {
-    // Return user as UserResponseDto for API response
-    return user as UserResponseDto;
+  getMe(
+    @CurrentUser() user: AuthenticatedUser,
+    @Req() req: Request,
+  ): { user: UserResponseDto; expiresIn: number } {
+    const accessToken = (req as Request & { cookies?: Record<string, string> }).cookies?.[ACCESS_TOKEN_COOKIE];
+    let expiresIn = this.parseDurationToSeconds(
+      this.configService.get<string>('JWT_ACCESS_EXPIRY'),
+      15 * 60,
+    );
+    if (accessToken) {
+      try {
+        const decoded = this.jwtService.decode(accessToken) as { exp?: number } | null;
+        if (decoded?.exp) {
+          const remaining = decoded.exp - Math.floor(Date.now() / 1000);
+          expiresIn = Math.max(0, remaining);
+        }
+      } catch {
+        // Fallback to config-based expiry if decode fails
+      }
+    }
+    return {
+      user: user as UserResponseDto,
+      expiresIn,
+    };
   }
 }

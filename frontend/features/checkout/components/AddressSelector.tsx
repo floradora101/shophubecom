@@ -2,36 +2,26 @@
 "use client";
 
 import Link from "next/link";
-import { useAddressesQuery } from "@/features/addresses/queries";
 import type { Address } from "@/features/addresses/api";
 import { MapPin, Plus, Check } from "lucide-react";
-import { LoadingSpinner } from "@/components/ui/spinner";
 import { Badge } from "@/components/ui/badge";
 
 interface AddressSelectorProps {
+  addresses: Address[];
   selectedAddressId: string | null;
   onSelectAddress: (address: Address | null) => void;
   onUseForm?: () => void;
 }
 
 export function AddressSelector({
+  addresses,
   selectedAddressId,
   onSelectAddress,
   onUseForm,
 }: AddressSelectorProps) {
-  const { data: addresses = [], isLoading } = useAddressesQuery();
-
   const handleSelectAddress = (address: Address) => {
     onSelectAddress(address);
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-4">
-        <LoadingSpinner />
-      </div>
-    );
-  }
 
   const handleUseForm = () => {
     onSelectAddress(null);

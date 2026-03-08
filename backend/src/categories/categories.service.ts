@@ -6,7 +6,11 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
-import { ensureUniqueSlug, generateSlug } from '../common/utils/slug.util';
+import {
+  ensureUniqueSlugInDb,
+  generateSlug,
+} from '../common/utils/slug.util';
+import { TtlCache } from '../common/utils/ttl-cache.util';
 import { CategoryNotFoundException } from '../common/exceptions/category-not-found.exception';
 import {
   FilterCategoriesDto,
@@ -15,11 +19,33 @@ import {
   UpdateCategoryDto,
 } from './dto';
 
+const CACHE_KEY_TREE = 'tree';
+const CACHE_TTL_SECONDS = 120; // 2 min - categories change rarely
+
 @Injectable()
 export class CategoriesService {
   private readonly logger = new Logger(CategoriesService.name);
+  private readonly treeCache = new TtlCache<string, { id: string; parentId: string | null }[]>(
+    CACHE_TTL_SECONDS,
+  );
 
   constructor(private readonly prisma: PrismaService) {}
+
+  /** Invalidate category tree cache (call on create/update/delete) */
+  private invalidateTreeCache(): void {
+    this.treeCache.delete(CACHE_KEY_TREE);
+  }
+
+  private async getCachedTreeData(): Promise<{ id: string; parentId: string | null }[]> {
+    const cached = this.treeCache.get(CACHE_KEY_TREE);
+    if (cached) return cached;
+
+    const allCategories = await this.prisma.category.findMany({
+      select: { id: true, parentId: true },
+    });
+    this.treeCache.set(CACHE_KEY_TREE, allCategories);
+    return allCategories;
+  }
 
   /**
    * Find all categories with filtering, pagination, and sorting support.
@@ -244,18 +270,18 @@ export class CategoriesService {
       });
       if (!parent) {
         throw new BadRequestException(
-          `Parent category with id ${createCategoryDto.parentId} not found`,
+          'Parent category not found',
         );
       }
     }
 
-    // Generate unique slug from name
+    // Generate unique slug from name (O(1) DB query)
     const baseSlug = generateSlug(createCategoryDto.name);
-    const existingCategories = await this.prisma.category.findMany({
-      select: { slug: true },
-    });
-    const existingSlugs = existingCategories.map((c) => c.slug);
-    const uniqueSlug = ensureUniqueSlug(baseSlug, existingSlugs);
+    const uniqueSlug = await ensureUniqueSlugInDb(
+      this.prisma,
+      baseSlug,
+      'category',
+    );
 
     const category = await this.prisma.category.create({
       data: {
@@ -274,6 +300,7 @@ export class CategoriesService {
       },
     });
 
+    this.invalidateTreeCache();
     this.logger.log(`Category created: ${category.id} - ${category.name}`);
     return {
       id: category.id,
@@ -324,7 +351,7 @@ export class CategoriesService {
         });
         if (!parent) {
           throw new BadRequestException(
-            `Parent category with id ${updateCategoryDto.parentId} not found`,
+            'Parent category not found',
           );
         }
         // Prevent setting a descendant as parent (circular reference check)
@@ -342,30 +369,17 @@ export class CategoriesService {
 
     const data: Prisma.CategoryUpdateInput = {};
 
-    // Update name and slug if name changed
+    // Update name and slug if name changed (O(1) DB query)
     if (updateCategoryDto.name !== undefined) {
       if (updateCategoryDto.name !== existing.name) {
         data.name = updateCategoryDto.name;
-
         const baseSlug = generateSlug(updateCategoryDto.name);
-        const existingCategory = await this.prisma.category.findFirst({
-          where: {
-            slug: baseSlug,
-            id: { not: id },
-          },
-          select: { slug: true },
-        });
-
-        if (existingCategory) {
-          const existingCategories = await this.prisma.category.findMany({
-            select: { slug: true },
-            where: { id: { not: id } },
-          });
-          const existingSlugs = existingCategories.map((c) => c.slug);
-          data.slug = ensureUniqueSlug(baseSlug, existingSlugs);
-        } else {
-          data.slug = baseSlug;
-        }
+        data.slug = await ensureUniqueSlugInDb(
+          this.prisma,
+          baseSlug,
+          'category',
+          id,
+        );
       }
     }
 
@@ -432,6 +446,7 @@ export class CategoriesService {
           },
         },
       });
+      this.invalidateTreeCache();
       this.logger.log(`Category updated: ${category.id} - ${category.name}`);
       return {
         id: category.id,
@@ -529,25 +544,13 @@ export class CategoriesService {
    * @returns Array of category IDs including the parent and all descendants
    */
   async getDescendantCategoryIds(categoryId: string): Promise<string[]> {
-    // First, verify the category exists
-    const category = await this.prisma.category.findUnique({
-      where: { id: categoryId },
-      select: { id: true },
-    });
+    const allCategories = await this.getCachedTreeData();
+    const categoryIds = new Set(allCategories.map((c) => c.id));
 
-    if (!category) {
+    if (!categoryIds.has(categoryId)) {
       throw new CategoryNotFoundException();
     }
 
-    // Fetch all categories to build the tree
-    const allCategories = await this.prisma.category.findMany({
-      select: {
-        id: true,
-        parentId: true,
-      },
-    });
-
-    // Build a map of parent -> children
     const childrenMap = new Map<string, string[]>();
     allCategories.forEach((cat) => {
       if (cat.parentId) {
@@ -558,15 +561,12 @@ export class CategoriesService {
       }
     });
 
-    // Recursively collect all descendant IDs
     const descendantIds: string[] = [categoryId];
     const queue: string[] = [categoryId];
 
     while (queue.length > 0) {
       const currentId = queue.shift()!;
-      const children = childrenMap.get(currentId) || [];
-
-      for (const childId of children) {
+      for (const childId of childrenMap.get(currentId) ?? []) {
         descendantIds.push(childId);
         queue.push(childId);
       }
@@ -583,22 +583,15 @@ export class CategoriesService {
    * @returns Array of category IDs: [categoryId, parentId, grandparentId, ...]
    */
   async getAncestorCategoryIds(categoryId: string): Promise<string[]> {
-    const category = await this.prisma.category.findUnique({
-      where: { id: categoryId },
-      select: { id: true, parentId: true },
-    });
+    const allCategories = await this.getCachedTreeData();
+    const idToParent = new Map(allCategories.map((c) => [c.id, c.parentId]));
 
-    if (!category) {
+    if (!idToParent.has(categoryId)) {
       throw new CategoryNotFoundException();
     }
 
-    const allCategories = await this.prisma.category.findMany({
-      select: { id: true, parentId: true },
-    });
-    const idToParent = new Map(allCategories.map((c) => [c.id, c.parentId]));
-
     const ancestorIds: string[] = [categoryId];
-    let currentId: string | null = category.parentId;
+    let currentId: string | null = idToParent.get(categoryId) ?? null;
 
     while (currentId) {
       ancestorIds.push(currentId);
@@ -703,16 +696,19 @@ export class CategoriesService {
 
   /**
    * Delete a category.
-   * Prevents deletion if category has products.
+   * Prevents deletion if category has products or child categories.
    *
    * @param id - Category ID
    * @throws CategoryNotFoundException if category not found
-   * @throws BadRequestException if category has products
+   * @throws BadRequestException if category has products or child categories
    */
   async remove(id: string): Promise<void> {
     const category = await this.prisma.category.findUnique({
       where: { id },
-      include: { products: true },
+      include: {
+        products: true,
+        children: { select: { id: true, name: true } },
+      },
     });
 
     if (!category) {
@@ -725,7 +721,14 @@ export class CategoriesService {
       );
     }
 
+    if (category.children.length > 0) {
+      throw new BadRequestException(
+        `Cannot delete category with ${category.children.length} subcategories. Delete or reassign subcategories first.`,
+      );
+    }
+
     await this.prisma.category.delete({ where: { id } });
+    this.invalidateTreeCache();
     this.logger.log(`Category deleted: ${id} - ${category.name}`);
   }
 }

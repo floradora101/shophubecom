@@ -1,11 +1,16 @@
-import { randomBytes } from 'crypto';
+import type { PrismaClient } from '@prisma/client';
 
 /**
- * Generate a collision-resistant order number.
- * Uses crypto.randomBytes for uniqueness; timestamp prefix aids debugging.
- * For high-volume production, consider a database sequence for sequential ordering.
+ * Generate a sequential, human-friendly order number using PostgreSQL sequence.
+ * Format: ORD-10001, ORD-10002, etc.
+ * Collision-free, no timestamp leak, customer-friendly.
  */
-export function generateOrderNumber(): string {
-  const suffix = randomBytes(6).toString('hex').toUpperCase();
-  return `ORD-${Date.now()}-${suffix}`;
+export async function generateOrderNumber(
+  prisma: PrismaClient,
+): Promise<string> {
+  const result = await prisma.$queryRaw<[{ nextval: bigint }]>`
+    SELECT nextval('order_number_seq')
+  `;
+  const seq = result[0].nextval.toString().padStart(5, '0');
+  return `ORD-${seq}`;
 }

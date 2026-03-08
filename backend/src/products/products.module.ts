@@ -5,7 +5,8 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { CategoriesModule } from '../categories/categories.module';
 import { ProductMapperService } from './services/product-mapper.service';
 import { VariantService } from './services/variant.service';
-import { ProductDerivedFieldsService } from './services/product-derived-fields.service';
+import { ProductPromotionService } from './services/product-promotion.service';
+import { ProductQueryService } from './services/product-query.service';
 
 @Module({
   imports: [PrismaModule, CategoriesModule],
@@ -14,7 +15,8 @@ import { ProductDerivedFieldsService } from './services/product-derived-fields.s
     ProductsService,
     ProductMapperService,
     VariantService,
-    ProductDerivedFieldsService,
+    ProductPromotionService,
+    ProductQueryService,
   ],
   exports: [ProductsService],
 })

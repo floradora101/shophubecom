@@ -29,66 +29,18 @@ import {
   type AppErrorDetails,
 } from "./types";
 
+import { extractErrorMessage as extractApiErrorMessage } from "@/lib/api/error-handler";
+
 /**
  * Extracts a user-friendly error message from various error types.
- *
- * Handles:
- * - AppError instances (returns userMessage or message)
- * - Axios errors with API response (extracts message from response.data)
- * - Axios timeout errors (ECONNABORTED)
- * - Network/server down errors (no response)
- * - Standard Error instances
- * - Unknown error types (fallback message)
+ * Delegates to centralized extractErrorMessage in lib/api/error-handler.
  *
  * @param error - The error to extract a message from
  * @param fallback - Optional fallback message if error cannot be extracted
  * @returns A user-friendly error message string
  */
 export function extractErrorMessage(error: unknown, fallback?: string): string {
-  // Handle AppError instances
-  if (isAppError(error)) {
-    return error.userMessage || error.message || fallback || "An error occurred";
-  }
-
-  // Handle Axios errors
-  if (axios.isAxiosError<ApiError>(error)) {
-    // Timeout
-    if (error.code === "ECONNABORTED") {
-      return fallback || "Request timed out. Please try again.";
-    }
-
-    // No response = network/server down
-    if (!error.response) {
-      return (
-        fallback ||
-        "Cannot reach the server. Check your connection and try again."
-      );
-    }
-
-    const data = error.response.data;
-
-    // NestJS validation: message can be string[] (ValidationPipe)
-    if (Array.isArray(data?.message) && data.message.length > 0) {
-      const first = data.message[0];
-      return typeof first === "string" ? first : String(first);
-    }
-
-    // Explicit errors array
-    if (Array.isArray(data?.errors) && data.errors.length > 0) {
-      const first = data.errors[0];
-      return typeof first === "string" ? first : String(first);
-    }
-
-    return typeof data?.message === "string" ? data.message : fallback || "Request failed";
-  }
-
-  // Handle standard Error instances
-  if (error instanceof Error) {
-    return error.message || fallback || "An error occurred";
-  }
-
-  // Unknown error type
-  return fallback || "An unexpected error occurred";
+  return extractApiErrorMessage(error, fallback);
 }
 
 /**

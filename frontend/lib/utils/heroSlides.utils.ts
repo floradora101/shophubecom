@@ -1,7 +1,6 @@
 import type { HeroSlide } from "@/lib/types/heroSlides.types";
 import type { Product } from "@/features/products/types";
 import { productRoutes } from "@/lib/routes";
-import { mockHeroSlides, getHeroSlides } from "@/dev/mocks/heroSlides.mock";
 import { getDiscountInfo } from "@/lib/utils/products";
 
 export interface DiscountInfo {
@@ -55,6 +54,37 @@ function isPlaceholderHref(href?: string | null): boolean {
   return !v || v === "#";
 }
 
+function getCategorySlug(slide: HeroSlide): string | undefined {
+  return slide.type === "CATEGORY_SPOTLIGHT" ? slide.categorySlug?.trim() : undefined;
+}
+
+function getPromotionId(slide: HeroSlide): string | undefined {
+  return slide.type === "PROMOTION" ? slide.promotionId?.trim() : undefined;
+}
+
+function getEditorsPickProductSlug(slide: HeroSlide): string | undefined {
+  return slide.type === "EDITORS_PICK" ? slide.productSlugs[0] : undefined;
+}
+
+function getComparisonLeftSlug(slide: HeroSlide): string | undefined {
+  return slide.type === "COMPARISON_BATTLE"
+    ? slide.leftProductSlug?.trim()
+    : undefined;
+}
+
+function getComparisonRightSlug(slide: HeroSlide): string | undefined {
+  return slide.type === "COMPARISON_BATTLE"
+    ? slide.rightProductSlug?.trim()
+    : undefined;
+}
+
+function getPrimaryCtaHref(slide: HeroSlide): string | undefined {
+  if (slide.type === "LANDSCAPE_IMAGE") {
+    return slide.actionButton?.href;
+  }
+  return slide.ctaPrimary?.href;
+}
+
 /**
  * Resolve the primary CTA href for a slide.
  *
@@ -64,38 +94,30 @@ function isPlaceholderHref(href?: string | null): boolean {
  */
 export function resolveSlidePrimaryCtaHref(slide: HeroSlide): string {
   // Keep a real, non-placeholder href if present (backward-compatible override).
-  if (!isPlaceholderHref((slide as any)?.ctaPrimary?.href)) {
-    return (slide as any).ctaPrimary.href;
+  const href = getPrimaryCtaHref(slide);
+  if (!isPlaceholderHref(href)) {
+    return href!;
   }
 
   // Category spotlight: go to category listing route.
-  if (slide.type === "CATEGORY_SPOTLIGHT") {
-    const slug = (slide as any).categorySlug?.trim();
-    return slug ? productRoutes.category(slug) : productRoutes.list();
-  }
+  const categorySlug = getCategorySlug(slide);
+  if (categorySlug) return productRoutes.category(categorySlug);
 
   // Promotion: go to products filtered by this promotion (discount products).
-  if (slide.type === "PROMOTION") {
-    const promotionId = (slide as any).promotionId?.trim();
-    if (promotionId) {
-      return `${productRoutes.list()}?promotionId=${encodeURIComponent(promotionId)}`;
-    }
+  const promotionId = getPromotionId(slide);
+  if (promotionId) {
+    return `${productRoutes.list()}?promotionId=${encodeURIComponent(promotionId)}`;
   }
 
   // Editor's pick: go to the first product.
-  if (slide.type === "EDITORS_PICK") {
-    const first = ((slide as any).productSlugs || [])[0];
-    return first ? productRoutes.detail(first) : productRoutes.list();
-  }
+  const firstEditorsPick = getEditorsPickProductSlug(slide);
+  if (firstEditorsPick) return productRoutes.detail(firstEditorsPick);
 
   // Comparison battle: store only as a fallback; CTAs should usually go to each side's product.
-  if (slide.type === "COMPARISON_BATTLE") {
-    const left = (slide as any).leftProductSlug?.trim();
-    const right = (slide as any).rightProductSlug?.trim();
-    if (left) return productRoutes.detail(left);
-    if (right) return productRoutes.detail(right);
-    return productRoutes.list();
-  }
+  const leftComparisonSlug = getComparisonLeftSlug(slide);
+  const rightComparisonSlug = getComparisonRightSlug(slide);
+  if (leftComparisonSlug) return productRoutes.detail(leftComparisonSlug);
+  if (rightComparisonSlug) return productRoutes.detail(rightComparisonSlug);
 
   // Most other slides can derive from media product slug if available.
   if (slide.media?.kind === "product" && slide.media.productSlug?.trim()) {
@@ -162,7 +184,7 @@ export function sortSlides(slides: HeroSlide[]): HeroSlide[] {
 export function buildSlidesFromFeaturedProducts(
   products: Product[]
 ): HeroSlide[] {
-  return products.map((product, index) => ({
+  return products.map((product) => ({
     id: `compat-product-${product.id}`,
     type: "PRODUCT_SPOTLIGHT" as const,
     priority: 1, // Low priority for compatibility slides
@@ -193,11 +215,6 @@ export function buildSlidesFromFeaturedProducts(
     },
   }));
 }
-
-/**
- * Get all hero slides from backend (mock for now)
- */
-export { getHeroSlides };
 
 /**
  * Content uniqueness assertion for development

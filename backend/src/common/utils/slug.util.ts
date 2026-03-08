@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common';
 import type { PrismaClient } from '@prisma/client';
 
 /**
@@ -93,11 +94,11 @@ export async function ensureUniqueSlugInDb(
     return baseSlug;
   }
 
-  // Find unique slug by incrementing counter
+  const MAX_ATTEMPTS = 100;
   let counter = 1;
   let uniqueSlug = `${baseSlug}-${counter}`;
 
-  while (true) {
+  for (let attempts = 0; attempts < MAX_ATTEMPTS; attempts++) {
     const slugExists = await modelClient.findFirst({
       where: {
         slug: uniqueSlug,
@@ -113,4 +114,8 @@ export async function ensureUniqueSlugInDb(
     counter++;
     uniqueSlug = `${baseSlug}-${counter}`;
   }
+
+  throw new BadRequestException(
+    'Could not generate unique slug. Please try a different name.',
+  );
 }

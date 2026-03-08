@@ -7,7 +7,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useProductFilters } from "./hooks/useProductFilters";
 import { useFilterUpdates } from "./hooks/useFilterUpdates";
 import { useCategoryTree } from "./hooks/useCategoryTree";
@@ -28,7 +28,6 @@ import { ProductsGrid } from "./components/ProductsGrid";
 import { Pagination } from "@/components/ui/pagination";
 import { ProductResultsHeader } from "./components/ProductResultsHeader";
 import { ProductsBreadcrumb } from "./components/ProductsBreadcrumb";
-import { cn } from "@/lib/utils/cn";
 import { ITEMS_PER_PAGE } from "./catalog.constants";
 import { CategoryCarousel } from "./components/CategoryCarousel";
 import { extractErrorInfo } from "@/lib/api/error-handler";
@@ -44,7 +43,6 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
   // All hooks must be declared first, in order
   const searchParams = useSearchParams();
   const router = useRouter();
-  const pathname = usePathname();
 
   // Performance guard removed - load immediately for better UX
   const hasInteracted = true;
@@ -91,6 +89,7 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
     data: productsData,
     isLoading,
     error: productsError,
+    refetch: refetchProducts,
   } = useProductsQuery(apiParams);
 
   const products = productsData?.data ?? [];
@@ -313,7 +312,7 @@ export function ProductsContent({ categorySlug }: ProductsContentProps) {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => window.location.reload()}
+                        onClick={() => refetchProducts()}
                         className="text-red-700 border-red-300 hover:bg-red-50 rounded-lg transition-all duration-200 hover:scale-105"
                       >
                         Try Again

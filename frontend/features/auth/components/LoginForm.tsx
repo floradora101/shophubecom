@@ -37,7 +37,6 @@ import { useAuthStore } from "@/store/auth-store";
 import { loginSchema } from "../schemas";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { FormErrorAlert } from "@/components/ui/form-error-alert";
 import { FormField } from "@/components/ui/form-field";
 import type { LoginFormData } from "../types";
@@ -63,7 +62,7 @@ export function LoginForm({ onSuccess, redirectUrl }: LoginFormProps) {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormData & { rememberMe?: boolean }>({
+  } = useForm<LoginFormData>({
     resolver: yupResolver(loginSchema),
   });
 
@@ -150,13 +149,7 @@ export function LoginForm({ onSuccess, redirectUrl }: LoginFormProps) {
         </FormField>
       </div>
 
-      <div className="flex items-center justify-between py-2">
-        <Checkbox
-          id="remember-me"
-          label="Keep me signed in"
-          {...register("rememberMe")}
-          className="text-warm-gray-500 font-bold text-[10px] uppercase tracking-widest"
-        />
+      <div className="flex items-center justify-end py-2">
         <a
           href="/forgot-password"
           className="text-[10px] text-primary-600 hover:text-primary-700 font-black uppercase tracking-widest transition-all"

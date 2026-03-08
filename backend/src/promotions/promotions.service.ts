@@ -1,11 +1,16 @@
-import {
-  BadRequestException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { PromotionNotFoundException } from '../common/exceptions';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+
+/** Promotion with relations for toPromotionResponse */
+type PromotionWithRelations = Prisma.PromotionGetPayload<{
+  include: {
+    promotionProducts: { select: { productId: true } };
+    promotionCategories: { select: { categoryId: true } };
+    heroSlides: true;
+  };
+}>;
 import { ProductsService } from '../products/products.service';
 import { CategoriesService } from '../categories/categories.service';
 import {
@@ -111,20 +116,41 @@ export class PromotionsService {
     return bestDiscount;
   }
 
-  async findAll(): Promise<PromotionResponseDto[]> {
-    const promotions = await this.prisma.promotion.findMany({
-      include: {
-        promotionProducts: { select: { productId: true } },
-        promotionCategories: { select: { categoryId: true } },
-        heroSlides: {
-          where: { isActive: true },
-          take: 1,
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+  async findAll(filters?: { page?: number; limit?: number }): Promise<{
+    data: PromotionResponseDto[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
+    const page = filters?.page ?? 1;
+    const limit = filters?.limit ?? 50;
+    const skip = (page - 1) * limit;
 
-    return promotions.map((p) => this.toPromotionResponse(p));
+    const [promotions, total] = await Promise.all([
+      this.prisma.promotion.findMany({
+        skip,
+        take: limit,
+        include: {
+          promotionProducts: { select: { productId: true } },
+          promotionCategories: { select: { categoryId: true } },
+          heroSlides: {
+            where: { isActive: true },
+            take: 1,
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.promotion.count(),
+    ]);
+
+    return {
+      data: promotions.map((p) => this.toPromotionResponse(p)),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async findOne(id: string): Promise<PromotionResponseDto> {
@@ -141,7 +167,7 @@ export class PromotionsService {
     });
 
     if (!promotion) {
-      throw new NotFoundException(`Promotion with ID ${id} not found`);
+      throw new PromotionNotFoundException();
     }
 
     return this.toPromotionResponse(promotion);
@@ -221,6 +247,7 @@ export class PromotionsService {
 
     this.logger.log(`Promotion created: ${promotion.id} - ${promotion.name}`);
     this.productsService.invalidatePromotionsCache();
+    if (!finalPromotion) throw new PromotionNotFoundException();
     return this.toPromotionResponse(finalPromotion);
   }
 
@@ -230,7 +257,7 @@ export class PromotionsService {
       include: { heroSlides: true },
     });
     if (!existing) {
-      throw new NotFoundException(`Promotion with ID ${id} not found`);
+      throw new PromotionNotFoundException();
     }
 
     if (
@@ -346,13 +373,14 @@ export class PromotionsService {
 
     this.logger.log(`Promotion updated: ${promotion.id} - ${promotion.name}`);
     this.productsService.invalidatePromotionsCache();
+    if (!finalPromotion) throw new PromotionNotFoundException();
     return this.toPromotionResponse(finalPromotion);
   }
 
   async remove(id: string): Promise<void> {
     const promotion = await this.prisma.promotion.findUnique({ where: { id } });
     if (!promotion) {
-      throw new NotFoundException(`Promotion with ID ${id} not found`);
+      throw new PromotionNotFoundException();
     }
 
     await this.prisma.promotion.delete({ where: { id } });
@@ -360,7 +388,7 @@ export class PromotionsService {
     this.productsService.invalidatePromotionsCache();
   }
 
-  private toPromotionResponse(promotion: any): PromotionResponseDto {
+  private toPromotionResponse(promotion: PromotionWithRelations): PromotionResponseDto {
     const heroSlide = promotion.heroSlides?.[0];
     return {
       id: promotion.id,
@@ -373,8 +401,8 @@ export class PromotionsService {
       isActive: promotion.isActive,
       createdAt: promotion.createdAt,
       updatedAt: promotion.updatedAt,
-      productIds: promotion.promotionProducts?.map((p: any) => p.productId),
-      categoryIds: promotion.promotionCategories?.map((c: any) => c.categoryId),
+      productIds: promotion.promotionProducts?.map((p) => p.productId),
+      categoryIds: promotion.promotionCategories?.map((c) => c.categoryId),
       heroSlideId: heroSlide?.id ?? null,
       heroImageUrl: heroSlide?.imageUrl ?? null,
     };

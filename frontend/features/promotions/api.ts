@@ -1,6 +1,10 @@
-import { apiClient } from "@/lib/api/client";
-import type { BackendResponse } from "@/lib/types/api";
-import { extractResponseData } from "@/lib/api/response-transformer";
+import {
+  apiGet,
+  apiGetWithParams,
+  apiPost,
+  apiPut,
+  apiDelete,
+} from "@/lib/api/request";
 
 export interface Promotion {
   id: string;
@@ -37,34 +41,28 @@ export interface UpdatePromotionData extends Partial<CreatePromotionData> {}
 
 export const promotionsApi = {
   /**
-   * Get all promotions (for admin and hero slide picker)
+   * Get all promotions (for admin and hero slide picker).
+   * Backend returns paginated response; we extract the data array.
    */
-  async getPromotions(): Promise<Promotion[]> {
-    const response = await apiClient.get<BackendResponse<Promotion[]>>(
-      "/promotions"
-    );
-    return extractResponseData(response);
+  async getPromotions(params?: { page?: number; limit?: number }): Promise<Promotion[]> {
+    const result = await apiGetWithParams<
+      { data: Promotion[]; total: number; page: number; limit: number; totalPages: number }
+    >("/promotions", params);
+    return result.data;
   },
 
   /**
    * Get a single promotion by ID
    */
   async getPromotionById(id: string): Promise<Promotion> {
-    const response = await apiClient.get<BackendResponse<Promotion>>(
-      `/promotions/${id}`
-    );
-    return extractResponseData(response);
+    return apiGet<Promotion>(`/promotions/${id}`);
   },
 
   /**
    * Create a new promotion (admin only)
    */
   async createPromotion(data: CreatePromotionData): Promise<Promotion> {
-    const response = await apiClient.post<BackendResponse<Promotion>>(
-      "/promotions",
-      data
-    );
-    return extractResponseData(response);
+    return apiPost<Promotion>("/promotions", data);
   },
 
   /**
@@ -74,17 +72,13 @@ export const promotionsApi = {
     id: string,
     data: UpdatePromotionData
   ): Promise<Promotion> {
-    const response = await apiClient.put<BackendResponse<Promotion>>(
-      `/promotions/${id}`,
-      data
-    );
-    return extractResponseData(response);
+    return apiPut<Promotion>(`/promotions/${id}`, data);
   },
 
   /**
    * Delete a promotion (admin only)
    */
   async deletePromotion(id: string): Promise<void> {
-    await apiClient.delete(`/promotions/${id}`);
+    await apiDelete<void>(`/promotions/${id}`);
   },
 };

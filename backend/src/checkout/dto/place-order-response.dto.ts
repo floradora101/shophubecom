@@ -1,7 +1,6 @@
 export class PlaceOrderResponseDto {
   orderId!: string;
   orderNumber!: string;
-  orderAccessToken?: string;
   total!: number;
   shipping!: number;
   subtotal!: number;

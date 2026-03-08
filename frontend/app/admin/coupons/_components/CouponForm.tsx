@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, type Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { couponSchema, type CouponFormData } from "@/features/coupons/schemas";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,7 @@ export function CouponForm({
     watch,
     formState: { errors, isSubmitting },
   } = useForm<CouponFormData>({
-    resolver: yupResolver(couponSchema) as any,
+    resolver: yupResolver(couponSchema) as Resolver<CouponFormData>,
     defaultValues: {
       code: coupon?.code || "",
       description: coupon?.description || "",

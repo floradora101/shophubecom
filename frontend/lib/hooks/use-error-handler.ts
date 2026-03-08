@@ -5,7 +5,7 @@
 
 import { useCallback } from "react";
 import { toast } from "sonner";
-import { extractErrorMessage } from "@/lib/utils/error-handler";
+import { extractErrorMessage } from "@/lib/api/error-handler";
 
 /**
  * Hook that provides a centralized error handler function

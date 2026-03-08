@@ -4,23 +4,19 @@
  * Provides helper functions and computed values for filters.
  *
  * Responsibilities:
- * - Calculate available brands from all products
+ * - Derive available brands from products (API data when USE_MOCKS=false)
  * - Check if any filters are active
  * - Calculate price range for filter UI
  */
 
 import { useMemo, useCallback } from "react";
-import {
-  mockProducts,
-  mockProductToProduct,
-} from "@/lib/mock-data/mock-data";
 import type { CanonicalFilters } from "@/features/products/utils/filters";
 import type { Product } from "@/features/products/types";
 
 interface UseFilterHelpersProps {
   hasInteracted?: boolean;
   filters: CanonicalFilters;
-  filteredProducts: Product[]; // For price range calculation
+  filteredProducts: Product[]; // For price range and brands derivation
 }
 
 interface UseFilterHelpersReturn {
@@ -37,18 +33,17 @@ export function useFilterHelpers({
   filters,
   filteredProducts,
 }: UseFilterHelpersProps): UseFilterHelpersReturn {
-  // Get available brands from all products
+  // Derive available brands from filtered products (API data)
   const availableBrands = useMemo(() => {
     if (!hasInteracted) return [];
     const brandSet = new Set<string>();
-    mockProducts.forEach((product: any) => {
-      const normalized = mockProductToProduct(product);
-      if (normalized.brand) {
-        brandSet.add(normalized.brand);
+    filteredProducts.forEach((product) => {
+      if (product.brand) {
+        brandSet.add(product.brand);
       }
     });
     return Array.from(brandSet).sort();
-  }, [hasInteracted]);
+  }, [hasInteracted, filteredProducts]);
 
   // Check if there are any active filters
   const hasActiveFilters = useCallback(() => {

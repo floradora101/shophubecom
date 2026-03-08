@@ -13,11 +13,23 @@ import { useMemo, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useSearchParams } from "next/navigation";
 import type { HeroSlide } from "@/lib/types/heroSlides.types";
+import type { HeroSlideType } from "@/lib/types/heroSlides.types";
 import {
   type HeroSlideFormValues,
   getDefaultHeroSlideFormValues,
   toFormValues,
 } from "@/lib/hero-slides/admin/form";
+
+const VALID_SLIDE_TYPES: HeroSlideType[] = [
+  "PRODUCT_SPOTLIGHT",
+  "OFFER",
+  "TESTIMONIAL",
+  "LANDSCAPE_IMAGE",
+  "CATEGORY_SPOTLIGHT",
+  "EDITORS_PICK",
+  "COMPARISON_BATTLE",
+  "PROMOTION",
+];
 
 interface UseHeroSlideFormProps {
   slide?: HeroSlide;
@@ -47,7 +59,11 @@ export function useHeroSlideForm({
     const promotionId = searchParams.get("promotionId");
     if (promotionId) {
       defaultValues.promotionId = promotionId;
-      defaultValues.type = (searchParams.get("type") as any) || "PROMOTION";
+      const typeParam = searchParams.get("type");
+      defaultValues.type =
+        (typeParam && VALID_SLIDE_TYPES.includes(typeParam as HeroSlideType)
+          ? typeParam
+          : "PROMOTION") as HeroSlideType;
       defaultValues.headline = searchParams.get("headline") || "";
       defaultValues.description = searchParams.get("description") || "";
       defaultValues.ctaPrimaryLabel = "Shop Sale";

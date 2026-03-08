@@ -55,6 +55,18 @@ const defaultConfig: Required<ErrorLoggerConfig> = {
 
 let config: Required<ErrorLoggerConfig> = { ...defaultConfig };
 
+/** Numeric severity for comparison (higher = more severe) */
+const SEVERITY_ORDER: Record<ErrorSeverity, number> = {
+  [ErrorSeverity.LOW]: 1,
+  [ErrorSeverity.MEDIUM]: 2,
+  [ErrorSeverity.HIGH]: 3,
+  [ErrorSeverity.CRITICAL]: 4,
+};
+
+function severityMeetsMinimum(severity: ErrorSeverity, min: ErrorSeverity): boolean {
+  return SEVERITY_ORDER[severity] >= SEVERITY_ORDER[min];
+}
+
 /**
  * Configure error logger
  */
@@ -80,8 +92,8 @@ export function logError(error: unknown, context?: Partial<ErrorLogEntry>): void
         originalError: error,
       });
 
-  // Check minimum severity
-  if (appError.severity < config.minSeverity) return;
+  // Check minimum severity (only log if error severity meets or exceeds minimum)
+  if (!severityMeetsMinimum(appError.severity, config.minSeverity)) return;
 
   // Check if should log
   if (!shouldLogError(appError)) return;

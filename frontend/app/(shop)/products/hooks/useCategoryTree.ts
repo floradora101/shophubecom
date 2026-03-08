@@ -4,17 +4,15 @@
  * Handles category tree building and provides category-related helpers.
  *
  * Responsibilities:
- * - Load and normalize categories from mock data
+ * - Load and normalize categories from mock data or API
  * - Build category tree structure
  * - Generate category helpers (maps, descendant functions)
  * - Provide current category lookup
+ *
+ * Mock data loaded via dynamic import() so it is tree-shaken from production.
  */
 
-import { useMemo } from "react";
-import {
-  mockCategories,
-  mockCategoryToCategory,
-} from "@/lib/mock-data/mock-data";
+import { useMemo, useState, useEffect } from "react";
 import { useCategoriesTreeQuery } from "@/features/categories/queries";
 import type { Category } from "@/features/products/types";
 import type { CategoryTreeHelpers } from "@/features/products/utils/productFiltering";
@@ -44,8 +42,8 @@ export function flattenCategoryTree(
     result.push(category);
 
     // Recursively flatten children if they exist
-    if ((category as any).children && Array.isArray((category as any).children)) {
-      flattenCategoryTree((category as any).children, result);
+    if (category.children && Array.isArray(category.children)) {
+      flattenCategoryTree(category.children, result);
     }
   }
   return result;
@@ -54,23 +52,32 @@ export function flattenCategoryTree(
 /**
  * Hook for managing category tree and related helpers
  */
-export function useCategoryTree({
-  hasInteracted = true,
-  categorySlug,
-}: UseCategoryTreeProps): UseCategoryTreeReturn {
-  // Fetch categories from API
-  const { data: apiCategories = [], isLoading: categoriesLoading } = useCategoriesTreeQuery();
+export function useCategoryTree(
+  props: UseCategoryTreeProps = {}
+): UseCategoryTreeReturn {
+  const { hasInteracted = true, categorySlug } = props;
+  const { data: apiCategories = [] } = useCategoriesTreeQuery({
+    enabled: !USE_MOCKS && hasInteracted,
+  });
+  const [mockCategories, setMockCategories] = useState<Category[]>([]);
 
-  // Flatten categories tree into a flat list for filtering and lookup
-  // Use mock categories if mocks are enabled, otherwise flatten API categories tree
+  useEffect(() => {
+    if (!USE_MOCKS || !hasInteracted) return;
+    import("@/lib/mock-data/mock-data")
+      .then(({ mockCategories: mc, mockCategoryToCategory }) => {
+        setMockCategories(mc.map(mockCategoryToCategory));
+      })
+      .catch((err) => {
+        setMockCategories([]);
+        console.warn("[useCategoryTree] Mock data load failed:", err);
+      });
+  }, [hasInteracted]);
+
   const categories = useMemo(() => {
     if (!hasInteracted) return [];
-    if (USE_MOCKS) {
-      return mockCategories.map(mockCategoryToCategory);
-    }
-    // Flatten the hierarchical tree structure into a flat list
+    if (USE_MOCKS) return mockCategories;
     return flattenCategoryTree(apiCategories);
-  }, [hasInteracted, apiCategories]);
+  }, [hasInteracted, apiCategories, mockCategories]);
 
   // Build category tree helpers for filtering - only when user has interacted
   const categoryTreeHelpers = useMemo((): CategoryTreeHelpers => {

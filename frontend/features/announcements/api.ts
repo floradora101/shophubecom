@@ -1,10 +1,11 @@
-import { apiClient } from "@/lib/api/client";
-import type { BackendResponse } from "@/lib/types/api";
-import type { Announcement } from "@/lib/types/announcements.types";
 import {
-  extractPaginatedData,
-  extractResponseData,
-} from "@/lib/api/response-transformer";
+  apiGet,
+  apiGetWithParams,
+  apiPost,
+  apiPut,
+  apiDelete,
+} from "@/lib/api/request";
+import type { Announcement } from "@/lib/types/announcements.types";
 
 export interface AnnouncementFilters {
   search?: string;
@@ -47,10 +48,7 @@ export const announcementsApi = {
    * Returns only active announcements sorted by priority
    */
   async getActiveAnnouncements(): Promise<Announcement[]> {
-    const response = await apiClient.get<BackendResponse<any[]>>(
-      "/announcements/active"
-    );
-    const announcements = extractResponseData(response);
+    const announcements = await apiGet<any[]>("/announcements/active");
     return announcements.map(transformBackendAnnouncement);
   },
 
@@ -60,17 +58,13 @@ export const announcementsApi = {
   async getAnnouncements(
     filters?: AnnouncementFilters
   ): Promise<AnnouncementsResponse> {
-    const response = await apiClient.get<
-      BackendResponse<{
-        data: any[];
-        total: number;
-        page: number;
-        limit: number;
-        totalPages: number;
-      }>
-    >("/announcements", { params: filters });
-
-    const result = extractPaginatedData(response);
+    const result = await apiGetWithParams<{
+      data: any[];
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    }>("/announcements", filters);
     return {
       ...result,
       data: result.data.map(transformBackendAnnouncement),
@@ -81,10 +75,7 @@ export const announcementsApi = {
    * Get a single announcement by ID (admin)
    */
   async getAnnouncementById(id: string): Promise<Announcement> {
-    const response = await apiClient.get<BackendResponse<any>>(
-      `/announcements/${id}`
-    );
-    const announcement = extractResponseData(response);
+    const announcement = await apiGet<any>(`/announcements/${id}`);
     return transformBackendAnnouncement(announcement);
   },
 
@@ -92,11 +83,7 @@ export const announcementsApi = {
    * Create a new announcement (admin)
    */
   async createAnnouncement(data: any): Promise<Announcement> {
-    const response = await apiClient.post<BackendResponse<any>>(
-      "/announcements",
-      data
-    );
-    const announcement = extractResponseData(response);
+    const announcement = await apiPost<any>("/announcements", data);
     return transformBackendAnnouncement(announcement);
   },
 
@@ -104,11 +91,7 @@ export const announcementsApi = {
    * Update an announcement (admin)
    */
   async updateAnnouncement(id: string, data: any): Promise<Announcement> {
-    const response = await apiClient.put<BackendResponse<any>>(
-      `/announcements/${id}`,
-      data
-    );
-    const announcement = extractResponseData(response);
+    const announcement = await apiPut<any>(`/announcements/${id}`, data);
     return transformBackendAnnouncement(announcement);
   },
 
@@ -116,6 +99,6 @@ export const announcementsApi = {
    * Delete an announcement (admin)
    */
   async deleteAnnouncement(id: string): Promise<void> {
-    await apiClient.delete(`/announcements/${id}`);
+    await apiDelete<void>(`/announcements/${id}`);
   },
 };

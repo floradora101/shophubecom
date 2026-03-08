@@ -27,17 +27,19 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { PrismaModule } from '../prisma/prisma.module';
 import { UsersModule } from '../users/users.module';
+import { EmailModule } from '../email/email.module';
 
 @Module({
   imports: [
     PrismaModule,
     UsersModule,
+    EmailModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService): JwtModuleOptions => {
         return {
-          secret: configService.get<string>('JWT_ACCESS_SECRET')!,
+          secret: configService.getOrThrow<string>('JWT_ACCESS_SECRET'),
           signOptions: {
             expiresIn: configService.get<string>(
               'JWT_ACCESS_EXPIRY',

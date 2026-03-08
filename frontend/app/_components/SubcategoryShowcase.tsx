@@ -32,7 +32,7 @@ import { formatPrice } from "@/lib/utils/price";
 import { getProductImageWithPlaceholder, getDiscountInfo } from "@/lib/utils/products";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { extractErrorMessage } from "@/lib/utils/error-handler";
+import { extractErrorMessage } from "@/lib/api/error-handler";
 
 interface SubcategoryShowcaseProps {
   categories: Category[];

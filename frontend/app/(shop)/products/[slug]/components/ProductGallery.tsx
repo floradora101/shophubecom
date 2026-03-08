@@ -67,7 +67,7 @@ export function ProductGallery({
           title: productName,
           url: window.location.href,
         });
-      } catch (err) {
+      } catch {
         // Share API failed - fallback to clipboard handled below
       }
     } else {

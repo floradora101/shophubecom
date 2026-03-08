@@ -1,4 +1,4 @@
-import { apiClient } from "@/lib/api/client";
+import { apiGet, apiPut, apiPost } from "@/lib/api/request";
 import type { User } from "@/features/auth/types";
 
 export interface UpdateProfileData {
@@ -19,27 +19,23 @@ export interface ProfileResponse {
 
 export const profileApi = {
   async getProfile(): Promise<ProfileResponse> {
-    const response = await apiClient.get<ProfileResponse>("/users/profile");
-    return response.data;
+    const data = await apiGet<User>("/users/profile");
+    return { success: true, data };
   },
 
   async updateProfile(data: UpdateProfileData): Promise<ProfileResponse> {
-    const response = await apiClient.put<ProfileResponse>(
-      "/users/profile",
-      data
-    );
-    return response.data;
+    const user = await apiPut<User>("/users/profile", data);
+    return { success: true, data: user };
   },
 
   async changePassword(data: {
     currentPassword: string;
     newPassword: string;
   }): Promise<{ success: boolean; message: string }> {
-    const response = await apiClient.post<{
-      success: boolean;
-      message: string;
-    }>("/users/change-password", data);
-    return response.data;
+    return apiPost<{ success: boolean; message: string }>(
+      "/users/change-password",
+      data
+    );
   },
 };
 

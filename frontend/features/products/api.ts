@@ -1,7 +1,12 @@
-import { apiClient } from "@/lib/api/client";
-import type { BackendResponse } from "@/lib/types/api";
-import type { Product, ProductFilters, ProductsResponse } from "./types";
-import { extractResponseData, extractPaginatedData } from "@/lib/api/response-transformer";
+import {
+  apiGet,
+  apiGetWithParams,
+  apiPost,
+  apiPut,
+  apiDelete,
+  ApiRequestError,
+} from "@/lib/api/request";
+import type { Product, ProductFilters } from "./types";
 import { USE_MOCKS } from "@/lib/flags";
 import { getDiscountInfo } from "@/lib/utils/products";
 import {
@@ -97,17 +102,7 @@ export const productsApi = {
       };
     }
 
-    const response = await apiClient.get<
-      BackendResponse<{
-        data: Product[];
-        total: number;
-        page: number;
-        limit: number;
-        totalPages: number;
-      }>
-    >("/products", { params });
-
-    return extractPaginatedData(response);
+    return apiGetWithParams<ProductsResult>("/products", params);
   },
 
   async getProductBySlug(slug: string): Promise<Product | null> {
@@ -117,10 +112,7 @@ export const productsApi = {
       return product;
     }
 
-    const response = await apiClient.get<BackendResponse<Product>>(
-      `/products/${slug}`
-    );
-    return extractResponseData(response);
+    return apiGet<Product>(`/products/${slug}`);
   },
 
   /**
@@ -136,10 +128,12 @@ export const productsApi = {
       return product;
     }
 
-    const response = await apiClient.get<BackendResponse<Product>>(
-      `/products/${id}`
-    );
-    return extractResponseData(response);
+    try {
+      return await apiGet<Product>(`/products/${id}`);
+    } catch (err) {
+      if (err instanceof ApiRequestError && err.isNotFound) return null;
+      throw err;
+    }
   },
 
   async getFeaturedProducts(): Promise<Product[]> {
@@ -147,10 +141,7 @@ export const productsApi = {
       return getMockFeaturedProducts();
     }
 
-    const response = await apiClient.get<BackendResponse<Product[]>>(
-      "/products/featured"
-    );
-    return extractResponseData(response);
+    return apiGet<Product[]>("/products/featured");
   },
 
   async getLatestProducts(): Promise<Product[]> {
@@ -159,10 +150,7 @@ export const productsApi = {
       return getMockFeaturedProducts(8);
     }
 
-    const response = await apiClient.get<BackendResponse<Product[]>>(
-      "/products/latest"
-    );
-    return extractResponseData(response);
+    return apiGet<Product[]>("/products/latest");
   },
 
   /**
@@ -190,11 +178,7 @@ export const productsApi = {
       options?: Record<string, string>;
     }>;
   }): Promise<Product> {
-    const response = await apiClient.post<BackendResponse<Product>>(
-      "/products",
-      data
-    );
-    return extractResponseData(response);
+    return apiPost<Product>("/products", data);
   },
 
   /**
@@ -227,11 +211,7 @@ export const productsApi = {
       }>;
     }
   ): Promise<Product> {
-    const response = await apiClient.put<BackendResponse<Product>>(
-      `/products/${id}`,
-      data
-    );
-    return extractResponseData(response);
+    return apiPut<Product>(`/products/${id}`, data);
   },
 
   /**
@@ -239,6 +219,6 @@ export const productsApi = {
    * Admin-only endpoint
    */
   async deleteProduct(id: string): Promise<void> {
-    await apiClient.delete(`/products/${id}`);
+    await apiDelete<void>(`/products/${id}`);
   },
 };

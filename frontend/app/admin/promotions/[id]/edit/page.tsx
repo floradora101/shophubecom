@@ -7,6 +7,7 @@ import { Heading, Text } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Loader2, AlertCircle } from "lucide-react";
 import { usePromotionQuery } from "@/features/promotions/queries";
+import { extractErrorMessage } from "@/lib/api/error-handler";
 
 export default function EditPromotionPage() {
   const router = useRouter();
@@ -30,7 +31,7 @@ export default function EditPromotionPage() {
         <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
         <Heading level="h3">Promotion not found</Heading>
         <Text className="text-warm-gray-500">
-          {error instanceof Error ? error.message : "The promotion you're looking for doesn't exist."}
+          {extractErrorMessage(error, "The promotion you're looking for doesn't exist.")}
         </Text>
         <Button onClick={() => router.push("/admin/promotions")} variant="outline">
           Back to Promotions

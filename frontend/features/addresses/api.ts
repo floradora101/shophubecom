@@ -1,6 +1,4 @@
-import { apiClient } from "@/lib/api/client";
-import type { BackendResponse } from "@/lib/types/api";
-import { extractResponseData } from "@/lib/api/response-transformer";
+import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api/request";
 
 export interface Address {
   id: string;
@@ -48,33 +46,26 @@ export interface UpdateAddressData {
 
 export const addressesApi = {
   async getAddresses(): Promise<Address[]> {
-    const response = await apiClient.get<BackendResponse<Address[]>>("/addresses");
-    return extractResponseData(response);
+    return apiGet<Address[]>("/addresses");
   },
 
   async getAddressById(id: string): Promise<Address> {
-    const response = await apiClient.get<BackendResponse<Address>>(`/addresses/${id}`);
-    return extractResponseData(response);
+    return apiGet<Address>(`/addresses/${id}`);
   },
 
   async createAddress(data: CreateAddressData): Promise<Address> {
-    const response = await apiClient.post<BackendResponse<Address>>("/addresses", data);
-    return extractResponseData(response);
+    return apiPost<Address>("/addresses", data);
   },
 
   async updateAddress(
     id: string,
     data: UpdateAddressData
   ): Promise<Address> {
-    const response = await apiClient.put<BackendResponse<Address>>(
-      `/addresses/${id}`,
-      data
-    );
-    return extractResponseData(response);
+    return apiPut<Address>(`/addresses/${id}`, data);
   },
 
   async deleteAddress(id: string): Promise<void> {
-    await apiClient.delete(`/addresses/${id}`);
+    await apiDelete<void>(`/addresses/${id}`);
   },
 };
 

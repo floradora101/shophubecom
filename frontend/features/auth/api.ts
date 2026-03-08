@@ -26,31 +26,60 @@
  * - No tokens in request/response bodies
  * - All requests include credentials (cookies) via withCredentials: true
  */
-import { apiClient, type ExtendedAxiosRequestConfig } from "@/lib/api/client";
-import type { BackendResponse } from "@/lib/types/api";
-import type { AuthResponseData, User } from "./types";
+import { apiPost, apiGet } from "@/lib/api/request";
+import { USE_MOCKS } from "@/lib/flags";
+import type { AuthResponseData } from "./types";
 import type { LoginFormData, RegisterFormData } from "./types";
-import { extractResponseData } from "@/lib/api/response-transformer";
+import { setCsrfToken } from "./csrf";
+
+export { getCsrfToken } from "./csrf";
+
+function ensureAuthBackendAvailable(): void {
+  if (USE_MOCKS) {
+    throw new Error(
+      "Authentication requires backend mode. Disable NEXT_PUBLIC_USE_MOCKS to use auth flows."
+    );
+  }
+}
+
 export const authApi = {
+  /**
+   * Fetch CSRF token. Call on app init when using cross-origin auth.
+   * Uses fetch to avoid circular dependency with apiClient.
+   */
+  async fetchCsrfToken(): Promise<string | null> {
+    ensureAuthBackendAvailable();
+    const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
+    const url = base.endsWith("/api") ? `${base.replace(/\/$/, "")}/auth/csrf` : `${base}/auth/csrf`;
+    try {
+      const res = await fetch(url, { credentials: "include" });
+      if (!res.ok) return null;
+      const data = (await res.json()) as { csrfToken?: string };
+      const token = data?.csrfToken ?? null;
+      setCsrfToken(token);
+      return token;
+    } catch {
+      return null;
+    }
+  },
+
   /**
    * Register a new user
    * @param data - Registration form data
    * @returns Auth response with user data (tokens in httpOnly cookies)
    */
   async register(data: RegisterFormData): Promise<AuthResponseData> {
-    const response = await apiClient.post<BackendResponse<AuthResponseData>>(
+    ensureAuthBackendAvailable();
+    return apiPost<AuthResponseData>(
       "/auth/register",
       {
         email: data.email,
+        firstName: data.firstName?.trim() || undefined,
+        lastName: data.lastName?.trim() || undefined,
         password: data.password,
       },
-      {
-        _skipAuthRefresh: true,
-      } as ExtendedAxiosRequestConfig
+      { _skipAuthRefresh: true }
     );
-
-    // Tokens are automatically set in httpOnly cookies by backend
-    return extractResponseData(response);
   },
 
   /**
@@ -59,19 +88,15 @@ export const authApi = {
    * @returns Auth response with user data (tokens in httpOnly cookies)
    */
   async login(data: LoginFormData): Promise<AuthResponseData> {
-    const response = await apiClient.post<BackendResponse<AuthResponseData>>(
+    ensureAuthBackendAvailable();
+    return apiPost<AuthResponseData>(
       "/auth/login",
       {
         email: data.email,
         password: data.password,
       },
-      {
-        _skipAuthRefresh: true,
-      } as ExtendedAxiosRequestConfig
+      { _skipAuthRefresh: true }
     );
-
-    // Tokens are automatically set in httpOnly cookies by backend
-    return extractResponseData(response);
   },
 
   /**
@@ -79,9 +104,8 @@ export const authApi = {
    * Clears refresh token on server and cookies
    */
   async logout(): Promise<void> {
-    await apiClient.post("/auth/logout", {}, {
-      _skipAuthRefresh: true,
-    } as ExtendedAxiosRequestConfig);
+    ensureAuthBackendAvailable();
+    await apiPost<void>("/auth/logout", {}, { _skipAuthRefresh: true });
   },
 
   /**
@@ -89,26 +113,18 @@ export const authApi = {
    * @returns Auth response with user data (new tokens in httpOnly cookies)
    */
   async refresh(): Promise<AuthResponseData> {
-    const response = await apiClient.post<BackendResponse<AuthResponseData>>(
-      "/auth/refresh",
-      {},
-      {
-        _skipAuthRefresh: true,
-      } as ExtendedAxiosRequestConfig
-    );
-
-    // Tokens are automatically set in httpOnly cookies by backend
-    return extractResponseData(response);
+    ensureAuthBackendAvailable();
+    return apiPost<AuthResponseData>("/auth/refresh", {}, { _skipAuthRefresh: true });
   },
 
   /**
    * Get current authenticated user
-   * @returns Current user data
+   * @returns User data and expiresIn (for proactive token refresh)
    * Note: Does NOT skip auth refresh - allows token refresh on 401
    */
-  async getMe(): Promise<User> {
-    const response = await apiClient.get<BackendResponse<User>>("/auth/me");
-    return extractResponseData(response);
+  async getMe(): Promise<AuthResponseData> {
+    ensureAuthBackendAvailable();
+    return apiGet<AuthResponseData>("/auth/me");
   },
 
   /**
@@ -116,14 +132,12 @@ export const authApi = {
    * @param email - User email address
    */
   async forgotPassword(email: string): Promise<{ message: string }> {
-    const response = await apiClient.post<BackendResponse<{ message: string }>>(
+    ensureAuthBackendAvailable();
+    return apiPost<{ message: string }>(
       "/auth/forgot-password",
       { email },
-      {
-        _skipAuthRefresh: true,
-      } as ExtendedAxiosRequestConfig
+      { _skipAuthRefresh: true }
     );
-    return extractResponseData(response);
   },
 
   /**
@@ -135,13 +149,11 @@ export const authApi = {
     token: string,
     password: string
   ): Promise<{ message: string }> {
-    const response = await apiClient.post<BackendResponse<{ message: string }>>(
+    ensureAuthBackendAvailable();
+    return apiPost<{ message: string }>(
       "/auth/reset-password",
       { token, password },
-      {
-        _skipAuthRefresh: true,
-      } as ExtendedAxiosRequestConfig
+      { _skipAuthRefresh: true }
     );
-    return extractResponseData(response);
   },
 };

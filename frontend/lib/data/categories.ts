@@ -1,19 +1,27 @@
-// Categories data layer - abstracts mock data from UI components
-import {
-  mockCategories,
-  mockCategoryToCategory,
-  getMainCategories as mockGetMainCategories,
-  getSubcategories as mockGetSubcategories,
-} from "@/lib/mock-data/mock-data";
+// Categories data layer - abstracts mock data from UI components.
+// Mock data loaded via dynamic import() so it is tree-shaken from production.
 import type { Category } from "@/features/products/types";
+import { ApiRequestError } from "@/lib/api/request";
 
 import { USE_MOCKS } from "@/lib/flags";
+
+function flattenCategories(categories: Category[]): Category[] {
+  return categories.flatMap((category) => [
+    category,
+    ...(category.children?.length ? flattenCategories(category.children) : []),
+  ]);
+}
 
 /**
  * Get all categories
  */
 export async function getAllCategories(): Promise<Category[]> {
   if (USE_MOCKS) {
+    const { mockCategories, mockCategoryToCategory } = await import(
+      "@/lib/mock-data/mock-data"
+    ).catch((err) => {
+      throw new Error(`Failed to load mock categories: ${err instanceof Error ? err.message : "Unknown error"}`);
+    });
     return mockCategories.map(mockCategoryToCategory);
   }
 
@@ -33,6 +41,12 @@ export async function getAllCategories(): Promise<Category[]> {
  */
 export async function getMainCategories(): Promise<Category[]> {
   if (USE_MOCKS) {
+    const {
+      getMainCategories: mockGetMainCategories,
+      mockCategoryToCategory,
+    } = await import("@/lib/mock-data/mock-data").catch((err) => {
+      throw new Error(`Failed to load mock categories: ${err instanceof Error ? err.message : "Unknown error"}`);
+    });
     return mockGetMainCategories().map(mockCategoryToCategory);
   }
 
@@ -53,11 +67,25 @@ export async function getMainCategories(): Promise<Category[]> {
  */
 export async function getSubcategories(parentId: string): Promise<Category[]> {
   if (USE_MOCKS) {
+    const {
+      getSubcategories: mockGetSubcategories,
+      mockCategoryToCategory,
+    } = await import("@/lib/mock-data/mock-data").catch((err) => {
+      throw new Error(`Failed to load mock categories: ${err instanceof Error ? err.message : "Unknown error"}`);
+    });
     return mockGetSubcategories(parentId).map(mockCategoryToCategory);
   }
 
-  // TODO: Replace with actual API call when backend is ready
-  throw new Error("API implementation not yet available");
+  const { categoriesApi } = await import("@/features/categories/api");
+  try {
+    const categoriesTree = await categoriesApi.getCategoriesTree();
+    return flattenCategories(categoriesTree).filter(
+      (category) => category.parentId === parentId
+    );
+  } catch (error) {
+    console.error("Failed to fetch subcategories from API:", error);
+    throw error;
+  }
 }
 
 /**
@@ -67,12 +95,25 @@ export async function getCategoryBySlug(
   slug: string
 ): Promise<Category | null> {
   if (USE_MOCKS) {
+    const { mockCategories, mockCategoryToCategory } = await import(
+      "@/lib/mock-data/mock-data"
+    ).catch((err) => {
+      throw new Error(`Failed to load mock categories: ${err instanceof Error ? err.message : "Unknown error"}`);
+    });
     const mockCategory = mockCategories.find((c) => c.slug === slug);
     return mockCategory ? mockCategoryToCategory(mockCategory) : null;
   }
 
-  // TODO: Replace with actual API call when backend is ready
-  throw new Error("API implementation not yet available");
+  const { categoriesApi } = await import("@/features/categories/api");
+  try {
+    return await categoriesApi.getCategoryByIdOrSlug(slug);
+  } catch (error) {
+    if (error instanceof ApiRequestError && error.isNotFound) {
+      return null;
+    }
+    console.error("Failed to fetch category by slug from API:", error);
+    throw error;
+  }
 }
 
 

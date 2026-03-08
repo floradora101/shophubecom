@@ -17,9 +17,6 @@ export class UserEntity {
   @Exclude()
   passwordHash!: string;
 
-  @Exclude()
-  refreshToken!: string | null;
-
   constructor(partial: Partial<UserEntity>) {
     Object.assign(this, partial);
   }

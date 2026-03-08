@@ -1,6 +1,8 @@
-import { apiClient, type ExtendedAxiosRequestConfig } from "@/lib/api/client";
-import type { BackendResponse } from "@/lib/types/api";
-import { extractResponseData, extractPaginatedData } from "@/lib/api/response-transformer";
+import {
+  apiGet,
+  apiGetWithParams,
+  apiPatch,
+} from "@/lib/api/request";
 
 // Orders API client
 export type OrderStatus =
@@ -176,35 +178,17 @@ export const ordersApi = {
     limit: number;
     totalPages: number;
   }> {
-    try {
-      const page = params?.page ?? 1;
-      const limit = params?.limit ?? 20;
-
-      const queryParams = new URLSearchParams();
-      queryParams.append("page", page.toString());
-      queryParams.append("limit", limit.toString());
-      if (params?.status) queryParams.append("status", params.status);
-      if (params?.paymentStatus)
-        queryParams.append("paymentStatus", params.paymentStatus);
-      if (params?.fulfillmentStatus)
-        queryParams.append("fulfillmentStatus", params.fulfillmentStatus);
-
-      const response = await apiClient.get<
-        BackendResponse<PaginatedOrderResponse>
-      >(`/orders?${queryParams.toString()}`);
-
-      const ordersResponse = extractResponseData(response);
-
-      return {
-        data: ordersResponse.data.map(transformToOrder),
-        total: ordersResponse.total,
-        page: ordersResponse.page,
-        limit: ordersResponse.limit,
-        totalPages: ordersResponse.totalPages,
-      };
-    } catch (error: unknown) {
-      throw error;
-    }
+    const ordersResponse = await apiGetWithParams<PaginatedOrderResponse>(
+      "/orders",
+      params
+    );
+    return {
+      data: ordersResponse.data.map(transformToOrder),
+      total: ordersResponse.total,
+      page: ordersResponse.page,
+      limit: ordersResponse.limit,
+      totalPages: ordersResponse.totalPages,
+    };
   },
 
   /**
@@ -213,14 +197,8 @@ export const ordersApi = {
    * @note For guest orders, the token is automatically sent via httpOnly cookie
    */
   async getOrderById(id: string): Promise<Order> {
-    try {
-      const response = await apiClient.get<
-        BackendResponse<BackendOrderResponseDto>
-      >(`/orders/${id}`);
-      return transformToOrder(extractResponseData(response));
-    } catch (error: unknown) {
-      throw error;
-    }
+    const order = await apiGet<BackendOrderResponseDto>(`/orders/${id}`);
+    return transformToOrder(order);
   },
 
   /**
@@ -234,32 +212,16 @@ export const ordersApi = {
     id: string,
     options?: { skipAuthRefresh?: boolean }
   ): Promise<BackendOrderResponseDto> {
-    try {
-      const response = await apiClient.get<
-        BackendResponse<BackendOrderResponseDto>
-      >(`/orders/${id}`, {
-        ...(options?.skipAuthRefresh && {
-          _skipAuthRefresh: true,
-        } as ExtendedAxiosRequestConfig),
-      });
-      return extractResponseData(response);
-    } catch (error: unknown) {
-      throw error;
-    }
+    return apiGet<BackendOrderResponseDto>(`/orders/${id}`, {
+      ...(options?.skipAuthRefresh && { _skipAuthRefresh: true }),
+    });
   },
 
   /**
    * Get order statistics for the current user
    */
   async getOrderStats(): Promise<OrderStats> {
-    try {
-      const response = await apiClient.get<BackendResponse<OrderStats>>(
-        "/orders/stats"
-      );
-      return extractResponseData(response);
-    } catch (error: unknown) {
-      throw error;
-    }
+    return apiGet<OrderStats>("/orders/stats");
   },
 
   /**
@@ -278,11 +240,7 @@ export const ordersApi = {
     limit: number;
     totalPages: number;
   }> {
-    const response = await apiClient.get<BackendResponse<PaginatedOrderResponse>>(
-      "/admin/orders",
-      { params }
-    );
-    return extractPaginatedData(response);
+    return apiGetWithParams<PaginatedOrderResponse>("/admin/orders", params);
   },
 
   /**
@@ -292,9 +250,9 @@ export const ordersApi = {
     id: string,
     data: { status: OrderStatus; notes?: string }
   ): Promise<BackendOrderResponseDto> {
-    const response = await apiClient.patch<
-      BackendResponse<BackendOrderResponseDto>
-    >(`/admin/orders/${id}/status`, data);
-    return extractResponseData(response);
+    return apiPatch<BackendOrderResponseDto>(
+      `/admin/orders/${id}/status`,
+      data
+    );
   },
 };

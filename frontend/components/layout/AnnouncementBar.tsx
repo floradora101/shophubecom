@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
+import type { LucideIcon } from "lucide-react";
 import { ChevronLeft, ChevronRight, Truck, Info, Zap, Sparkles, Bell, Tag, Gift } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useActiveAnnouncementsQuery } from "@/features/announcements/queries";
+import { USE_MOCKS } from "@/lib/flags";
 
-const iconMap = {
+const iconMap: Record<string, LucideIcon> = {
   Truck: Truck,
   Sparkles: Sparkles,
   Zap: Zap,
@@ -16,9 +18,13 @@ const iconMap = {
 };
 
 export function AnnouncementBar() {
-  const { data: announcementsData = [], isLoading } = useActiveAnnouncementsQuery();
+  const { data: announcementsData = [], isLoading } =
+    useActiveAnnouncementsQuery({
+      enabled: !USE_MOCKS,
+    });
 
   const announcements = useMemo(() => {
+    if (USE_MOCKS) return [];
     return announcementsData.filter(a => a.isActive).sort((a, b) => b.priority - a.priority);
   }, [announcementsData]);
 
@@ -47,7 +53,7 @@ export function AnnouncementBar() {
   }, [nextSlide, isPaused, announcements.length]);
 
   // Don't render if loading or no announcements
-  if (isLoading || announcements.length === 0) {
+  if (USE_MOCKS || isLoading || announcements.length === 0) {
     return null;
   }
 
@@ -70,7 +76,7 @@ export function AnnouncementBar() {
         {/* Announcements Content Container */}
         <div className="relative w-full max-w-3xl overflow-hidden h-full">
           {announcements.map((announcement, index) => {
-            const Icon = (iconMap[announcement.icon as keyof typeof iconMap] || Info) as any;
+            const Icon = iconMap[announcement.icon] ?? Info;
             const isActive = index === currentIndex;
 
             return (

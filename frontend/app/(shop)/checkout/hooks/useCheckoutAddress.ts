@@ -10,15 +10,17 @@
  * - Reset form when address is cleared
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { useAddressesQuery } from "@/features/addresses/queries";
 import type { Address } from "@/features/addresses/api";
+import { USE_MOCKS } from "@/lib/flags";
 import type { CheckoutFormData } from "../types";
 
 interface UseCheckoutAddressProps {
   form: UseFormReturn<CheckoutFormData>;
   cartShippingOption: CheckoutFormData["shippingOption"];
+  isAuthenticated?: boolean;
   /** Default email (e.g. from user profile) - used when resetting form for logged-in users */
   defaultEmail?: string;
 }
@@ -26,7 +28,6 @@ interface UseCheckoutAddressProps {
 interface UseCheckoutAddressReturn {
   addresses: Address[];
   selectedAddress: Address | null;
-  setSelectedAddress: React.Dispatch<React.SetStateAction<Address | null>>;
   handleSelectAddress: (address: Address | null) => void;
   handleUseForm: () => void;
 }
@@ -37,21 +38,24 @@ interface UseCheckoutAddressReturn {
 export function useCheckoutAddress({
   form,
   cartShippingOption,
+  isAuthenticated = false,
   defaultEmail = "",
 }: UseCheckoutAddressProps): UseCheckoutAddressReturn {
-  const { data: addresses = [] } = useAddressesQuery();
-  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+  const { data: addresses = [] } = useAddressesQuery({
+    enabled: isAuthenticated && !USE_MOCKS,
+  });
+  const [addressSelection, setAddressSelection] = useState<
+    Address | null | undefined
+  >(undefined);
   const { setValue, reset } = form;
 
-  // Auto-select default address if available
-  useEffect(() => {
-    if (addresses.length > 0 && !selectedAddress) {
-      const defaultAddress = addresses.find((addr) => addr.isDefault);
-      if (defaultAddress) {
-        setSelectedAddress(defaultAddress);
-      }
+  const selectedAddress = useMemo(() => {
+    if (addressSelection !== undefined) {
+      return addressSelection;
     }
-  }, [addresses, selectedAddress]);
+
+    return addresses.find((addr) => addr.isDefault) ?? null;
+  }, [addressSelection, addresses]);
 
   // Pre-fill form when address is selected
   useEffect(() => {
@@ -74,7 +78,7 @@ export function useCheckoutAddress({
 
   // Handle address selection
   const handleSelectAddress = (address: Address | null) => {
-    setSelectedAddress(address);
+    setAddressSelection(address);
     if (!address) {
       // Reset form when "Use new address" is selected (keep defaultEmail for logged-in users)
       reset({
@@ -110,7 +114,7 @@ export function useCheckoutAddress({
 
   // Handle clearing selected address to use form
   const handleUseForm = () => {
-    setSelectedAddress(null);
+    setAddressSelection(null);
     reset({
       firstName: "",
       lastName: "",
@@ -129,7 +133,6 @@ export function useCheckoutAddress({
   return {
     addresses,
     selectedAddress,
-    setSelectedAddress,
     handleSelectAddress,
     handleUseForm,
   };

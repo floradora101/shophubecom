@@ -1,11 +1,5 @@
-// Homepage data layer - uses API by default, can switch to mocks
-import {
-  mockProducts,
-  mockProductToProduct,
-  mockCategories,
-  mockCategoryToCategory,
-} from "@/lib/mock-data/mock-data";
-import { HERO_SLIDES } from "@/dev/mocks/heroSlides.mock";
+// Homepage data layer - uses API by default, can switch to mocks.
+// Mock data loaded via dynamic import() so it is tree-shaken from production.
 import { productsApi } from "@/features/products/api";
 import { categoriesApi } from "@/features/categories/api";
 import { heroSlidesApi } from "@/features/hero-slides/api";
@@ -43,14 +37,51 @@ export interface HomePageData {
 }
 
 import { USE_MOCKS } from "@/lib/flags";
+import { SITE_STATS } from "@/lib/constants/site";
 
-export async function getHomePageData(): Promise<HomePageData> {
-  let result: Omit<HomePageData, "productsByCategory" | "productsBySlug">;
+function createEmptyHomePageData(totalProducts: number = 0): HomePageData {
+  return {
+    phonesProducts: [],
+    tabletsProducts: [],
+    laptopsProducts: [],
+    wearablesProducts: [],
+    smartGadgetsProducts: [],
+    gamingConsoleProducts: [],
+    accessoriesProducts: [],
+    gamingLaptopsProducts: [],
+    featuredProducts: [],
+    categories: [],
+    trendingProducts: [],
+    deals: [],
+    heroSlides: [],
+    latestProducts: [],
+    departments: [],
+    productsByCategory: {},
+    productsBySlug: {},
+    stats: {
+      totalProducts,
+      happyCustomers: SITE_STATS.happyCustomers,
+      yearsExperience: SITE_STATS.yearsExperience,
+    },
+  };
+}
 
-  if (USE_MOCKS) {
-    // Return mock data with new category structure
-    result = {
-      phonesProducts: mockProducts
+/** Build homepage data from mock data. Uses dynamic import for tree-shaking. */
+async function buildHomePageDataFromMocks(): Promise<HomePageData> {
+  const [
+    { mockProducts, mockProductToProduct, mockCategories, mockCategoryToCategory },
+    { HERO_SLIDES },
+  ] = await Promise.all([
+    import("@/lib/mock-data/mock-data").catch((err) => {
+      throw new Error(`Failed to load mock data: ${err instanceof Error ? err.message : "Unknown error"}`);
+    }),
+    import("@/dev/mocks/heroSlides.mock").catch((err) => {
+      throw new Error(`Failed to load hero slides mock: ${err instanceof Error ? err.message : "Unknown error"}`);
+    }),
+  ]);
+
+  const result: Omit<HomePageData, "productsByCategory" | "productsBySlug"> = {
+    phonesProducts: mockProducts
         .filter(
           (p) =>
             p.categorySlug === "phones" ||
@@ -132,8 +163,8 @@ export async function getHomePageData(): Promise<HomePageData> {
       deals: [], // mockDeals.map(mockDealToProduct),
       stats: {
         totalProducts: 12500,
-        happyCustomers: 50000,
-        yearsExperience: 8,
+        happyCustomers: SITE_STATS.happyCustomers,
+        yearsExperience: SITE_STATS.yearsExperience,
       },
     };
 
@@ -166,16 +197,19 @@ export async function getHomePageData(): Promise<HomePageData> {
       return acc;
     }, {} as Record<string, Product>);
 
-    return {
-      ...result,
-      productsByCategory,
-      productsBySlug,
-    };
+  return {
+    ...result,
+    productsByCategory,
+    productsBySlug,
+  };
+}
+
+export async function getHomePageData(): Promise<HomePageData> {
+  if (USE_MOCKS) {
+    return buildHomePageDataFromMocks();
   }
 
-  // Use API if mocks are disabled
-  if (!USE_MOCKS) {
-    try {
+  try {
       // Fetch all required data from API in parallel
       // Use Promise.allSettled to handle individual failures gracefully
       const [
@@ -216,19 +250,16 @@ export async function getHomePageData(): Promise<HomePageData> {
           ? allProductsResult.value?.total || 0
           : 0;
 
-      // Hero slides: use API data if available, otherwise fall back to mocks
-      let heroSlides: HeroSlide[] = [];
-      if (activeHeroSlidesResult.status === 'fulfilled') {
-        heroSlides = activeHeroSlidesResult.value || [];
-      } else {
-        // If hero slides API fails, log and use mock data as fallback
+      const heroSlides =
+        activeHeroSlidesResult.status === "fulfilled"
+          ? activeHeroSlidesResult.value || []
+          : [];
+
+      if (activeHeroSlidesResult.status === "rejected") {
         console.warn(
-          'Failed to fetch hero slides from API, using mock data:',
-          activeHeroSlidesResult.status === 'rejected'
-            ? activeHeroSlidesResult.reason
-            : 'Unknown error'
+          "[HomePage] Failed to fetch hero slides from API; returning an empty real-mode state:",
+          activeHeroSlidesResult.reason
         );
-        heroSlides = HERO_SLIDES;
       }
 
       const departments =
@@ -283,7 +314,7 @@ export async function getHomePageData(): Promise<HomePageData> {
           .slice(0, limit);
       };
 
-      result = {
+      const result: Omit<HomePageData, "productsByCategory" | "productsBySlug"> = {
         phonesProducts: getProductsByCategorySlug("phones", 8),
         tabletsProducts: getProductsByCategorySlug("tablets", 8),
         laptopsProducts: getProductsByCategorySlug("laptops", 8),
@@ -301,8 +332,8 @@ export async function getHomePageData(): Promise<HomePageData> {
         deals: [],
         stats: {
           totalProducts: allProductsTotal,
-          happyCustomers: 50000,
-          yearsExperience: 8,
+          happyCustomers: SITE_STATS.happyCustomers,
+          yearsExperience: SITE_STATS.yearsExperience,
         },
       };
 
@@ -332,138 +363,14 @@ export async function getHomePageData(): Promise<HomePageData> {
         productsByCategory,
         productsBySlug,
       };
-    } catch (error) {
-      console.error("Failed to fetch homepage data from API, falling back to mocks:", error);
-      // Log specific error for hero slides if it fails
-      if (error instanceof Error) {
-        console.error("Hero slides API error:", error.message);
-      }
-      // Fall through to mock data below
+  } catch (error) {
+    console.error(
+      "[HomePage] Failed to fetch homepage data from API; returning an empty real-mode state:",
+      error
+    );
+    if (error instanceof Error) {
+      console.error("[HomePage] Error details:", error.message);
     }
+    return createEmptyHomePageData();
   }
-
-  // Return mock data with new category structure (fallback or when USE_MOCKS is true)
-  result = {
-    phonesProducts: mockProducts
-      .filter(
-        (p) =>
-          p.categorySlug === "phones" ||
-          p.categorySlug?.startsWith("iphone") ||
-          p.categorySlug?.startsWith("samsung-phones") ||
-          p.categorySlug?.startsWith("nokia")
-      )
-      .slice(0, 8)
-      .map(mockProductToProduct),
-    tabletsProducts: mockProducts
-      .filter(
-        (p) =>
-          p.categorySlug === "tablets" ||
-          p.categorySlug?.startsWith("apple-tablets") ||
-          p.categorySlug?.startsWith("samsung-tablets")
-      )
-      .slice(0, 8)
-      .map(mockProductToProduct),
-    laptopsProducts: mockProducts
-      .filter(
-        (p) =>
-          p.categorySlug === "laptops" ||
-          p.categorySlug?.startsWith("macbook") ||
-          p.categorySlug?.startsWith("gaming-laptops") ||
-          p.categorySlug?.startsWith("business-laptops")
-      )
-      .slice(0, 8)
-      .map(mockProductToProduct),
-    wearablesProducts: mockProducts
-      .filter(
-        (p) =>
-          p.categorySlug === "wearables" ||
-          p.categorySlug?.startsWith("smart-watches") ||
-          p.categorySlug?.startsWith("earphones") ||
-          p.categorySlug?.startsWith("headsets")
-      )
-      .slice(0, 12)
-      .map(mockProductToProduct),
-    gamingLaptopsProducts: mockProducts
-      .filter((p) => p.categorySlug?.startsWith("gaming-laptops"))
-      .slice(0, 8)
-      .map(mockProductToProduct),
-    smartGadgetsProducts: mockProducts
-      .filter(
-        (p) =>
-          p.categorySlug === "smart-gadgets" ||
-          p.categorySlug?.startsWith("smart-cameras") ||
-          p.categorySlug?.startsWith("smart-stands") ||
-          p.categorySlug?.startsWith("other-gadgets")
-      )
-      .slice(0, 8)
-      .map(mockProductToProduct),
-    gamingConsoleProducts: mockProducts
-      .filter(
-        (p) =>
-          p.categorySlug === "gaming-console" ||
-          p.categorySlug?.startsWith("gaming-consoles") ||
-          p.categorySlug?.startsWith("gaming-controllers") ||
-          p.categorySlug?.startsWith("gaming-games")
-      )
-      .slice(0, 8)
-      .map(mockProductToProduct),
-    accessoriesProducts: mockProducts
-      .filter(
-        (p) =>
-          p.categorySlug === "accessories" ||
-          p.categorySlug?.startsWith("phone-cases") ||
-          p.categorySlug?.startsWith("bags-cases") ||
-          p.categorySlug?.startsWith("screen-protectors")
-      )
-      .slice(0, 8)
-      .map(mockProductToProduct),
-    featuredProducts: mockProducts.slice(0, 4).map(mockProductToProduct),
-    categories: mockCategories.map(mockCategoryToCategory),
-    trendingProducts: mockProducts.slice(4, 12).map(mockProductToProduct),
-    heroSlides: HERO_SLIDES,
-    latestProducts: mockProducts.slice(0, 8).map(mockProductToProduct),
-    departments: [],
-    deals: [], // mockDeals.map(mockDealToProduct),
-    stats: {
-      totalProducts: 12500,
-      happyCustomers: 50000,
-      yearsExperience: 8,
-    },
-  };
-
-  // Precompute mappings for client performance
-  const data = result;
-  const productsByCategory: Record<string, Product[]> = {};
-
-  // Map all products to their respective categories
-  mockProducts.forEach((p) => {
-    const product = mockProductToProduct(p);
-    const categorySlug = p.categorySlug || "uncategorized";
-    if (!productsByCategory[categorySlug]) {
-      productsByCategory[categorySlug] = [];
-    }
-    productsByCategory[categorySlug].push(product);
-  });
-
-  // Ensure main categories also have their sliced products if they were precomputed
-  productsByCategory.phones = data.phonesProducts;
-  productsByCategory.tablets = data.tabletsProducts;
-  productsByCategory.laptops = data.laptopsProducts;
-  productsByCategory.wearables = data.wearablesProducts;
-  productsByCategory["smart-gadgets"] = data.smartGadgetsProducts;
-  productsByCategory["gaming-console"] = data.gamingConsoleProducts;
-  productsByCategory.accessories = data.accessoriesProducts;
-  productsByCategory["gaming-laptops"] = data.gamingLaptopsProducts;
-
-  const productsBySlug: Record<string, Product> = {};
-  mockProducts.forEach((p) => {
-    const product = mockProductToProduct(p);
-    productsBySlug[product.slug] = product;
-  });
-
-  return {
-    ...result,
-    productsByCategory,
-    productsBySlug,
-  };
 }

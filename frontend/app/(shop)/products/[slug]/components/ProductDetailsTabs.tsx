@@ -5,7 +5,7 @@ import React, { useMemo } from "react";
 import { FileText, Star, Settings } from "lucide-react";
 import { Tabs, TabItem } from "@/components/ui/tabs";
 import type { Product } from "@/features/products/types";
-import { mockReviewStats } from "@/lib/mock-data/mock-reviews";
+import { USE_MOCKS } from "@/lib/flags";
 import { useScreenSize } from "./tabs/hooks/useScreenSize";
 import { DescriptionTab } from "./tabs/components/DescriptionTab";
 import { SpecificationsTab } from "./tabs/components/SpecificationsTab";
@@ -18,6 +18,7 @@ interface ProductDetailsTabsProps {
 export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
   // Extract screen size detection to custom hook
   const { isMobile, isLarge: isLargeScreen } = useScreenSize();
+  const defaultTab = product.description ? "description" : "reviews";
 
   const tabs: TabItem[] = useMemo(() => {
     const tabItems: TabItem[] = [];
@@ -49,7 +50,7 @@ export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
       id: "reviews",
       label: "Reviews",
       icon: isMobile ? null : <Star className="h-4 w-4" />,
-      badge: mockReviewStats.totalReviews,
+      badge: USE_MOCKS ? product.reviewCount : undefined,
       content: <ReviewsTab product={product} />,
     });
 
@@ -69,12 +70,6 @@ export function ProductDetailsTabs({ product }: ProductDetailsTabsProps) {
       </div>
     );
   }
-
-  // Determine default tab - prefer description, then reviews, never specs
-  const defaultTab = useMemo(() => {
-    if (product.description) return "description";
-    return "reviews";
-  }, [product.description]);
 
   return (
     <div className="w-full">

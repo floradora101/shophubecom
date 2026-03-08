@@ -1,7 +1,7 @@
 // Professional footer with CTA and enhanced design matching website vibes.
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import {
   Mail,
@@ -25,10 +25,9 @@ import { Heading, Text } from "@/components/ui/typography";
 import Image from "next/image";
 import { ui } from "@/lib/ui-tokens";
 import { cn } from "@/lib/utils/cn";
-import { useCategoriesTreeQuery } from "@/features/categories/queries";
 import { SparkleEffect } from "@/components/ui/SparkleEffect";
-import type { Category } from "@/features/products/types";
 import { productRoutes } from "@/lib/routes";
+import { useCategoryTree } from "@/app/(shop)/products/hooks/useCategoryTree";
 
 export function Footer() {
   const [email, setEmail] = useState("");
@@ -38,10 +37,8 @@ export function Footer() {
   // Accordion state for mobile
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
-  // Fetch categories from API (tree query returns root categories with children)
-  const { data: categoriesTree = [] } = useCategoriesTreeQuery();
-  // Extract main categories (root level categories)
-  const mainCategories = categoriesTree.filter(cat => !cat.parentId) || [];
+  const { categories } = useCategoryTree();
+  const mainCategories = categories.filter((cat) => !cat.parentId);
 
   const toggleSection = (section: string) => {
     setOpenSections((prev) => ({

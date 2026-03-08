@@ -4,26 +4,46 @@
  * @deprecated Prefer features/products/api.ts for client-side. This file remains
  * for sync helpers used in server components (generateMetadata) and mock mode.
  * Backend API is ready - use productsApi when USE_MOCKS=false.
+ *
+ * Mock data is loaded via dynamic import() so it is tree-shaken from production.
+ * Uses fetch for server-side (no cookies); errors include status for debugging.
  */
-import {
-  mockProducts,
-  mockProductToProduct,
-  type MockProduct,
-} from "@/lib/mock-data/mock-data";
 import type { Product } from "@/features/products/types";
 
 import { USE_MOCKS } from "@/lib/flags";
+
 const API_URL =
   process.env.BACKEND_API_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
   "http://localhost:3001/api";
 
+/** Thrown when fetch fails; includes status for proper error handling */
+class ProductsFetchError extends Error {
+  constructor(
+    message: string,
+    public readonly status: number,
+    public readonly url: string
+  ) {
+    super(message);
+    this.name = "ProductsFetchError";
+  }
+}
+
 /**
- * Get all products (synchronous) - mocks only. Used when USE_MOCKS=true.
+ * Extract product array from backend response.
+ * Handles: findAll/search shape { data: { data: Product[], total, ... } } and featured shape { data: Product[] }.
  */
-export function getAllProductsSync(): Product[] {
-  // Always return mocks for sync version to prevent server crashes
-  return mockProducts.map(mockProductToProduct);
+function extractProductList(json: unknown): Product[] {
+  const wrapped = (json as { data?: unknown })?.data;
+  if (Array.isArray(wrapped)) return wrapped;
+  const inner = (wrapped as { data?: Product[] })?.data;
+  return Array.isArray(inner) ? inner : [];
+}
+
+/** Extract single product from backend response { success, data: Product }. */
+function extractProduct(json: unknown): Product | null {
+  const data = (json as { data?: Product })?.data;
+  return data && typeof data === "object" && data !== null ? data : null;
 }
 
 /**
@@ -31,20 +51,20 @@ export function getAllProductsSync(): Product[] {
  */
 export async function getAllProducts(): Promise<Product[]> {
   if (USE_MOCKS) {
+    const { mockProducts, mockProductToProduct } = await import(
+      "@/lib/mock-data/mock-data"
+    ).catch((err) => {
+      throw new Error(`Failed to load mock products: ${err instanceof Error ? err.message : "Unknown error"}`);
+    });
     return mockProducts.map(mockProductToProduct);
   }
-  const res = await fetch(`${API_URL}/products?limit=100`);
-  if (!res.ok) throw new Error("Failed to fetch products");
+  const url = `${API_URL}/products?limit=100`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new ProductsFetchError(`Failed to fetch products (${res.status})`, res.status, url);
+  }
   const json = await res.json();
-  return json?.data?.data ?? json?.data ?? [];
-}
-
-/**
- * Get product by slug (synchronous) - mocks only. For server metadata when USE_MOCKS=true.
- */
-export function getProductBySlugSync(slug: string): Product | null {
-  const mockProduct = mockProducts.find((p) => p.slug === slug);
-  return mockProduct ? mockProductToProduct(mockProduct) : null;
+  return extractProductList(json);
 }
 
 /**
@@ -54,12 +74,22 @@ export async function getProductBySlugForServer(
   slug: string
 ): Promise<Product | null> {
   if (USE_MOCKS) {
-    return getProductBySlugSync(slug);
+    const { mockProducts, mockProductToProduct } = await import(
+      "@/lib/mock-data/mock-data"
+    ).catch((err) => {
+      throw new Error(`Failed to load mock products: ${err instanceof Error ? err.message : "Unknown error"}`);
+    });
+    const mockProduct = mockProducts.find((p) => p.slug === slug);
+    return mockProduct ? mockProductToProduct(mockProduct) : null;
   }
-  const res = await fetch(`${API_URL}/products/${encodeURIComponent(slug)}`);
-  if (!res.ok) return null;
+  const url = `${API_URL}/products/${encodeURIComponent(slug)}`;
+  const res = await fetch(url);
+  if (res.status === 404) return null;
+  if (!res.ok) {
+    throw new ProductsFetchError(`Failed to fetch product (${res.status})`, res.status, url);
+  }
   const json = await res.json();
-  return json?.data ?? null;
+  return extractProduct(json);
 }
 
 /**
@@ -67,30 +97,22 @@ export async function getProductBySlugForServer(
  */
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   if (USE_MOCKS) {
+    const { mockProducts, mockProductToProduct } = await import(
+      "@/lib/mock-data/mock-data"
+    ).catch((err) => {
+      throw new Error(`Failed to load mock products: ${err instanceof Error ? err.message : "Unknown error"}`);
+    });
     const mockProduct = mockProducts.find((p) => p.slug === slug);
     return mockProduct ? mockProductToProduct(mockProduct) : null;
   }
-  const res = await fetch(`${API_URL}/products/${encodeURIComponent(slug)}`);
-  if (!res.ok) return null;
-  const json = await res.json();
-  return json?.data ?? null;
-}
-
-/**
- * Get products by category slug. Use features/products/api.ts getProducts({ categoryId }) when not using mocks.
- * Backend expects categoryId (cuid), not slug - callers must resolve slug→id first.
- */
-export async function getProductsByCategory(
-  categorySlug: string
-): Promise<Product[]> {
-  if (USE_MOCKS) {
-    return mockProducts
-      .filter((p) => p.categorySlug === categorySlug)
-      .map(mockProductToProduct);
+  const url = `${API_URL}/products/${encodeURIComponent(slug)}`;
+  const res = await fetch(url);
+  if (res.status === 404) return null;
+  if (!res.ok) {
+    throw new ProductsFetchError(`Failed to fetch product (${res.status})`, res.status, url);
   }
-  throw new Error(
-    "Use features/products/api.getProducts({ categoryId }) - backend requires category ID"
-  );
+  const json = await res.json();
+  return extractProduct(json);
 }
 
 /**
@@ -98,6 +120,11 @@ export async function getProductsByCategory(
  */
 export async function searchProducts(query: string): Promise<Product[]> {
   if (USE_MOCKS) {
+    const { mockProducts, mockProductToProduct } = await import(
+      "@/lib/mock-data/mock-data"
+    ).catch((err) => {
+      throw new Error(`Failed to load mock products: ${err instanceof Error ? err.message : "Unknown error"}`);
+    });
     const lowercaseQuery = query.toLowerCase();
     return mockProducts
       .filter(
@@ -108,10 +135,9 @@ export async function searchProducts(query: string): Promise<Product[]> {
       )
       .map(mockProductToProduct);
   }
-  const res = await fetch(
-    `${API_URL}/products?search=${encodeURIComponent(query)}&limit=100`
-  );
-  if (!res.ok) throw new Error("Failed to search products");
+  const url = `${API_URL}/products?search=${encodeURIComponent(query)}&limit=100`;
+  const res = await fetch(url);
+  if (!res.ok) throw new ProductsFetchError(`Failed to search products (${res.status})`, res.status, url);
   const json = await res.json();
   return json?.data?.data ?? json?.data ?? [];
 }
@@ -123,13 +149,19 @@ export async function getFeaturedProducts(
   limit: number = 8
 ): Promise<Product[]> {
   if (USE_MOCKS) {
+    const { mockProducts, mockProductToProduct } = await import(
+      "@/lib/mock-data/mock-data"
+    ).catch((err) => {
+      throw new Error(`Failed to load mock products: ${err instanceof Error ? err.message : "Unknown error"}`);
+    });
     return mockProducts.slice(0, limit).map(mockProductToProduct);
   }
-  const res = await fetch(`${API_URL}/products/featured`);
-  if (!res.ok) throw new Error("Failed to fetch featured products");
+  const url = `${API_URL}/products/featured`;
+  const res = await fetch(url);
+  if (!res.ok) throw new ProductsFetchError(`Failed to fetch featured products (${res.status})`, res.status, url);
   const json = await res.json();
-  const data = json?.data ?? [];
-  return Array.isArray(data) ? data.slice(0, limit) : [];
+  const list = extractProductList(json);
+  return list.slice(0, limit);
 }
 
 /**
@@ -140,6 +172,11 @@ export async function getProductsByCategoryPrefix(
   limit: number = 8
 ): Promise<Product[]> {
   if (USE_MOCKS) {
+    const { mockProducts, mockProductToProduct } = await import(
+      "@/lib/mock-data/mock-data"
+    ).catch((err) => {
+      throw new Error(`Failed to load mock products: ${err instanceof Error ? err.message : "Unknown error"}`);
+    });
     return mockProducts
       .filter((p) =>
         categoryPrefixes.some(
@@ -150,9 +187,9 @@ export async function getProductsByCategoryPrefix(
       .slice(0, limit)
       .map(mockProductToProduct);
   }
-  const res = await fetch(`${API_URL}/products?limit=${limit}`);
-  if (!res.ok) throw new Error("Failed to fetch products");
+  const url = `${API_URL}/products?limit=${limit}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new ProductsFetchError(`Failed to fetch products (${res.status})`, res.status, url);
   const json = await res.json();
-  const data = json?.data?.data ?? json?.data ?? [];
-  return Array.isArray(data) ? data.slice(0, limit) : [];
+  return extractProductList(json).slice(0, limit);
 }

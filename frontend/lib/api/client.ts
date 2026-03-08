@@ -30,6 +30,7 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import type { ApiError } from "@/lib/types/api";
 import { emitAuthExpired } from "@/lib/integrations/auth-events";
+import { getCsrfToken } from "@/features/auth/csrf";
 
 const rawBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 const API_URL = rawBase.endsWith("/api") ? rawBase : `${rawBase.replace(/\/$/, "")}/api`;
@@ -136,8 +137,7 @@ async function refreshRequest() {
   // Attempt to refresh token (refresh token is in httpOnly cookie)
   // Backend reads refresh token from cookie and sets new tokens in cookies.
   // Use plain axios to avoid triggering our own interceptor.
-  // IMPORTANT: The refresh token cookie is now scoped to path: '/' (available on all routes)
-  // so it will be sent with requests to any path.
+  // Timeout prevents queued requests from hanging indefinitely on network partition.
   return axios.post(
     `${API_URL}/auth/refresh`,
     {},
@@ -146,8 +146,35 @@ async function refreshRequest() {
       headers: {
         "Content-Type": "application/json",
       },
+      timeout: 15000, // 15s - matches apiClient intent; prevents indefinite hang
     }
   );
+}
+
+const AUTH_REFRESH_LOCK_NAME = "auth-refresh";
+const AUTH_REFRESH_AT_KEY = "auth-refresh-at";
+const AUTH_REFRESH_MAX_AGE_MS = 5000;
+
+/**
+ * Run refresh with cross-tab coordination: only one tab performs the refresh,
+ * others wait and then retry (reducing redundant calls that would invalidate the token).
+ */
+async function coordinatedRefresh(): Promise<void> {
+  if (typeof navigator !== "undefined" && navigator.locks?.request) {
+    await navigator.locks.request(AUTH_REFRESH_LOCK_NAME, async () => {
+      const last = parseInt(
+        typeof localStorage !== "undefined" ? localStorage.getItem(AUTH_REFRESH_AT_KEY) ?? "0" : "0",
+        10
+      );
+      if (Date.now() - last < AUTH_REFRESH_MAX_AGE_MS) return;
+      await refreshRequest();
+      if (typeof localStorage !== "undefined") {
+        localStorage.setItem(AUTH_REFRESH_AT_KEY, String(Date.now()));
+      }
+    });
+  } else {
+    await refreshRequest();
+  }
 }
 
 /**
@@ -202,7 +229,7 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await refreshRequest();
+        await coordinatedRefresh();
 
         // Token refreshed successfully, new tokens are in httpOnly cookies
         // Process queued requests (they'll use the new cookies automatically)
@@ -244,12 +271,14 @@ apiClient.interceptors.response.use(
 );
 
 /**
- * Request interceptor (optional - for adding auth headers if needed)
- * Currently tokens are in httpOnly cookies, so no headers needed
+ * Request interceptor - adds X-CSRF-Token when available (for cross-origin deployments)
  */
 apiClient.interceptors.request.use(
   (config) => {
-    // Tokens are in httpOnly cookies, automatically sent with requests
+    const token = getCsrfToken();
+    if (token) {
+      config.headers["x-csrf-token"] = token;
+    }
     return config;
   },
   (error) => {

@@ -1,13 +1,13 @@
 import { SetMetadata } from '@nestjs/common';
+import type { UserRole } from '@prisma/client';
 
 /**
  * Roles Decorator
  *
  * Sets metadata for role-based access control.
- * Accepts string roles or UserRole enum values.
- * UserRole enum values are strings ('ADMIN', 'CUSTOMER'), so this works seamlessly.
+ * Use UserRole enum for type safety (e.g. @Roles(UserRole.ADMIN)).
  *
- * @param roles - Array of role strings or UserRole enum values
- * @example @Roles('ADMIN') or @Roles(UserRole.ADMIN)
+ * @param roles - One or more UserRole values
+ * @example @Roles(UserRole.ADMIN) or @Roles(UserRole.CUSTOMER, UserRole.ADMIN)
  */
-export const Roles = (...roles: string[]) => SetMetadata('roles', roles);
+export const Roles = (...roles: UserRole[]) => SetMetadata('roles', roles);

@@ -3,14 +3,14 @@
 
 import { useEffect } from "react";
 import type { UpdateProfileData, ChangePasswordData } from "../api";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { updateProfileSchema, changePasswordSchema } from "../schemas";
 import { Input } from "@/components/ui/input";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FormField } from "@/components/ui/form-field";
-import { extractErrorMessage } from "@/lib/utils/error-handler";
+import { extractErrorMessage } from "@/lib/api/error-handler";
 import { Heading, Text } from "@/components/ui/typography";
 import { User, Lock, Mail, Shield, ShieldCheck, Bell } from "lucide-react";
 import { useProfileQuery, useUpdateProfileMutation, useChangePasswordMutation } from "../queries";
@@ -28,8 +28,7 @@ export function ProfileAccountDetails() {
     formState: { errors },
     reset,
   } = useForm<UpdateProfileData>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: yupResolver(updateProfileSchema) as any,
+    resolver: yupResolver(updateProfileSchema) as Resolver<UpdateProfileData>,
     defaultValues: {
       firstName: user?.firstName || "",
       lastName: user?.lastName || "",
@@ -60,8 +59,7 @@ export function ProfileAccountDetails() {
     formState: { errors: passwordErrors },
     reset: resetPassword,
   } = useForm<ChangePasswordData>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: yupResolver(changePasswordSchema) as any,
+    resolver: yupResolver(changePasswordSchema) as Resolver<ChangePasswordData>,
     defaultValues: {
       currentPassword: "",
       newPassword: "",

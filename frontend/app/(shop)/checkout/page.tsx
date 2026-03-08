@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { useForm, type Resolver } from "react-hook-form";
+import { useForm, useWatch, type Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,6 @@ import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { Stack } from "@/components/ui/stack";
-import { FormSection } from "@/components/ui/form-section";
 import { Stepper } from "@/components/ui/stepper";
 import { CardRadio } from "@/components/ui/card-radio";
 import { Heading, Text } from "@/components/ui/typography";
@@ -28,10 +27,9 @@ import { checkoutSchema } from "./schemas";
 import { useCart } from "@/features/cart/hooks";
 import { useAuthStore, selectAuthUser } from "@/store/auth-store";
 import { useFormDraft } from "@/lib/forms/useFormDraft";
-import { DEMO_CHECKOUT } from "@/lib/flags";
+import { DEMO_CHECKOUT, USE_MOCKS } from "@/lib/flags";
 import { logger } from "@/lib/logger";
 import { SkeletonBlock, SkeletonText } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils/cn";
 
 const steps = [
   { label: "Shopping Cart", href: "/cart", state: "done" as const },
@@ -39,95 +37,8 @@ const steps = [
   { label: "Order Complete", state: "upcoming" as const },
 ];
 
-
-
-export default function CheckoutPage() {
-  const {
-    items,
-    subtotal,
-    clearCart,
-    shippingOption: cartShippingOption,
-    isLoading,
-    isAuthenticated,
-  } = useCart();
-  const user = useAuthStore(selectAuthUser);
-
-  // Dev-only debug log for demo mode
-  logger.debug("DEMO_CHECKOUT:", DEMO_CHECKOUT);
-
-
-  const form = useForm<CheckoutFormData>({
-    resolver: yupResolver(checkoutSchema) as Resolver<CheckoutFormData>,
-    defaultValues: {
-      firstName: "",
-      lastName: "",
-      phone: "",
-      email: "",
-      country: "Lebanon",
-      city: "",
-      state: "",
-      street1: "",
-      postalCode: "",
-      notes: "",
-      shippingOption: cartShippingOption,
-    },
-  });
-
-  const { register, handleSubmit, watch, formState, setValue, reset } = form;
-  const { isSubmitting, errors } = formState;
-  const shippingOption = watch("shippingOption");
-
-  // Pre-fill email for logged-in users (form is single source of truth for confirmation email)
-  useEffect(() => {
-    if (isAuthenticated && user?.email) {
-      setValue("email", user.email);
-    }
-  }, [isAuthenticated, user?.email, setValue]);
-
-  // Draft loads first so default address can overwrite it; enabled when cart has items
-  const { clearDraft } = useFormDraft(form, {
-    key: "draft:checkout",
-    storage: "session",
-    enabled: !isLoading && items.length > 0,
-  });
-
-  // Address selection: auto-applies default address from profile to checkout fields
-  const {
-    addresses,
-    selectedAddress,
-    handleSelectAddress,
-    handleUseForm,
-  } = useCheckoutAddress({
-    form,
-    cartShippingOption,
-    defaultEmail: user?.email ?? "",
-  });
-
-  // Extract coupon management logic to custom hook (requires subtotal for backend validation)
-  const {
-    couponCode,
-    couponDiscount,
-    couponError,
-    isValidatingCoupon,
-    handleApplyCoupon,
-    handleRemoveCoupon,
-  } = useCheckoutCoupon({
-    subtotal,
-    guestEmail: !isAuthenticated ? watch("email") || undefined : undefined,
-  });
-
-  const { onSubmit, isOrderPlaced } = useCheckoutOrder({
-    items,
-    couponDiscount,
-    couponCode,
-    clearCart,
-    clearDraft,
-  });
-
-  const isEmpty = !isLoading && !isOrderPlaced && items.length === 0;
-
-  // Loading skeleton for checkout form
-  const CheckoutFormSkeleton = () => (
+function CheckoutFormSkeleton() {
+  return (
     <Stack spacing="xl">
       {/* Contact Information Skeleton */}
       <CheckoutCardSection title="Contact Information">
@@ -171,6 +82,116 @@ export default function CheckoutPage() {
       </CheckoutCardSection>
     </Stack>
   );
+}
+
+
+
+export default function CheckoutPage() {
+  const {
+    items,
+    subtotal,
+    clearCart,
+    shippingOption: cartShippingOption,
+    isLoading,
+    isAuthenticated,
+  } = useCart();
+  const user = useAuthStore(selectAuthUser);
+
+  // Dev-only debug log for demo mode
+  logger.debug("DEMO_CHECKOUT:", DEMO_CHECKOUT);
+
+
+  const form = useForm<CheckoutFormData>({
+    resolver: yupResolver(checkoutSchema) as Resolver<CheckoutFormData>,
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      phone: "",
+      email: "",
+      country: "Lebanon",
+      city: "",
+      state: "",
+      street1: "",
+      postalCode: "",
+      notes: "",
+      shippingOption: cartShippingOption,
+    },
+  });
+
+  const { register, handleSubmit, formState, setValue, control } = form;
+  const { isSubmitting, errors } = formState;
+  const shippingOption =
+    useWatch({ control, name: "shippingOption" }) ?? cartShippingOption;
+  const watchedEmail = useWatch({ control, name: "email" });
+
+  // Pre-fill email for logged-in users (form is single source of truth for confirmation email)
+  useEffect(() => {
+    if (isAuthenticated && user?.email) {
+      setValue("email", user.email);
+    }
+  }, [isAuthenticated, user?.email, setValue]);
+
+  // Draft loads first so default address can overwrite it; enabled when cart has items
+  const { clearDraft } = useFormDraft(form, {
+    key: "draft:checkout",
+    storage: "session",
+    enabled: !isLoading && items.length > 0,
+  });
+
+  // Address selection: auto-applies default address from profile to checkout fields
+  const {
+    addresses,
+    selectedAddress,
+    handleSelectAddress,
+    handleUseForm,
+  } = useCheckoutAddress({
+    form,
+    cartShippingOption,
+    isAuthenticated,
+    defaultEmail: user?.email ?? "",
+  });
+
+  // Extract coupon management logic to custom hook (requires subtotal for backend validation)
+  const {
+    couponCode,
+    couponDiscount,
+    couponError,
+    isValidatingCoupon,
+    handleApplyCoupon,
+    handleRemoveCoupon,
+  } = useCheckoutCoupon({
+    subtotal,
+    guestEmail: !isAuthenticated ? watchedEmail || undefined : undefined,
+  });
+
+  const { onSubmit, isOrderPlaced } = useCheckoutOrder({
+    items,
+    couponDiscount,
+    couponCode,
+    clearCart,
+    clearDraft,
+  });
+
+  const isEmpty = !isLoading && !isOrderPlaced && items.length === 0;
+
+  if (USE_MOCKS) {
+    return (
+      <Section spacing="lg">
+        <Container size="lg">
+          <Card className="p-10 text-center">
+            <CreditCard className="h-12 w-12 text-warm-gray-400 mx-auto mb-4" />
+            <Heading level="h3">Checkout requires backend</Heading>
+            <Text className="text-warm-gray-600 mt-2 max-w-sm mx-auto">
+              Checkout, cart, and saved addresses are backend-backed. Disable mock mode to complete orders.
+            </Text>
+            <Link href="/">
+              <Button className="mt-6">Return to store</Button>
+            </Link>
+          </Card>
+        </Container>
+      </Section>
+    );
+  }
 
   // Show loading state
   if (isLoading) {
@@ -299,6 +320,23 @@ export default function CheckoutPage() {
             </div>
           </Stack>
 
+            {(DEMO_CHECKOUT || USE_MOCKS) && (
+              <Card className="border-amber-200 bg-amber-50/70 p-4">
+                <div className="space-y-2">
+                  <Text className="text-sm font-semibold text-amber-900">
+                    {DEMO_CHECKOUT
+                      ? "Demo checkout is enabled."
+                      : "Mock catalog mode is enabled."}
+                  </Text>
+                  <Text className="text-sm text-amber-800">
+                    {DEMO_CHECKOUT
+                      ? "Order placement is simulated, but cart, saved addresses, and account data still rely on backend services."
+                      : "Checkout is still backend-backed even when catalog mocks are enabled."}
+                  </Text>
+                </div>
+              </Card>
+            )}
+
           {isEmpty ? (
             <Card className="p-12 text-center">
               <div className="space-y-4">
@@ -393,6 +431,7 @@ export default function CheckoutPage() {
                   {addresses.length > 0 && (
                     <div className="mb-8">
                       <AddressSelector
+                        addresses={addresses}
                         selectedAddressId={selectedAddress?.id || null}
                         onSelectAddress={handleSelectAddress}
                         onUseForm={handleUseForm}

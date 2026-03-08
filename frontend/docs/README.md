@@ -10,6 +10,7 @@ docs/
 │   ├── ADR-001-component-organization.md
 │   ├── ADR-002-state-management-pattern.md
 │   └── ADR-003-query-key-factory-pattern.md
+├── DUAL_MODE_SCOPE.md
 ├── COMPONENT_ORGANIZATION_GUIDELINES.md
 ├── STATE_MANAGEMENT_GUIDELINES.md
 └── README.md                      # This file
@@ -48,10 +49,16 @@ ADRs document important architectural decisions and their rationale.
 - Zustand patterns
 - Common patterns and anti-patterns
 
+### Dual Mode Scope
+- Defines which frontend domains are mock-supported, demo-only, or backend-required
+- Source of truth for `NEXT_PUBLIC_USE_MOCKS` and `NEXT_PUBLIC_DEMO_CHECKOUT`
+- See `DUAL_MODE_SCOPE.md`
+
 ## Related Documents
 
 - [Frontend System Architecture Refactoring Guide](../../FRONTEND_SYSTEM_ARCHITECTURE_REFACTORING.md)
 - [Architecture Documentation](../../ARCHITECTURE_DOCUMENTATION.md)
+- [Dual Mode Scope](./DUAL_MODE_SCOPE.md)
 
 ## Contributing
 

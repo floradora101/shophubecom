@@ -4,6 +4,7 @@ import React from "react";
 import { useParams } from "next/navigation";
 import { DepartmentForm } from "@/app/admin/subcategories/_components/DepartmentForm";
 import { useDepartmentQuery } from "@/features/departments/queries";
+import { extractErrorMessage } from "@/lib/api/error-handler";
 import { Heading, Text } from "@/components/ui/typography";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ export default function EditDepartmentPage() {
   const params = useParams();
   const id = params?.id as string;
 
-  const { data: department, isLoading, error } = useDepartmentQuery(id);
+  const { data: department, isLoading, error, refetch } = useDepartmentQuery(id);
 
   if (isLoading) {
     return (
@@ -27,9 +28,9 @@ export default function EditDepartmentPage() {
       <Card className="p-8 space-y-4">
         <Heading level="h3">Failed to load</Heading>
         <Text className="text-warm-gray-500">
-          {error instanceof Error ? error.message : "An error occurred"}
+          {extractErrorMessage(error, "An error occurred")}
         </Text>
-        <Button onClick={() => window.location.reload()} variant="outline">
+        <Button onClick={() => refetch()} variant="outline">
           Retry
         </Button>
       </Card>

@@ -15,20 +15,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import { ProductsService } from '../products/products.service';
 import {
   AdminFilterOrdersDto,
-  CreateOrderDto,
   FilterOrdersDto,
   OrderResponseDto,
   OrderStatsDto,
   PaginatedOrderResponseDto,
   UpdateOrderStatusDto,
 } from './dto';
-import {
-  OrderNotFoundException,
-  ProductVariantNotFoundException,
-} from '../common/exceptions';
+import { OrderNotFoundException } from '../common/exceptions';
 import { toNumber } from '../common/utils/decimal.util';
-import { generateOrderNumber } from '../common/utils/order.util';
-import { transformVariantOptions } from '../common/utils/variant.util';
 
 type OrderWithRelations = Prisma.OrderGetPayload<{
   include: {
@@ -60,163 +54,6 @@ export class OrdersService {
     private readonly prisma: PrismaService,
     private readonly productsService: ProductsService,
   ) {}
-
-  /**
-   * Create an order directly (admin/programmatic use).
-   * @deprecated Prefer CheckoutService.placeOrder for customer checkout (handles cart, coupons, promotions, guest checkout).
-   * This method is not exposed via API; use only for internal/admin flows.
-   */
-  async create(
-    userId: string,
-    createOrderDto: CreateOrderDto,
-  ): Promise<OrderResponseDto> {
-    if (!createOrderDto.items || createOrderDto.items.length === 0) {
-      throw new BadRequestException('Order must contain at least one item');
-    }
-
-    const aggregatedItems = createOrderDto.items.reduce<Record<string, number>>(
-      (acc, item) => {
-        acc[item.variantId] = (acc[item.variantId] ?? 0) + item.quantity;
-        return acc;
-      },
-      {},
-    );
-
-    const variantIds = Object.keys(aggregatedItems);
-
-    const variants = await this.prisma.productVariant.findMany({
-      where: { id: { in: variantIds } },
-      include: { product: true, options: true },
-    });
-
-    if (variants.length !== variantIds.length) {
-      throw new ProductVariantNotFoundException();
-    }
-
-    const orderItems = variants.map((variant) => {
-      const quantity = aggregatedItems[variant.id] ?? 0;
-      if (quantity <= 0) {
-        throw new BadRequestException('Invalid quantity for variant');
-      }
-      if (variant.stock < quantity) {
-        throw new BadRequestException(
-          `Insufficient stock for variant ${variant.sku}`,
-        );
-      }
-
-      const unitPrice = toNumber(variant.price);
-      const total = unitPrice * quantity;
-      const attributes = transformVariantOptions(variant.options);
-
-      return {
-        productId: variant.productId,
-        variantId: variant.id,
-        quantity,
-        unitPrice,
-        total,
-        title: variant.product.name,
-        attributes,
-        variant,
-      };
-    });
-
-    const subtotal = orderItems.reduce((sum, item) => sum + item.total, 0);
-    const shipping = createOrderDto.shipping ?? 0;
-    const tax = createOrderDto.tax ?? 0;
-    const discount = createOrderDto.discount ?? 0;
-    const total = subtotal + tax + shipping - discount;
-
-    if (total < 0) {
-      throw new BadRequestException('Order total cannot be negative');
-    }
-
-    const currency = createOrderDto.currency ?? 'USD';
-
-    // Generate unique order number
-    const orderNumber = generateOrderNumber();
-
-    const createdOrder = await this.prisma.$transaction(async (tx) => {
-      const order = await tx.order.create({
-        data: {
-          userId,
-          orderNumber,
-          status: OrderStatus.PENDING,
-          paymentStatus: PaymentStatus.PENDING,
-          fulfillmentStatus: FulfillmentStatus.UNFULFILLED,
-          subtotal,
-          tax,
-          shipping,
-          discount,
-          total,
-          currency,
-          shippingAddress:
-            createOrderDto.shippingAddress as unknown as Prisma.JsonObject,
-          billingAddress:
-            (createOrderDto.billingAddress as unknown as
-              | Prisma.JsonObject
-              | undefined) ??
-            (createOrderDto.shippingAddress as unknown as Prisma.JsonObject),
-          items: {
-            create: orderItems.map((item) => ({
-              productId: item.productId,
-              variantId: item.variantId,
-              quantity: item.quantity,
-              unitPrice: item.unitPrice,
-              total: item.total,
-              title: item.title,
-              attributes: item.attributes,
-            })),
-          },
-        },
-        include: {
-          items: {
-            include: {
-              variant: { include: { options: true } },
-              product: {
-                include: {
-                  defaultVariant: true,
-                },
-              },
-            },
-          },
-          user: {
-            select: { id: true, firstName: true, lastName: true, email: true },
-          },
-          coupons: true,
-        },
-      });
-
-      const affectedProductIds = new Set<string>();
-      for (const item of orderItems) {
-        const updated = await tx.productVariant.updateMany({
-          where: { id: item.variantId, stock: { gte: item.quantity } },
-          data: { stock: { decrement: item.quantity } },
-        });
-
-        if (updated.count === 0) {
-          this.logger.warn(
-            `Stock update failed for variant ${item.variantId} during order creation`,
-          );
-          throw new BadRequestException(
-            `Insufficient stock for variant ${item.variantId}`,
-          );
-        }
-
-        // Track affected products for effectiveStock recomputation
-        affectedProductIds.add(item.productId);
-      }
-
-      // Recompute effectiveStock for all affected products
-      for (const productId of affectedProductIds) {
-        await this.productsService.recomputeProductDerivedFields(tx, productId);
-      }
-
-      this.logger.log(`Order created: ${order.id} by user ${userId}`);
-      return order;
-    });
-
-    return this.toOrderResponse(createdOrder);
-  }
 
   async findForUser(
     userId: string,

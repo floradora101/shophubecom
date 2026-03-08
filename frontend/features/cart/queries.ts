@@ -6,6 +6,8 @@ import {
   type UpdateCartItemParams,
 } from "./api";
 import { cartKeys } from "./query-keys";
+import { extractErrorMessage } from "@/lib/api/error-handler";
+import { toast } from "sonner";
 
 /**
  * React Query hook to fetch current cart
@@ -82,11 +84,11 @@ export function useAddCartItemMutation() {
 
       return { previousCart };
     },
-    onError: (_error, _params, context) => {
+    onError: (error, _params, context) => {
       if (context?.previousCart) {
-        // Rollback on error using functional update
         queryClient.setQueryData<Cart>(queryKey, context.previousCart);
       }
+      toast.error(extractErrorMessage(error, "Failed to add item to cart. Please try again."));
     },
     onSuccess: (data) => {
       // Set query data to server response (replaces optimistic update)
@@ -147,11 +149,11 @@ export function useUpdateCartItemMutation() {
 
       return { previousCart };
     },
-    onError: (_error, _params, context) => {
+    onError: (error, _params, context) => {
       if (context?.previousCart) {
-        // Rollback on error
         queryClient.setQueryData<Cart>(queryKey, context.previousCart);
       }
+      toast.error(extractErrorMessage(error, "Failed to update quantity. Please try again."));
     },
     onSuccess: (data) => {
       // Set query data to server response (replaces optimistic update)
@@ -204,11 +206,11 @@ export function useRemoveCartItemMutation() {
 
       return { previousCart };
     },
-    onError: (_error, _params, context) => {
+    onError: (error, _params, context) => {
       if (context?.previousCart) {
-        // Rollback on error
         queryClient.setQueryData<Cart>(queryKey, context.previousCart);
       }
+      toast.error(extractErrorMessage(error, "Failed to remove item. Please try again."));
     },
     onSuccess: (data) => {
       // Backend returns full Cart - set it directly (replaces optimistic update)
@@ -250,11 +252,11 @@ export function useClearCartMutation() {
 
       return { previousCart };
     },
-    onError: (_error, _params, context) => {
+    onError: (error, _params, context) => {
       if (context?.previousCart) {
-        // Rollback on error
         queryClient.setQueryData<Cart>(queryKey, context.previousCart);
       }
+      toast.error(extractErrorMessage(error, "Failed to clear cart. Please try again."));
     },
     onSuccess: (data) => {
       // Backend returns full Cart - set it directly (replaces optimistic update)

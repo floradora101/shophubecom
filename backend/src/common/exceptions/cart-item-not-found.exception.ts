@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 
 export class CartItemNotFoundException extends NotFoundException {
-  constructor() {
-    super('Cart item not found');
+  constructor(message = 'Cart item not found') {
+    super(message);
   }
 }

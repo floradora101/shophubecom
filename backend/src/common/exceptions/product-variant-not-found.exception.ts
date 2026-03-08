@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 
 export class ProductVariantNotFoundException extends NotFoundException {
-  constructor() {
-    super('Product variant not found');
+  constructor(message = 'Product variant not found') {
+    super(message);
   }
 }

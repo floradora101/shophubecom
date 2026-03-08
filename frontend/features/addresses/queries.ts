@@ -6,16 +6,17 @@ import {
   type UpdateAddressData,
 } from "./api";
 import { toast } from "sonner";
-import { extractErrorMessage } from "@/lib/utils/error-handler";
+import { extractErrorMessage } from "@/lib/api/error-handler";
 import { addressKeys } from "./query-keys";
 
 /**
  * Get all addresses for the current user
  */
-export function useAddressesQuery() {
+export function useAddressesQuery(options?: { enabled?: boolean }) {
   return useQuery<Address[]>({
     queryKey: addressKeys.list(),
     queryFn: () => addressesApi.getAddresses(),
+    enabled: options?.enabled !== false,
     staleTime: 30_000, // 30 seconds
   });
 }

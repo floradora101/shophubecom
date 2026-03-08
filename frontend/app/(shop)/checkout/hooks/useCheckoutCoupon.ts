@@ -11,7 +11,7 @@
  * - Error handling
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { couponsApi } from "@/features/coupons/api";
 import { extractErrorInfo } from "@/lib/api/error-handler";
@@ -44,6 +44,47 @@ export function useCheckoutCoupon({
   const [couponDiscount, setCouponDiscount] = useState<number>(0);
   const [couponError, setCouponError] = useState<string>("");
   const [isValidatingCoupon, setIsValidatingCoupon] = useState<boolean>(false);
+  const isInitialMount = useRef(true);
+
+  // Re-validate coupon when subtotal changes (e.g. user removes items or changes qty)
+  useEffect(() => {
+    if (!couponCode.trim()) return;
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    let cancelled = false;
+    setIsValidatingCoupon(true);
+    setCouponError("");
+
+    couponsApi
+      .validateCoupon(couponCode.trim().toUpperCase(), subtotal, guestEmail)
+      .then((result) => {
+        if (cancelled) return;
+        if (result.valid && result.discount > 0) {
+          setCouponDiscount(result.discount);
+        } else {
+          setCouponCode("");
+          setCouponDiscount(0);
+          toast.error(result.message ?? "Coupon no longer valid for this cart total");
+        }
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        const errorInfo = extractErrorInfo(error);
+        setCouponCode("");
+        setCouponDiscount(0);
+        toast.error(errorInfo.message ?? "Coupon validation failed");
+      })
+      .finally(() => {
+        if (!cancelled) setIsValidatingCoupon(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [subtotal, couponCode, guestEmail]);
 
   const handleApplyCoupon = useCallback(
     async (code: string) => {

@@ -1,8 +1,5 @@
-import {
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { AnnouncementNotFoundException } from '../common/exceptions';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -21,7 +18,7 @@ export class AnnouncementsService {
   /**
    * Transform Prisma Announcement to response DTO
    */
-  private toResponseDto(announcement: any): AnnouncementResponseDto {
+  private toResponseDto(announcement: Prisma.AnnouncementGetPayload<object>): AnnouncementResponseDto {
     return {
       id: announcement.id,
       text: announcement.text,
@@ -131,7 +128,7 @@ export class AnnouncementsService {
     });
 
     if (!announcement) {
-      throw new NotFoundException(`Announcement with ID ${id} not found`);
+      throw new AnnouncementNotFoundException();
     }
 
     return this.toResponseDto(announcement);
@@ -168,7 +165,7 @@ export class AnnouncementsService {
     });
 
     if (!existing) {
-      throw new NotFoundException(`Announcement with ID ${id} not found`);
+      throw new AnnouncementNotFoundException();
     }
 
     const data: Prisma.AnnouncementUpdateInput = {};
@@ -206,7 +203,7 @@ export class AnnouncementsService {
     });
 
     if (!announcement) {
-      throw new NotFoundException(`Announcement with ID ${id} not found`);
+      throw new AnnouncementNotFoundException();
     }
 
     await this.prisma.announcement.delete({

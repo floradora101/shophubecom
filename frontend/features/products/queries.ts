@@ -4,6 +4,7 @@ import type { ProductsResult, Product } from "./api";
 import { normalizeFilters } from "./utils/filters";
 import { productKeys } from "./query-keys";
 import { toast } from "sonner";
+import { extractErrorMessage } from "@/lib/api/error-handler";
 
 export function useProductsQuery(params: ProductsQueryParams) {
   // Normalize filters before using in query key and API call
@@ -28,11 +29,11 @@ export function useProductsQuery(params: ProductsQueryParams) {
   });
 }
 
-export function useProductQuery(slug: string) {
+export function useProductQuery(slug: string, options?: { enabled?: boolean }) {
   return useQuery<Product | null>({
     queryKey: productKeys.detail(slug),
     queryFn: () => productsApi.getProductBySlug(slug),
-    enabled: !!slug,
+    enabled: !!slug && options?.enabled !== false,
     staleTime: 60_000, // Product details change less frequently
   });
 }
@@ -100,46 +101,9 @@ export function useCreateProductMutation() {
       queryClient.invalidateQueries({ queryKey: productKeys.all });
       toast.success("Product created successfully!");
     },
-    onError: (error: any) => {
-      // Extract detailed error message from backend
-      let errorMessage = "Failed to create product. Please check all fields and try again.";
-
-      if (error?.response?.data) {
-        const data = error.response.data;
-
-        // Handle validation errors (array of field errors)
-        if (Array.isArray(data.message)) {
-          const fieldErrors = data.message
-            .map((err: any) => {
-              if (typeof err === 'string') return err;
-              if (err.property && err.constraints) {
-                const constraints = Object.values(err.constraints || {});
-                return `${err.property}: ${constraints.join(', ')}`;
-              }
-              return err.message || JSON.stringify(err);
-            })
-            .filter(Boolean);
-
-          if (fieldErrors.length > 0) {
-            errorMessage = `Validation errors:\n${fieldErrors.join('\n')}`;
-          }
-        }
-        // Handle single error message
-        else if (data.message) {
-          errorMessage = data.message;
-        }
-        // Handle error object with message property
-        else if (data.error) {
-          errorMessage = data.error;
-        }
-      }
-      // Handle network/other errors
-      else if (error?.message) {
-        errorMessage = error.message;
-      }
-
-      toast.error(errorMessage, {
-        duration: 5000, // Show for 5 seconds
+    onError: (error: unknown) => {
+      toast.error(extractErrorMessage(error, "Failed to create product. Please check all fields and try again."), {
+        duration: 5000,
       });
     },
   });
@@ -190,46 +154,9 @@ export function useUpdateProductMutation() {
       });
       toast.success("Product updated successfully!");
     },
-    onError: (error: any) => {
-      // Extract detailed error message from backend
-      let errorMessage = "Failed to update product. Please check all fields and try again.";
-
-      if (error?.response?.data) {
-        const data = error.response.data;
-
-        // Handle validation errors (array of field errors)
-        if (Array.isArray(data.message)) {
-          const fieldErrors = data.message
-            .map((err: any) => {
-              if (typeof err === 'string') return err;
-              if (err.property && err.constraints) {
-                const constraints = Object.values(err.constraints || {});
-                return `${err.property}: ${constraints.join(', ')}`;
-              }
-              return err.message || JSON.stringify(err);
-            })
-            .filter(Boolean);
-
-          if (fieldErrors.length > 0) {
-            errorMessage = `Validation errors:\n${fieldErrors.join('\n')}`;
-          }
-        }
-        // Handle single error message
-        else if (data.message) {
-          errorMessage = data.message;
-        }
-        // Handle error object with message property
-        else if (data.error) {
-          errorMessage = data.error;
-        }
-      }
-      // Handle network/other errors
-      else if (error?.message) {
-        errorMessage = error.message;
-      }
-
-      toast.error(errorMessage, {
-        duration: 5000, // Show for 5 seconds
+    onError: (error: unknown) => {
+      toast.error(extractErrorMessage(error, "Failed to update product. Please check all fields and try again."), {
+        duration: 5000,
       });
     },
   });
@@ -249,12 +176,8 @@ export function useDeleteProductMutation() {
       queryClient.invalidateQueries({ queryKey: productKeys.all });
       toast.success("Product deleted successfully!");
     },
-    onError: (error: any) => {
-      const errorMessage =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed to delete product. Please try again.";
-      toast.error(errorMessage);
+    onError: (error: unknown) => {
+      toast.error(extractErrorMessage(error, "Failed to delete product. Please try again."));
     },
   });
 }

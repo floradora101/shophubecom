@@ -15,9 +15,9 @@ import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { apiClient } from "@/lib/api/client";
+import { apiPost } from "@/lib/api/request";
 import { cartKeys } from "@/features/cart/query-keys";
-import { extractErrorMessage } from "@/lib/utils/error-handler";
+import { extractErrorMessage } from "@/lib/api/error-handler";
 import { DEMO_CHECKOUT } from "@/lib/flags";
 import { createDemoOrder } from "@/features/orders/demo/demoOrders";
 import { logger } from "@/lib/logger";
@@ -141,25 +141,24 @@ export function useCheckoutOrder({
           setIsOrderPlaced(true);
           clearDraft();
           await clearCart();
-          router.replace(`/order-complete/${order.id}?demo=1`);
+          router.replace(`/order-complete/${order.id}`);
           return;
         }
 
         // Backend flow - include couponCode when applied
-        const response = await apiClient.post("/checkout/place-order", {
-          shippingOption: data.shippingOption,
-          shippingAddress,
-          ...(couponCode && couponCode.trim() && { couponCode: couponCode.trim() }),
-        });
+        const orderData = await apiPost<{ orderId: string }>(
+          "/checkout/place-order",
+          {
+            shippingOption: data.shippingOption,
+            shippingAddress,
+            ...(couponCode && couponCode.trim() && { couponCode: couponCode.trim() }),
+          }
+        );
 
         setIsOrderPlaced(true);
         clearDraft();
         queryClient.invalidateQueries({ queryKey: cartKeys.all });
 
-        // Redirect to order complete page
-        // Backend wraps response in { success: true, data: { orderId, ... } }
-        // For guest orders, token is automatically set in httpOnly cookie by backend
-        const orderData = response.data?.data || response.data;
         const orderId = orderData?.orderId;
 
         if (!orderId) {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Plus,
   Search,
@@ -14,7 +14,6 @@ import {
   Package,
   CircleDollarSign,
   Layers,
-  ExternalLink,
   Eye,
   LayoutGrid,
   List as ListIcon,
@@ -47,17 +46,21 @@ import { useCategoriesQuery } from "@/features/categories/queries";
 import { getProductImage } from "@/features/products/utils/product-images";
 import type { Product } from "@/features/products/types";
 import { productRoutes } from "@/lib/routes";
+import { Pagination } from "@/components/ui/pagination";
+import { useAdminPagination } from "../_hooks/useAdminPagination";
+import { extractErrorMessage } from "@/lib/api/error-handler";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 type SortOption = "name-asc" | "name-desc" | "price-desc" | "price-asc" | "stock-desc";
 type ViewMode = "grid" | "list";
 
 export default function ProductsAdminPage() {
   const router = useRouter();
+  const { page, setPage } = useAdminPagination();
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("name-asc");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [page, setPage] = useState(1);
   const limit = 50; // Fetch more products per page for admin view
 
   // Map frontend sort option to backend sortBy and sortOrder
@@ -95,7 +98,7 @@ export default function ProductsAdminPage() {
   }, [selectedCategory, categories]);
 
   // Fetch products from backend
-  const { data: productsResponse, isLoading, error } = useProductsQuery({
+  const { data: productsResponse, isLoading, error, refetch } = useProductsQuery({
     page,
     limit,
     search: search || undefined,
@@ -108,7 +111,14 @@ export default function ProductsAdminPage() {
   // Extract products from response
   const products: Product[] = productsResponse?.data || [];
 
-  // Client-side sort for stock (backend doesn't support stock sorting directly)
+  // Clamp page when totalPages shrinks (e.g. after filter change) - same as frontstore
+  useEffect(() => {
+    if (productsResponse && productsResponse.totalPages > 0 && page > productsResponse.totalPages) {
+      setPage(productsResponse.totalPages);
+    }
+  }, [productsResponse?.totalPages, page, setPage]);
+
+  // Client-side sort for stock
   const sortedProducts = useMemo(() => {
     if (sortBy === "stock-desc") {
       return [...products].sort(
@@ -118,9 +128,14 @@ export default function ProductsAdminPage() {
     return products;
   }, [products, sortBy]);
 
-  const handleDelete = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this product?")) {
-      deleteMutation.mutate(id);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const handleDelete = (id: string) => setDeleteId(id);
+
+  const handleConfirmDelete = () => {
+    if (deleteId) {
+      deleteMutation.mutate(deleteId);
+      setDeleteId(null);
     }
   };
 
@@ -268,9 +283,9 @@ export default function ProductsAdminPage() {
               <AlertCircle className="w-12 h-12 text-red-500" />
               <Heading level="h3">Failed to load products</Heading>
               <Text className="text-warm-gray-500 text-center max-w-md">
-                {error instanceof Error ? error.message : "An error occurred while fetching products. Please try again."}
+                {extractErrorMessage(error, "An error occurred while fetching products. Please try again.")}
               </Text>
-              <Button onClick={() => window.location.reload()} variant="outline">
+              <Button onClick={() => refetch()} variant="outline">
                 Retry
               </Button>
             </div>
@@ -466,45 +481,33 @@ export default function ProductsAdminPage() {
             </div>
           )}
 
-        {/* Pagination */}
-        {productsResponse && productsResponse.totalPages > 1 && (
-          <div className="p-4 border-t border-warm-gray-100 flex items-center justify-between bg-warm-gray-50/30">
-            <Text className="text-xs text-warm-gray-500">
-              Page <span className="font-bold text-warm-gray-900">{page}</span> of{" "}
-              <span className="font-bold text-warm-gray-900">{productsResponse.totalPages}</span>
-              {" · "}
-              {productsResponse.total} total
-            </Text>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1 || isLoading}
-                className="rounded-lg"
-              >
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  setPage((p) =>
-                    Math.min(productsResponse.totalPages, p + 1)
-                  )
-                }
-                disabled={
-                  page === productsResponse.totalPages || isLoading
-                }
-                className="rounded-lg"
-              >
-                Next
-              </Button>
-            </div>
+        {/* Pagination - same component as frontstore, URL-based page */}
+        {productsResponse && productsResponse.totalPages > 0 && (
+          <div className="p-4 border-t border-warm-gray-100 bg-warm-gray-50/30">
+            <Pagination
+              currentPage={page}
+              totalPages={Math.max(1, productsResponse.totalPages)}
+              onPageChange={setPage}
+              isLoading={isLoading}
+              totalItems={productsResponse.total}
+              itemsPerPage={limit}
+              itemName="products"
+            />
           </div>
         )}
         </div>
       </Card>
+
+      <ConfirmDialog
+        open={deleteId !== null}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+        title="Delete product"
+        description="Are you sure you want to delete this product?"
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="destructive"
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }

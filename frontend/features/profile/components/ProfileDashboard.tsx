@@ -4,7 +4,7 @@
 import { toast } from "sonner";
 import { useOrderStatsQuery, useOrdersQuery } from "@/features/orders/queries";
 import { Package, DollarSign, Clock, CheckCircle, ShoppingBag } from "lucide-react";
-import { extractErrorMessage } from "@/lib/utils/error-handler";
+import { extractErrorMessage } from "@/lib/api/error-handler";
 import { formatPrice } from "@/lib/utils";
 import { useEffect } from "react";
 import { Heading, Text } from "@/components/ui/typography";

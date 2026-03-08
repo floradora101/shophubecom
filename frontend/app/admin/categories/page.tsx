@@ -33,8 +33,10 @@ import {
   DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
+import { extractErrorMessage } from "@/lib/api/error-handler";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils/cn";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useCategoriesQuery, useDeleteCategoryMutation } from "@/features/categories/queries";
 import type { Category } from "@/features/products/types";
 
@@ -55,7 +57,7 @@ export default function CategoriesPage() {
   const [sortBy, setSortBy] = useState<SortOption>("name-asc");
 
   // Fetch categories - tree view requires full hierarchy (limit 200 covers most stores)
-  const { data: categoriesResponse, isLoading, error } = useCategoriesQuery({
+  const { data: categoriesResponse, isLoading, error, refetch } = useCategoriesQuery({
     limit: 200,
     sortBy: "name",
     sortOrder: "asc",
@@ -122,9 +124,14 @@ export default function CategoriesPage() {
     setExpandedIds(newExpanded);
   };
 
-  const handleDelete = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this category and all its subcategories?")) {
-      deleteMutation.mutate(id);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const handleDelete = (id: string) => setDeleteId(id);
+
+  const handleConfirmDelete = () => {
+    if (deleteId) {
+      deleteMutation.mutate(deleteId);
+      setDeleteId(null);
     }
   };
 
@@ -263,9 +270,9 @@ export default function CategoriesPage() {
             <AlertCircle className="w-12 h-12 text-red-500" />
             <Heading level="h3">Failed to load categories</Heading>
             <Text className="text-warm-gray-500 text-center max-w-md">
-              {error instanceof Error ? error.message : "An error occurred while fetching categories. Please try again."}
+              {extractErrorMessage(error, "An error occurred while fetching categories. Please try again.")}
             </Text>
-            <Button onClick={() => window.location.reload()} variant="outline">
+            <Button onClick={() => refetch()} variant="outline">
               Retry
             </Button>
           </div>
@@ -358,6 +365,17 @@ export default function CategoriesPage() {
           </div>
         </div>
       </Card>
+
+      <ConfirmDialog
+        open={deleteId !== null}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+        title="Delete category"
+        description="Are you sure you want to delete this category and all its subcategories? This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="destructive"
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }

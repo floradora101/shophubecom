@@ -5,6 +5,7 @@ import {
   IsDateString,
   IsIn,
   IsInt,
+  IsNotEmpty,
   IsNumber,
   IsObject,
   IsOptional,
@@ -12,8 +13,10 @@ import {
   IsString,
   IsUrl,
   Length,
+  Max,
   MaxLength,
   Min,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
@@ -50,7 +53,8 @@ export class UpdateProductVariantDto {
 
   @IsArray()
   @ArrayMaxSize(20)
-  @IsString({ each: true })
+  @IsUrl({ protocols: ['http', 'https'], require_protocol: true }, { each: true })
+  @MaxLength(2048, { each: true })
   @IsOptional()
   images?: string[];
 
@@ -67,6 +71,7 @@ export class UpdateProductDto {
 
   @IsString()
   @IsOptional()
+  @MaxLength(65535, { message: 'Description must not exceed 65535 characters' })
   description?: string;
 
   @IsString()
@@ -82,6 +87,8 @@ export class UpdateProductDto {
   @IsOptional()
   discountType?: 'PERCENTAGE' | 'FIXED_AMOUNT' | null;
 
+  @ValidateIf((o) => o.discountType === 'PERCENTAGE')
+  @Max(100, { message: 'Percentage discount cannot exceed 100%' })
   @IsNumber()
   @IsOptional()
   @IsPositive()
@@ -107,8 +114,10 @@ export class UpdateProductDto {
   @IsOptional()
   isFeatured?: boolean;
 
-  @IsString()
   @IsOptional()
+  @Transform(({ value }) => (value === null ? undefined : value))
+  @IsString()
+  @IsNotEmpty({ message: 'defaultVariantId cannot be an empty string' })
   defaultVariantId?: string;
 
   @IsArray()

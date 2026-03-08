@@ -4,18 +4,14 @@
  * Handles product loading and category lookup.
  *
  * Responsibilities:
- * - Load product from mock data by slug
+ * - Load product from mock data or API by slug
  * - Ensure default variant exists for products without variants
  * - Get category for breadcrumbs
+ *
+ * Mock data loaded via dynamic import() so it is tree-shaken from production.
  */
 
-import { useMemo } from "react";
-import {
-  mockProducts,
-  mockProductToProduct,
-  mockCategories,
-  mockCategoryToCategory,
-} from "@/lib/mock-data/mock-data";
+import { useMemo, useState, useEffect } from "react";
 import { useProductQuery } from "@/features/products/queries";
 import { useCategoryQuery } from "@/features/categories/queries";
 import { PLACEHOLDER_IMAGE } from "@/lib/utils/products";
@@ -29,6 +25,10 @@ interface UseProductDetailProps {
 interface UseProductDetailReturn {
   product: Product | null;
   category: Category | null;
+  isLoading: boolean;
+  isError: boolean;
+  error: unknown;
+  refetch: () => void;
 }
 
 /**
@@ -37,61 +37,94 @@ interface UseProductDetailReturn {
 export function useProductDetail({
   slug,
 }: UseProductDetailProps): UseProductDetailReturn {
-  // Fetch product from API
-  const { data: apiProduct } = useProductQuery(slug);
+  const {
+    data: apiProduct,
+    isLoading: isQueryLoading,
+    isError: isQueryError,
+    error: queryError,
+    refetch,
+  } = useProductQuery(slug, { enabled: !USE_MOCKS && !!slug });
+  const [mockProductData, setMockProductData] = useState<{
+    product: Product | null;
+    category: Category | null;
+  }>({ product: null, category: null });
+  const [mockLoading, setMockLoading] = useState(false);
 
-  // Use mock product if mocks are enabled
-  const mockProduct = useMemo(() => {
-    if (!USE_MOCKS) return null;
-    return mockProducts.find((p) => p.slug === slug);
+  useEffect(() => {
+    if (!USE_MOCKS || !slug) return;
+    let cancelled = false;
+    setMockLoading(true);
+    import("@/lib/mock-data/mock-data")
+      .then(
+        ({ mockProducts, mockProductToProduct, mockCategories, mockCategoryToCategory }) => {
+          const mp = mockProducts.find((p) => p.slug === slug);
+          const product = mp ? mockProductToProduct(mp) : null;
+          const categorySlug = mp?.categorySlug;
+          const mc = categorySlug
+            ? mockCategories.find((c) => c.slug === categorySlug)
+            : null;
+          const category = mc ? mockCategoryToCategory(mc) : null;
+          if (!cancelled) setMockProductData({ product, category });
+        }
+      )
+      .catch((err) => {
+        if (!cancelled) setMockProductData({ product: null, category: null });
+        console.warn("[useProductDetail] Mock data load failed:", err);
+      })
+      .finally(() => {
+        if (!cancelled) setMockLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [slug]);
 
-  // Get product from API or mocks
   const product = useMemo(() => {
     let productData: Product | null = null;
 
-    if (USE_MOCKS && mockProduct) {
-      productData = mockProductToProduct(mockProduct);
+    if (USE_MOCKS && mockProductData.product) {
+      productData = mockProductData.product;
     } else if (apiProduct) {
       productData = apiProduct;
     }
 
     if (!productData) return null;
 
-    // Ensure defaultVariant exists for products without variants
     if (!productData.variants?.length) {
-      productData.defaultVariant = {
-        id: `${productData.id}-default`,
-        image: PLACEHOLDER_IMAGE,
-        images: [PLACEHOLDER_IMAGE],
+      productData = {
+        ...productData,
+        defaultVariant: {
+          id: `${productData.id}-default`,
+          image: PLACEHOLDER_IMAGE,
+          images: [PLACEHOLDER_IMAGE],
+        },
       };
     }
 
     return productData;
-  }, [apiProduct, mockProduct]);
+  }, [apiProduct, mockProductData.product]);
 
-  // Fetch category from API if product has categoryId
   const categoryIdOrSlug = product?.categoryId;
-  const { data: apiCategory } = useCategoryQuery(
-    categoryIdOrSlug || ''
-  );
+  const { data: apiCategory } = useCategoryQuery(categoryIdOrSlug || "", {
+    enabled: !USE_MOCKS && !!categoryIdOrSlug,
+  });
 
-  // Get category for breadcrumbs
   const category = useMemo(() => {
     if (!product?.categoryId) return null;
-
-    if (USE_MOCKS) {
-      const mockCategory = mockCategories.find(
-        (c) => c.slug === product.categoryId
-      );
-      return mockCategory ? mockCategoryToCategory(mockCategory) : null;
-    }
-
+    if (USE_MOCKS) return mockProductData.category;
     return apiCategory || null;
-  }, [product, apiCategory]);
+  }, [product, apiCategory, mockProductData.category]);
+
+  const isLoading = USE_MOCKS ? mockLoading : isQueryLoading;
+  const isError = USE_MOCKS ? false : isQueryError;
+  const error = USE_MOCKS ? null : queryError;
 
   return {
     product,
     category,
+    isLoading,
+    isError,
+    error,
+    refetch,
   };
 }

@@ -10,7 +10,7 @@
  * - Stores user data (null when unauthenticated)
  * - Provides bootstrap() to initialize auth state on app load
  * - Provides login(), register(), logout() actions
- * - Persists user and status to localStorage (tokens are in httpOnly cookies)
+ * - Persists only status to localStorage (not user/role) for defense-in-depth
  * - Prevents double bootstraps with bootstrapped flag
  *
  * How it fits into auth flow:
@@ -19,7 +19,7 @@
  * - Called by AuthProvider when auth expires (clears state)
  * - Read by RequireAuth to check authentication status
  * - Tokens are stored in httpOnly cookies (not in this store)
- * - Only user data and status are stored here for UI state
+ * - Only status is persisted; user is always refetched on bootstrap (avoids persisting role)
  *
  * State Machine:
  * - 'unknown': Initial state, bootstrap not yet completed
@@ -29,6 +29,12 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { authApi } from "@/features/auth/api";
+import {
+  scheduleProactiveRefresh,
+  cancelProactiveRefresh,
+} from "@/features/auth/proactive-refresh";
+import { extractErrorInfo } from "@/lib/api/error-handler";
+import { logError } from "@/lib/errors/logger";
 import type {
   User,
   LoginFormData,
@@ -74,12 +80,15 @@ export const useAuthStore = create<AuthState>()(
         }
 
         try {
-          const user = await authApi.getMe();
+          const authData = await authApi.getMe();
           set({
-            user,
+            user: authData.user,
             status: "authenticated",
             bootstrapped: true,
           });
+          if (authData.expiresIn) {
+            scheduleProactiveRefresh(authData.expiresIn);
+          }
         } catch (error: unknown) {
           // getMe() failed - user is not authenticated
           // Note: Interceptor may have attempted refresh automatically.
@@ -89,6 +98,11 @@ export const useAuthStore = create<AuthState>()(
           // 2. Refresh token invalid/expired
           // 3. Refresh failed for other reasons
           // In all cases, user should be treated as unauthenticated
+          // Log non-auth errors (e.g. server/network) for debugging
+          const info = extractErrorInfo(error);
+          if (!info.isAuthError) {
+            logError(error, { component: "AuthStore", action: "bootstrap" });
+          }
           set({
             user: null,
             status: "unauthenticated",
@@ -102,6 +116,7 @@ export const useAuthStore = create<AuthState>()(
        * Updates both user and status
        */
       setUser: (user: User | null) => {
+        if (!user) cancelProactiveRefresh();
         set({
           user,
           status: user ? "authenticated" : "unauthenticated",
@@ -116,13 +131,14 @@ export const useAuthStore = create<AuthState>()(
        */
       login: async (data: LoginFormData): Promise<User> => {
         const authData = await authApi.login(data);
-        // Backend sets tokens in httpOnly cookies automatically
-        // Response only contains user data (no tokens)
         const user = authData.user;
         set({
           user,
           status: "authenticated",
         });
+        if (authData.expiresIn) {
+          scheduleProactiveRefresh(authData.expiresIn);
+        }
         return user;
       },
 
@@ -134,13 +150,14 @@ export const useAuthStore = create<AuthState>()(
        */
       register: async (data: RegisterFormData): Promise<User> => {
         const authData = await authApi.register(data);
-        // Backend sets tokens in httpOnly cookies automatically
-        // Response only contains user data (no tokens)
         const user = authData.user;
         set({
           user,
           status: "authenticated",
         });
+        if (authData.expiresIn) {
+          scheduleProactiveRefresh(authData.expiresIn);
+        }
         return user;
       },
 
@@ -150,12 +167,12 @@ export const useAuthStore = create<AuthState>()(
        * Calls API then clears state
        */
       logout: async () => {
+        cancelProactiveRefresh();
         try {
           await authApi.logout();
         } catch (error) {
           // Continue with local logout even if API call fails
         } finally {
-          // Always clear local state
           set({
             user: null,
             status: "unauthenticated",
@@ -166,12 +183,31 @@ export const useAuthStore = create<AuthState>()(
     {
       name: "auth-storage",
       storage: createJSONStorage(() => localStorage),
-      // Only persist durable data: user and status
-      // Do NOT persist: error, isSubmitting, isBootstrapping, hadSession, timestamps
+      // Persist only status (not user/role) - user is refetched on bootstrap (#13)
       partialize: (state: AuthState) => ({
-        user: state.user,
         status: state.status,
       }),
+      // After rehydration, force unknown + re-bootstrap so we never show stale auth (#16)
+      merge: (_persistedState, currentState) => ({
+        ...currentState,
+        status: "unknown" as const,
+        bootstrapped: false,
+        user: null,
+      }),
+      // Sync auth state across tabs: when another tab logs out, clear local state
+      onRehydrateStorage: () => (state) => {
+        if (typeof window === "undefined") return;
+        const handleStorage = (e: StorageEvent) => {
+          if (e.key !== "auth-storage") return;
+          const newState = e.newValue ? (JSON.parse(e.newValue) as { state?: { status?: string } }) : null;
+          const currentUser = useAuthStore.getState().user;
+          if (newState?.state?.status === "unauthenticated" && currentUser) {
+            useAuthStore.getState().setUser(null);
+          }
+        };
+        window.addEventListener("storage", handleStorage);
+        return () => window.removeEventListener("storage", handleStorage);
+      },
     }
   )
 );

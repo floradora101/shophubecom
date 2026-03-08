@@ -1,7 +1,7 @@
 // Professional consolidated header with navigation and actions for tech store.
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
@@ -19,12 +19,13 @@ const CartSidebar = dynamic(
   { ssr: false }
 );
 import * as NavigationMenu from "@radix-ui/react-navigation-menu";
-import { useCategoriesTreeQuery } from "@/features/categories/queries";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import type { Category } from "@/features/products/types";
 import { productRoutes } from "@/lib/routes";
-import { motion } from "@/lib/ui-tokens";
 import { AnnouncementBar } from "./AnnouncementBar";
 import { cn } from "@/lib/utils";
+import { USE_MOCKS } from "@/lib/flags";
+import { useCategoryTree } from "@/app/(shop)/products/hooks/useCategoryTree";
 
 // Shared menu design tokens
 const MENU_PANEL_CLASS =
@@ -164,21 +165,54 @@ export function Header() {
   const { totalItems: cartCount, toggleCart } = useCart();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const mobileMenuToggleRef = useRef<HTMLButtonElement>(null);
 
-  // Fetch categories tree from API (already hierarchical with children)
-  const { data: categoriesTreeData = [], isLoading: categoriesLoading } = useCategoriesTreeQuery();
+  // Focus trap for mobile menu
+  useEffect(() => {
+    if (!isMobileMenuOpen || !mobileMenuRef.current) return;
+
+    const container = mobileMenuRef.current;
+    const toggleButton = mobileMenuToggleRef.current;
+    const focusables = container.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled])'
+    );
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+
+    first?.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last?.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first?.focus();
+        }
+      }
+    };
+
+    container.addEventListener("keydown", handleKeyDown);
+    return () => {
+      container.removeEventListener("keydown", handleKeyDown);
+      toggleButton?.focus();
+    };
+  }, [isMobileMenuOpen]);
+
+  const { categories: storefrontCategories } = useCategoryTree();
 
   // API returns tree structure already, but buildCategoryTree can handle both flat and tree structures
   const categoryTree = useMemo(
     () => {
-      // If categories already have children, use them directly
-      if (categoriesTreeData.length > 0 && categoriesTreeData[0]?.children !== undefined) {
-        return categoriesTreeData as CategoryNode[];
-      }
-      // Otherwise build tree from flat list
-      return buildCategoryTree(categoriesTreeData);
+      return buildCategoryTree(storefrontCategories);
     },
-    [categoriesTreeData]
+    [storefrontCategories]
   );
 
   const isActive = (path: string) => {
@@ -244,7 +278,7 @@ export function Header() {
               </Link>
 
               {/* Desktop Navigation - Categories - Hidden until loaded to prevent flash */}
-              {!categoriesLoading && (
+              {categoryTree.length > 0 && (
                 <NavigationMenu.Root className="hidden lg:flex items-center justify-center flex-1 mx-12">
                   <NavigationMenu.List className="flex items-center gap-2">
                     {/* Shop All Mega Menu */}
@@ -409,58 +443,114 @@ export function Header() {
                       Logout
                     </Button>
                   </div>
+                ) : USE_MOCKS ? (
+                  <DropdownMenu.Root>
+                    <DropdownMenu.Trigger asChild>
+                      <button
+                        className="flex items-center justify-center w-10 h-10 rounded-lg text-muted-fg hover:text-primary-600 hover:bg-primary-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 cursor-pointer"
+                        aria-label="Account mode information"
+                        aria-haspopup="menu"
+                      >
+                        <User className="h-5 w-5" />
+                      </button>
+                    </DropdownMenu.Trigger>
+                    <DropdownMenu.Portal>
+                      <DropdownMenu.Content
+                        className={cn(
+                          MENU_PANEL_CLASS,
+                          "w-72",
+                          MENU_PAD_CLASS,
+                          "animate-in fade-in slide-in-from-top-2 duration-200"
+                        )}
+                        sideOffset={12}
+                        align="end"
+                        aria-label="Mock mode account information"
+                      >
+                        <div className={MENU_SECTION_GAP}>
+                          <div className="space-y-2">
+                            <p className="text-sm font-semibold text-fg">
+                              Auth is unavailable in mock mode
+                            </p>
+                            <p className="text-sm text-warm-gray-600 leading-relaxed">
+                              Storefront catalog browsing is mocked, but sign-in,
+                              account management, and order tracking still require
+                              backend mode.
+                            </p>
+                          </div>
+                        </div>
+                      </DropdownMenu.Content>
+                    </DropdownMenu.Portal>
+                  </DropdownMenu.Root>
                 ) : (
-                  <div className="relative group">
-                    <button className="flex items-center justify-center w-10 h-10 rounded-lg text-muted-fg hover:text-primary-600 hover:bg-primary-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 cursor-pointer">
-                      <User className="h-5 w-5" />
-                    </button>
+                  <DropdownMenu.Root>
+                    <DropdownMenu.Trigger asChild>
+                      <button
+                        className="flex items-center justify-center w-10 h-10 rounded-lg text-muted-fg hover:text-primary-600 hover:bg-primary-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 cursor-pointer"
+                        aria-label="Account menu"
+                        aria-haspopup="menu"
+                      >
+                        <User className="h-5 w-5" />
+                      </button>
+                    </DropdownMenu.Trigger>
+                    <DropdownMenu.Portal>
+                      <DropdownMenu.Content
+                        className={cn(
+                          MENU_PANEL_CLASS,
+                          "w-72",
+                          MENU_PAD_CLASS,
+                          "animate-in fade-in slide-in-from-top-2 duration-200"
+                        )}
+                        sideOffset={12}
+                        align="end"
+                        aria-label="Account options"
+                      >
+                        <div className={MENU_SECTION_GAP}>
+                          <div className="space-y-3">
+                            <DropdownMenu.Item asChild>
+                              <Link
+                                href="/login"
+                                className={cn(
+                                  MENU_ITEM_LINK_CLASS,
+                                  "flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-primary-50 font-medium outline-none cursor-pointer"
+                                )}
+                              >
+                                <span>Sign In</span>
+                                <User className="h-4 w-4 text-primary-600" />
+                              </Link>
+                            </DropdownMenu.Item>
+                            <DropdownMenu.Item asChild>
+                              <Link
+                                href="/register"
+                                className={cn(
+                                  MENU_ITEM_LINK_CLASS,
+                                  "flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-primary-50 font-bold outline-none cursor-pointer"
+                                )}
+                              >
+                                <span>Create Account</span>
+                                <UserPlus className="h-4 w-4 text-primary-600" />
+                              </Link>
+                            </DropdownMenu.Item>
+                          </div>
 
-                    {/* Account Dropdown - Hover activated */}
-                    <div className={cn(
-                      "absolute right-0 top-full mt-3 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300",
-                      MENU_PANEL_CLASS,
-                      "w-72",
-                      MENU_PAD_CLASS
-                    )}>
-                      <div className={MENU_SECTION_GAP}>
-                        <div className="space-y-3">
-                          <Link
-                            href="/login"
-                            className={cn(
-                              MENU_ITEM_LINK_CLASS,
-                              "flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-primary-50 font-medium"
-                            )}
-                          >
-                            <span>Sign In</span>
-                            <User className="h-4 w-4 text-primary-600" />
-                          </Link>
-                          <Link
-                            href="/register"
-                            className={cn(
-                              MENU_ITEM_LINK_CLASS,
-                              "flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-primary-50 font-bold"
-                            )}
-                          >
-                            <span>Create Account</span>
-                            <UserPlus className="h-4 w-4 text-primary-600" />
-                          </Link>
+                          <div className="pt-3 border-t border-warm-gray-100">
+                            <p className="text-sm text-warm-gray-600 leading-relaxed">
+                              Create an account for faster checkout and order tracking, or continue shopping as a guest.
+                            </p>
+                          </div>
                         </div>
-
-                        <div className="pt-3 border-t border-warm-gray-100">
-                          <p className="text-sm text-warm-gray-600 leading-relaxed">
-                            Create an account for faster checkout and order tracking, or continue shopping as a guest.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                      </DropdownMenu.Content>
+                    </DropdownMenu.Portal>
+                  </DropdownMenu.Root>
                 )}
 
                 {/* Mobile Menu Toggle */}
                 <button
+                  ref={mobileMenuToggleRef}
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                   className="lg:hidden p-2 text-muted-fg hover:text-primary-600 transition-all rounded-lg hover:bg-primary-50 cursor-pointer"
                   aria-label="Toggle mobile menu"
+                  aria-expanded={isMobileMenuOpen}
+                  aria-controls="mobile-menu"
                 >
                   {isMobileMenuOpen ? (
                     <X className="h-5 w-5" />
@@ -473,7 +563,14 @@ export function Header() {
 
             {/* Mobile Menu */}
             {isMobileMenuOpen && (
-              <div className="lg:hidden border-t border-border bg-white rounded-b-lg animate-in slide-in-from-top duration-300">
+              <div
+                id="mobile-menu"
+                ref={mobileMenuRef}
+                className="lg:hidden border-t border-border bg-white rounded-b-lg animate-in slide-in-from-top duration-300"
+                role="dialog"
+                aria-modal="true"
+                aria-label="Mobile navigation"
+              >
                 <nav className="px-4 py-8 space-y-6 max-h-[80vh] overflow-y-auto">
                   {/* Shop All */}
                   <Link
@@ -488,7 +585,7 @@ export function Header() {
                   </Link>
 
                   {/* Categories - Only show when loaded to prevent flash */}
-                  {!categoriesLoading && (
+                  {categoryTree.length > 0 && (
                     <div className="space-y-6">
                       {categoryTree.map((category) => (
                         <div key={category.id} className="space-y-3">

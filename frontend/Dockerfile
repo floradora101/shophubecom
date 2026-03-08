@@ -1,26 +1,24 @@
+# ShopHub Frontend - Next.js
+# Build context: frontend/
+# Requires output: "standalone" in next.config.ts
+#
+# Required env at build: NEXT_PUBLIC_API_URL (or BACKEND_API_URL)
+# Required env at runtime: PORT (default 3000), HOSTNAME (default 0.0.0.0)
+
 FROM node:20-alpine AS base
-
-# Install dependencies only when needed
-FROM base AS deps
 RUN apk add --no-cache libc6-compat
-WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
-RUN npm ci
-
-# Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
 
-# Set environment variable for build
+ARG NEXT_PUBLIC_API_URL=http://localhost:3001/api
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Build the application
+COPY package*.json ./
+RUN npm ci
+COPY . .
+
 RUN npm run build
 
 # Production image, copy all the files and run next

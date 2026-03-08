@@ -1,9 +1,9 @@
-﻿// Write Review Modal - Modern 2026 Design with Steps
+// Write Review Modal - Modern 2026 Design with Steps
 "use client";
 
 import React, { useState } from "react";
 import Image from "next/image";
-import { PenTool, X, ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,6 +11,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
@@ -70,6 +71,7 @@ export function WriteReviewModal({
     userName?: string;
     userEmail?: string;
   }>({});
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
 
   const validateCurrentStep = () => {
     const newErrors: typeof errors = {};
@@ -139,7 +141,7 @@ export function WriteReviewModal({
       setContent("");
       setErrors({});
       onClose();
-    } catch (error) {
+    } catch {
       // Error handling should be added here if API integration is needed
     } finally {
       setIsSubmitting(false);
@@ -186,6 +188,7 @@ export function WriteReviewModal({
   const currentStepData = STEPS.find((step) => step.id === currentStep)!;
 
   return (
+    <>
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto scrollbar-hide scroll-smooth">
         <DialogHeader className="space-y-4 pb-6 border-b border-border">
@@ -353,7 +356,7 @@ export function WriteReviewModal({
         <div className="flex items-center justify-between pt-6 border-t border-border">
           <Button
             variant="outline"
-            onClick={currentStep === 1 ? handleClose : handlePrevStep}
+            onClick={currentStep === 1 ? () => handleClose(false) : handlePrevStep}
             disabled={isSubmitting}
           >
             {currentStep === 1 ? (
@@ -383,5 +386,17 @@ export function WriteReviewModal({
         </div>
       </DialogContent>
     </Dialog>
+
+    <ConfirmDialog
+      open={showDiscardConfirm}
+      onOpenChange={setShowDiscardConfirm}
+      title="Discard review?"
+      description="Are you sure you want to close? Your review will not be saved."
+      confirmLabel="Discard"
+      cancelLabel="Keep editing"
+      variant="destructive"
+      onConfirm={handleConfirmDiscard}
+    />
+    </>
   );
 }

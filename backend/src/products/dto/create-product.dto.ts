@@ -1,5 +1,6 @@
 import {
   ArrayMaxSize,
+  ArrayMinSize,
   IsArray,
   IsBoolean,
   IsDateString,
@@ -13,8 +14,10 @@ import {
   IsString,
   IsUrl,
   Length,
+  Max,
   MaxLength,
   Min,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
@@ -45,7 +48,8 @@ export class CreateProductVariantDto {
 
   @IsArray()
   @ArrayMaxSize(20)
-  @IsString({ each: true })
+  @IsUrl({ protocols: ['http', 'https'], require_protocol: true }, { each: true })
+  @MaxLength(2048, { each: true })
   @IsOptional()
   images?: string[];
 
@@ -62,6 +66,7 @@ export class CreateProductDto {
 
   @IsString()
   @IsNotEmpty()
+  @MaxLength(65535, { message: 'Description must not exceed 65535 characters' })
   description!: string;
 
   @IsString()
@@ -77,6 +82,8 @@ export class CreateProductDto {
   @IsOptional()
   discountType?: 'PERCENTAGE' | 'FIXED_AMOUNT' | null;
 
+  @ValidateIf((o) => o.discountType === 'PERCENTAGE')
+  @Max(100, { message: 'Percentage discount cannot exceed 100%' })
   @IsNumber()
   @IsPositive()
   @IsOptional()
@@ -108,7 +115,8 @@ export class CreateProductDto {
   specs?: Record<string, string>; // Key-value pairs for product specifications
 
   @IsArray()
+  @ArrayMinSize(1, { message: 'At least one variant is required' })
   @ValidateNested({ each: true })
   @Type(() => CreateProductVariantDto)
-  variants!: CreateProductVariantDto[]; // Required: at least 1 variant needed
+  variants!: CreateProductVariantDto[];
 }

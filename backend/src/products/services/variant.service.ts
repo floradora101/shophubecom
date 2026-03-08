@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { ProductVariantNotFoundException } from '../../common/exceptions';
 import type { PrismaTransactionClient } from '../../common/types/prisma-transaction.client';
+import { hasVariantImage } from '../../common/utils/image.util';
 import { UpdateProductVariantDto } from '../dto';
 
 /**
@@ -60,9 +61,7 @@ export class VariantService {
 
     // Priority 1: variant with stock > 0 and image
     const withStockAndImage = variants.find(
-      (v) =>
-        v.stock > 0 &&
-        (v.image || (v.images && v.images.length > 0 && v.images[0])),
+      (v) => v.stock > 0 && hasVariantImage(v),
     );
 
     if (withStockAndImage) {
@@ -70,9 +69,7 @@ export class VariantService {
     }
 
     // Priority 2: variant with image (regardless of stock)
-    const withImage = variants.find(
-      (v) => v.image || (v.images && v.images.length > 0 && v.images[0]),
-    );
+    const withImage = variants.find((v) => hasVariantImage(v));
 
     if (withImage) {
       return withImage.id;
@@ -88,7 +85,7 @@ export class VariantService {
   buildVariantOptions(options?: Record<string, string>) {
     const entries = options
       ? Object.entries(options).filter(
-          ([key, value]) => key && value !== null && value !== null,
+          ([key, value]) => key && value != null,
         )
       : [];
 

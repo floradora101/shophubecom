@@ -9,6 +9,10 @@
  * - Handle URL navigation on filter changes
  * - Reset page to 1 when filters change (except pagination)
  * - Preserve existing query params when appropriate
+ *
+ * Memoization: Uses searchParams.toString() as dependency instead of searchParams
+ * object, since useSearchParams() returns a new object reference each render.
+ * This ensures memo only invalidates when the actual query string changes.
  */
 
 import { useMemo } from "react";
@@ -43,6 +47,10 @@ export function useFilterUpdates({
   searchParams,
   router,
 }: UseFilterUpdatesProps): UseFilterUpdatesReturn {
+  // Use stringified params so memo invalidates only when URL actually changes.
+  // searchParams object reference changes every render; .toString() is stable.
+  const paramsKey = searchParams.toString();
+
   const updateFilters = useMemo(
     () => ({
       setCategory: (categorySlug: string | null) => {
@@ -112,7 +120,7 @@ export function useFilterUpdates({
         router.push(`${basePath}?${newParams.toString()}`, { scroll: false });
       },
     }),
-    [searchParams, router, basePath]
+    [paramsKey, router, basePath]
   );
 
   return updateFilters;

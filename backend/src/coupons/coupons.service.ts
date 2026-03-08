@@ -257,7 +257,16 @@ export class CouponsService {
               'You have already used this coupon the maximum number of times',
           };
         }
-      } else if (guestEmail) {
+      } else {
+        // Guest: require email to enforce perUserLimit (prevents bypass by omitting email)
+        if (!guestEmail || !guestEmail.trim()) {
+          return {
+            valid: false,
+            discount: 0,
+            message:
+              'Email is required to use this coupon (limit per customer)',
+          };
+        }
         const guestUsageCount = await client.orderCoupon.count({
           where: {
             couponId: coupon.id,

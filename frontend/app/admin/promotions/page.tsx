@@ -24,6 +24,7 @@ import {
   Megaphone
 } from "lucide-react";
 import { usePromotionsQuery, useDeletePromotionMutation } from "@/features/promotions/queries";
+import { extractErrorMessage } from "@/lib/api/error-handler";
 import { Heading, Text } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,6 +43,7 @@ import {
 import Link from "next/link";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils/cn";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { format } from "date-fns";
 import { Loader2, AlertCircle } from "lucide-react";
 
@@ -82,11 +84,16 @@ export default function PromotionsAdminPage() {
     return result;
   }, [promotions, search, sortBy, statusFilter]);
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Are you sure you want to delete this promotion?")) {
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const handleDelete = (id: string) => setDeleteId(id);
+
+  const handleConfirmDelete = async () => {
+    if (deleteId) {
       try {
-        await deleteMutation.mutateAsync(id);
-      } catch (err) {
+        await deleteMutation.mutateAsync(deleteId);
+        setDeleteId(null);
+      } catch {
         // Error handled in mutation
       }
     }
@@ -107,7 +114,7 @@ export default function PromotionsAdminPage() {
         <AlertCircle className="w-16 h-16 text-red-500" />
         <Heading level="h3">Failed to load promotions</Heading>
         <Text className="text-warm-gray-500">
-          {error instanceof Error ? error.message : "An error occurred while fetching promotions."}
+          {extractErrorMessage(error, "An error occurred while fetching promotions.")}
         </Text>
       </div>
     );
@@ -354,6 +361,17 @@ export default function PromotionsAdminPage() {
           )}
         </div>
       </Card>
+
+      <ConfirmDialog
+        open={deleteId !== null}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+        title="Delete promotion"
+        description="Are you sure you want to delete this promotion?"
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="destructive"
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { Heading, Text } from "@/components/ui/typography";
 import { ChevronLeft, Loader2, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { useHeroSlideQuery } from "@/features/hero-slides/queries";
+import { extractErrorMessage } from "@/lib/api/error-handler";
 import { Button } from "@/components/ui/button";
 
 export default function EditHeroSlidePage() {
@@ -32,7 +33,7 @@ export default function EditHeroSlidePage() {
         <AlertCircle className="w-10 h-10 text-red-500 mb-4" />
         <Heading level="h3">Slide Not Found</Heading>
         <Text className="text-neutral-500 mb-6">
-          {error instanceof Error ? error.message : "The slide you're looking for doesn't exist."}
+          {extractErrorMessage(error, "The slide you're looking for doesn't exist.")}
         </Text>
         <Button onClick={() => router.push("/admin/hero-slides")} variant="outline">
           Back to Hero Slides

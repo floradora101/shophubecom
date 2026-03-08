@@ -1,13 +1,14 @@
 // Modern Product Detail Page - 2026 Editorial Style
 "use client";
 
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { AlertTriangle, Settings, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { extractErrorMessage } from "@/lib/utils/error-handler";
+import { extractErrorMessage } from "@/lib/api/error-handler";
+import { logger } from "@/lib/logger";
 import { productRoutes } from "@/lib/routes";
 import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/ui/container";
@@ -19,7 +20,6 @@ import { ProductDetailsTabs } from "./components/ProductDetailsTabs";
 import { StickyPurchaseBar } from "./components/StickyPurchaseBar";
 import { ProductBreadcrumb } from "./components/ProductBreadcrumb";
 import {
-  ProductDetailSkeleton,
   ProductGallerySkeleton,
   ProductPurchasePanelSkeleton,
   ProductDetailsAccordionSkeleton,
@@ -28,8 +28,7 @@ import {
 import { useStickyBar } from "./hooks/useStickyBar";
 import { useProductGallery } from "./hooks/useProductGallery";
 import { useProductDetail } from "./hooks/useProductDetail";
-import { useCategoriesTreeQuery } from "@/features/categories/queries";
-import { flattenCategoryTree } from "../hooks/useCategoryTree";
+import { useCategoryTree } from "../hooks/useCategoryTree";
 import { useVariantSelection } from "./hooks/useVariantSelection";
 import { useVariantLogic } from "./hooks/useVariantLogic";
 import { useProductPricing } from "./hooks/useProductPricing";
@@ -55,14 +54,10 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
   const { addItem, toggleCart } = useCart();
 
   // Extract product and category loading to custom hook
-  const { product, category } = useProductDetail({ slug });
+  const { product, category, isLoading, isError, error, refetch } = useProductDetail({ slug });
 
   // Categories for breadcrumb ancestry (nested category support)
-  const { data: categoryTree = [] } = useCategoriesTreeQuery();
-  const categories = useMemo(
-    () => flattenCategoryTree(categoryTree),
-    [categoryTree]
-  );
+  const { categories } = useCategoryTree();
 
   const [quantity, setQuantity] = useState(1);
   const [showSelectionError, setShowSelectionError] = useState(false);
@@ -72,7 +67,6 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
 
   // Extract variant selection logic to custom hook
   const {
-    selectedOptions,
     selectedOptionsState,
     setSelectedOptionsState,
     updateUrlWithSelections,
@@ -95,7 +89,6 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
     effectivePrice,
     hasDiscount,
     discountPercent,
-    originalPrice,
     isOutOfStock,
     isUnavailable,
     effectiveStock,
@@ -123,7 +116,12 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
         setShowSelectionError(false);
       }
     },
-    [selectedOptionsState, updateUrlWithSelections, showSelectionError]
+    [
+      selectedOptionsState,
+      setSelectedOptionsState,
+      updateUrlWithSelections,
+      showSelectionError,
+    ]
   );
 
   const handleQuantityChange = useCallback(
@@ -192,7 +190,7 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
         "Failed to add item to cart. Please try again."
       );
       toast.error(errorMessage);
-      console.error("Add to cart error:", error);
+      logger.error("Add to cart error", { error });
     }
   }, [
     canAddToCart,
@@ -256,7 +254,52 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
     return () => clearTimeout(timer);
   }, [product]);
 
-  // Product not found - clean error state
+  // Loading state - show skeleton
+  if (isLoading) {
+    return (
+      <div className="min-h-screen relative">
+        <Container className="py-6 sm:py-8 lg:py-12">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,600px)_minmax(0,1fr)] lg:gap-12">
+            <ProductGallerySkeleton />
+            <div className="space-y-6">
+              <ProductPurchasePanelSkeleton />
+              <ProductDetailsAccordionSkeleton />
+            </div>
+          </div>
+          <YouMayAlsoLikeSkeleton />
+        </Container>
+      </div>
+    );
+  }
+
+  // Error state - network/server error
+  if (isError) {
+    return (
+      <div className="min-h-screen relative flex items-center">
+        <Container className="py-16 relative z-0">
+          <div className="text-center max-w-md mx-auto">
+            <AlertTriangle className="h-16 w-16 text-muted-fg mx-auto mb-6" />
+            <h1 className="text-2xl font-semibold text-fg mb-3">
+              Unable to Load Product
+            </h1>
+            <p className="text-muted-fg mb-8">
+              {extractErrorMessage(error, "We couldn't load this product. Please try again.")}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button onClick={() => refetch()} variant="outline">
+                Try Again
+              </Button>
+              <Button onClick={() => router.push(productRoutes.list())} variant="secondary">
+                Browse Products
+              </Button>
+            </div>
+          </div>
+        </Container>
+      </div>
+    );
+  }
+
+  // Product not found (404) - only when not loading and not error
   if (!product) {
     return (
       <div className="min-h-screen relative flex items-center">
@@ -278,9 +321,6 @@ export function ProductDetailClient({ slug }: ProductDetailClientProps) {
       </div>
     );
   }
-
-  // Show skeleton while loading (we can add a loading state if needed)
-  // For now, we render the full component since we have the product data
 
   return (
     <div className="min-h-screen relative">

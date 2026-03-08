@@ -9,24 +9,26 @@ import {
 } from './dto';
 import { DepartmentNotFoundException } from '../common/exceptions';
 
+/** Department with relations for toResponse */
+type DepartmentWithRelations = Prisma.DepartmentGetPayload<{
+  include: {
+    parentCategory: { select: { id: true; name: true; slug: true; parentId: true } };
+    highlightedSubcategories: {
+      orderBy: { sortOrder: 'asc' };
+      include: {
+        category: { select: { id: true; name: true; slug: true; parentId: true } };
+      };
+    };
+  };
+}>;
+
 @Injectable()
 export class DepartmentsService {
   private readonly logger = new Logger(DepartmentsService.name);
 
   constructor(private readonly prisma: PrismaService) {}
 
-  private toResponse(dto: {
-    id: string;
-    name: string;
-    isActive: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-    parentCategory: { id: string; name: string; slug: string; parentId: string | null };
-    highlightedSubcategories: Array<{
-      sortOrder: number;
-      category: { id: string; name: string; slug: string; parentId: string | null };
-    }>;
-  }): DepartmentResponseDto {
+  private toResponse(dto: DepartmentWithRelations): DepartmentResponseDto {
     return {
       id: dto.id,
       name: dto.name,
@@ -175,7 +177,7 @@ export class DepartmentsService {
 
     const totalPages = Math.ceil(total / limit);
     return {
-      data: items.map((d) => this.toResponse(d as any)),
+      data: items.map((d) => this.toResponse(d)),
       total,
       page,
       limit,
@@ -198,7 +200,7 @@ export class DepartmentsService {
     });
 
     if (!dept) throw new DepartmentNotFoundException();
-    return this.toResponse(dept as any);
+    return this.toResponse(dept);
   }
 
   async create(dto: CreateDepartmentDto): Promise<DepartmentResponseDto> {
@@ -230,7 +232,7 @@ export class DepartmentsService {
     });
 
     this.logger.log(`Department created: ${created.id} - ${created.name}`);
-    return this.toResponse(created as any);
+    return this.toResponse(created);
   }
 
   async update(id: string, dto: UpdateDepartmentDto): Promise<DepartmentResponseDto> {
