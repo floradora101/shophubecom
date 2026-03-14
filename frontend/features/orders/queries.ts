@@ -58,6 +58,18 @@ export function useOrderStatsQuery() {
 }
 
 /**
+ * Admin: Get a single order by ID (admin can view any order)
+ */
+export function useAdminOrderDetailQuery(id: string | undefined, enabled = true) {
+  return useQuery<BackendOrderResponseDto>({
+    queryKey: orderKeys.admin.detail(id ?? ""),
+    queryFn: () => ordersApi.getOrderByIdRaw(id!),
+    enabled: enabled && !!id,
+    staleTime: 30_000,
+  });
+}
+
+/**
  * Admin: Get all orders across all users
  */
 export function useAdminOrdersQuery(params?: {

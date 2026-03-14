@@ -14,6 +14,7 @@ import {
   Eye,
   EyeOff
 } from "lucide-react";
+import { AdminLoadingState } from "../_components/AdminLoadingState";
 import { Heading, Text } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -84,7 +85,7 @@ export default function DepartmentsPage() {
       <div className="space-y-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <Heading level="h2">Subcategories</Heading>
+            <Heading level="h2">Subcategory Showcase</Heading>
             <Text className="text-warm-gray-500">
               Manage your homepage subcategory spotlight sections.
             </Text>
@@ -98,9 +99,7 @@ export default function DepartmentsPage() {
         </div>
 
         <Card className="border-warm-gray-200 shadow-sm overflow-hidden bg-white">
-          <div className="p-12 text-center">
-            <Text className="text-warm-gray-500">Loading subcategories...</Text>
-          </div>
+          <AdminLoadingState message="Loading subcategories..." />
         </Card>
       </div>
     );
@@ -111,7 +110,7 @@ export default function DepartmentsPage() {
       <div className="space-y-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <Heading level="h2">Subcategories</Heading>
+            <Heading level="h2">Subcategory Showcase</Heading>
             <Text className="text-warm-gray-500">
               Manage your homepage subcategory spotlight sections.
             </Text>
@@ -142,7 +141,7 @@ export default function DepartmentsPage() {
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <Heading level="h2">Subcategories</Heading>
+          <Heading level="h2">Subcategory Showcase</Heading>
           <Text className="text-warm-gray-500">
             Manage your homepage subcategory spotlight sections.
           </Text>

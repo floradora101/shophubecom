@@ -115,12 +115,15 @@ export class CheckoutService {
           !reqUserId && dto.shippingAddress?.email
             ? dto.shippingAddress.email.trim()
             : undefined;
+        // Apply coupon to amount after promotions (off total), not raw subtotal
+        const amountForDiscount = Math.max(0, subtotal - promotionDiscount);
         const validation = await this.couponsService.validateForCheckoutWithTx(
           tx,
           dto.couponCode,
           subtotal,
           reqUserId,
           guestEmail,
+          amountForDiscount,
         );
 
         if (!validation.valid || !validation.couponId || !validation.code) {
@@ -307,15 +310,17 @@ export class CheckoutService {
     const userEmail = dto.shippingAddress?.email?.trim() || undefined;
 
     if (userEmail) {
-      // Re-fetch order with items and product details for the email template
+      // Re-fetch order with items, variant+options, coupons, product for email (matches order-complete invoice)
       const fullOrder = await this.prisma.order.findUnique({
         where: { id: result.order.id },
         include: {
           items: {
             include: {
-              product: true,
+              product: { include: { defaultVariant: true } },
+              variant: { include: { options: true } },
             },
           },
+          coupons: true,
           user: true,
         },
       });

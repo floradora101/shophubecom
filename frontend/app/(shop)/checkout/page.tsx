@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { useForm, useWatch, type Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -87,6 +87,7 @@ function CheckoutFormSkeleton() {
 
 
 export default function CheckoutPage() {
+  const [hasMounted, setHasMounted] = useState(false);
   const {
     items,
     subtotal,
@@ -97,8 +98,14 @@ export default function CheckoutPage() {
   } = useCart();
   const user = useAuthStore(selectAuthUser);
 
+  useEffect(() => setHasMounted(true), []);
+
   // Dev-only debug log for demo mode
   logger.debug("DEMO_CHECKOUT:", DEMO_CHECKOUT);
+
+  // Ensure consistent server/client first paint to avoid hydration mismatch.
+  // Server and client both show loading until mounted, then use real isLoading.
+  const effectiveLoading = !hasMounted || isLoading;
 
 
   const form = useForm<CheckoutFormData>({
@@ -131,24 +138,32 @@ export default function CheckoutPage() {
     }
   }, [isAuthenticated, user?.email, setValue]);
 
-  // Draft loads first so default address can overwrite it; enabled when cart has items
-  const { clearDraft } = useFormDraft(form, {
-    key: "draft:checkout",
-    storage: "session",
-    enabled: !isLoading && items.length > 0,
-  });
-
-  // Address selection: auto-applies default address from profile to checkout fields
+  // Address selection: provides applySelectedAddress for onDraftLoaded
   const {
     addresses,
     selectedAddress,
     handleSelectAddress,
     handleUseForm,
+    applySelectedAddress,
   } = useCheckoutAddress({
     form,
     cartShippingOption,
     isAuthenticated,
     defaultEmail: user?.email ?? "",
+    user: user ? { firstName: user.firstName, lastName: user.lastName } : null,
+  });
+
+  // Draft: only load when user has NO saved addresses (otherwise draft would overwrite address pre-fill)
+  const { clearDraft } = useFormDraft(form, {
+    key: "draft:checkout",
+    storage: "session",
+    enabled:
+      !effectiveLoading &&
+      items.length > 0 &&
+      addresses.length === 0,
+    onDraftLoaded: () => {
+      setTimeout(applySelectedAddress, 0);
+    },
   });
 
   // Extract coupon management logic to custom hook (requires subtotal for backend validation)
@@ -172,7 +187,7 @@ export default function CheckoutPage() {
     clearDraft,
   });
 
-  const isEmpty = !isLoading && !isOrderPlaced && items.length === 0;
+  const isEmpty = !effectiveLoading && !isOrderPlaced && items.length === 0;
 
   if (USE_MOCKS) {
     return (
@@ -194,7 +209,7 @@ export default function CheckoutPage() {
   }
 
   // Show loading state
-  if (isLoading) {
+  if (effectiveLoading) {
     return (
       <Section spacing="lg">
         <Container size="lg">

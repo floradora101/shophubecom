@@ -37,6 +37,7 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   isLoading?: boolean;
+  loadingText?: string;
   asChild?: boolean;
 }
 
@@ -47,6 +48,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       variant,
       size,
       isLoading,
+      loadingText = "Loading...",
       asChild,
       children,
       disabled,
@@ -59,6 +61,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
+        suppressHydrationWarning
         disabled={disabled || isLoading}
         aria-busy={isLoading}
         {...props}
@@ -66,7 +69,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {isLoading ? (
           <span className="flex items-center gap-2">
             <LoadingSpinner size="sm" variant="inline" />
-            <span>Loading...</span>
+            <span>{loadingText}</span>
           </span>
         ) : (
           children

@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FormField } from "@/components/ui/form-field";
+import { SkeletonBlock } from "@/components/ui/skeleton";
 import { extractErrorMessage } from "@/lib/api/error-handler";
 import { Heading, Text } from "@/components/ui/typography";
 import { User, Lock, Mail, Shield, ShieldCheck, Bell } from "lucide-react";
@@ -78,18 +79,18 @@ export function ProfileAccountDetails() {
 
   if (isProfileLoading) {
     return (
-      <div className="space-y-10 animate-pulse">
+      <div className="space-y-10" aria-hidden="true">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           <div className="lg:col-span-4 space-y-8">
-            <div className="h-20 bg-gray-100 rounded-2xl" />
+            <SkeletonBlock className="h-20 rounded-2xl" />
             <div className="space-y-4">
-              <div className="h-16 bg-gray-100 rounded-2xl" />
-              <div className="h-16 bg-gray-100 rounded-2xl" />
+              <SkeletonBlock className="h-16 rounded-2xl" />
+              <SkeletonBlock className="h-16 rounded-2xl" />
             </div>
           </div>
           <div className="lg:col-span-8 space-y-8">
-            <div className="h-64 bg-gray-100 rounded-2xl" />
-            <div className="h-64 bg-gray-100 rounded-2xl" />
+            <SkeletonBlock className="h-64 rounded-2xl" />
+            <SkeletonBlock className="h-64 rounded-2xl" />
           </div>
         </div>
       </div>

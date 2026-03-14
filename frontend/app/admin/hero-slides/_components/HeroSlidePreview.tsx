@@ -19,10 +19,10 @@ export function HeroSlidePreview({ slide }: HeroSlidePreviewProps) {
     slide.type === "PRODUCT_SPOTLIGHT"
       ? slide.media.productSlug
       : slide.type === "OFFER"
-      ? slide.media.productSlug
-      : slide.type === "TESTIMONIAL"
-      ? slide.media.productSlug
-      : undefined;
+        ? slide.media.productSlug
+        : slide.type === "TESTIMONIAL"
+          ? slide.media.productSlug
+          : undefined;
 
   const { data: product } = useProductQuery(productSlug || "");
 
@@ -46,6 +46,26 @@ export function HeroSlidePreview({ slide }: HeroSlidePreviewProps) {
     return productsResponse?.data || [];
   }, [productsResponse?.data]);
 
+  // Find the selected category for preview (needed for category products query)
+  const categorySlug =
+    slide.type === "CATEGORY_SPOTLIGHT"
+      ? (slide as { categorySlug?: string }).categorySlug
+      : undefined;
+  const category = React.useMemo(() => {
+    if (slide.type !== "CATEGORY_SPOTLIGHT" || !categorySlug) return undefined;
+    return categories.find((cat) => cat.slug === categorySlug);
+  }, [slide.type, categorySlug, categories]);
+
+  // Fetch products specifically for the spotlight category so preview shows first product
+  const { data: categoryProductsResponse } = useProductsQuery({
+    ...(category?.id && { categoryId: category.id }),
+    limit: 8,
+    page: 1,
+  });
+  const categoryProducts = React.useMemo(() => {
+    return categoryProductsResponse?.data || [];
+  }, [categoryProductsResponse?.data]);
+
   // Create productsBySlug mapping for EDITORS_PICK and other slides
   const productsBySlug = React.useMemo(() => {
     const mapping: Record<string, Product> = {};
@@ -63,27 +83,21 @@ export function HeroSlidePreview({ slide }: HeroSlidePreviewProps) {
 
     // Use DB data - map products by category slug
     allProducts.forEach((product) => {
-      const category = categories.find((c) => c.id === product.categoryId);
-      const categorySlug = category?.slug || "uncategorized";
-      if (!mapping[categorySlug]) {
-        mapping[categorySlug] = [];
+      const cat = categories.find((c) => c.id === product.categoryId);
+      const slug = cat?.slug || "uncategorized";
+      if (!mapping[slug]) {
+        mapping[slug] = [];
       }
-      mapping[categorySlug].push(product);
+      mapping[slug].push(product);
     });
 
+    // Ensure spotlight category has products from dedicated query (so preview shows first product)
+    if (category && categorySlug && categoryProducts.length > 0) {
+      mapping[categorySlug] = categoryProducts;
+    }
+
     return mapping;
-  }, [slide.type, allProducts, categories]);
-
-  // Find the selected category for preview
-  const categorySlug =
-    slide.type === "CATEGORY_SPOTLIGHT"
-      ? (slide as { categorySlug?: string }).categorySlug
-      : undefined;
-  const category = React.useMemo(() => {
-    if (slide.type !== "CATEGORY_SPOTLIGHT" || !categorySlug) return undefined;
-    return categories.find((cat) => cat.slug === categorySlug);
-  }, [slide.type, categorySlug, categories]);
-
+  }, [slide.type, allProducts, categories, category, categorySlug, categoryProducts]);
 
   return (
     <Card className="overflow-hidden border-2 border-primary/20 shadow-lg bg-surface">
@@ -92,11 +106,12 @@ export function HeroSlidePreview({ slide }: HeroSlidePreviewProps) {
           Live Preview
         </Text>
         <Text variant="caption" className="text-muted-fg">
-          Mobile/Desktop View
+          <span className="lg:hidden">Mobile Preview</span>
+          <span className="hidden lg:inline">Desktop Preview (1:3)</span>
         </Text>
       </div>
-      <div className="relative aspect-21/9 w-full bg-bg overflow-hidden group border-b border-primary/5">
-        <div className="absolute top-0 left-0 w-[300%] h-[300%] origin-top-left scale-[0.333333] pointer-events-none">
+      <div className="relative aspect-square sm:aspect-video lg:aspect-21/9 w-full bg-bg overflow-hidden group border-b border-primary/5">
+        <div className="absolute top-0 left-0 w-full h-full lg:w-[300%] lg:h-[300%] lg:origin-top-left lg:scale-[0.333333] pointer-events-none transition-all duration-300">
           <SlideBodyRenderer
             slide={slide}
             product={product ?? undefined}
@@ -113,7 +128,8 @@ export function HeroSlidePreview({ slide }: HeroSlidePreviewProps) {
       </div>
       <div className="p-3 bg-surface-muted/30 flex justify-between items-center">
         <Text variant="caption" className="text-muted-fg italic">
-          * Desktop view scaled (1:3)
+          <span className="lg:hidden">* Mobile-responsive preview</span>
+          <span className="hidden lg:inline">* Desktop view scaled (1:3)</span>
         </Text>
         <div className="flex gap-2">
           <div className="w-2 h-2 rounded-full bg-primary/40 animate-pulse" />

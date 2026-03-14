@@ -2,9 +2,10 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Card } from "@/components/ui/card";
 import { Text, Heading } from "@/components/ui/typography";
-import { Loader2, Layout } from "lucide-react";
+import { Layout } from "lucide-react";
 import { HeroSlidePreview } from "./HeroSlidePreview";
 import { Tabs } from "@/components/ui/tabs";
 import { useHeroSlideForm } from "./hooks/useHeroSlideForm";
@@ -62,20 +63,14 @@ export function HeroSlideForm({
             >
               Cancel
             </Button>
-            <Button
+            <LoadingButton
               type="submit"
-              disabled={isSubmitting}
+              loading={isSubmitting}
+              loadingText="Saving Slide..."
               className="rounded-lg px-8 min-w-[140px] shadow-md hover:shadow-lg transition-all duration-200 bg-primary-600 hover:bg-primary-700 h-12"
             >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Saving Slide...
-                </>
-              ) : (
-                <>{slide ? "Update Slide" : "Create Slide"}</>
-              )}
-            </Button>
+              {slide ? "Update Slide" : "Create Slide"}
+            </LoadingButton>
           </div>
         </form>
       </div>

@@ -46,7 +46,8 @@ import { cn } from "@/lib/utils/cn";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { AnnouncementIconType } from "@/lib/types/announcements.types";
 import { useAnnouncementsQuery, useDeleteAnnouncementMutation } from "@/features/announcements/queries";
-import { Loader2, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
+import { AdminLoadingState } from "../_components/AdminLoadingState";
 import { Pagination } from "@/components/ui/pagination";
 import { useAdminPagination } from "../_hooks/useAdminPagination";
 
@@ -228,10 +229,7 @@ export default function AnnouncementsAdminPage() {
         {/* Content */}
         <div className="min-h-[400px] bg-white">
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-20 gap-4">
-              <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
-              <Text className="text-warm-gray-500">Loading announcements...</Text>
-            </div>
+            <AdminLoadingState message="Loading announcements..." />
           ) : error ? (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
               <AlertCircle className="w-8 h-8 text-red-500" />

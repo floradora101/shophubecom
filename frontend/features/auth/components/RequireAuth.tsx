@@ -124,7 +124,7 @@ function RequireAuthContent({
   if (status === "unknown") {
     return (
       <div className="flex w-full justify-center py-8 animate-fade-in">
-        <LoadingSpinner size="sm" variant="inline" message="Just a moment…" />
+        <LoadingSpinner size="md" variant="inline" message="Loading…" />
       </div>
     );
   }
@@ -142,7 +142,7 @@ export function RequireAuth(props: RequireAuthProps) {
     <Suspense
       fallback={
         <div className="flex w-full justify-center py-8 animate-fade-in">
-          <LoadingSpinner size="sm" variant="inline" message="Loading…" />
+          <LoadingSpinner size="md" variant="inline" message="Loading…" />
         </div>
       }
     >

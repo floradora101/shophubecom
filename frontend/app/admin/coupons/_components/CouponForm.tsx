@@ -5,6 +5,7 @@ import { useForm, Controller, type Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { couponSchema, type CouponFormData } from "@/features/coupons/schemas";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Stack } from "@/components/ui/stack";
@@ -286,20 +287,14 @@ export function CouponForm({
           >
             Cancel
           </Button>
-          <Button
+          <LoadingButton
             type="submit"
-            disabled={isLoading}
+            loading={isLoading}
+            loadingText="Saving..."
             className="rounded-lg px-8 min-w-[150px] shadow-md hover:shadow-lg transition-all duration-200 bg-primary-600 hover:bg-primary-700"
           >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              coupon ? "Update Coupon" : "Create Coupon"
-            )}
-          </Button>
+            {coupon ? "Update Coupon" : "Create Coupon"}
+          </LoadingButton>
         </div>
       </Stack>
     </form>

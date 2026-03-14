@@ -4,7 +4,8 @@ import React, { useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { ProductForm, type ProductFormInitialData } from "@/app/admin/products/_components/ProductForm";
 import { Heading, Text } from "@/components/ui/typography";
-import { ChevronLeft, Loader2, Package, AlertCircle } from "lucide-react";
+import { ChevronLeft, Package, AlertCircle } from "lucide-react";
+import { AdminLoadingState } from "@/app/admin/_components/AdminLoadingState";
 import { Button } from "@/components/ui/button";
 import { useProductByIdQuery } from "@/features/products/queries";
 import { extractErrorMessage } from "@/lib/api/error-handler";
@@ -53,12 +54,7 @@ export default function EditProductPage() {
 
   // Loading state
   if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-32 space-y-4">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
-        <Text className="text-warm-gray-500">Loading product...</Text>
-      </div>
-    );
+    return <AdminLoadingState message="Loading product..." />;
   }
 
   // Error state

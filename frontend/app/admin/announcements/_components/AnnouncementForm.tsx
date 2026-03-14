@@ -3,12 +3,12 @@
 import React from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Stack } from "@/components/ui/stack";
 import { Text } from "@/components/ui/typography";
 import { toast } from "sonner";
 import {
-  Loader2,
   Truck,
   Sparkles,
   Zap,
@@ -208,20 +208,14 @@ export function AnnouncementForm({
           >
             Cancel
           </Button>
-          <Button
+          <LoadingButton
             type="submit"
-            disabled={isSubmitting}
+            loading={isSubmitting}
+            loadingText="Saving..."
             className="rounded-lg px-8 min-w-[120px] shadow-md hover:shadow-lg transition-all duration-200 bg-primary-600 hover:bg-primary-700"
           >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              announcement ? "Update Announcement" : "Create Announcement"
-            )}
-          </Button>
+            {announcement ? "Update Announcement" : "Create Announcement"}
+          </LoadingButton>
         </div>
       </Stack>
     </form>

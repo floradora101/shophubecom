@@ -5,6 +5,7 @@ import { useForm, useFieldArray, Controller, type Resolver } from "react-hook-fo
 import { yupResolver } from "@hookform/resolvers/yup";
 import { productSchema, type ProductFormData } from "@/features/products/schemas";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
@@ -16,7 +17,6 @@ import { ProductImageUploader } from "@/features/products/components/product-ima
 import {
   Plus,
   Trash2,
-  Loader2,
   ChevronDown,
   ChevronUp,
   Layers,
@@ -713,20 +713,14 @@ export function ProductForm({
               )}
 
               <div className="pt-6 border-t border-warm-gray-100 space-y-3">
-                <Button
+                <LoadingButton
                   type="submit"
-                  disabled={isSubmitting || createMutation.isPending}
+                  loading={isSubmitting || createMutation.isPending}
+                  loadingText={initialData ? "Updating Product..." : "Creating Product..."}
                   className="w-full rounded-lg h-11 bg-primary-600 hover:bg-primary-700 shadow-md hover:shadow-lg transition-all duration-200"
                 >
-                  {(isSubmitting || createMutation.isPending) ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Creating Product...
-                    </>
-                  ) : (
-                    initialData ? "Update Product" : "Create Product"
-                  )}
-                </Button>
+                  {initialData ? "Update Product" : "Create Product"}
+                </LoadingButton>
                 <Button
                   type="button"
                   variant="ghost"

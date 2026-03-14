@@ -2,7 +2,8 @@
 
 import React from "react";
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { AdminLoadingState } from "@/app/admin/_components/AdminLoadingState";
 import { Button } from "@/components/ui/button";
 import { Heading, Text } from "@/components/ui/typography";
 import { Card } from "@/components/ui/card";
@@ -17,12 +18,7 @@ export default function EditAnnouncementPage() {
   const { data: announcement, isLoading, error } = useAnnouncementQuery(id);
 
   if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 gap-4">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
-        <Text className="text-warm-gray-500">Loading announcement...</Text>
-      </div>
-    );
+    return <AdminLoadingState message="Loading announcement..." />;
   }
 
   if (error || !announcement) {

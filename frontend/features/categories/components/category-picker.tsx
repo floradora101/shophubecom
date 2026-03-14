@@ -21,7 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import type { Category } from "@/features/products/types";
 import { Text } from "@/components/ui/typography";
 import { useCategoriesQuery } from "../queries";
-import { Loader2 } from "lucide-react";
+import { LoadingSpinner } from "@/components/ui/spinner";
 
 interface CategoryPickerProps {
   value?: string | string[];
@@ -193,7 +193,7 @@ export function CategoryPicker({
           )}
         >
           <div className="flex items-center gap-2">
-            <Loader2 className="w-4 h-4 shrink-0 animate-spin" />
+            <LoadingSpinner size="sm" variant="inline" />
             <span>Loading categories...</span>
           </div>
         </Button>

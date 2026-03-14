@@ -2,7 +2,6 @@
 
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -18,7 +17,7 @@ import {
   ShoppingCart
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { Heading, Text } from "@/components/ui/typography";
+import { Text } from "@/components/ui/typography";
 import { useSidebarStore } from "@/store/sidebar-store";
 
 const menuItems = [
@@ -38,7 +37,7 @@ const menuItems = [
     href: "/admin/categories",
   },
   {
-    title: "Subcategories",
+    title: "Subcategory Showcase",
     icon: LayoutGrid,
     href: "/admin/subcategories",
   },
@@ -78,20 +77,6 @@ export function AdminSidebar({ isMobile = false }: { isMobile?: boolean }) {
       "flex flex-col h-full bg-white",
       !isMobile && "w-64 border-r border-warm-gray-200"
     )}>
-      <div className="p-6 border-b border-warm-gray-100">
-        <Link href="/" className="flex items-center justify-center" onClick={closeMobile}>
-          <Image
-            src="/logo.png"
-            alt="Logo"
-            width={120}
-            height={120}
-            className="object-contain w-28 h-28"
-            sizes="112px"
-            priority
-          />
-        </Link>
-      </div>
-
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         <div className="px-2 py-2">
           <Text className="text-[10px] font-bold text-warm-gray-400 uppercase tracking-widest">

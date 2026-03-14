@@ -10,6 +10,12 @@ import {
   type Address,
   type CreateAddressData,
 } from "@/features/addresses/api";
+
+/** Form-specific type: firstName/lastName combine to API `name` */
+type AddressFormData = Omit<CreateAddressData, "name"> & {
+  firstName: string;
+  lastName: string;
+};
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -31,19 +37,30 @@ export function AddressForm({
   onSuccess,
   onCancel,
 }: AddressFormProps) {
-  const form = useForm<CreateAddressData>({
-    resolver: yupResolver(addressSchema) as Resolver<CreateAddressData>,
+  const form = useForm<AddressFormData>({
+    resolver: yupResolver(addressSchema) as Resolver<AddressFormData>,
     defaultValues: address
-      ? {
-          name: address.name,
-          street: address.street,
-          city: address.city,
-          state: address.state ?? undefined,
-          zipCode: address.zipCode ?? undefined,
-          phone: address.phone ?? undefined,
-          isDefault: address.isDefault,
-        }
+      ? (() => {
+          const parts = address.name.trim().split(/\s+/);
+          return {
+            firstName: parts[0] || "",
+            lastName: parts.slice(1).join(" ") || "",
+            street: address.street,
+            city: address.city,
+            state: address.state ?? undefined,
+            zipCode: address.zipCode ?? undefined,
+            phone: address.phone ?? undefined,
+            isDefault: address.isDefault,
+          };
+        })()
       : {
+          firstName: "",
+          lastName: "",
+          street: "",
+          city: "",
+          state: undefined,
+          zipCode: undefined,
+          phone: undefined,
           isDefault: false,
         },
   });
@@ -67,13 +84,18 @@ export function AddressForm({
       fallbackMessage: "Failed to save address. Please try again.",
     });
 
-  const onSubmit = async (data: CreateAddressData) => {
+  const onSubmit = async (data: AddressFormData) => {
     clearError();
+    const { firstName, lastName, ...rest } = data;
+    const payload: CreateAddressData = {
+      ...rest,
+      name: `${firstName} ${lastName}`.trim(),
+    };
     try {
       if (address) {
-        await addressesApi.updateAddress(address.id, data);
+        await addressesApi.updateAddress(address.id, payload);
       } else {
-        await addressesApi.createAddress(data);
+        await addressesApi.createAddress(payload);
         clearDraft();
         reset();
       }
@@ -88,13 +110,13 @@ export function AddressForm({
     <div className="space-y-10">
       <div className="space-y-2">
         <Badge variant="primary" size="sm" className="bg-primary-500/10 text-primary-600 border-none font-black tracking-widest text-[9px] px-3">
-          {address ? "UPDATE_ENTRY" : "NEW_ENTRY"}
+          {address ? "Editing" : "New Address"}
         </Badge>
         <h3 className="text-3xl font-black text-fg tracking-tighter">
-          {address ? "Modify Address" : "Register Location"}
+          {address ? "Edit Address" : "Add New Address"}
         </h3>
         <p className="text-sm font-bold text-muted-fg/60 uppercase tracking-widest">
-          {address ? "Update your saved destination details" : "Initialize a new delivery destination"}
+          {address ? "Update your saved address details" : "Add a new delivery address"}
         </p>
       </div>
 
@@ -107,27 +129,29 @@ export function AddressForm({
         <FormErrorAlert error={formError} onDismiss={clearError} dismissible />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <FormField label="Identifier Name" required error={errors.name?.message}>
+          <FormField label="First name" required error={errors.firstName?.message}>
             <Input
-              placeholder="e.g., Home, Office, Summer House"
-              {...register("name")}
-              error={!!errors.name}
+              placeholder="e.g., John"
+              {...register("firstName")}
+              error={!!errors.firstName}
+              autoComplete="given-name"
               className="rounded-2xl h-14 bg-white/50 border-warm-gray-200 focus:bg-white transition-all font-bold"
             />
           </FormField>
 
-          <FormField label="Category Label" error={errors.label?.message}>
+          <FormField label="Last name" required error={errors.lastName?.message}>
             <Input
-              placeholder="e.g., Residential, Commercial"
-              {...register("label")}
-              error={!!errors.label}
+              placeholder="e.g., Doe"
+              {...register("lastName")}
+              error={!!errors.lastName}
+              autoComplete="family-name"
               className="rounded-2xl h-14 bg-white/50 border-warm-gray-200 focus:bg-white transition-all font-bold"
             />
           </FormField>
         </div>
 
         <FormField
-          label="Street Address / Detailed Area"
+          label="Street Address"
           required
           error={errors.street?.message}
         >
@@ -140,7 +164,7 @@ export function AddressForm({
         </FormField>
 
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
-          <FormField label="City / Region" required error={errors.city?.message}>
+          <FormField label="City" required error={errors.city?.message}>
             <Input
               placeholder="e.g., Beirut, Tripoli"
               {...register("city")}
@@ -150,7 +174,7 @@ export function AddressForm({
           </FormField>
 
           <FormField
-            label="State / Governorate"
+            label="State"
             required
             error={errors.state?.message}
           >
@@ -165,7 +189,7 @@ export function AddressForm({
 
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
           <FormField
-            label="Postal Code (Optional)"
+            label="Postal Code"
             error={errors.zipCode?.message}
           >
             <Input
@@ -176,7 +200,7 @@ export function AddressForm({
             />
           </FormField>
 
-          <FormField label="Contact Number" required error={errors.phone?.message}>
+          <FormField label="Phone Number" required error={errors.phone?.message}>
             <Input
               placeholder="+961 03 123 456"
               {...register("phone")}
@@ -196,7 +220,7 @@ export function AddressForm({
             htmlFor="isDefault" 
             className="text-sm font-black text-primary-900 uppercase tracking-widest cursor-pointer select-none"
           >
-            Set as Default Delivery Destination
+            Set as default address
           </label>
         </div>
 
@@ -206,7 +230,7 @@ export function AddressForm({
             loading={isSubmitting}
             className="flex-2 h-14 rounded-2xl bg-primary-600 hover:bg-primary-700 text-white font-black uppercase tracking-widest text-xs shadow-xl shadow-primary-500/20"
           >
-            {address ? "Update_Registry" : "Commit_Address"}
+            {address ? "Save Address" : "Add Address"}
           </LoadingButton>
           <Button
             type="button"
@@ -215,7 +239,7 @@ export function AddressForm({
             disabled={isSubmitting}
             className="flex-1 h-14 rounded-2xl font-black uppercase tracking-widest text-xs"
           >
-            Cancel_Op
+            Cancel
           </Button>
         </div>
       </form>

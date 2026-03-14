@@ -329,6 +329,94 @@ Ahmad (your client) has provided his requirements above. As a professional full-
 
 ---
 
+## Quick Start (Run the Project Locally)
+
+Follow these steps to run ShopHub on your machine:
+
+### 1. Clone the repository
+
+```bash
+git clone <repository-url>
+cd shophub_
+```
+
+### 2. Install dependencies
+
+Install dependencies in **both** the backend and frontend:
+
+```bash
+# Backend
+cd backend
+npm install
+
+# Frontend (from project root)
+cd ../frontend
+npm install
+```
+
+### 3. Set up environment variables
+
+Copy the example env file and configure it:
+
+```bash
+cd backend
+cp .env.example .env
+```
+
+Edit `backend/.env` and set at least:
+- `DATABASE_URL=postgresql://postgres:postgres@localhost:5433/shopub` (matches Docker Postgres)
+- `JWT_ACCESS_SECRET` and `JWT_REFRESH_SECRET` (generate secure random strings)
+
+### 4. Start PostgreSQL with Docker
+
+From the project root:
+
+```bash
+docker compose up -d postgres
+```
+
+PostgreSQL runs on port **5433** (host) → 5432 (container).
+
+### 5. Run database migrations
+
+```bash
+cd backend
+npx prisma migrate deploy
+npx prisma generate
+```
+
+Optional: seed the database with sample data:
+
+```bash
+npx prisma db seed
+```
+
+### 6. Start the backend
+
+```bash
+cd backend
+npm run start:dev
+```
+
+Backend runs at **http://localhost:3001**.
+
+### 7. Start the frontend
+
+In a **new terminal**:
+
+```bash
+cd frontend
+npm run dev
+```
+
+Frontend runs at **http://localhost:3000**.
+
+---
+
+**Summary:** Dependencies are installed in **`backend/`** and **`frontend/`** separately. Run `npm install` in each folder.
+
+---
+
 ## Acceptance Criteria
 
 ### Functional Requirements

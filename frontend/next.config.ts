@@ -1,3 +1,4 @@
+import path from "path";
 import type { NextConfig } from "next";
 
 // Production build guard: fail if dev-only flags are set (prevents accidental mock/demo in prod)
@@ -117,6 +118,8 @@ const nextConfig: NextConfig = {
       "@radix-ui/react-popover",
     ],
   },
+
+  outputFileTracingRoot: path.resolve(__dirname, ".."),
 
   // Enable standalone output for Docker
   output: "standalone",

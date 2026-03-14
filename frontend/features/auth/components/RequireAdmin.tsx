@@ -80,7 +80,7 @@ function RequireAdminContent({
   if (status === "unknown") {
     return (
       <div className="flex w-full justify-center items-center min-h-[60vh] animate-fade-in">
-        <LoadingSpinner size="md" variant="inline" message="Verifying admin access…" />
+        <LoadingSpinner size="md" variant="inline" message="Loading…" />
       </div>
     );
   }

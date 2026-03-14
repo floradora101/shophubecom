@@ -53,6 +53,10 @@ import {
   REFRESH_TOKEN_COOKIE,
   CSRF_TOKEN_COOKIE,
 } from './constants/auth-cookies';
+import {
+  parseDurationToMs,
+  parseDurationToSeconds,
+} from '../common/utils/parse-duration.util';
 
 /**
  * Authentication Controller
@@ -65,39 +69,6 @@ export class AuthController {
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
   ) {}
-
-  private parseDurationToMs(value: string | undefined, fallbackMs: number) {
-    if (!value) return fallbackMs;
-    const match = /^(\d+)([smhd])$/.exec(value.trim());
-    if (!match) return fallbackMs;
-    const [, amountStr, unit] = match;
-    const amount = parseInt(amountStr, 10);
-    const multipliers: Record<string, number> = {
-      s: 1000,
-      m: 60 * 1000,
-      h: 60 * 60 * 1000,
-      d: 24 * 60 * 60 * 1000,
-    };
-    return amount * (multipliers[unit] ?? 1000);
-  }
-
-  private parseDurationToSeconds(
-    value: string | undefined,
-    fallbackSeconds: number,
-  ) {
-    if (!value) return fallbackSeconds;
-    const match = /^(\d+)([smhd])$/.exec(value.trim());
-    if (!match) return fallbackSeconds;
-    const [, amountStr, unit] = match;
-    const amount = parseInt(amountStr, 10);
-    const multipliers: Record<string, number> = {
-      s: 1,
-      m: 60,
-      h: 60 * 60,
-      d: 24 * 60 * 60,
-    };
-    return amount * (multipliers[unit] ?? 1);
-  }
 
   /**
    * Base cookie options for security
@@ -126,11 +97,11 @@ export class AuthController {
     res: Response,
     tokens: { accessToken: string; refreshToken: string },
   ) {
-    const accessExpiryMs = this.parseDurationToMs(
+    const accessExpiryMs = parseDurationToMs(
       this.configService.get<string>('JWT_ACCESS_EXPIRY'),
       15 * 60 * 1000,
     );
-    const refreshExpiryMs = this.parseDurationToMs(
+    const refreshExpiryMs = parseDurationToMs(
       this.configService.get<string>('JWT_REFRESH_EXPIRY'),
       7 * 24 * 60 * 60 * 1000,
     );
@@ -189,7 +160,7 @@ export class AuthController {
     });
 
     // Return user data only, without tokens
-    const expiresIn = this.parseDurationToSeconds(
+    const expiresIn = parseDurationToSeconds(
       this.configService.get<string>('JWT_ACCESS_EXPIRY'),
       15 * 60,
     );
@@ -227,7 +198,7 @@ export class AuthController {
     });
 
     // Return user data only, without tokens
-    const expiresIn = this.parseDurationToSeconds(
+    const expiresIn = parseDurationToSeconds(
       this.configService.get<string>('JWT_ACCESS_EXPIRY'),
       15 * 60,
     );
@@ -314,7 +285,7 @@ export class AuthController {
     });
 
     // Return user data only, without tokens
-    const expiresIn = this.parseDurationToSeconds(
+    const expiresIn = parseDurationToSeconds(
       this.configService.get<string>('JWT_ACCESS_EXPIRY'),
       15 * 60,
     );
@@ -397,7 +368,7 @@ export class AuthController {
     @Req() req: Request,
   ): { user: UserResponseDto; expiresIn: number } {
     const accessToken = (req as Request & { cookies?: Record<string, string> }).cookies?.[ACCESS_TOKEN_COOKIE];
-    let expiresIn = this.parseDurationToSeconds(
+    let expiresIn = parseDurationToSeconds(
       this.configService.get<string>('JWT_ACCESS_EXPIRY'),
       15 * 60,
     );

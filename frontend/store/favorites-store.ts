@@ -1,6 +1,8 @@
 /**
  * Favorites store - syncs with backend when user is authenticated.
  * Guest users: localStorage only. Authenticated: backend + localStorage.
+ *
+ * Deduplication: In-flight add/remove per productId prevents rapid-toggle request spam.
  */
 import { create } from "zustand";
 import { logWarning } from "@/lib/errors/logger";
@@ -9,6 +11,10 @@ import { toast } from "sonner";
 import { useAuthStore } from "@/store/auth-store";
 import { favoritesApi } from "@/features/favorites/api";
 import { USE_MOCKS } from "@/lib/flags";
+
+/** Tracks in-flight API calls to prevent duplicate concurrent requests per productId */
+const inFlightAdd = new Set<string>();
+const inFlightRemove = new Set<string>();
 
 interface FavoritesState {
   favoriteProductIds: string[];
@@ -29,10 +35,12 @@ export const useFavoritesStore = create<FavoritesState>()(
       addFavorite: async (productId) => {
         const current = get().favoriteProductIds;
         if (current.includes(productId)) return;
+        if (inFlightAdd.has(productId)) return;
 
         const isAuth =
           !USE_MOCKS && useAuthStore.getState().status === "authenticated";
         if (isAuth) {
+          inFlightAdd.add(productId);
           try {
             await favoritesApi.add(productId);
           } catch (err) {
@@ -42,6 +50,8 @@ export const useFavoritesStore = create<FavoritesState>()(
             });
             toast.error("Couldn't save favorite. Please try again.");
             return;
+          } finally {
+            inFlightAdd.delete(productId);
           }
         }
         set({ favoriteProductIds: [...current, productId] });
@@ -50,10 +60,12 @@ export const useFavoritesStore = create<FavoritesState>()(
       removeFavorite: async (productId) => {
         const current = get().favoriteProductIds;
         if (!current.includes(productId)) return;
+        if (inFlightRemove.has(productId)) return;
 
         const isAuth =
           !USE_MOCKS && useAuthStore.getState().status === "authenticated";
         if (isAuth) {
+          inFlightRemove.add(productId);
           try {
             await favoritesApi.remove(productId);
           } catch (err) {
@@ -63,6 +75,8 @@ export const useFavoritesStore = create<FavoritesState>()(
             });
             toast.error("Couldn't remove favorite. Please try again.");
             return;
+          } finally {
+            inFlightRemove.delete(productId);
           }
         }
         set({

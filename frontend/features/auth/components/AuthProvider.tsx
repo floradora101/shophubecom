@@ -8,7 +8,8 @@ import { useAuthStore } from "@/store/auth-store";
 import { useFavoritesStore } from "@/store/favorites-store";
 import { authApi } from "@/features/auth/api";
 import { cartKeys } from "@/features/cart/query-keys";
-import { onAuthExpired } from "@/lib/integrations/auth-events";
+import { onAuthExpired, onAuthRefreshed } from "@/lib/integrations/auth-events";
+import { scheduleProactiveRefresh } from "@/features/auth/proactive-refresh";
 import { USE_MOCKS } from "@/lib/flags";
 import {
   buildFullPath,
@@ -113,28 +114,32 @@ function AuthProviderContent({ children }: AuthProviderProps) {
   // Subscribe to auth expiration events from Axios interceptor
   useEffect(() => {
     const handleAuthExpired = () => {
-      // Clear auth state (no API call if cookies already invalid)
       setUser(null);
-      // Only redirect to login if we're on a protected route
-      // Public routes (homepage, products, cart) should remain accessible
       const search = searchParams.toString();
       const fullPath = buildFullPath(pathname, search);
       const onProtectedRoute = isProtectedPath(pathname);
       const onAuthRoute = isAuthPage(pathname);
 
-      // Only redirect if on a protected route and not already on auth page
       if (onProtectedRoute && !onAuthRoute) {
         const loginPath = buildLoginRedirect("/login", fullPath);
-        // Use replace to avoid adding to history stack
         router.replace(loginPath);
       }
-      // If on public route, just clear auth state - don't redirect
     };
 
     const unsubscribe = onAuthExpired(handleAuthExpired);
 
     return unsubscribe;
   }, [setUser, pathname, searchParams, router]);
+
+  // Reschedule proactive refresh after a successful 401-interceptor refresh.
+  // Without this, a single proactive refresh failure would permanently
+  // downgrade the tab to reactive-only (401-based) token renewal.
+  useEffect(() => {
+    if (typeof onAuthRefreshed !== "function") return;
+    return onAuthRefreshed((expiresIn) => {
+      scheduleProactiveRefresh(expiresIn);
+    });
+  }, []);
 
   return <>{children}</>;
 }

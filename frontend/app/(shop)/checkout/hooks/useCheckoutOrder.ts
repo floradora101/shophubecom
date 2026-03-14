@@ -82,6 +82,10 @@ export function useCheckoutOrder({
         };
 
         if (DEMO_CHECKOUT) {
+          // Defense-in-depth: DEMO_CHECKOUT is forced off in production (lib/flags.ts)
+          if (process.env.NODE_ENV === "production") {
+            throw new Error("DEMO_CHECKOUT cannot be used in production");
+          }
           // Demo checkout mode - create order client-side
           logger.debug("Using demo checkout mode");
 

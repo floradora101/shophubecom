@@ -109,15 +109,6 @@ function transformBackendSlide(backendSlide: any): HeroSlide {
       // Backend stores landscapeImageData directly in typeSpecificData
       const landscapeData = typeData.landscapeImageData || typeData;
 
-      // Debug logging (remove in production)
-      if (process.env.NODE_ENV === "development") {
-        console.log("[HeroSlides API] LANDSCAPE_IMAGE data:", {
-          typeData,
-          landscapeData,
-          theme: landscapeData?.theme,
-        });
-      }
-
       // Convert backend theme enum (GLASS_RED) to frontend format (glass-red)
       const themeMap: Record<string, string> = {
         "GLASS_RED": "glass-red",
@@ -144,16 +135,6 @@ function transformBackendSlide(backendSlide: any): HeroSlide {
         actionButton: landscapeData?.actionButton || baseSlide.ctaPrimary,
         media: cleanedMedia, // Use cleaned media
       } as HeroSlide;
-
-      // Debug logging (remove in production)
-      if (process.env.NODE_ENV === "development") {
-        const landscapeSlide = transformedSlide as { theme?: string; content?: unknown; actionButton?: unknown };
-        console.log("[HeroSlides API] Transformed LANDSCAPE_IMAGE slide:", {
-          theme: landscapeSlide.theme,
-          hasContent: !!landscapeSlide.content,
-          hasActionButton: !!landscapeSlide.actionButton,
-        });
-      }
 
       return transformedSlide;
 
@@ -200,11 +181,18 @@ function transformBackendSlide(backendSlide: any): HeroSlide {
 export const heroSlidesApi = {
   /**
    * Get active hero slides (public endpoint)
-   * Returns only active slides within their date range
+   * Returns only active slides within their date range.
+   * Also filters out OFFER slides whose offerEndsAt has passed (client-side safety net).
    */
   async getActiveSlides(): Promise<HeroSlide[]> {
     const slides = await apiGet<any[]>("/hero-slides/active");
-    return slides.map(transformBackendSlide);
+    const now = new Date();
+    return slides.map(transformBackendSlide).filter((slide) => {
+      if (slide.type === "OFFER" && slide.offerEndsAt) {
+        return new Date(slide.offerEndsAt) > now;
+      }
+      return true;
+    });
   },
 
   /**

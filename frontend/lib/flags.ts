@@ -1,6 +1,9 @@
 /**
- * Demo checkout mode — creates orders client-side without backend.
- * FORCED OFF in production for security (no stock decrement, no real orders).
+ * Feature flags for dual mock/API mode.
+ *
+ * Production safety:
+ * - Both flags are FORCED OFF when NODE_ENV=production (next.config build guard rejects if env set)
+ * - Mock code uses dynamic import() so mock-data is only loaded when USE_MOCKS=true
  */
 const isProduction = process.env.NODE_ENV === "production";
 const envDemoCheckout = process.env.NEXT_PUBLIC_DEMO_CHECKOUT === "true";

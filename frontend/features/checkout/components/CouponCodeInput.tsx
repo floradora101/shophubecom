@@ -1,11 +1,12 @@
 // Professional coupon code input component with excellent UX
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Text } from "@/components/ui/typography";
 import { cn } from "@/lib/utils/cn";
-import { Tag, X, Check, Loader2 } from "lucide-react";
+import { Tag, X, Check } from "lucide-react";
 
 interface CouponCodeInputProps {
   value?: string;
@@ -154,19 +155,17 @@ export function CouponCodeInput({
                 )}
               />
             </div>
-            <Button
+            <LoadingButton
               type="button"
               onClick={handleApply}
-              disabled={!inputValue.trim() || disabled || isValidating}
+              loading={isValidating}
+              loadingText="Applying..."
+              disabled={!inputValue.trim() || disabled}
               size="sm"
               className="px-4"
             >
-              {isValidating ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                "Apply"
-              )}
-            </Button>
+              Apply
+            </LoadingButton>
           </div>
 
           {/* Error Message */}

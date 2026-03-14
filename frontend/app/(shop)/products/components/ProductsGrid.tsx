@@ -8,6 +8,7 @@
 
 import { Search, Filter, Sparkles, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { LoadingSpinner } from "@/components/ui/spinner";
 import { ProductCard } from "@/components/shared/ProductCard";
 import { ProductCardSkeleton } from "@/components/shared/ProductCardSkeleton";
 import { cn } from "@/lib/utils/cn";
@@ -240,8 +241,8 @@ export function ProductsGrid({
         <div className="absolute inset-0 bg-white/20 backdrop-blur-[1px] rounded-lg flex items-center justify-center animate-in fade-in duration-200">
           <div className="bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg border border-white/20">
             <div className="flex items-center gap-2 text-sm text-muted-fg">
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-muted-fg border-t-primary-600"></div>
-              <span>Updating results...</span>
+              <LoadingSpinner size="sm" variant="inline" />
+              <span>Updating results…</span>
             </div>
           </div>
         </div>

@@ -23,6 +23,8 @@ export interface UseFormDraftOptions {
   exclude?: string[];
   /** Enable/disable draft persistence (default: true) - useful for waiting until data is ready */
   enabled?: boolean;
+  /** Called after draft load attempt (whether draft existed or not) - use to apply authoritative data (e.g. default address) */
+  onDraftLoaded?: () => void;
 }
 
 /**
@@ -52,6 +54,7 @@ export function useFormDraft<T extends FieldValues>(
     debounceMs = 400,
     exclude = [],
     enabled = true,
+    onDraftLoaded,
   } = options;
 
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -115,19 +118,22 @@ export function useFormDraft<T extends FieldValues>(
 
     try {
       const stored = getStorageItem(key, storage);
-      if (!stored) return;
-
-      const parsed = JSON.parse(stored);
-      if (parsed && typeof parsed === "object") {
-        // Reset form with saved values, keeping default values for fields not in draft
-        form.reset(parsed as T, { keepDefaultValues: true });
-        hasLoadedRef.current = true;
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && typeof parsed === "object") {
+          // Reset form with saved values, keeping default values for fields not in draft
+          form.reset(parsed as T, { keepDefaultValues: true });
+        }
       }
+      hasLoadedRef.current = true;
+      onDraftLoaded?.();
     } catch (error) {
       // Corrupt draft - delete it
       removeStorageItem(key, storage);
+      hasLoadedRef.current = true;
+      onDraftLoaded?.();
     }
-  }, [enabled, key, storage, form]);
+  }, [enabled, key, storage, form, onDraftLoaded]);
 
   /**
    * Clear draft from storage

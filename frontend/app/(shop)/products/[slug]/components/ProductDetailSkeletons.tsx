@@ -7,6 +7,7 @@
 
 import { Container } from "@/components/ui/container";
 import { SkeletonBlock } from "@/components/ui/skeleton";
+import { ProductCardSkeleton } from "@/components/shared/ProductCardSkeleton";
 
 /**
  * Product Gallery Skeleton - matches ProductGallery layout
@@ -15,7 +16,7 @@ export function ProductGallerySkeleton() {
   return (
     <div className="w-full">
       {/* Main image area */}
-      <div className="relative aspect-[4/5] w-full rounded-lg overflow-hidden bg-surface-muted/30">
+      <div className="relative aspect-4/5 w-full rounded-lg overflow-hidden bg-surface-muted/30">
         <SkeletonBlock className="absolute inset-0 rounded-none" />
       </div>
 
@@ -119,22 +120,7 @@ export function YouMayAlsoLikeSkeleton() {
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
         {Array.from({ length: 4 }, (_, i) => (
           <div key={i} className="w-full">
-            <div className="group flex flex-col w-full">
-              {/* Image */}
-              <SkeletonBlock className="relative aspect-square rounded-lg overflow-hidden border border-warm-gray-200" />
-
-              {/* Info */}
-              <div className="mt-3 space-y-1 min-h-16 flex flex-col justify-end">
-                <SkeletonBlock className="h-4 md:h-5" />
-                <SkeletonBlock className="h-4 md:h-5 w-3/4" />
-                <SkeletonBlock className="h-3 w-1/2 mt-1" />
-                <div className="flex items-baseline gap-2 flex-wrap mt-2">
-                  <SkeletonBlock className="h-4 md:h-5 w-16" />
-                  <SkeletonBlock className="h-3 w-12" />
-                  <SkeletonBlock className="h-3 w-20" />
-                </div>
-              </div>
-            </div>
+            <ProductCardSkeleton />
           </div>
         ))}
       </div>
@@ -151,14 +137,14 @@ export function ProductDetailSkeleton() {
       {/* Breadcrumb */}
       <div className="border-b border-border/60">
         <Container className="py-3 sm:py-4">
-          <nav className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
-            <SkeletonBlock className="h-4 w-12" />
-            <div className="w-3.5 h-3.5 rounded" />
-            <SkeletonBlock className="h-4 w-20" />
-            <div className="w-3.5 h-3.5 rounded" />
-            <SkeletonBlock className="h-4 w-16" />
-            <div className="w-3.5 h-3.5 rounded" />
-            <SkeletonBlock className="h-4 w-32" />
+          <nav className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm" aria-hidden="true">
+            <SkeletonBlock className="h-4 w-12 rounded" />
+            <SkeletonBlock className="w-3.5 h-3.5 rounded shrink-0" />
+            <SkeletonBlock className="h-4 w-20 rounded" />
+            <SkeletonBlock className="w-3.5 h-3.5 rounded shrink-0" />
+            <SkeletonBlock className="h-4 w-16 rounded" />
+            <SkeletonBlock className="w-3.5 h-3.5 rounded shrink-0" />
+            <SkeletonBlock className="h-4 w-32 rounded" />
           </nav>
         </Container>
       </div>

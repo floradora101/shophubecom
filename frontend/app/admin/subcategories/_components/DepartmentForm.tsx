@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useForm, type Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -140,23 +140,17 @@ export function DepartmentForm({ initialData }: DepartmentFormProps) {
             </Text>
           </div>
         </div>
-        <Button
+        <LoadingButton
           type="submit"
-          disabled={isLoading}
+          loading={isLoading}
+          loadingText="Saving…"
           className="bg-primary-600 hover:bg-primary-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all"
         >
-          {isLoading ? (
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              <span>Saving...</span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <Save className="w-4 h-4" />
-              <span>{initialData ? "Update Department" : "Create Department"}</span>
-            </div>
-          )}
-        </Button>
+          <div className="flex items-center gap-2">
+            <Save className="w-4 h-4" />
+            <span>{initialData ? "Update Department" : "Create Department"}</span>
+          </div>
+        </LoadingButton>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

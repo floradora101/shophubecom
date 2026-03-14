@@ -8,6 +8,7 @@ import { extractErrorMessage } from "@/lib/api/error-handler";
 import { Heading, Text } from "@/components/ui/typography";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { AdminLoadingState } from "@/app/admin/_components/AdminLoadingState";
 
 export default function EditDepartmentPage() {
   const params = useParams();
@@ -16,11 +17,7 @@ export default function EditDepartmentPage() {
   const { data: department, isLoading, error, refetch } = useDepartmentQuery(id);
 
   if (isLoading) {
-    return (
-      <Card className="p-8">
-        <Text className="text-warm-gray-500">Loading...</Text>
-      </Card>
-    );
+    return <AdminLoadingState message="Loading subcategory..." />;
   }
 
   if (error) {

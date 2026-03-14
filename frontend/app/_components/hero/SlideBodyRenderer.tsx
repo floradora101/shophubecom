@@ -9,11 +9,7 @@ import type {
 import type { Product, Category } from "@/features/products/types";
 import { logger } from "@/lib/logger";
 import {
-  LandscapeSlideSkeleton,
-  ProductSlideSkeleton,
-  TestimonialSlideSkeleton,
-  ComparisonBattleSlideSkeleton,
-  GenericSlideSkeleton,
+  HeroSlideSkeleton,
 } from "./shared/slide-skeletons";
 
 /**
@@ -46,25 +42,25 @@ class SlideErrorBoundary extends Component<
 }
 
 // Code-split slide body components with next/dynamic
-// Product Spotlight is preloaded as it's often the first slide type
+// All use the same generic HeroSlideSkeleton for loading and error fallback
 const ProductSpotlightSlideBody = dynamic(
   () => import("./slide-bodies/ProductSpotlightSlideBody"),
   {
     ssr: false,
-    loading: () => <ProductSlideSkeleton />,
+    loading: () => <HeroSlideSkeleton />,
   }
 );
 
 const OfferSlideBody = dynamic(() => import("./slide-bodies/OfferSlideBody"), {
   ssr: false,
-  loading: () => <ProductSlideSkeleton />,
+  loading: () => <HeroSlideSkeleton />,
 });
 
 const TestimonialSlideBody = dynamic(
   () => import("./slide-bodies/TestimonialSlideBody"),
   {
     ssr: false,
-    loading: () => <TestimonialSlideSkeleton />,
+    loading: () => <HeroSlideSkeleton />,
   }
 );
 
@@ -72,7 +68,7 @@ const LandscapeHeroSlideBody = dynamic(
   () => import("./slide-bodies/LandscapeHeroSlideBody"),
   {
     ssr: false,
-    loading: () => <LandscapeSlideSkeleton />,
+    loading: () => <HeroSlideSkeleton />,
   }
 );
 
@@ -80,7 +76,7 @@ const CategorySpotlightSlideBody = dynamic(
   () => import("./slide-bodies/CategorySpotlightSlideBody"),
   {
     ssr: false,
-    loading: () => <GenericSlideSkeleton />,
+    loading: () => <HeroSlideSkeleton />,
   }
 );
 
@@ -88,7 +84,7 @@ const EditorsPickSlideBody = dynamic(
   () => import("./slide-bodies/EditorsPickSlideBody"),
   {
     ssr: false,
-    loading: () => <GenericSlideSkeleton />,
+    loading: () => <HeroSlideSkeleton />,
   }
 );
 
@@ -96,7 +92,7 @@ const ComparisonBattleSlideBody = dynamic(
   () => import("./slide-bodies/ComparisonBattleSlideBody"),
   {
     ssr: false,
-    loading: () => <ComparisonBattleSlideSkeleton />,
+    loading: () => <HeroSlideSkeleton />,
   }
 );
 
@@ -104,7 +100,7 @@ const PromotionSlideBody = dynamic(
   () => import("./slide-bodies/PromotionSlideBody"),
   {
     ssr: false,
-    loading: () => <GenericSlideSkeleton />,
+    loading: () => <HeroSlideSkeleton />,
   }
 );
 
@@ -139,7 +135,7 @@ export const SlideBodyRenderer = memo(function SlideBodyRenderer({
 }: SlideBodyRendererProps) {
   return (
     <>
-      <SlideErrorBoundary fallback={<GenericSlideSkeleton />}>
+      <SlideErrorBoundary fallback={<HeroSlideSkeleton />}>
         {(() => {
           switch (slide.type) {
             case "PRODUCT_SPOTLIGHT":

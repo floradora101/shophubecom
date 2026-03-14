@@ -156,6 +156,8 @@ export class CouponsService {
    * (prevents race condition where two concurrent checkouts both pass validation).
    *
    * @param tx - Prisma transaction client from $transaction callback
+   * @param amountForDiscount - Optional. Amount to apply discount to (e.g. subtotal - promotionDiscount).
+   *   When provided, discount is calculated from this "off total" amount; minOrderTotal still uses subtotal.
    */
   async validateForCheckoutWithTx(
     tx: PrismaTransactionClient,
@@ -163,6 +165,7 @@ export class CouponsService {
     subtotal: number,
     userId?: string,
     guestEmail?: string,
+    amountForDiscount?: number,
   ): Promise<ValidateCouponResponseDto> {
     return this.validateForCheckoutWithClient(
       tx,
@@ -170,11 +173,14 @@ export class CouponsService {
       subtotal,
       userId,
       guestEmail,
+      amountForDiscount,
     );
   }
 
   /**
    * Internal validation logic shared by validateForCheckout and validateForCheckoutWithTx.
+   * Discount is calculated from amountForDiscount when provided (e.g. subtotal - promotionDiscount);
+   * otherwise from subtotal. minOrderTotal is always checked against subtotal.
    */
   private async validateForCheckoutWithClient(
     client: PrismaTransactionClient,
@@ -182,6 +188,7 @@ export class CouponsService {
     subtotal: number,
     userId?: string,
     guestEmail?: string,
+    amountForDiscount?: number,
   ): Promise<ValidateCouponResponseDto> {
     const normalizedCode = code.trim().toUpperCase();
     const coupon = await client.coupon.findUnique({
@@ -287,13 +294,14 @@ export class CouponsService {
       }
     }
 
-    // Calculate discount
+    // Calculate discount from amountForDiscount (off total) when provided, else subtotal
+    const amountToApply = amountForDiscount ?? subtotal;
     const value = Number(coupon.value);
     let discount = 0;
     if (coupon.type === 'PERCENTAGE') {
-      discount = Math.min((subtotal * value) / 100, subtotal);
+      discount = Math.min((amountToApply * value) / 100, amountToApply);
     } else {
-      discount = Math.min(value, subtotal);
+      discount = Math.min(value, amountToApply);
     }
 
     discount = Math.round(discount * 100) / 100;

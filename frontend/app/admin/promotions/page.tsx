@@ -45,7 +45,8 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils/cn";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { format } from "date-fns";
-import { Loader2, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
+import { AdminLoadingState } from "../_components/AdminLoadingState";
 
 type SortOption = "name-asc" | "name-desc" | "value-desc" | "newest";
 
@@ -100,12 +101,7 @@ export default function PromotionsAdminPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-32 space-y-4">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
-        <Text className="text-warm-gray-500 font-medium">Loading promotions...</Text>
-      </div>
-    );
+    return <AdminLoadingState message="Loading promotions..." className="py-32" />;
   }
 
   if (error) {

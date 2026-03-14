@@ -26,6 +26,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         <input
           type={type}
           id={inputId}
+          suppressHydrationWarning
           className={cn(
             "flex h-11 w-full rounded-lg border border-warm-gray-200 bg-white px-3 py-2 text-sm text-warm-gray-900 transition-all",
             "placeholder:text-warm-gray-400",

@@ -2,7 +2,8 @@
 
 import React from "react";
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { AdminLoadingState } from "@/app/admin/_components/AdminLoadingState";
 import { Button } from "@/components/ui/button";
 import { Heading, Text } from "@/components/ui/typography";
 import { CouponForm } from "@/app/admin/coupons/_components/CouponForm";
@@ -16,12 +17,7 @@ export default function EditCouponPage() {
   const { data: coupon, isLoading, error } = useCouponByIdQuery(couponId);
 
   if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 gap-4">
-        <Loader2 className="w-10 h-10 text-primary-500 animate-spin" />
-        <Text>Loading coupon details...</Text>
-      </div>
-    );
+    return <AdminLoadingState message="Loading coupon..." />;
   }
 
   if (error || !coupon) {

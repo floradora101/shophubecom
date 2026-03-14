@@ -19,8 +19,8 @@ import {
   XCircle,
   Copy,
   BarChart3,
-  Loader2,
 } from "lucide-react";
+import { AdminLoadingState } from "../_components/AdminLoadingState";
 import { Heading, Text } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -234,10 +234,7 @@ export default function CouponsAdminPage() {
         {/* Content */}
         <div className="min-h-[400px] bg-white">
           {isLoading ? (
-            <div className="py-32 text-center">
-              <Loader2 className="w-8 h-8 text-primary-500 animate-spin mx-auto mb-4" />
-              <Text className="text-warm-gray-500">Loading coupons...</Text>
-            </div>
+            <AdminLoadingState message="Loading coupons..." />
           ) : filteredCoupons.length === 0 ? (
             <div className="py-32 text-center">
               <Ticket className="w-16 h-16 text-warm-gray-100 mx-auto mb-4" />

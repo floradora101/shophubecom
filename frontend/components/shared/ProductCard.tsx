@@ -1,7 +1,7 @@
 // Product card used across listings - Sorbé style: full image card with title/price below
 "use client";
 
-import React, { MouseEvent } from "react";
+import React, { memo, MouseEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -41,7 +41,7 @@ interface ProductCardProps {
   onImageClick?: () => void;
 }
 
-export function ProductCard({
+function ProductCardInner({
   product,
   compact = false,
   layout = "horizontal",
@@ -54,6 +54,7 @@ export function ProductCard({
   const { toggleFavorite, isFavorite } = useFavorites();
   const router = useRouter();
   const [imageError, setImageError] = React.useState(false);
+  const [hoverImageLoaded, setHoverImageLoaded] = useState(false);
 
   // Get all available images for hover effects
   const allImages = getAllProductImages(product);
@@ -64,6 +65,7 @@ export function ProductCard({
     : primaryImage;
   const showHoverImage =
     hoverImage && hoverImage !== primaryImage && !imageError;
+  const shouldRenderHoverImage = showHoverImage && hoverImageLoaded;
 
   const effectiveStock = getEffectiveStock(product);
   const isOutOfStock = effectiveStock === 0;
@@ -247,6 +249,7 @@ export function ProductCard({
         {onImageClick ? (
           <div
             onClick={onImageClick}
+            onMouseEnter={() => showHoverImage && setHoverImageLoaded(true)}
             className="relative block w-full h-full rounded-xl overflow-hidden bg-warm-gray-50/60 transition-all duration-300 ease-out group-hover/card-container:bg-warm-gray-100/70 group/card cursor-pointer"
           >
             {/* Image - edge to edge, minimal padding */}
@@ -267,8 +270,8 @@ export function ProductCard({
                 onError={() => setImageError(true)}
                 unoptimized={shouldUnoptimizeImage(displayImage)}
               />
-              {/* Hover Image */}
-              {showHoverImage && (
+              {/* Hover Image - loaded only after first hover to reduce initial requests */}
+              {shouldRenderHoverImage && (
                 <Image
                   src={hoverImage!}
                   alt={product.name}
@@ -286,6 +289,7 @@ export function ProductCard({
         ) : (
           <Link
             href={productRoutes.detail(product.slug)}
+            onMouseEnter={() => showHoverImage && setHoverImageLoaded(true)}
             className="relative block w-full h-full rounded-xl overflow-hidden bg-warm-gray-50/60 transition-all duration-300 ease-out group-hover/card-container:bg-warm-gray-100/70 group/card"
           >
             {/* Image - edge to edge, minimal padding */}
@@ -306,8 +310,8 @@ export function ProductCard({
                 onError={() => setImageError(true)}
                 unoptimized={shouldUnoptimizeImage(displayImage)}
               />
-              {/* Hover Image */}
-              {showHoverImage && (
+              {/* Hover Image - loaded only after first hover */}
+              {shouldRenderHoverImage && (
                 <Image
                   src={hoverImage!}
                   alt={product.name}
@@ -547,3 +551,5 @@ export function ProductCard({
     </div>
   );
 }
+
+export const ProductCard = memo(ProductCardInner);

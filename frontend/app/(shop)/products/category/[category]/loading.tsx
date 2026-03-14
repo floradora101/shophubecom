@@ -1,5 +1,6 @@
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
+import { SkeletonBlock } from "@/components/ui/skeleton";
 import { ProductsGridSkeleton } from "@/lib/ui/loading";
 
 export default function CategoryProductsLoading() {
@@ -9,15 +10,15 @@ export default function CategoryProductsLoading() {
         <div className="space-y-8">
           {/* Category header skeleton */}
           <div className="text-center space-y-4">
-            <div className="h-10 bg-gray-200 rounded w-48 mx-auto animate-pulse" />
-            <div className="h-4 bg-gray-200 rounded w-80 mx-auto animate-pulse" />
+            <SkeletonBlock className="h-10 w-48 rounded mx-auto" />
+            <SkeletonBlock className="h-4 w-80 rounded mx-auto" />
           </div>
 
           {/* Breadcrumb skeleton */}
-          <div className="flex items-center space-x-2">
-            <div className="h-4 bg-gray-200 rounded w-16 animate-pulse" />
-            <div className="h-4 bg-gray-200 rounded w-4 animate-pulse" />
-            <div className="h-4 bg-gray-200 rounded w-24 animate-pulse" />
+          <div className="flex items-center gap-2">
+            <SkeletonBlock className="h-4 w-16 rounded" />
+            <SkeletonBlock className="w-4 h-4 rounded shrink-0" />
+            <SkeletonBlock className="h-4 w-24 rounded" />
           </div>
 
           {/* Products grid skeleton */}

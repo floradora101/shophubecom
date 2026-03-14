@@ -15,6 +15,7 @@ import {
   IsUrl,
   ValidateIf,
   IsIn,
+  IsString as IsStringEach,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import {
@@ -210,13 +211,46 @@ class CustomColorsDto {
 
 class PromotionDataDto {
   @IsString()
-  @IsNotEmpty()
-  promotionId!: string;
+  @IsOptional()
+  promotionId?: string;
 
   @ValidateNested()
   @Type(() => CustomColorsDto)
   @IsOptional()
   customColors?: CustomColorsDto;
+
+  /** When true, create a new promotion from name/description/type/value below */
+  @IsBoolean()
+  @IsOptional()
+  createPromotion?: boolean;
+
+  @IsString()
+  @IsOptional()
+  name?: string;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
+
+  @IsIn(['PERCENTAGE', 'FIXED_AMOUNT'])
+  @IsOptional()
+  type?: string;
+
+  @IsNumber()
+  @Min(0)
+  @IsOptional()
+  @Type(() => Number)
+  value?: number;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  productIds?: string[];
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  categoryIds?: string[];
 }
 
 export class CreateHeroSlideDto {

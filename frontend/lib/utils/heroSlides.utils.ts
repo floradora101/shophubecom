@@ -150,9 +150,11 @@ export function filterActiveSlides(
   return slides.filter((slide) => {
     if (!slide.isActive) return false;
 
-    // Parse ISO strings to timestamps, treating missing dates as infinity
-    const startsAt = slide.startsAt ? Date.parse(slide.startsAt) : -Infinity;
-    const endsAt = slide.endsAt ? Date.parse(slide.endsAt) : Infinity;
+    // Parse ISO strings to timestamps, treating missing/invalid dates as no restriction
+    const startsAtRaw = slide.startsAt ? Date.parse(slide.startsAt) : -Infinity;
+    const endsAtRaw = slide.endsAt ? Date.parse(slide.endsAt) : Infinity;
+    const startsAt = Number.isFinite(startsAtRaw) ? startsAtRaw : -Infinity;
+    const endsAt = Number.isFinite(endsAtRaw) ? endsAtRaw : Infinity;
 
     // Slide is active if current time is within the range [startsAt, endsAt]
     return nowTime >= startsAt && nowTime <= endsAt;

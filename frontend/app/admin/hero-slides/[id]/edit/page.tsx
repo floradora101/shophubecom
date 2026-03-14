@@ -4,7 +4,8 @@ import React from "react";
 import { useRouter, useParams } from "next/navigation";
 import { HeroSlideForm } from "@/app/admin/hero-slides/_components/HeroSlideForm";
 import { Heading, Text } from "@/components/ui/typography";
-import { ChevronLeft, Loader2, AlertCircle } from "lucide-react";
+import { ChevronLeft, AlertCircle } from "lucide-react";
+import { AdminLoadingState } from "@/app/admin/_components/AdminLoadingState";
 import Link from "next/link";
 import { useHeroSlideQuery } from "@/features/hero-slides/queries";
 import { extractErrorMessage } from "@/lib/api/error-handler";
@@ -18,13 +19,7 @@ export default function EditHeroSlidePage() {
   const { data: slide, isLoading, error } = useHeroSlideQuery(slideId);
 
   if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
-        <Heading level="h3">Loading Slide...</Heading>
-        <Text className="text-neutral-500">Retrieving slide data for {slideId}</Text>
-      </div>
-    );
+    return <AdminLoadingState message="Loading slide..." />;
   }
 
   if (error || !slide) {

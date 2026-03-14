@@ -155,10 +155,11 @@ export async function apiPatch<T, D = unknown>(
 /**
  * Standardized DELETE request wrapper
  * Automatically extracts data from BackendResponse<T>
+ * Handles 204 No Content (empty body) as success - backend DELETE endpoints return 204.
  *
  * @param url - API endpoint URL
  * @param config - Axios request config
- * @returns Extracted data from BackendResponse
+ * @returns Extracted data from BackendResponse, or undefined for 204 No Content
  */
 export async function apiDelete<T>(
   url: string,
@@ -166,6 +167,11 @@ export async function apiDelete<T>(
 ): Promise<T> {
   try {
     const response = await apiClient.delete<BackendResponse<T>>(url, config);
+
+    // 204 No Content has no body - treat as success (backend DELETE endpoints use this)
+    if (response.status === 204 || response.data == null) {
+      return undefined as T;
+    }
 
     if (!response.data.success) {
       const errorData = response.data as { message?: string | string[]; code?: string; errors?: string[] };

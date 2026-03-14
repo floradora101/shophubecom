@@ -1,4 +1,9 @@
-import { Injectable, Logger, BadRequestException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -84,7 +89,9 @@ export class HeroSlidesService {
   /**
    * Transform Prisma HeroSlide to response DTO
    */
-  private toResponseDto(slide: Prisma.HeroSlideGetPayload<object>): HeroSlideResponseDto {
+  private toResponseDto(
+    slide: Prisma.HeroSlideGetPayload<object>,
+  ): HeroSlideResponseDto {
     return {
       id: slide.id,
       type: slide.type,
@@ -150,7 +157,8 @@ export class HeroSlidesService {
     switch (dto.type) {
       case 'PRODUCT_SPOTLIGHT':
         if (dto.productSpotlightData) {
-          typeSpecificData = dto.productSpotlightData as unknown as Prisma.InputJsonValue;
+          typeSpecificData =
+            dto.productSpotlightData as unknown as Prisma.InputJsonValue;
         }
         break;
       case 'OFFER':
@@ -160,32 +168,38 @@ export class HeroSlidesService {
         break;
       case 'TESTIMONIAL':
         if (dto.testimonialData) {
-          typeSpecificData = dto.testimonialData as unknown as Prisma.InputJsonValue;
+          typeSpecificData =
+            dto.testimonialData as unknown as Prisma.InputJsonValue;
         }
         break;
       case 'LANDSCAPE_IMAGE':
         if (dto.landscapeImageData) {
-          typeSpecificData = dto.landscapeImageData as unknown as Prisma.InputJsonValue;
+          typeSpecificData =
+            dto.landscapeImageData as unknown as Prisma.InputJsonValue;
         }
         break;
       case 'CATEGORY_SPOTLIGHT':
         if (dto.categorySpotlightData) {
-          typeSpecificData = dto.categorySpotlightData as unknown as Prisma.InputJsonValue;
+          typeSpecificData =
+            dto.categorySpotlightData as unknown as Prisma.InputJsonValue;
         }
         break;
       case 'EDITORS_PICK':
         if (dto.editorsPickData) {
-          typeSpecificData = dto.editorsPickData as unknown as Prisma.InputJsonValue;
+          typeSpecificData =
+            dto.editorsPickData as unknown as Prisma.InputJsonValue;
         }
         break;
       case 'COMPARISON_BATTLE':
         if (dto.comparisonBattleData) {
-          typeSpecificData = dto.comparisonBattleData as unknown as Prisma.InputJsonValue;
+          typeSpecificData =
+            dto.comparisonBattleData as unknown as Prisma.InputJsonValue;
         }
         break;
       case 'PROMOTION':
         if (dto.promotionData) {
-          typeSpecificData = dto.promotionData as unknown as Prisma.InputJsonValue;
+          typeSpecificData =
+            dto.promotionData as unknown as Prisma.InputJsonValue;
         }
         break;
     }
@@ -256,42 +270,50 @@ export class HeroSlidesService {
       switch (dto.type) {
         case 'PRODUCT_SPOTLIGHT':
           if (dto.productSpotlightData) {
-            typeSpecificData = dto.productSpotlightData as unknown as Prisma.InputJsonValue;
+            typeSpecificData =
+              dto.productSpotlightData as unknown as Prisma.InputJsonValue;
           }
           break;
         case 'OFFER':
           if (dto.offerData) {
-            typeSpecificData = dto.offerData as unknown as Prisma.InputJsonValue;
+            typeSpecificData =
+              dto.offerData as unknown as Prisma.InputJsonValue;
           }
           break;
         case 'TESTIMONIAL':
           if (dto.testimonialData) {
-            typeSpecificData = dto.testimonialData as unknown as Prisma.InputJsonValue;
+            typeSpecificData =
+              dto.testimonialData as unknown as Prisma.InputJsonValue;
           }
           break;
         case 'LANDSCAPE_IMAGE':
           if (dto.landscapeImageData) {
-            typeSpecificData = dto.landscapeImageData as unknown as Prisma.InputJsonValue;
+            typeSpecificData =
+              dto.landscapeImageData as unknown as Prisma.InputJsonValue;
           }
           break;
         case 'CATEGORY_SPOTLIGHT':
           if (dto.categorySpotlightData) {
-            typeSpecificData = dto.categorySpotlightData as unknown as Prisma.InputJsonValue;
+            typeSpecificData =
+              dto.categorySpotlightData as unknown as Prisma.InputJsonValue;
           }
           break;
         case 'EDITORS_PICK':
           if (dto.editorsPickData) {
-            typeSpecificData = dto.editorsPickData as unknown as Prisma.InputJsonValue;
+            typeSpecificData =
+              dto.editorsPickData as unknown as Prisma.InputJsonValue;
           }
           break;
         case 'COMPARISON_BATTLE':
           if (dto.comparisonBattleData) {
-            typeSpecificData = dto.comparisonBattleData as unknown as Prisma.InputJsonValue;
+            typeSpecificData =
+              dto.comparisonBattleData as unknown as Prisma.InputJsonValue;
           }
           break;
         case 'PROMOTION':
           if (dto.promotionData) {
-            typeSpecificData = dto.promotionData as unknown as Prisma.InputJsonValue;
+            typeSpecificData =
+              dto.promotionData as unknown as Prisma.InputJsonValue;
           }
           break;
       }
@@ -311,28 +333,36 @@ export class HeroSlidesService {
       // This will be handled in the update method
       const typeSpecificData: Record<string, Prisma.InputJsonValue> = {};
       if (dto.productSpotlightData !== undefined) {
-        typeSpecificData.productSpotlightData = dto.productSpotlightData as unknown as Prisma.InputJsonValue;
+        typeSpecificData.productSpotlightData =
+          dto.productSpotlightData as unknown as Prisma.InputJsonValue;
       }
       if (dto.offerData !== undefined) {
-        typeSpecificData.offerData = dto.offerData as unknown as Prisma.InputJsonValue;
+        typeSpecificData.offerData =
+          dto.offerData as unknown as Prisma.InputJsonValue;
       }
       if (dto.testimonialData !== undefined) {
-        typeSpecificData.testimonialData = dto.testimonialData as unknown as Prisma.InputJsonValue;
+        typeSpecificData.testimonialData =
+          dto.testimonialData as unknown as Prisma.InputJsonValue;
       }
       if (dto.landscapeImageData !== undefined) {
-        typeSpecificData.landscapeImageData = dto.landscapeImageData as unknown as Prisma.InputJsonValue;
+        typeSpecificData.landscapeImageData =
+          dto.landscapeImageData as unknown as Prisma.InputJsonValue;
       }
       if (dto.categorySpotlightData !== undefined) {
-        typeSpecificData.categorySpotlightData = dto.categorySpotlightData as unknown as unknown as Prisma.InputJsonValue;
+        typeSpecificData.categorySpotlightData =
+          dto.categorySpotlightData as unknown as unknown as Prisma.InputJsonValue;
       }
       if (dto.editorsPickData !== undefined) {
-        typeSpecificData.editorsPickData = dto.editorsPickData as unknown as unknown as Prisma.InputJsonValue;
+        typeSpecificData.editorsPickData =
+          dto.editorsPickData as unknown as unknown as Prisma.InputJsonValue;
       }
       if (dto.comparisonBattleData !== undefined) {
-        typeSpecificData.comparisonBattleData = dto.comparisonBattleData as unknown as unknown as Prisma.InputJsonValue;
+        typeSpecificData.comparisonBattleData =
+          dto.comparisonBattleData as unknown as unknown as Prisma.InputJsonValue;
       }
       if (dto.promotionData !== undefined) {
-        typeSpecificData.promotionData = dto.promotionData as unknown as unknown as Prisma.InputJsonValue;
+        typeSpecificData.promotionData =
+          dto.promotionData as unknown as unknown as Prisma.InputJsonValue;
       }
       // Note: We'll merge this with existing typeSpecificData in the update method
       data.typeSpecificData = typeSpecificData;
@@ -417,6 +447,7 @@ export class HeroSlidesService {
    * - isActive must be true
    * - startsAt must be null or <= now (slide has started)
    * - endsAt must be null or >= now (slide hasn't ended)
+   * - OFFER slides with expired offerEndsAt are excluded
    */
   async findActive(): Promise<HeroSlideResponseDto[]> {
     const now = new Date();
@@ -426,16 +457,10 @@ export class HeroSlidesService {
         isActive: true,
         AND: [
           {
-            OR: [
-              { startsAt: null },
-              { startsAt: { lte: now } },
-            ],
+            OR: [{ startsAt: null }, { startsAt: { lte: now } }],
           },
           {
-            OR: [
-              { endsAt: null },
-              { endsAt: { gte: now } },
-            ],
+            OR: [{ endsAt: null }, { endsAt: { gte: now } }],
           },
         ],
       },
@@ -444,7 +469,21 @@ export class HeroSlidesService {
       },
     });
 
-    return slides.map((slide) => this.toResponseDto(slide));
+    return slides
+      .filter((slide) => {
+        if (slide.type === 'OFFER') {
+          const typeData = slide.typeSpecificData as Record<
+            string,
+            unknown
+          > | null;
+          const offerEndsAt = typeData?.offerEndsAt;
+          if (offerEndsAt && typeof offerEndsAt === 'string') {
+            return new Date(offerEndsAt) > now;
+          }
+        }
+        return true;
+      })
+      .map((slide) => this.toResponseDto(slide));
   }
 
   /**
@@ -472,9 +511,7 @@ export class HeroSlidesService {
         const startsAt = new Date(createDto.startsAt);
         const endsAt = new Date(createDto.endsAt);
         if (startsAt >= endsAt) {
-          throw new BadRequestException(
-            'startsAt must be before endsAt',
-          );
+          throw new BadRequestException('startsAt must be before endsAt');
         }
       }
 
@@ -490,10 +527,14 @@ export class HeroSlidesService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
-          throw new ConflictException('Hero slide with this configuration already exists');
+          throw new ConflictException(
+            'Hero slide with this configuration already exists',
+          );
         }
         if (error.code === 'P2003') {
-          throw new BadRequestException('Invalid reference (product, category, or promotion not found)');
+          throw new BadRequestException(
+            'Invalid reference (product, category, or promotion not found)',
+          );
         }
         this.logger.error(`Failed to create hero slide: ${error.message}`);
         throw new BadRequestException('Failed to create hero slide');
@@ -524,9 +565,7 @@ export class HeroSlidesService {
         const startsAt = new Date(updateDto.startsAt);
         const endsAt = new Date(updateDto.endsAt);
         if (startsAt >= endsAt) {
-          throw new BadRequestException(
-            'startsAt must be before endsAt',
-          );
+          throw new BadRequestException('startsAt must be before endsAt');
         }
       }
 
@@ -555,8 +594,15 @@ export class HeroSlidesService {
       // If type is being changed, typeSpecificData is already set in toPrismaUpdateData
       // If type isn't changing but type-specific data is provided, merge with existing
       if (updateDto.type === undefined && data.typeSpecificData) {
-        const existingTypeData = existing.typeSpecificData as Record<string, unknown> | null;
-        if (existingTypeData && typeof existingTypeData === 'object' && !Array.isArray(existingTypeData)) {
+        const existingTypeData = existing.typeSpecificData as Record<
+          string,
+          unknown
+        > | null;
+        if (
+          existingTypeData &&
+          typeof existingTypeData === 'object' &&
+          !Array.isArray(existingTypeData)
+        ) {
           // Merge existing type-specific data with new data
           data.typeSpecificData = {
             ...existingTypeData,
@@ -582,10 +628,14 @@ export class HeroSlidesService {
       }
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
-          throw new ConflictException('Hero slide with this configuration already exists');
+          throw new ConflictException(
+            'Hero slide with this configuration already exists',
+          );
         }
         if (error.code === 'P2003') {
-          throw new BadRequestException('Invalid reference (product, category, or promotion not found)');
+          throw new BadRequestException(
+            'Invalid reference (product, category, or promotion not found)',
+          );
         }
         this.logger.error(`Failed to update hero slide: ${error.message}`);
         throw new BadRequestException('Failed to update hero slide');

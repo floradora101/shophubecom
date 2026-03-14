@@ -1,5 +1,6 @@
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
+import { SkeletonBlock } from "@/components/ui/skeleton";
 import { FormSkeleton } from "@/lib/ui/loading";
 
 export default function RegisterLoading() {
@@ -9,8 +10,8 @@ export default function RegisterLoading() {
         <div className="max-w-md mx-auto space-y-8">
           {/* Header skeleton */}
           <div className="text-center space-y-4">
-            <div className="h-8 bg-gray-200 rounded w-40 mx-auto animate-pulse" />
-            <div className="h-4 bg-gray-200 rounded w-64 mx-auto animate-pulse" />
+            <SkeletonBlock className="h-8 w-40 rounded mx-auto" />
+            <SkeletonBlock className="h-4 w-64 rounded mx-auto" />
           </div>
 
           {/* Form skeleton */}
@@ -18,8 +19,8 @@ export default function RegisterLoading() {
 
           {/* Links skeleton */}
           <div className="text-center space-y-2">
-            <div className="h-4 bg-gray-200 rounded w-48 mx-auto animate-pulse" />
-            <div className="h-4 bg-gray-200 rounded w-40 mx-auto animate-pulse" />
+            <SkeletonBlock className="h-4 w-48 rounded mx-auto" />
+            <SkeletonBlock className="h-4 w-40 rounded mx-auto" />
           </div>
         </div>
       </Section>

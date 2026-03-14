@@ -14,7 +14,6 @@
  * - buildLoginRedirect(): builds login redirect URL with return path
  *
  * How it fits into auth flow:
- * - Used by middleware.ts to check if route needs protection
  * - Used by RequireAuth to determine redirect behavior
  * - Used by AuthProvider to build redirect URLs on auth expiration
  * - Edge-safe: no window usage, works in middleware and client components

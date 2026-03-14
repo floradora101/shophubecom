@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { Heading, Text } from "@/components/ui/typography";
 import { Card } from "@/components/ui/card";
 import { CategoryForm } from "@/app/admin/categories/_components/CategoryForm";
-import { ChevronLeft, Loader2 } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
+import { AdminLoadingState } from "@/app/admin/_components/AdminLoadingState";
 import { Button } from "@/components/ui/button";
 import { useCategoryQuery } from "@/features/categories/queries";
 
@@ -19,12 +20,7 @@ export default function EditCategoryPage({ params }: EditCategoryPageProps) {
   const { data: category, isLoading, error } = useCategoryQuery(id);
 
   if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 gap-4">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
-        <Text className="text-warm-gray-500">Loading category...</Text>
-      </div>
-    );
+    return <AdminLoadingState message="Loading category..." />;
   }
 
   if (error || !category) {

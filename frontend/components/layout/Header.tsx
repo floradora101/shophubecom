@@ -145,6 +145,7 @@ function SearchIconButton() {
         pathname === "/search" && "text-primary-600 bg-primary-50"
       )}
       aria-label="Search"
+      suppressHydrationWarning
     >
       <Search className="h-5 w-5" />
     </button>
@@ -450,6 +451,7 @@ export function Header() {
                         className="flex items-center justify-center w-10 h-10 rounded-lg text-muted-fg hover:text-primary-600 hover:bg-primary-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 cursor-pointer"
                         aria-label="Account mode information"
                         aria-haspopup="menu"
+                        suppressHydrationWarning
                       >
                         <User className="h-5 w-5" />
                       </button>
@@ -488,6 +490,7 @@ export function Header() {
                         className="flex items-center justify-center w-10 h-10 rounded-lg text-muted-fg hover:text-primary-600 hover:bg-primary-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 cursor-pointer"
                         aria-label="Account menu"
                         aria-haspopup="menu"
+                        suppressHydrationWarning
                       >
                         <User className="h-5 w-5" />
                       </button>

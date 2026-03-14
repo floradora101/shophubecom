@@ -138,6 +138,7 @@ export function LoginForm({ onSuccess, redirectUrl }: LoginFormProps) {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-warm-gray-400 hover:text-warm-gray-600 transition-colors"
               aria-label={showPassword ? "Hide password" : "Show password"}
+              suppressHydrationWarning
             >
               {showPassword ? (
                 <EyeOff className="w-4 h-4" />
@@ -164,7 +165,7 @@ export function LoginForm({ onSuccess, redirectUrl }: LoginFormProps) {
           isLoading={isSubmitting}
           className="w-full h-12 bg-primary-600 hover:bg-primary-700 text-white font-bold tracking-[0.05em] uppercase rounded-lg shadow-sm hover:shadow-md transition-all duration-300"
         >
-          Initialize Session
+          Sign in
         </Button>
       </div>
     </form>

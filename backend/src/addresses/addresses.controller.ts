@@ -26,12 +26,8 @@ export class AddressesController {
   @Throttle({ default: { limit: 30, ttl: 60000 } })
   async findAll(
     @CurrentUser() user: AuthenticatedUser,
-  ): Promise<{ success: boolean; data: AddressResponseDto[] }> {
-    const addresses = await this.addressesService.findAll(user.id);
-    return {
-      success: true,
-      data: addresses,
-    };
+  ): Promise<AddressResponseDto[]> {
+    return this.addressesService.findAll(user.id);
   }
 
   @Get(':id')
@@ -39,12 +35,8 @@ export class AddressesController {
   async findOne(
     @Param('id') id: string,
     @CurrentUser() user: AuthenticatedUser,
-  ): Promise<{ success: boolean; data: AddressResponseDto }> {
-    const address = await this.addressesService.findOne(id, user.id);
-    return {
-      success: true,
-      data: address,
-    };
+  ): Promise<AddressResponseDto> {
+    return this.addressesService.findOne(id, user.id);
   }
 
   @Post()
@@ -53,15 +45,8 @@ export class AddressesController {
   async create(
     @Body() createAddressDto: CreateAddressDto,
     @CurrentUser() user: AuthenticatedUser,
-  ): Promise<{ success: boolean; data: AddressResponseDto }> {
-    const address = await this.addressesService.create(
-      user.id,
-      createAddressDto,
-    );
-    return {
-      success: true,
-      data: address,
-    };
+  ): Promise<AddressResponseDto> {
+    return this.addressesService.create(user.id, createAddressDto);
   }
 
   @Put(':id')
@@ -71,16 +56,8 @@ export class AddressesController {
     @Param('id') id: string,
     @Body() updateAddressDto: UpdateAddressDto,
     @CurrentUser() user: AuthenticatedUser,
-  ): Promise<{ success: boolean; data: AddressResponseDto }> {
-    const address = await this.addressesService.update(
-      id,
-      user.id,
-      updateAddressDto,
-    );
-    return {
-      success: true,
-      data: address,
-    };
+  ): Promise<AddressResponseDto> {
+    return this.addressesService.update(id, user.id, updateAddressDto);
   }
 
   @Delete(':id')

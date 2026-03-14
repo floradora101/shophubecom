@@ -5,7 +5,8 @@ import { useRouter, useParams } from "next/navigation";
 import { PromotionForm } from "@/app/admin/promotions/_components/PromotionForm";
 import { Heading, Text } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Loader2, AlertCircle } from "lucide-react";
+import { ChevronLeft, AlertCircle } from "lucide-react";
+import { AdminLoadingState } from "@/app/admin/_components/AdminLoadingState";
 import { usePromotionQuery } from "@/features/promotions/queries";
 import { extractErrorMessage } from "@/lib/api/error-handler";
 
@@ -17,12 +18,7 @@ export default function EditPromotionPage() {
   const { data: promotion, isLoading, error } = usePromotionQuery(id);
 
   if (isLoading) {
-    return (
-      <div className="py-20 text-center">
-        <Loader2 className="w-10 h-10 animate-spin mx-auto text-primary-500 mb-4" />
-        <Heading level="h3">Loading promotion...</Heading>
-      </div>
-    );
+    return <AdminLoadingState message="Loading promotion..." />;
   }
 
   if (error || !promotion) {

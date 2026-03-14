@@ -2,10 +2,10 @@ import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils/cn";
 
 /**
- * Shared skeleton block component for consistent loading states
- * - Visible neutral blocks (bg-gray-200/80) - NOT bg-muted/70 which is too faint
- * - Built-in shimmer animation overlay
- * - Accepts className and HTML div props for flexibility
+ * Shared skeleton block component for consistent loading states.
+ * Production-ready: visible neutral fill, optional shimmer, a11y, reduced-motion safe.
+ * - Use SkeletonBlock for all skeleton UI; avoid raw bg-gray-* + animate-pulse.
+ * - aria-hidden so screen readers can skip decorative loading placeholders.
  */
 export function SkeletonBlock({
   className,
@@ -13,14 +13,15 @@ export function SkeletonBlock({
 }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn(
-        "relative overflow-hidden bg-gray-200/80 rounded-lg",
-        className
-      )}
+      className={cn("skeleton-block relative overflow-hidden rounded-lg bg-gray-200/80", className)}
       aria-hidden="true"
+      data-skeleton
       {...props}
     >
-      <div className="absolute inset-0 -translate-x-full animate-shimmer bg-linear-to-r from-transparent via-white/50 to-transparent" />
+      <div
+        className="skeleton-shimmer absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/50 to-transparent animate-shimmer"
+        aria-hidden="true"
+      />
     </div>
   );
 }

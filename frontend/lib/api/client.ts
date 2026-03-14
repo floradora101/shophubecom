@@ -29,7 +29,7 @@
  */
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import type { ApiError } from "@/lib/types/api";
-import { emitAuthExpired } from "@/lib/integrations/auth-events";
+import { emitAuthExpired, emitAuthRefreshed } from "@/lib/integrations/auth-events";
 import { getCsrfToken } from "@/features/auth/csrf";
 
 const rawBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
@@ -167,13 +167,17 @@ async function coordinatedRefresh(): Promise<void> {
         10
       );
       if (Date.now() - last < AUTH_REFRESH_MAX_AGE_MS) return;
-      await refreshRequest();
+      const res = await refreshRequest();
       if (typeof localStorage !== "undefined") {
         localStorage.setItem(AUTH_REFRESH_AT_KEY, String(Date.now()));
       }
+      const expiresIn = (res?.data as { expiresIn?: number })?.expiresIn;
+      if (expiresIn) emitAuthRefreshed(expiresIn);
     });
   } else {
-    await refreshRequest();
+    const res = await refreshRequest();
+    const expiresIn = (res?.data as { expiresIn?: number })?.expiresIn;
+    if (expiresIn) emitAuthRefreshed(expiresIn);
   }
 }
 

@@ -75,16 +75,15 @@ export type LandscapeTheme =
   | "right-industrial"
   | "clean-modern";
 
-export interface LandscapeImageSlide
-  extends Omit<
-    BaseHeroSlide,
-    | "media"
-    | "headline"
-    | "description"
-    | "highlight"
-    | "badgeText"
-    | "ctaPrimary"
-  > {
+export interface LandscapeImageSlide extends Omit<
+  BaseHeroSlide,
+  | "media"
+  | "headline"
+  | "description"
+  | "highlight"
+  | "badgeText"
+  | "ctaPrimary"
+> {
   type: "LANDSCAPE_IMAGE";
   theme: LandscapeTheme;
   content: {

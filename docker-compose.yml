@@ -6,6 +6,7 @@
 # Or set env vars in docker-compose.yml / .env file at repo root.
 
 version: "3.8"
+name: shophub
 
 services:
   postgres:

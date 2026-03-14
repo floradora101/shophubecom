@@ -25,7 +25,7 @@ export function LatestProductsCarouselSkeleton() {
           {/* Header skeleton */}
           <div className="text-center md:text-left space-y-4">
             <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
-              <SkeletonBlock className="w-4 h-4 rounded-lg bg-red-600/10" />
+              <SkeletonBlock className="w-4 h-4 rounded-lg shrink-0" />
               <SkeletonBlock className="h-4 w-32 rounded-lg" />
             </div>
             <SkeletonBlock className="h-10 w-64 sm:w-80 mx-auto md:mx-0 rounded-lg" />

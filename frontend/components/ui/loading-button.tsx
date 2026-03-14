@@ -31,10 +31,11 @@ const LoadingButton = React.forwardRef<HTMLButtonElement, LoadingButtonProps>(
       <Button
         ref={ref}
         isLoading={loading}
+        loadingText={loadingText}
         disabled={disabled || loading}
         {...props}
       >
-        {loading ? loadingText : children}
+        {children}
       </Button>
     );
   }

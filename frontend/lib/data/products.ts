@@ -165,7 +165,8 @@ export async function getFeaturedProducts(
 }
 
 /**
- * Get products for homepage category sections. Mock-only; use features/products/api when not using mocks.
+ * Get products for homepage category sections.
+ * In API mode: fetches products and filters by category slug matching any prefix.
  */
 export async function getProductsByCategoryPrefix(
   categoryPrefixes: string[],
@@ -187,9 +188,15 @@ export async function getProductsByCategoryPrefix(
       .slice(0, limit)
       .map(mockProductToProduct);
   }
-  const url = `${API_URL}/products?limit=${limit}`;
+  // API mode: fetch products (backend includes category with slug) and filter by prefix
+  const url = `${API_URL}/products?limit=100&sortBy=createdAt&sortOrder=desc`;
   const res = await fetch(url);
   if (!res.ok) throw new ProductsFetchError(`Failed to fetch products (${res.status})`, res.status, url);
   const json = await res.json();
-  return extractProductList(json).slice(0, limit);
+  const all = extractProductList(json);
+  const matchesPrefix = (slug: string | undefined) =>
+    slug && categoryPrefixes.some((p) => slug === p || slug.startsWith(`${p}-`));
+  return all
+    .filter((p) => matchesPrefix(p.category?.slug))
+    .slice(0, limit);
 }

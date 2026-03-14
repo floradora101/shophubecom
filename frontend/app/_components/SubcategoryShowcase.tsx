@@ -130,7 +130,6 @@ function FeaturedProductDisplay({ product }: { product: Product }) {
               alt={product.name}
               fill
               className="object-contain p-12 transition-all duration-1000 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover/featured:scale-110 group-hover/featured:-rotate-2"
-              priority
             />
           </div>
         </Link>

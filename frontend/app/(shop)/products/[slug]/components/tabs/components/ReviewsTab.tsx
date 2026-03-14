@@ -24,6 +24,7 @@ import { WriteReviewDialog } from "./WriteReviewDialog";
 import { useReviewSorting } from "../hooks/useReviewSorting";
 import { useClickOutside } from "../hooks/useClickOutside";
 import { useProductReviewsQuery } from "@/features/reviews/queries";
+import { LoadingSpinner } from "@/components/ui/spinner";
 import { useAuthStore } from "@/store/auth-store";
 import { buildLoginRedirect } from "@/features/auth/routes";
 
@@ -112,8 +113,12 @@ export function ReviewsTab({ product }: ReviewsTabProps) {
 
   if (!USE_MOCKS && isLoading) {
     return (
-      <div className="rounded-xl border border-dashed border-warm-gray-300 bg-warm-gray-50/60 p-6 text-center">
-        <p className="text-sm text-muted-fg">Loading reviews…</p>
+      <div
+        className="rounded-xl border border-dashed border-warm-gray-300 bg-warm-gray-50/60 p-6 flex flex-col items-center justify-center gap-3"
+        role="status"
+        aria-label="Loading reviews"
+      >
+        <LoadingSpinner size="md" variant="inline" message="Loading reviews…" />
       </div>
     );
   }

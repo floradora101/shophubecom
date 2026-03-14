@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils/cn";
 
-type LoadingSpinnerSize = "sm" | "md" | "lg";
+type LoadingSpinnerSize = "xs" | "sm" | "md" | "lg";
 type LoadingSpinnerVariant = "full" | "inline" | "card";
 
 interface LoadingSpinnerProps {
@@ -14,6 +14,7 @@ const sizeClasses: Record<
   LoadingSpinnerSize,
   { outer: string; inner: string }
 > = {
+  xs: { outer: "h-3 w-3", inner: "h-1.5 w-1.5" },
   sm: { outer: "h-4 w-4", inner: "h-2 w-2" },
   md: { outer: "h-8 w-8", inner: "h-4 w-4" },
   lg: { outer: "h-12 w-12", inner: "h-6 w-6" },
@@ -70,11 +71,17 @@ export function LoadingSpinner({
   );
 
   // Inline variant - spinner with optional message
+  // suppressHydrationWarning: loading messages can differ between server/client when
+  // auth/route guards resolve at different times (e.g. RequireAdmin bootstrap)
   if (variant === "inline") {
     return (
       <span className={cn("inline-flex items-center gap-2", className)}>
         {spinner}
-        {message && <span className="text-sm text-gray-600">{message}</span>}
+        {message && (
+          <span className="text-sm text-gray-600" suppressHydrationWarning>
+            {message}
+          </span>
+        )}
       </span>
     );
   }

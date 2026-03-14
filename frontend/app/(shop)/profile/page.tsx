@@ -120,10 +120,6 @@ function ProfileContent() {
                   className="mt-0"
                 />
               </div>
-
-              <div className="mt-6">
-                {tabs.find((t) => t.id === validTab)?.content}
-              </div>
             </div>
 
             {/* Sidebar: Profile Brief Card */}

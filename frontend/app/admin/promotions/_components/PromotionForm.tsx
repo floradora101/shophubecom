@@ -5,12 +5,13 @@ import { useForm, Controller, type Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { promotionSchema, type PromotionFormData } from "@/features/promotions/schemas";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Stack } from "@/components/ui/stack";
 import { Heading, Text } from "@/components/ui/typography";
 import { toast } from "sonner";
-import { Loader2, Percent, DollarSign, Info, Tag, Package, Sparkles } from "lucide-react";
+import { Percent, DollarSign, Info, Tag, Package, Sparkles } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils/cn";
@@ -350,20 +351,14 @@ export function PromotionForm({
           >
             Cancel
           </Button>
-          <Button
+          <LoadingButton
             type="submit"
-            disabled={isSubmitting}
+            loading={isSubmitting}
+            loadingText="Saving..."
             className="rounded-lg px-8 min-w-[150px] shadow-md hover:shadow-lg transition-all duration-200 bg-primary-600 hover:bg-primary-700"
           >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              promotion ? "Update Promotion" : "Create Promotion"
-            )}
-          </Button>
+            {promotion ? "Update Promotion" : "Create Promotion"}
+          </LoadingButton>
         </div>
       </Stack>
     </form>

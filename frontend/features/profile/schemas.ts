@@ -12,10 +12,14 @@ export const updateProfileSchema = yup.object({
 });
 
 export const addressSchema = yup.object({
-  name: yup
+  firstName: yup
     .string()
-    .max(100, "Name must be less than 100 characters")
-    .required("Name is required"),
+    .max(100, "First name must be less than 100 characters")
+    .required("First name is required"),
+  lastName: yup
+    .string()
+    .max(100, "Last name must be less than 100 characters")
+    .required("Last name is required"),
   street: yup
     .string()
     .max(255, "Street/Area must be less than 255 characters")

@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { forwardRef, useEffect, useRef, useState } from "react";
 
 /**
  * LazySection - Component that lazy loads content when it enters the viewport
  * Uses IntersectionObserver for better performance than just next/dynamic
  */
+
+type LazySectionElement = HTMLDivElement | HTMLElement;
 
 interface LazySectionProps {
   children: React.ReactNode;
@@ -13,50 +15,59 @@ interface LazySectionProps {
   rootMargin?: string;
   threshold?: number;
   className?: string;
-  as?: React.ElementType;
+  /** Only intrinsic elements that accept a ref like div/section; custom components must forward refs */
+  as?: keyof JSX.IntrinsicElements;
 }
 
-export function LazySection({
-  children,
-  fallback,
-  rootMargin = "50px",
-  threshold = 0.1,
-  className,
-  as: Component = "div",
-}: LazySectionProps) {
-  const [isVisible, setIsVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+const LazySection = forwardRef<LazySectionElement, LazySectionProps>(
+  function LazySection(
+    {
+      children,
+      fallback,
+      rootMargin = "50px",
+      threshold = 0.1,
+      className,
+      as: Component = "div",
+    },
+    ref
+  ) {
+    const [isVisible, setIsVisible] = useState(false);
+    const innerRef = useRef<LazySectionElement>(null);
+    const resolvedRef = (ref ?? innerRef) as React.RefObject<LazySectionElement>;
 
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
+    useEffect(() => {
+      const element = resolvedRef.current;
+      if (!element) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect(); // Stop observing once visible
-        }
-      },
-      {
-        rootMargin,
-        threshold,
-      }
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+            observer.disconnect();
+          }
+        },
+        { rootMargin, threshold }
+      );
+
+      observer.observe(element);
+
+      return () => {
+        observer.disconnect();
+      };
+    }, [rootMargin, threshold]);
+
+    return (
+      <Component
+        ref={resolvedRef as React.Ref<HTMLElement>}
+        className={className}
+      >
+        {isVisible ? children : fallback}
+      </Component>
     );
+  }
+);
 
-    observer.observe(element);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [rootMargin, threshold]);
-
-  return (
-    <Component ref={ref} className={className}>
-      {isVisible ? children : fallback}
-    </Component>
-  );
-}
+export { LazySection };
 
 /**
  * createLazySection - Higher-order component for wrapping sections with lazy loading

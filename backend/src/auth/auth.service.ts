@@ -25,7 +25,7 @@ import { Cron } from '@nestjs/schedule';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { hash, compare } from 'bcrypt';
-import { randomUUID, createHash, timingSafeEqual } from 'crypto';
+import { randomUUID, createHash } from 'crypto';
 import type { StringValue } from 'ms';
 import { UsersService } from '../users/users.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -41,11 +41,11 @@ import { AuthUserCacheService } from '../common/cache/auth-user-cache.service';
 import {
   UserAlreadyExistsException,
   InvalidCredentialsException,
-  UserNotFoundException,
   InvalidResetTokenException,
 } from '../common/exceptions';
 import { AccountLockedException } from '../common/exceptions/account-locked.exception';
 import { maskEmail } from '../common/utils/mask-pii.util';
+import { parseDurationToMs } from '../common/utils/parse-duration.util';
 import { User, Prisma, UserRole } from '@prisma/client';
 import { EmailService } from '../email/email.service';
 
@@ -105,10 +105,9 @@ export class AuthService implements OnModuleInit {
 
   private async recordFailedAttempt(email: string): Promise<void> {
     const key = this.normalizeEmailForLockout(email);
-    const now = new Date();
-    const lockedUntil = new Date(now.getTime() + AuthService.LOCKOUT_DURATION_MS);
+    const lockedUntil = new Date(Date.now() + AuthService.LOCKOUT_DURATION_MS);
 
-    await this.prisma.loginLockout.upsert({
+    const record = await this.prisma.loginLockout.upsert({
       where: { email: key },
       create: {
         email: key,
@@ -117,19 +116,15 @@ export class AuthService implements OnModuleInit {
       },
       update: {
         attemptCount: { increment: 1 },
-        lockedUntil: undefined, // set below if needed
       },
     });
 
-    const updated = await this.prisma.loginLockout.findUnique({
-      where: { email: key },
-    });
-    if (updated && updated.attemptCount >= AuthService.LOCKOUT_MAX_ATTEMPTS) {
+    if (record.attemptCount >= AuthService.LOCKOUT_MAX_ATTEMPTS && !record.lockedUntil) {
       await this.prisma.loginLockout.update({
         where: { email: key },
         data: { lockedUntil },
       });
-      this.logger.warn(`Account locked: ${maskEmail(key)} after ${updated.attemptCount} failed attempts`);
+      this.logger.warn(`Account locked: ${maskEmail(key)} after ${record.attemptCount} failed attempts`);
     }
   }
 
@@ -314,14 +309,16 @@ export class AuthService implements OnModuleInit {
     const newHash = this.hashRefreshToken(tokens.refreshToken);
     const refreshExpiresAt = new Date(Date.now() + this.getRefreshExpiryMs());
 
-    await this.prisma.refreshToken.delete({ where: { id: stored.id } });
-    await this.prisma.refreshToken.create({
-      data: {
-        tokenHash: newHash,
-        userId: user.id,
-        expiresAt: refreshExpiresAt,
-      },
-    });
+    await this.prisma.$transaction([
+      this.prisma.refreshToken.delete({ where: { id: stored.id } }),
+      this.prisma.refreshToken.create({
+        data: {
+          tokenHash: newHash,
+          userId: user.id,
+          expiresAt: refreshExpiresAt,
+        },
+      }),
+    ]);
 
     return { ...tokens, user: new UserEntity(user) };
   }
@@ -337,19 +334,22 @@ export class AuthService implements OnModuleInit {
       return { message: 'If an account exists, a reset link has been sent.' };
     }
 
-    // We generate a database record first, then return a composite token:
-    // `${record.id}:${rawToken}`. This allows secure lookup by token ID while
-    // still storing only a bcrypt hash of the raw token.
     const rawToken = randomUUID();
     const hashedToken = await hash(rawToken, 10);
 
-    const record = await this.prisma.passwordResetToken.create({
-      data: {
-        userId: user.id,
-        tokenHash: hashedToken,
-        expiresAt: new Date(Date.now() + 1000 * 60 * 15),
-      },
-    });
+    const [, record] = await this.prisma.$transaction([
+      this.prisma.passwordResetToken.updateMany({
+        where: { userId: user.id, used: false },
+        data: { used: true },
+      }),
+      this.prisma.passwordResetToken.create({
+        data: {
+          userId: user.id,
+          tokenHash: hashedToken,
+          expiresAt: new Date(Date.now() + 1000 * 60 * 15),
+        },
+      }),
+    ]);
 
     const compositeToken = `${record.id}:${rawToken}`;
     await this.emailService.sendPasswordReset(
@@ -390,14 +390,15 @@ export class AuthService implements OnModuleInit {
       passwordHash: hashedPassword,
     } as Prisma.UserUpdateInput);
 
-    await this.prisma.refreshToken.deleteMany({
-      where: { userId: record.userId },
-    });
-
-    await this.prisma.passwordResetToken.update({
-      where: { id: record.id },
-      data: { used: true },
-    });
+    await this.prisma.$transaction([
+      this.prisma.refreshToken.deleteMany({
+        where: { userId: record.userId },
+      }),
+      this.prisma.passwordResetToken.updateMany({
+        where: { userId: record.userId, used: false },
+        data: { used: true },
+      }),
+    ]);
 
     this.authUserCache.invalidate(record.userId);
 
@@ -415,36 +416,11 @@ export class AuthService implements OnModuleInit {
     return `sha256:${digest}`;
   }
 
-  /** Parse expiry string (e.g. 7d, 15m) to milliseconds for refresh token TTL */
   private getRefreshExpiryMs(): number {
-    const value = this.configService.get<string>('JWT_REFRESH_EXPIRY', '7d');
-    const match = /^(\d+)([smhd])$/.exec(String(value).trim());
-    if (!match) return 7 * 24 * 60 * 60 * 1000;
-    const [, amountStr, unit] = match;
-    const amount = parseInt(amountStr, 10);
-    const multipliers: Record<string, number> = {
-      s: 1000,
-      m: 60 * 1000,
-      h: 60 * 60 * 1000,
-      d: 24 * 60 * 60 * 1000,
-    };
-    return amount * (multipliers[unit] ?? 1000);
-  }
-
-  /** Verify refresh token against stored hash (supports legacy bcrypt and SHA-256) */
-  private async verifyRefreshToken(
-    token: string,
-    storedHash: string,
-  ): Promise<boolean> {
-    if (storedHash.startsWith('sha256:')) {
-      const expected = createHash('sha256').update(token).digest();
-      const actual = Buffer.from(storedHash.slice(7), 'hex');
-      return (
-        expected.length === actual.length &&
-        timingSafeEqual(expected, actual)
-      );
-    }
-    return compare(token, storedHash);
+    return parseDurationToMs(
+      this.configService.get<string>('JWT_REFRESH_EXPIRY', '7d'),
+      7 * 24 * 60 * 60 * 1000,
+    );
   }
 
   private async generateTokens(user: User) {

@@ -45,7 +45,7 @@ export function HeroShellSkeleton() {
               {/* Left: Content */}
               <div className="flex flex-col justify-center space-y-5 min-w-0 text-center lg:text-left">
                 {/* Badge */}
-                <div className="inline-flex w-fit gap-2 px-2.5 py-1 rounded-lg mx-auto lg:mx-0 bg-red-600">
+                <div className="inline-flex w-fit gap-2 px-2.5 py-1 rounded-lg mx-auto lg:mx-0 bg-red-600/10">
                   <SkeletonBlock className="w-4 h-4 rounded" />
                   <SkeletonBlock className="h-4 w-28 rounded" />
                 </div>

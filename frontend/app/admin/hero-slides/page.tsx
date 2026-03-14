@@ -21,8 +21,8 @@ import {
   Presentation,
   Grid,
   List as ListIcon,
-  Loader2
 } from "lucide-react";
+import { AdminLoadingState } from "../_components/AdminLoadingState";
 import { Heading, Text } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -256,10 +256,7 @@ export default function HeroSlidesAdminPage() {
         {/* Content */}
         <div className="min-h-[600px] bg-white">
           {isLoading ? (
-            <div className="py-32 text-center">
-              <Loader2 className="w-16 h-16 text-primary-600 mx-auto mb-4 animate-spin" />
-              <Text className="text-warm-gray-500 font-medium text-lg">Loading slides...</Text>
-            </div>
+            <AdminLoadingState message="Loading slides..." />
           ) : error ? (
             <div className="py-32 text-center">
               <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />

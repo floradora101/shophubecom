@@ -1,44 +1,18 @@
 // Loading UI helpers and utilities
 import { SkeletonBlock } from "@/components/ui/skeleton";
-import { LoadingSpinner } from "@/components/ui/spinner";
+import { ProductCardSkeleton } from "@/components/shared/ProductCardSkeleton";
 
 // Route-level loading skeletons for common patterns
 
 /**
- * Generic page loading skeleton with centered spinner
- */
-export function PageLoadingSpinner({
-  message = "Loading...",
-  variant = "full",
-}: {
-  message?: string;
-  variant?: "full" | "inline";
-}) {
-  return (
-    <div className="flex-1 flex items-center justify-center min-h-[400px]">
-      <LoadingSpinner variant={variant} message={message} />
-    </div>
-  );
-}
-
-/**
  * Products grid loading skeleton
+ * Uses shared ProductCardSkeleton for consistency with product grids across the app.
  */
 export function ProductsGridSkeleton({ count = 8 }: { count?: number } = {}) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {Array.from({ length: count }, (_, i) => (
-        <div
-          key={i}
-          className="bg-white rounded-xl border border-gray-200 overflow-hidden"
-        >
-          <SkeletonBlock className="aspect-square w-full" />
-          <div className="p-4 space-y-3">
-            <SkeletonBlock className="h-4 w-3/4" />
-            <SkeletonBlock className="h-4 w-1/2" />
-            <SkeletonBlock className="h-6 w-1/4" />
-          </div>
-        </div>
+        <ProductCardSkeleton key={i} />
       ))}
     </div>
   );
@@ -199,41 +173,6 @@ export function FiltersSidebarSkeleton() {
           <SkeletonBlock className="h-4 w-24" />
         </div>
       </div>
-    </div>
-  );
-}
-
-// Inline loading states for actions
-
-/**
- * Button loading state
- */
-export function ButtonSpinner({
-  size = "sm",
-}: { size?: "sm" | "md" | "lg" } = {}) {
-  const sizeClasses = {
-    sm: "w-4 h-4",
-    md: "w-5 h-5",
-    lg: "w-6 h-6",
-  };
-
-  return (
-    <div
-      className={`animate-spin rounded-full border-2 border-gray-300 border-t-gray-600 ${sizeClasses[size]}`}
-    />
-  );
-}
-
-/**
- * Inline loading text
- */
-export function InlineLoading({
-  message = "Loading...",
-}: { message?: string } = {}) {
-  return (
-    <div className="flex items-center space-x-2 text-sm text-gray-600">
-      <LoadingSpinner size="sm" variant="inline" />
-      <span>{message}</span>
     </div>
   );
 }

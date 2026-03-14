@@ -10,7 +10,7 @@
  * - Reset form when address is cleared
  */
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { useAddressesQuery } from "@/features/addresses/queries";
 import type { Address } from "@/features/addresses/api";
@@ -23,6 +23,8 @@ interface UseCheckoutAddressProps {
   isAuthenticated?: boolean;
   /** Default email (e.g. from user profile) - used when resetting form for logged-in users */
   defaultEmail?: string;
+  /** User profile - used to pre-fill firstName/lastName when no saved addresses exist */
+  user?: { firstName?: string; lastName?: string } | null;
 }
 
 interface UseCheckoutAddressReturn {
@@ -30,6 +32,7 @@ interface UseCheckoutAddressReturn {
   selectedAddress: Address | null;
   handleSelectAddress: (address: Address | null) => void;
   handleUseForm: () => void;
+  applySelectedAddress: () => void;
 }
 
 /**
@@ -40,41 +43,74 @@ export function useCheckoutAddress({
   cartShippingOption,
   isAuthenticated = false,
   defaultEmail = "",
+  user,
 }: UseCheckoutAddressProps): UseCheckoutAddressReturn {
-  const { data: addresses = [] } = useAddressesQuery({
+  const { data } = useAddressesQuery({
     enabled: isAuthenticated && !USE_MOCKS,
   });
+  const addresses = Array.isArray(data) ? data : [];
   const [addressSelection, setAddressSelection] = useState<
     Address | null | undefined
   >(undefined);
-  const { setValue, reset } = form;
+  const { setValue, reset, getValues } = form;
 
   const selectedAddress = useMemo(() => {
     if (addressSelection !== undefined) {
       return addressSelection;
     }
-
-    return addresses.find((addr) => addr.isDefault) ?? null;
+    // Prefer default address; if none exists, fall back to first address for better UX
+    const defaultAddr = addresses.find((addr) => addr.isDefault);
+    return defaultAddr ?? addresses[0] ?? null;
   }, [addressSelection, addresses]);
 
-  // Pre-fill form when address is selected
-  useEffect(() => {
+  const lastAppliedKeyRef = useRef<string | null>(null);
+
+  const applySelectedAddress = useCallback(() => {
     if (selectedAddress) {
-      // Split name into first and last name
       const nameParts = selectedAddress.name.trim().split(/\s+/);
       const firstName = nameParts[0] || "";
       const lastName = nameParts.slice(1).join(" ") || "";
 
-      setValue("firstName", firstName);
-      setValue("lastName", lastName || firstName); // Fallback to full name if no last name
-      setValue("phone", selectedAddress.phone || "");
-      setValue("country", selectedAddress.country || "Lebanon");
-      setValue("city", selectedAddress.city);
-      setValue("state", selectedAddress.state || "");
-      setValue("street1", selectedAddress.street); // Backend returns 'street', map to 'street1' for form
-      setValue("postalCode", selectedAddress.zipCode || ""); // Backend returns 'zipCode', map to 'postalCode' for form
+      reset({
+        firstName,
+        lastName: lastName || firstName,
+        phone: selectedAddress.phone || "",
+        email: getValues("email") || defaultEmail,
+        country: selectedAddress.country || "Lebanon",
+        city: selectedAddress.city,
+        state: selectedAddress.state || "",
+        street1: selectedAddress.street,
+        postalCode: selectedAddress.zipCode || "",
+        notes: getValues("notes") || "",
+        shippingOption: cartShippingOption,
+      });
+    } else if (isAuthenticated && user && addresses.length === 0) {
+      const firstName = user.firstName?.trim() || "";
+      const lastName = user.lastName?.trim() || "";
+      if (firstName || lastName) {
+        setValue("firstName", firstName);
+        setValue("lastName", lastName);
+      }
     }
-  }, [selectedAddress, setValue]);
+  }, [
+    selectedAddress,
+    reset,
+    setValue,
+    getValues,
+    defaultEmail,
+    cartShippingOption,
+    isAuthenticated,
+    user,
+    addresses.length,
+  ]);
+
+  // Pre-fill when address loads; use ref to prevent infinite loop (reset triggers re-render)
+  useEffect(() => {
+    const key = selectedAddress?.id ?? (addresses.length === 0 ? "user" : "none");
+    if (lastAppliedKeyRef.current === key) return;
+    lastAppliedKeyRef.current = key;
+    applySelectedAddress();
+  }, [selectedAddress?.id, addresses.length, applySelectedAddress]);
 
   // Handle address selection
   const handleSelectAddress = (address: Address | null) => {
@@ -135,5 +171,6 @@ export function useCheckoutAddress({
     selectedAddress,
     handleSelectAddress,
     handleUseForm,
+    applySelectedAddress,
   };
 }

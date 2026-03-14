@@ -24,7 +24,6 @@ import { EmailModule } from './email/email.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { CsrfGuard } from './common/guards/csrf.guard';
-import { RolesGuard } from './common/guards/roles.guard';
 import { AuthUserCacheModule } from './common/cache/auth-user-cache.module';
 import { validate } from './config/env.validation';
 
@@ -76,11 +75,9 @@ import { validate } from './config/env.validation';
       provide: APP_GUARD,
       useClass: CsrfGuard,
     },
-    // Roles guard - enforces @Roles() metadata; no-op when no roles required
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
-    },
+    // Note: RolesGuard is NOT global - it runs before JwtAuthGuard and would see
+    // request.user as undefined, causing 403 for admin routes. Controllers that need
+    // role checks use @UseGuards(JwtAuthGuard, RolesGuard) in that order.
   ],
 })
 export class AppModule {}

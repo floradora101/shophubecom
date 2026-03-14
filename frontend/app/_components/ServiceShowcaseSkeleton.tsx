@@ -30,7 +30,7 @@ export function ServiceShowcaseSkeleton() {
           {/* Header Skeleton */}
           <div className="space-y-4 text-center md:text-left">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-600/10 mb-2 mx-auto md:mx-0">
-              <div className="h-4 w-4 bg-red-600/20 rounded animate-pulse" />
+              <SkeletonBlock className="w-4 h-4 rounded" />
               <SkeletonBlock className="h-6 w-32 rounded-lg" />
             </div>
             <SkeletonBlock className="h-12 w-64 xs:w-80 md:w-96 rounded mx-auto md:mx-0" />

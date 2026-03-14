@@ -1,5 +1,9 @@
+import path from "node:path";
 import type { Config } from "tailwindcss";
-import { withUt } from "uploadthing/tw";
+import { uploadthingPlugin } from "uploadthing/tw";
+
+// Explicit path for monorepo - withUt's require.resolve fails when cwd is repo root
+const uploadthingContent = path.join(__dirname, "node_modules/@uploadthing/react/dist/**");
 
 const config: Config = {
   content: [
@@ -8,6 +12,7 @@ const config: Config = {
     "./lib/**/*.{js,ts,jsx,tsx,mdx}",
     "./features/**/*.{js,ts,jsx,tsx,mdx}",
     "./store/**/*.{js,ts,jsx,tsx,mdx}",
+    uploadthingContent,
   ],
   theme: {
     extend: {
@@ -280,6 +285,7 @@ const config: Config = {
     },
   },
   plugins: [
+    uploadthingPlugin,
     function ({
       addUtilities,
     }: {
@@ -316,4 +322,4 @@ const config: Config = {
   ],
 };
 
-export default withUt(config);
+export default config;

@@ -26,8 +26,10 @@
  */
 
 type AuthExpiredCallback = () => void;
+type AuthRefreshedCallback = (expiresIn: number) => void;
 
 const listeners = new Set<AuthExpiredCallback>();
+const refreshedListeners = new Set<AuthRefreshedCallback>();
 
 /**
  * Subscribe to auth expiration events
@@ -58,11 +60,36 @@ export function onAuthExpired(callback: AuthExpiredCallback): () => void {
  * Called by Axios interceptor when token refresh fails
  */
 export function emitAuthExpired() {
-  // Call all listeners
   listeners.forEach((callback) => {
     try {
       callback();
-    } catch (error) {
+    } catch {
+      // Don't break other listeners if one fails
+    }
+  });
+}
+
+/**
+ * Subscribe to successful token refresh events.
+ * Used to reschedule proactive refresh after the 401 interceptor
+ * recovers from a failed proactive refresh.
+ */
+export const onAuthRefreshed = (callback: AuthRefreshedCallback): (() => void) => {
+  refreshedListeners.add(callback);
+  return () => {
+    refreshedListeners.delete(callback);
+  };
+};
+
+/**
+ * Emit auth refreshed event with new token lifetime.
+ * Called by Axios interceptor after successful token refresh.
+ */
+export function emitAuthRefreshed(expiresIn: number) {
+  refreshedListeners.forEach((callback) => {
+    try {
+      callback(expiresIn);
+    } catch {
       // Don't break other listeners if one fails
     }
   });

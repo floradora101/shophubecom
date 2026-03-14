@@ -1,6 +1,6 @@
 // Storefront home page.
 import type { Metadata } from "next";
-import { HomePageContent } from "./home-page-content";
+import { HomePageContent } from "../home-page-content";
 import { getHomePageData } from "@/lib/data/home";
 
 export const metadata: Metadata = {

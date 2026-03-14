@@ -8,6 +8,7 @@ import { extractErrorMessage } from "@/lib/api/error-handler";
 import { formatPrice } from "@/lib/utils";
 import { useEffect } from "react";
 import { Heading, Text } from "@/components/ui/typography";
+import { SkeletonBlock } from "@/components/ui/skeleton";
 import Link from "next/link";
 
 const formatDate = (dateString: string) => {
@@ -37,9 +38,9 @@ export function ProfileDashboard() {
 
   if (isLoading && !stats) {
     return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 mb-8 animate-pulse">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2 mb-8" aria-hidden="true">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-32 bg-gray-100 rounded-3xl" />
+          <SkeletonBlock key={i} className="h-32 rounded-3xl" />
         ))}
       </div>
     );

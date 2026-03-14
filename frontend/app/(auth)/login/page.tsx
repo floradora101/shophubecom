@@ -35,7 +35,7 @@ function LoginContent() {
                 className="text-2xl md:text-3xl"
               />
               <p className="text-[13px] text-warm-gray-500 font-medium">
-                Enter credentials to initialize session.
+                Sign in with your email and password.
               </p>
             </div>
           </div>
@@ -67,7 +67,7 @@ function LoginContent() {
                   Create New Account
                 </p>
                 <p className="text-[9px] text-warm-gray-400 font-medium font-mono uppercase">
-                  Initialize Registry
+                  New to ShopHub?
                 </p>
               </div>
               <div className="w-9 h-9 rounded-full bg-white group-hover:bg-primary-600 group-hover:text-white flex items-center justify-center transition-all duration-500 shadow-inner">
@@ -85,7 +85,7 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="space-y-8 flex items-center justify-center min-h-[400px]">
+        <div className="flex items-center justify-center min-h-[400px]">
           <LoadingSpinner size="md" variant="inline" />
         </div>
       }

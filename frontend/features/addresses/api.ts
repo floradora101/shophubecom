@@ -46,7 +46,11 @@ export interface UpdateAddressData {
 
 export const addressesApi = {
   async getAddresses(): Promise<Address[]> {
-    return apiGet<Address[]>("/addresses");
+    const result = await apiGet<Address[] | { success?: boolean; data?: Address[] }>(
+      "/addresses"
+    );
+    // Handle both formats: direct array (TransformInterceptor) or { success, data } (legacy)
+    return Array.isArray(result) ? result : (result?.data ?? []);
   },
 
   async getAddressById(id: string): Promise<Address> {

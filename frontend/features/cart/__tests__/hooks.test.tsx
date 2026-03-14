@@ -38,15 +38,18 @@ describe("useCart", () => {
     // Reset mocks
     vi.clearAllMocks();
 
-    // Mock Zustand stores
-    vi.mocked(useCartStore).mockReturnValue({
+    // Mock Zustand store - useCartStore(selector) must invoke selector with state
+    const cartStoreState = {
       isOpen: false,
       shippingOption: "pickup" as const,
       open: vi.fn(),
       close: vi.fn(),
       toggle: vi.fn(),
       setShippingOption: vi.fn(),
-    });
+    };
+    vi.mocked(useCartStore).mockImplementation((selector: (s: typeof cartStoreState) => unknown) =>
+      typeof selector === "function" ? selector(cartStoreState) : cartStoreState
+    );
 
     vi.mocked(useAuthStore).mockReturnValue({
       user: null,
@@ -118,14 +121,17 @@ describe("useCart", () => {
     } as any);
 
     const mockOpen = vi.fn();
-    vi.mocked(useCartStore).mockReturnValue({
+    const cartStoreState = {
       isOpen: false,
       shippingOption: "pickup" as const,
       open: mockOpen,
       close: vi.fn(),
       toggle: vi.fn(),
       setShippingOption: vi.fn(),
-    });
+    };
+    vi.mocked(useCartStore).mockImplementation((selector: (s: typeof cartStoreState) => unknown) =>
+      typeof selector === "function" ? selector(cartStoreState) : cartStoreState
+    );
 
     const { result } = renderHook(() => useCart(), { wrapper });
 

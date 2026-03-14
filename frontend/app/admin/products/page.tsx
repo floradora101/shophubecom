@@ -17,9 +17,9 @@ import {
   Eye,
   LayoutGrid,
   List as ListIcon,
-  Loader2,
   AlertCircle
 } from "lucide-react";
+import { AdminLoadingState } from "../_components/AdminLoadingState";
 import { Heading, Text } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -274,10 +274,7 @@ export default function ProductsAdminPage() {
         {/* Content */}
         <div className="min-h-[600px] bg-white">
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-20 gap-4">
-              <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
-              <Text className="text-warm-gray-500">Loading products...</Text>
-            </div>
+            <AdminLoadingState message="Loading products..." />
           ) : error ? (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
               <AlertCircle className="w-12 h-12 text-red-500" />

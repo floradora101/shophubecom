@@ -58,15 +58,18 @@ describe('AuthService', () => {
       verify: jest.fn(),
     };
 
+    const configMap: Record<string, string> = {
+      JWT_ACCESS_SECRET: 'access-secret',
+      JWT_REFRESH_SECRET: 'refresh-secret',
+      JWT_ACCESS_EXPIRY: '15m',
+      JWT_REFRESH_EXPIRY: '7d',
+    };
     const mockConfigService = {
-      get: jest.fn((key: string) => {
-        const config: Record<string, string> = {
-          JWT_ACCESS_SECRET: 'access-secret',
-          JWT_REFRESH_SECRET: 'refresh-secret',
-          JWT_ACCESS_EXPIRY: '15m',
-          JWT_REFRESH_EXPIRY: '7d',
-        };
-        return config[key];
+      get: jest.fn((key: string) => configMap[key]),
+      getOrThrow: jest.fn((key: string) => {
+        const val = configMap[key];
+        if (val === undefined) throw new Error(`Missing config: ${key}`);
+        return val;
       }),
     };
 
@@ -319,7 +322,7 @@ describe('AuthService', () => {
         used: false,
       };
       prismaService.passwordResetToken.findUnique.mockResolvedValue(record);
-      usersService.updateUser.mockResolvedValue(mockUser);
+      usersService.update.mockResolvedValue(mockUser);
       prismaService.passwordResetToken.update.mockResolvedValue(record);
       prismaService.refreshToken.deleteMany.mockResolvedValue({ count: 2 });
 

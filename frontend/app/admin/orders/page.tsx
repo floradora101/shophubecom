@@ -11,11 +11,11 @@ import {
   CheckCircle2,
   XCircle,
   Truck,
-  Loader2,
   AlertCircle,
   Filter,
   Eye
 } from "lucide-react";
+import { AdminLoadingState } from "../_components/AdminLoadingState";
 import { Heading, Text } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +36,7 @@ import { format } from "date-fns";
 import { useAdminOrdersQuery, useUpdateOrderStatusMutation } from "@/features/orders/queries";
 import { extractErrorMessage } from "@/lib/api/error-handler";
 import type { OrderStatus } from "@/features/orders/api";
+import { LoadingSpinner } from "@/components/ui/spinner";
 import { Pagination } from "@/components/ui/pagination";
 import { useAdminPagination } from "../_hooks/useAdminPagination";
 
@@ -79,7 +80,7 @@ export default function AdminOrdersPage() {
 
   const statusIcons: Record<OrderStatus, React.ReactNode> = {
     PENDING: <Clock className="w-3 h-3" />,
-    PROCESSING: <Loader2 className="w-3 h-3 animate-spin" />,
+    PROCESSING: <LoadingSpinner size="xs" variant="inline" />,
     SHIPPED: <Truck className="w-3 h-3" />,
     DELIVERED: <CheckCircle2 className="w-3 h-3" />,
     CANCELLED: <XCircle className="w-3 h-3" />,
@@ -153,10 +154,7 @@ export default function AdminOrdersPage() {
         {/* Content */}
         <div className="min-h-[400px] bg-white">
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-20 gap-4">
-              <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
-              <Text className="text-warm-gray-500 font-medium">Loading orders...</Text>
-            </div>
+            <AdminLoadingState message="Loading orders..." />
           ) : error ? (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
               <AlertCircle className="w-12 h-12 text-red-500" />

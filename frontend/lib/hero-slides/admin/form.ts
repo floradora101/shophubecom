@@ -44,7 +44,9 @@ const baseHeroSlideSchema = z.object({
   mediaProductSlug: z.string().optional().or(z.literal("")),
   mediaImageUrl: z.string().optional().or(z.literal("")),
   mediaAlt: z.string().max(200).optional().or(z.literal("")),
-  mediaPosition: z.enum(["center", "top", "bottom", "left", "right"]).optional(),
+  mediaPosition: z
+    .enum(["center", "top", "bottom", "left", "right"])
+    .optional(),
   mediaAspect: z.enum(["landscape", "default"]).optional(),
 
   // OFFER
@@ -63,17 +65,30 @@ const baseHeroSlideSchema = z.object({
       z.object({
         label: z.string().min(1).max(25),
         value: z.string().min(1).max(15),
-      })
+      }),
     )
     .max(3)
     .optional(),
 
   // LANDSCAPE_IMAGE (New structure)
-  landscapeTheme: z.enum(["glass-red", "minimal-white", "bold-dark", "centered-glass", "right-industrial", "clean-modern"]).default("glass-red"),
+  landscapeTheme: z
+    .enum([
+      "glass-red",
+      "minimal-white",
+      "bold-dark",
+      "centered-glass",
+      "right-industrial",
+      "clean-modern",
+    ])
+    .default("glass-red"),
 
   // CATEGORY_SPOTLIGHT
   categorySlug: z.string().optional().or(z.literal("")),
-  categoryBullets: z.array(z.string().min(1).max(50)).max(3).optional().default([]),
+  categoryBullets: z
+    .array(z.string().min(1).max(50))
+    .max(3)
+    .optional()
+    .default([]),
 
   // EDITORS_PICK
   editorNote: z.string().max(300).optional().or(z.literal("")),
@@ -102,7 +117,9 @@ function parseFirstSlugFromCommaList(value?: string): string | undefined {
   return first || undefined;
 }
 
-function derivePrimaryCtaHrefFromFormValues(values: HeroSlideFormValues): string {
+function derivePrimaryCtaHrefFromFormValues(
+  values: HeroSlideFormValues,
+): string {
   // If some legacy flows still populate a real href, keep it.
   const raw = (values.ctaPrimaryHref || "").trim();
   if (raw && raw !== "#") return raw;
@@ -148,7 +165,9 @@ function derivePrimaryCtaHrefFromFormValues(values: HeroSlideFormValues): string
   }
 }
 
-export function getDefaultHeroSlideFormValues(type?: HeroSlideType): HeroSlideFormValues {
+export function getDefaultHeroSlideFormValues(
+  type?: HeroSlideType,
+): HeroSlideFormValues {
   const selectedType = type || "PRODUCT_SPOTLIGHT";
   return {
     type: selectedType,
@@ -165,9 +184,11 @@ export function getDefaultHeroSlideFormValues(type?: HeroSlideType): HeroSlideFo
     mediaKind:
       selectedType === "PRODUCT_SPOTLIGHT"
         ? "product"
-        : selectedType === "LANDSCAPE_IMAGE" || selectedType === "OFFER" || selectedType === "TESTIMONIAL"
-        ? "image"
-        : "none",
+        : selectedType === "LANDSCAPE_IMAGE" ||
+            selectedType === "OFFER" ||
+            selectedType === "TESTIMONIAL"
+          ? "image"
+          : "none",
     mediaProductSlug: "",
     mediaImageUrl: "",
     mediaAlt: "",
@@ -204,17 +225,35 @@ export function toFormValues(slide: HeroSlide): HeroSlideFormValues {
     startsAt: slide.startsAt || "",
     endsAt: slide.endsAt || "",
     badgeText: slide.type === "LANDSCAPE_IMAGE" ? "" : slide.badgeText || "",
-    headline: slide.type === "LANDSCAPE_IMAGE" ? slide.content.headline : slide.headline || "",
-    highlight: slide.type === "LANDSCAPE_IMAGE" ? slide.content.highlight : slide.highlight || "",
-    description: slide.type === "LANDSCAPE_IMAGE" ? slide.content.description : slide.description || "",
-    ctaPrimaryLabel: slide.type === "LANDSCAPE_IMAGE" ? slide.actionButton.label : slide.ctaPrimary.label,
-    ctaPrimaryHref: slide.type === "LANDSCAPE_IMAGE" ? slide.actionButton.href : slide.ctaPrimary.href,
+    headline:
+      slide.type === "LANDSCAPE_IMAGE"
+        ? slide.content.headline
+        : slide.headline || "",
+    highlight:
+      slide.type === "LANDSCAPE_IMAGE"
+        ? slide.content.highlight
+        : slide.highlight || "",
+    description:
+      slide.type === "LANDSCAPE_IMAGE"
+        ? slide.content.description
+        : slide.description || "",
+    ctaPrimaryLabel:
+      slide.type === "LANDSCAPE_IMAGE"
+        ? slide.actionButton.label
+        : slide.ctaPrimary.label,
+    ctaPrimaryHref:
+      slide.type === "LANDSCAPE_IMAGE"
+        ? slide.actionButton.href
+        : slide.ctaPrimary.href,
     mediaKind: slide.media.kind,
-    mediaProductSlug: "productSlug" in slide.media ? slide.media.productSlug || "" : "",
+    mediaProductSlug:
+      "productSlug" in slide.media ? slide.media.productSlug || "" : "",
     mediaImageUrl: "imageUrl" in slide.media ? slide.media.imageUrl || "" : "",
     mediaAlt: "alt" in slide.media ? slide.media.alt || "" : "",
-    mediaPosition: "position" in slide.media ? slide.media.position || "center" : "center",
-    mediaAspect: "aspect" in slide.media ? slide.media.aspect || "default" : "default",
+    mediaPosition:
+      "position" in slide.media ? slide.media.position || "center" : "center",
+    mediaAspect:
+      "aspect" in slide.media ? slide.media.aspect || "default" : "default",
   };
 
   if (slide.type === "LANDSCAPE_IMAGE") {
@@ -226,7 +265,9 @@ export function toFormValues(slide: HeroSlide): HeroSlideFormValues {
   }
 
   // Handle other types - build type-specific fields (slide narrowed by conditionals)
-  const otherValues: HeroSlideFormValues = { ...baseValues } as HeroSlideFormValues;
+  const otherValues: HeroSlideFormValues = {
+    ...baseValues,
+  } as HeroSlideFormValues;
   if (slide.type === "OFFER") {
     otherValues.offerLabel = slide.offerLabel;
     if (slide.offerEndsAt) {
@@ -275,7 +316,10 @@ export function toFormValues(slide: HeroSlide): HeroSlideFormValues {
   return otherValues;
 }
 
-export function fromFormValues(values: HeroSlideFormValues, existingId?: string): HeroSlide {
+export function fromFormValues(
+  values: HeroSlideFormValues,
+  existingId?: string,
+): HeroSlide {
   const id = existingId || crypto.randomUUID();
   const derivedHref = derivePrimaryCtaHrefFromFormValues(values);
 
@@ -389,7 +433,9 @@ export function fromFormValues(values: HeroSlideFormValues, existingId?: string)
               rightValue: rightValue || "",
             };
           })
-          .filter((point) => point.label && point.leftValue && point.rightValue), // Filter out incomplete points
+          .filter(
+            (point) => point.label && point.leftValue && point.rightValue,
+          ), // Filter out incomplete points
         media: { kind: "none" },
       };
     case "PROMOTION":

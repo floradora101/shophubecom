@@ -43,7 +43,9 @@ export function useHeroSlideSubmission({
       try {
         // Check for blob URLs - they can't be saved to the backend
         if (values.mediaImageUrl && values.mediaImageUrl.startsWith("blob:")) {
-          toast.error("Please wait for the image to finish uploading before saving. Blob URLs cannot be saved.");
+          toast.error(
+            "Please wait for the image to finish uploading before saving. Blob URLs cannot be saved.",
+          );
           return;
         }
 
@@ -54,7 +56,12 @@ export function useHeroSlideSubmission({
         apiData = transformToApiFormat(heroSlide);
 
         // Validate required fields before submission
-        const media = apiData.media as { kind?: string; imageUrl?: string; productSlug?: string; videoUrl?: string };
+        const media = apiData.media as {
+          kind?: string;
+          imageUrl?: string;
+          productSlug?: string;
+          videoUrl?: string;
+        };
         if (media.kind === "IMAGE" && !media.imageUrl) {
           toast.error("Please upload an image for this slide.");
           return;
@@ -67,7 +74,9 @@ export function useHeroSlideSubmission({
           toast.error("Please provide a video URL for this slide.");
           return;
         }
-        const offerData = apiData.offerData as { offerLabel?: string; offerEndsAt?: string } | undefined;
+        const offerData = apiData.offerData as
+          | { offerLabel?: string; offerEndsAt?: string }
+          | undefined;
         if (apiData.type === "OFFER") {
           if (!offerData?.offerLabel || !offerData.offerLabel.trim()) {
             toast.error("Please provide an offer label.");
@@ -78,50 +87,74 @@ export function useHeroSlideSubmission({
             return;
           }
         }
-        const editorsPickData = apiData.editorsPickData as { productSlugs?: string[] } | undefined;
+        const editorsPickData = apiData.editorsPickData as
+          | { productSlugs?: string[] }
+          | undefined;
         if (apiData.type === "EDITORS_PICK") {
-          if (!editorsPickData?.productSlugs || editorsPickData.productSlugs.length === 0) {
-            toast.error("Please provide at least one product slug for Editor's Pick slides.");
+          if (
+            !editorsPickData?.productSlugs ||
+            editorsPickData.productSlugs.length === 0
+          ) {
+            toast.error(
+              "Please provide at least one product slug for Editor's Pick slides.",
+            );
             return;
           }
         }
-        const comparisonData = apiData.comparisonBattleData as { leftProductSlug?: string; rightProductSlug?: string; comparisonPoints?: unknown[] } | undefined;
+        const comparisonData = apiData.comparisonBattleData as
+          | {
+              leftProductSlug?: string;
+              rightProductSlug?: string;
+              comparisonPoints?: unknown[];
+            }
+          | undefined;
         if (apiData.type === "COMPARISON_BATTLE") {
           if (!comparisonData?.leftProductSlug) {
-            toast.error("Please provide a left product slug for Comparison Battle slides.");
+            toast.error(
+              "Please provide a left product slug for Comparison Battle slides.",
+            );
             return;
           }
           if (!comparisonData?.rightProductSlug) {
-            toast.error("Please provide a right product slug for Comparison Battle slides.");
+            toast.error(
+              "Please provide a right product slug for Comparison Battle slides.",
+            );
             return;
           }
-          if (!comparisonData?.comparisonPoints || comparisonData.comparisonPoints.length === 0) {
-            toast.error("Please provide at least one comparison point for Comparison Battle slides.");
+          if (
+            !comparisonData?.comparisonPoints ||
+            comparisonData.comparisonPoints.length === 0
+          ) {
+            toast.error(
+              "Please provide at least one comparison point for Comparison Battle slides.",
+            );
             return;
           }
         }
         if (apiData.type === "PROMOTION") {
-          if (!apiData.promotionId) {
-            toast.error("Please select a promotion for this slide.");
+          if (slide?.id) {
+            // Editing: promotionId should exist from the slide
+            if (!apiData.promotionId) {
+              toast.error(
+                "This promotion slide is missing its promotion link.",
+              );
+              return;
+            }
+          } else {
+            // Creating promotion slides from hero slides is not allowed - they are auto-created from Promotions section
+            toast.error(
+              "Promotion slides are created automatically when you create a promotion. Go to Promotions to create one.",
+            );
             return;
           }
         }
 
-        // Log for debugging (remove in production)
-        const logMedia = apiData.media as { kind?: string; imageUrl?: string } | undefined;
-        console.log("Submitting hero slide:", {
-          isUpdate: !!slide?.id,
-          slideId: slide?.id,
-          type: apiData.type,
-          mediaKind: logMedia?.kind,
-          imageUrl: logMedia?.imageUrl,
-          data: JSON.stringify(apiData, null, 2),
-        });
-
         if (slide?.id) {
           // Update existing slide
-          const updated = await heroSlidesApi.updateHeroSlide(slide.id, apiData);
-          console.log("Slide updated:", updated);
+          const updated = await heroSlidesApi.updateHeroSlide(
+            slide.id,
+            apiData,
+          );
           // Invalidate queries to refresh data
           queryClient.invalidateQueries({ queryKey: heroSlideKeys.all });
           queryClient.invalidateQueries({ queryKey: heroSlideKeys.active() });
@@ -129,7 +162,6 @@ export function useHeroSlideSubmission({
         } else {
           // Create new slide
           const created = await heroSlidesApi.createHeroSlide(apiData);
-          console.log("Slide created:", created);
           // Invalidate queries to refresh data
           queryClient.invalidateQueries({ queryKey: heroSlideKeys.all });
           queryClient.invalidateQueries({ queryKey: heroSlideKeys.active() });
@@ -139,25 +171,20 @@ export function useHeroSlideSubmission({
         onSuccess();
       } catch (error: unknown) {
         console.error("Failed to save hero slide:", error);
-        const err = error as { response?: { data?: unknown; status?: number }; message?: string };
-        if (err?.response) {
-          console.error("Full error response:", JSON.stringify(err.response, null, 2));
-          console.error("Error response data:", err.response.data);
-          console.error("Error response status:", err.response.status);
-        }
-        if (apiData) {
-          console.error("Request payload that failed:", JSON.stringify(apiData, null, 2));
-        }
+        const err = error as {
+          response?: { data?: unknown; status?: number };
+          message?: string;
+        };
 
         // Extract validation errors from backend
-        let errorMessage = "Failed to save hero slide. Please check the form for errors.";
+        let errorMessage =
+          "Failed to save hero slide. Please check the form for errors.";
 
         if (err?.response?.data) {
           const responseData = err.response.data as {
             errors?: string[];
             message?: string | string[];
           };
-          console.error("Parsed response data:", responseData);
 
           // Backend returns { success: false, message: string | string[], errors?: string[] }
           if (responseData.errors && Array.isArray(responseData.errors)) {
@@ -166,9 +193,14 @@ export function useHeroSlideSubmission({
             errorMessage = responseData.message.join(", ");
           } else if (responseData.message) {
             errorMessage = responseData.message;
-          } else if (typeof responseData === 'object') {
+          } else if (typeof responseData === "object") {
             const errorDetails = Object.entries(responseData)
-              .filter(([key]) => key !== 'success' && key !== 'statusCode' && key !== 'timestamp')
+              .filter(
+                ([key]) =>
+                  key !== "success" &&
+                  key !== "statusCode" &&
+                  key !== "timestamp",
+              )
               .map(([key, value]) => {
                 if (Array.isArray(value)) {
                   return `${key}: ${value.join(", ")}`;
@@ -188,7 +220,7 @@ export function useHeroSlideSubmission({
         throw error; // Re-throw to let form handle it
       }
     },
-    [slide, onSuccess, queryClient]
+    [slide, onSuccess, queryClient],
   );
 
   return { onSubmit };
@@ -212,7 +244,9 @@ function transformToApiFormat(slide: HeroSlide): Record<string, unknown> {
   };
 
   // Helper to filter out blob URLs and empty strings (temporary local URLs that can't be saved)
-  const cleanImageUrl = (url: string | undefined | null): string | undefined => {
+  const cleanImageUrl = (
+    url: string | undefined | null,
+  ): string | undefined => {
     if (!url) return undefined;
     const trimmed = url.trim();
     // Filter out blob URLs and empty strings - they can't be sent to backend
@@ -259,7 +293,10 @@ function transformToApiFormat(slide: HeroSlide): Record<string, unknown> {
         position: slide.media.position,
       },
       landscapeImageData: {
-        theme: themeMap[slide.theme] || slide.theme?.toUpperCase().replace(/-/g, "_") || "GLASS_RED",
+        theme:
+          themeMap[slide.theme] ||
+          slide.theme?.toUpperCase().replace(/-/g, "_") ||
+          "GLASS_RED",
         content: {
           badge: content.badge || "",
           headline: content.headline || "",
@@ -292,14 +329,26 @@ function transformToApiFormat(slide: HeroSlide): Record<string, unknown> {
     media: {
       kind: mediaKindMap[slide.media.kind] || slide.media.kind.toUpperCase(),
       // Only include productSlug if kind is PRODUCT and it exists
-      ...(slide.media.kind === "product" && cleanValue(slide.media.productSlug) && { productSlug: cleanValue(slide.media.productSlug) }),
+      ...(slide.media.kind === "product" &&
+        cleanValue(slide.media.productSlug) && {
+          productSlug: cleanValue(slide.media.productSlug),
+        }),
       // Only include imageUrl if kind is IMAGE and it exists (required for IMAGE kind)
-      ...(slide.media.kind === "image" && cleanImageUrl(slide.media.imageUrl) && { imageUrl: cleanImageUrl(slide.media.imageUrl) }),
+      ...(slide.media.kind === "image" &&
+        cleanImageUrl(slide.media.imageUrl) && {
+          imageUrl: cleanImageUrl(slide.media.imageUrl),
+        }),
       // Only include videoUrl if kind is VIDEO and it exists
-      ...(slide.media.kind === "video" && cleanValue(slide.media.videoUrl) && { videoUrl: cleanValue(slide.media.videoUrl) }),
-      ...("alt" in slide.media && cleanValue(slide.media.alt) && { alt: cleanValue(slide.media.alt) }),
-      ...("position" in slide.media && slide.media.position && { position: slide.media.position }),
-      ...("aspect" in slide.media && slide.media.aspect && { aspect: slide.media.aspect }),
+      ...(slide.media.kind === "video" &&
+        cleanValue(slide.media.videoUrl) && {
+          videoUrl: cleanValue(slide.media.videoUrl),
+        }),
+      ...("alt" in slide.media &&
+        cleanValue(slide.media.alt) && { alt: cleanValue(slide.media.alt) }),
+      ...("position" in slide.media &&
+        slide.media.position && { position: slide.media.position }),
+      ...("aspect" in slide.media &&
+        slide.media.aspect && { aspect: slide.media.aspect }),
     },
   };
 
@@ -384,7 +433,9 @@ function transformToApiFormat(slide: HeroSlide): Record<string, unknown> {
         : [];
 
       if (validProductSlugs.length === 0) {
-        throw new Error("At least one product slug is required for Editor's Pick slides.");
+        throw new Error(
+          "At least one product slug is required for Editor's Pick slides.",
+        );
       }
 
       baseData.editorsPickData = {
@@ -399,14 +450,22 @@ function transformToApiFormat(slide: HeroSlide): Record<string, unknown> {
       const comparisonPoints = slide.comparisonPoints || [];
 
       if (!leftProductSlug) {
-        throw new Error("Left product slug is required for Comparison Battle slides.");
+        throw new Error(
+          "Left product slug is required for Comparison Battle slides.",
+        );
       }
       if (!rightProductSlug) {
-        throw new Error("Right product slug is required for Comparison Battle slides.");
+        throw new Error(
+          "Right product slug is required for Comparison Battle slides.",
+        );
       }
 
       // Ensure comparisonPoints is an array of valid objects
-      type ComparisonPoint = { label: string; leftValue: string; rightValue: string };
+      type ComparisonPoint = {
+        label: string;
+        leftValue: string;
+        rightValue: string;
+      };
       const isComparisonPoint = (p: unknown): p is ComparisonPoint =>
         p != null &&
         typeof p === "object" &&
@@ -427,7 +486,7 @@ function transformToApiFormat(slide: HeroSlide): Record<string, unknown> {
       if (validComparisonPoints.length === 0) {
         throw new Error(
           "At least one valid comparison point is required for Comparison Battle slides. " +
-          "Format: label|leftValue|rightValue (e.g., 'Price|$99|$149, Battery|24h|18h')"
+            "Format: label|leftValue|rightValue (e.g., 'Price|$99|$149, Battery|24h|18h')",
         );
       }
 
@@ -439,11 +498,25 @@ function transformToApiFormat(slide: HeroSlide): Record<string, unknown> {
       break;
 
     case "PROMOTION":
-      baseData.promotionId = slide.promotionId;
-      baseData.promotionData = {
-        promotionId: slide.promotionId,
-        customColors: slide.customColors,
-      };
+      if (slide.promotionId) {
+        baseData.promotionId = slide.promotionId;
+        baseData.promotionData = {
+          promotionId: slide.promotionId,
+          customColors: slide.customColors,
+        };
+      } else {
+        // Create promotion from slide: use headline as name, description as description
+        baseData.promotionData = {
+          createPromotion: true,
+          name: slide.headline.trim(),
+          description: slide.description?.trim() || slide.headline.trim(),
+          type: slide.promotionDiscountType || "PERCENTAGE",
+          value: Number(slide.promotionValue) || 0,
+          productIds: slide.promotionProductIds || [],
+          categoryIds: slide.promotionCategoryIds || [],
+          customColors: slide.customColors,
+        };
+      }
       break;
   }
 

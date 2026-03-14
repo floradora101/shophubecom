@@ -22,6 +22,29 @@ interface SparkleEffectProps {
   variant?: "default" | "glitter";
 }
 
+function hashSeed(value: string) {
+  let hash = 2166136261;
+
+  for (let i = 0; i < value.length; i += 1) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+
+  return hash >>> 0;
+}
+
+function createSeededRandom(seed: number) {
+  let state = seed >>> 0;
+
+  return () => {
+    state += 0x6D2B79F5;
+    let t = state;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 export const SparkleEffect = memo(function SparkleEffect({
   count = 30,
   className = "",
@@ -30,8 +53,12 @@ export const SparkleEffect = memo(function SparkleEffect({
 }: SparkleEffectProps) {
   const particles = useMemo(() => {
     const finalCount = variant === "glitter" ? count * 2 : count;
+    const baseSeed = hashSeed(`${count}-${variant}-${finalCount}`);
+
     return Array.from({ length: finalCount }).map((_, i) => {
-      const typeRand = Math.random();
+      // Use a deterministic per-particle seed so SSR and hydration match.
+      const random = createSeededRandom(baseSeed + i * 1013904223);
+      const typeRand = random();
       let type: "star" | "flower" | "dot" = "dot";
 
       if (variant === "glitter") {
@@ -45,20 +72,20 @@ export const SparkleEffect = memo(function SparkleEffect({
 
       return {
         id: i,
-        left: `${Math.random() * 100}%`,
-        top: `${Math.random() * 100}%`,
+        left: `${random() * 100}%`,
+        top: `${random() * 100}%`,
         size: variant === "glitter"
-          ? `${Math.random() * 6 + 2}px` // Smaller for glitter
-          : `${Math.random() * 8 + 2}px`,
+          ? `${random() * 6 + 2}px` // Smaller for glitter
+          : `${random() * 8 + 2}px`,
         duration: variant === "glitter"
-          ? `${Math.random() * 3 + 2}s` // Faster for glitter
-          : `${Math.random() * 5 + 4}s`,
-        delay: `${Math.random() * 10}s`,
+          ? `${random() * 3 + 2}s` // Faster for glitter
+          : `${random() * 5 + 4}s`,
+        delay: `${random() * 10}s`,
         opacity: variant === "glitter"
-          ? Math.random() * 0.5 + 0.2 // Brighter for glitter
-          : Math.random() * 0.3 + 0.1,
+          ? random() * 0.5 + 0.2 // Brighter for glitter
+          : random() * 0.3 + 0.1,
         type,
-        rotation: `${Math.random() * 360}deg`,
+        rotation: `${random() * 360}deg`,
       };
     });
   }, [count, variant]);

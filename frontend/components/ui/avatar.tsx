@@ -1,4 +1,4 @@
-﻿import * as React from "react";
+import * as React from "react";
 import { cn } from "@/lib/utils/cn";
 
 const Avatar = React.forwardRef<
@@ -30,9 +30,10 @@ Avatar.displayName = "Avatar";
 const AvatarImage = React.forwardRef<
   React.ElementRef<"img">,
   React.ComponentPropsWithoutRef<"img">
->(({ className, ...props }, ref) => (
+>(({ className, loading = "lazy", ...props }, ref) => (
   <img
     ref={ref}
+    loading={loading}
     className={cn("aspect-square h-full w-full object-cover", className)}
     {...props}
   />

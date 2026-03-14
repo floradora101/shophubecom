@@ -287,11 +287,7 @@ export function DepartmentTabs({
           />
           <div className="rounded-lg border border-dashed border-warm-gray-300 bg-warm-gray-50/50 p-8 text-center">
             <p className="text-warm-gray-600 text-sm font-medium">
-              No departments to show yet. Add and activate departments in{" "}
-              <Link href="/admin/subcategories" className="text-primary-600 underline hover:no-underline">
-                Admin → Subcategories
-              </Link>{" "}
-              to see them here.
+              No categories to show yet. Add categories to see them here.
             </p>
           </div>
         </Container>

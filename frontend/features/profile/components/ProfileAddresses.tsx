@@ -95,14 +95,15 @@ export function ProfileAddresses() {
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 px-2">
-        <div className="space-y-1">
-          <h2 className="text-3xl font-black text-fg tracking-tighter">Shipping Addresses</h2>
-          <p className="text-xs font-bold text-muted-fg/60 uppercase tracking-widest">
-            Manage your saved delivery locations. Your default address is auto-applied at checkout.
-          </p>
-        </div>
-        {!showForm && (
+      {/* Only show page header when form is hidden - avoids duplicate address sections */}
+      {!showForm && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 px-2">
+          <div className="space-y-1">
+            <h2 className="text-3xl font-black text-fg tracking-tighter">Shipping Addresses</h2>
+            <p className="text-xs font-bold text-muted-fg/60 uppercase tracking-widest">
+              Manage your saved delivery locations. Your default address is auto-applied at checkout.
+            </p>
+          </div>
           <Button 
             onClick={() => setShowForm(true)} 
             className="gap-2 rounded-2xl h-14 px-8 font-black uppercase tracking-widest text-xs shadow-xl shadow-primary-500/20 group hover:scale-[1.02] transition-transform" 
@@ -111,8 +112,8 @@ export function ProfileAddresses() {
             <Plus className="h-4 w-4 transition-transform group-hover:rotate-90" />
             Add New Address
           </Button>
-        )}
-      </div>
+        </div>
+      )}
 
       {showForm && (
         <div className="bg-white/40 backdrop-blur-xl rounded-[2.5rem] border border-white/80 p-8 md:p-12 shadow-2xl shadow-gray-200/40 animate-in zoom-in-95 duration-500">
@@ -130,7 +131,7 @@ export function ProfileAddresses() {
             <MapPin className="h-12 w-12 text-primary-500/40" />
           </div>
           <div className="space-y-3 max-w-sm mx-auto">
-            <h3 className="text-2xl font-black text-fg tracking-tighter">Registry is empty</h3>
+            <h3 className="text-2xl font-black text-fg tracking-tighter">No addresses yet</h3>
             <p className="text-muted-fg font-medium text-base">Add your first address to initialize your delivery profile and streamline future transactions.</p>
           </div>
           <Button 
@@ -138,7 +139,7 @@ export function ProfileAddresses() {
             className="gap-3 rounded-2xl h-14 px-10 font-black uppercase tracking-widest text-xs shadow-xl shadow-primary-500/20"
           >
             <Plus className="h-4 w-4" />
-            Initialize Address Registry
+            Add Your First Address
           </Button>
         </div>
       )}
@@ -182,7 +183,7 @@ export function ProfileAddresses() {
                         </Badge>
                         {address.isDefault && (
                           <Badge variant="primary" className="px-2.5 py-0.5 h-auto text-[9px] font-black uppercase tracking-[0.15em] border-none shadow-sm">
-                            DEFAULT_DESTINATION
+                            Default
                           </Badge>
                         )}
                       </div>
@@ -245,7 +246,7 @@ export function ProfileAddresses() {
                         <Phone className="h-4 w-4" />
                       </div>
                       <div className="space-y-0.5">
-                        <p className="text-[9px] font-black text-muted-fg/40 uppercase tracking-[0.2em]">Contact Voice</p>
+                        <p className="text-[9px] font-black text-muted-fg/40 uppercase tracking-[0.2em]">Phone</p>
                         <p className="text-sm font-black text-fg tracking-tight">{address.phone}</p>
                       </div>
                     </div>
@@ -271,7 +272,7 @@ export function ProfileAddresses() {
               <Trash2 className="h-10 w-10" />
             </div>
             <div className="text-center space-y-3">
-              <DialogTitle className="text-2xl font-black tracking-tighter text-fg">Terminate Registry?</DialogTitle>
+              <DialogTitle className="text-2xl font-black tracking-tighter text-fg">Delete this address?</DialogTitle>
               <DialogDescription className="text-sm font-bold text-muted-fg leading-relaxed">
                 Are you sure you want to permanently remove this delivery destination? This process is irreversible.
               </DialogDescription>
@@ -279,14 +280,14 @@ export function ProfileAddresses() {
           </DialogHeader>
           <DialogFooter className="flex flex-col sm:flex-row gap-3 pt-8">
             <Button variant="ghost" className="flex-1 rounded-2xl font-black uppercase tracking-widest text-[10px] h-14" onClick={() => setDeleteId(null)}>
-              Cancel_Process
+              Cancel
             </Button>
             <Button
               onClick={() => deleteId && handleDelete(deleteId)}
               className="flex-1 bg-red-600 hover:bg-red-700 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl shadow-red-500/30 border-none h-14"
               disabled={deleteMutation.isPending}
             >
-              {deleteMutation.isPending ? "Terminating..." : "Confirm_Delete"}
+              {deleteMutation.isPending ? "Deleting..." : "Delete"}
             </Button>
           </DialogFooter>
         </DialogContent>

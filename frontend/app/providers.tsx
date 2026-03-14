@@ -1,18 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/features/auth/components/AuthProvider";
 import { BackgroundProvider } from "@/components/ui/background";
+
+const ReactQueryDevtools =
+  process.env.NODE_ENV === "development"
+    ? lazy(() =>
+        import("@tanstack/react-query-devtools").then((mod) => ({
+          default: mod.ReactQueryDevtools,
+        }))
+      )
+    : () => null;
 
 interface AppProvidersProps {
   children: React.ReactNode;
 }
 
 export function AppProviders({ children }: AppProvidersProps) {
-  // Create QueryClient once per app shell
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -26,6 +33,9 @@ export function AppProviders({ children }: AppProvidersProps) {
       })
   );
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -33,8 +43,10 @@ export function AppProviders({ children }: AppProvidersProps) {
           {children}
         </BackgroundProvider>
       </AuthProvider>
-      {process.env.NODE_ENV === "development" && (
-        <ReactQueryDevtools initialIsOpen={false} />
+      {mounted && (
+        <Suspense fallback={null}>
+          <ReactQueryDevtools initialIsOpen={false} />
+        </Suspense>
       )}
       <Toaster />
     </QueryClientProvider>

@@ -45,8 +45,8 @@ async function authenticateAdmin(req: Request) {
     const responseBody = await response.json();
 
     // Backend wraps responses in { success, data, timestamp }
-    // Extract the actual user from the wrapper
-    const user = responseBody.data ?? responseBody;
+    // auth/me returns data: { user, expiresIn }, so user is nested
+    const user = responseBody.data?.user ?? responseBody.user ?? responseBody;
 
     if (user.role !== "ADMIN") {
       console.error(`[UploadThing] User is not admin. Role: ${user.role}`);

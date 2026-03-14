@@ -10,13 +10,13 @@ import {
   Users,
   ArrowUpRight,
   Clock,
-  Loader2,
   AlertCircle,
   ShoppingCart,
   CheckCircle,
   Truck,
   AlertTriangle
 } from "lucide-react";
+import { AdminLoadingState } from "./_components/AdminLoadingState";
 import { useAdminStatsQuery, useRecentOrdersQuery, useTopProductsQuery } from "@/features/admin/queries";
 import { formatDistanceToNow } from "date-fns";
 import Image from "next/image";
@@ -73,12 +73,7 @@ export default function AdminDashboard() {
   };
 
   if (statsLoading || ordersLoading || productsLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-32 space-y-4">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
-        <Text className="text-warm-gray-500 font-medium">Loading dashboard data...</Text>
-      </div>
-    );
+    return <AdminLoadingState message="Loading dashboard data..." className="py-32" />;
   }
 
   if (statsError) {

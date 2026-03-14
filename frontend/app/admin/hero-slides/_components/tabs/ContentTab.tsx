@@ -23,8 +23,7 @@ import {
 } from "@/components/ui/select";
 import { CategoryPicker } from "@/features/categories/components/category-picker";
 import { ProductPicker } from "@/features/products/components/product-picker";
-import { useQuery } from "@tanstack/react-query";
-import { promotionsApi } from "@/features/promotions/api";
+import { usePromotionsQuery } from "@/features/promotions/queries";
 import type { UseFormReturn } from "react-hook-form";
 import type { HeroSlideFormValues } from "@/lib/hero-slides/admin/form";
 
@@ -43,10 +42,8 @@ export function ContentTab({ form }: ContentTabProps) {
 
   const formValues = watch();
 
-  // Fetch promotions for the picker
-  const { data: promotionsResponse, isLoading: isLoadingPromotions } = useQuery({
-    queryKey: ["promotions"],
-    queryFn: () => promotionsApi.getPromotions(),
+  // Fetch promotions for the picker (only when slide type is PROMOTION)
+  const { data: promotionsResponse, isLoading: isLoadingPromotions } = usePromotionsQuery({
     enabled: formValues.type === "PROMOTION",
   });
 
@@ -80,11 +77,16 @@ export function ContentTab({ form }: ContentTabProps) {
                     <SelectItem value="CATEGORY_SPOTLIGHT">
                       Category Spotlight
                     </SelectItem>
-                    <SelectItem value="EDITORS_PICK">Editor&apos;s Pick</SelectItem>
+                    <SelectItem value="EDITORS_PICK">
+                      Editor&apos;s Pick
+                    </SelectItem>
                     <SelectItem value="COMPARISON_BATTLE">
                       Comparison Battle
                     </SelectItem>
-                    <SelectItem value="PROMOTION">Promotion</SelectItem>
+                    {/* Promotion slides are created automatically from Promotions section - only show when editing existing */}
+                    {formValues.type === "PROMOTION" && (
+                      <SelectItem value="PROMOTION">Promotion</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               )}
@@ -111,7 +113,13 @@ export function ContentTab({ form }: ContentTabProps) {
             {...register("badgeText")}
             error={!!errors.badgeText}
           />
-          <div className={formValues.type === "COMPARISON_BATTLE" ? "grid grid-cols-1 gap-4" : "grid grid-cols-1 md:grid-cols-2 gap-4"}>
+          <div
+            className={
+              formValues.type === "COMPARISON_BATTLE"
+                ? "grid grid-cols-1 gap-4"
+                : "grid grid-cols-1 md:grid-cols-2 gap-4"
+            }
+          >
             <Input
               label="Headline *"
               placeholder="Enter main headline"
@@ -250,7 +258,10 @@ export function ContentTab({ form }: ContentTabProps) {
                   />
                 </FormField>
                 <div className="space-y-3">
-                  <Text variant="caption" className="font-semibold text-gray-700">
+                  <Text
+                    variant="caption"
+                    className="font-semibold text-gray-700"
+                  >
                     Category Highlights (Optional - Up to 3)
                   </Text>
                   {[0, 1, 2].map((index) => (
@@ -262,10 +273,15 @@ export function ContentTab({ form }: ContentTabProps) {
                         <Input
                           placeholder={`Highlight ${index + 1} (e.g., Premium Selection, Top Rated)`}
                           {...field}
-                          error={!!(
-                            errors.categoryBullets?.[index]?.message ||
-                            (errors.categoryBullets?.message && index === 0 ? errors.categoryBullets.message : undefined)
-                          )}
+                          value={field.value ?? ""}
+                          error={
+                            !!(
+                              errors.categoryBullets?.[index]?.message ||
+                              (errors.categoryBullets?.message && index === 0
+                                ? errors.categoryBullets.message
+                                : undefined)
+                            )
+                          }
                         />
                       )}
                     />
@@ -383,18 +399,33 @@ export function ContentTab({ form }: ContentTabProps) {
                     name="promotionId"
                     control={control}
                     render={({ field }) => (
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <SelectTrigger>
-                          <SelectValue placeholder={isLoadingPromotions ? "Loading promotions..." : "Select promotion"} />
+                          <SelectValue
+                            placeholder={
+                              isLoadingPromotions
+                                ? "Loading promotions..."
+                                : "Select promotion"
+                            }
+                          />
                         </SelectTrigger>
                         <SelectContent>
                           {promotions.map((promo: any) => (
                             <SelectItem key={promo.id} value={promo.id}>
-                              {promo.name} ({promo.type === 'PERCENTAGE' ? `${promo.value}%` : `$${promo.value}`})
+                              {promo.name} (
+                              {promo.type === "PERCENTAGE"
+                                ? `${promo.value}%`
+                                : `$${promo.value}`}
+                              )
                             </SelectItem>
                           ))}
                           {promotions.length === 0 && !isLoadingPromotions && (
-                            <SelectItem value="none" disabled>No promotions found</SelectItem>
+                            <SelectItem value="none" disabled>
+                              No promotions found
+                            </SelectItem>
                           )}
                         </SelectContent>
                       </Select>
@@ -441,7 +472,8 @@ export function ContentTab({ form }: ContentTabProps) {
           />
           {formValues.type === "COMPARISON_BATTLE" && (
             <Text variant="caption" className="text-gray-500 italic">
-              Left button: "{watch("ctaPrimaryLabel") || "Label"} A" | Right button: "{watch("ctaPrimaryLabel") || "Label"} B"
+              Left button: "{watch("ctaPrimaryLabel") || "Label"} A" | Right
+              button: "{watch("ctaPrimaryLabel") || "Label"} B"
             </Text>
           )}
         </div>

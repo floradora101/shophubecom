@@ -1,13 +1,16 @@
+"use client";
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { promotionsApi, type CreatePromotionData, type UpdatePromotionData } from "./api";
 import { promotionKeys } from "./query-keys";
 import { toast } from "sonner";
 
-export function usePromotionsQuery() {
+export function usePromotionsQuery(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: promotionKeys.lists(),
     queryFn: () => promotionsApi.getPromotions(),
     staleTime: 30_000,
+    enabled: options?.enabled !== false,
   });
 }
 

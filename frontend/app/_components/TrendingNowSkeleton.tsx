@@ -18,13 +18,13 @@ export function TrendingNowSkeleton() {
     <Section className="bg-linear-to-br from-gray-50 to-white">
       <Container size="full" className="px-4 md:px-6 lg:px-8">
         {/* Header skeleton */}
-        <div className="text-center md:text-left mb-12">
-          <div className="flex items-center justify-center md:justify-start gap-2 mb-4">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-600">
-              <SkeletonBlock className="w-3 h-3 rounded" />
-              <SkeletonBlock className="h-3 w-32 rounded" />
+          <div className="text-center md:text-left mb-12">
+            <div className="flex items-center justify-center md:justify-start gap-2 mb-4">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-600/10">
+                <SkeletonBlock className="w-3 h-3 rounded" />
+                <SkeletonBlock className="h-3 w-32 rounded" />
+              </div>
             </div>
-          </div>
           <SkeletonBlock className="h-5 w-64 mx-auto md:mx-0 rounded" />
         </div>
 

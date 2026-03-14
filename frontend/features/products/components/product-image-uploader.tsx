@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import Image from "next/image";
-import { Upload, X, Loader2, ImagePlus, Images } from "lucide-react";
+import { Upload, X, ImagePlus, Images } from "lucide-react";
+import { LoadingSpinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -30,7 +31,12 @@ export function ProductImageUploader({
   // Use UploadThing for actual file uploads
   // Use variantMainImage for single image, variantGallery for multiple
   const uploadEndpoint = maxFiles === 1 ? "variantMainImage" : "variantGallery";
-  const { startUpload, isUploading: isUploadThingUploading } = useUploadThing(uploadEndpoint);
+  const uploadErrorRef = useRef<string | null>(null);
+  const { startUpload, isUploading: isUploadThingUploading } = useUploadThing(uploadEndpoint, {
+    onUploadError: (e) => {
+      uploadErrorRef.current = e.message;
+    },
+  });
 
   // Cleanup blob URLs to prevent memory leaks (for any legacy blob URLs)
   React.useEffect(() => {
@@ -89,14 +95,17 @@ export function ProductImageUploader({
           const existingValidUrls = value.filter(url => url && !url.startsWith("blob:"));
 
           if (uploadedUrls.length > 0) {
-            console.log("Uploaded image URLs:", uploadedUrls); // Debug log
             onChange?.([...existingValidUrls, ...uploadedUrls]);
             toast.success(`${uploadedUrls.length} image(s) uploaded successfully!`);
           } else {
             throw new Error("No valid URLs returned from upload");
           }
         } else {
-          throw new Error("No files were uploaded. Please check UploadThing configuration.");
+          const errMsg = uploadErrorRef.current;
+          uploadErrorRef.current = null;
+          throw new Error(
+            errMsg || "No files were uploaded. Ensure you're logged in as admin and the backend is running."
+          );
         }
       } catch (error: unknown) {
         logError(error, {
@@ -113,14 +122,17 @@ export function ProductImageUploader({
         const errorMessage = extractErrorMessage(error, "Upload failed. Please try again.");
         let userMessage = errorMessage;
 
-        if (errorMessage.includes("UPLOADTHING") || errorMessage.includes("configuration") || errorMessage.includes("Unauthorized")) {
-          userMessage = "UploadThing is not configured. Add UPLOADTHING_TOKEN to .env.local (same as products and hero slides). See .env.example.";
-        } else if (errorMessage.includes("Forbidden") || errorMessage.includes("Admin")) {
+        if (errorMessage.includes("Forbidden") || errorMessage.includes("Admin")) {
           userMessage = "Only admin users can upload images. Please log in as an admin.";
+        } else if (errorMessage.includes("Unauthorized") || errorMessage.includes("No authentication")) {
+          userMessage = "Please log in as an admin to upload images. If you are logged in, ensure the backend is running.";
+        } else if (errorMessage.includes("UPLOADTHING_TOKEN") || errorMessage.includes("missing from environment")) {
+          userMessage = "UploadThing is not configured. Add UPLOADTHING_TOKEN to .env.local. See .env.example.";
+        } else if (errorMessage.includes("No files were uploaded") || errorMessage.includes("Failed to run middleware")) {
+          userMessage = "Upload failed. Ensure you're logged in as admin and both frontend and backend servers are running.";
         }
 
         toast.error(userMessage);
-        console.error("Upload error details:", error);
       } finally {
         setIsUploading(false);
       }
@@ -259,7 +271,9 @@ export function ProductImageUploader({
           <div className="text-center">
             {(isUploading || isUploadThingUploading) ? (
               <>
-                <Loader2 className="mx-auto h-10 w-10 text-primary-500 animate-spin mb-3" />
+                <div className="flex justify-center mb-3">
+                  <LoadingSpinner size="lg" variant="inline" />
+                </div>
                 <p className="text-sm text-warm-gray-600 font-medium">Uploading image(s)...</p>
               </>
             ) : (

@@ -120,6 +120,7 @@ export function Footer() {
                         required
                         className="bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 h-14 pl-12 text-white placeholder:text-gray-500 text-lg"
                         disabled={isSubmitting || submitted}
+                        suppressHydrationWarning
                       />
                     </div>
                     <Button
@@ -127,6 +128,7 @@ export function Footer() {
                       size="lg"
                       disabled={isSubmitting || submitted}
                       className="bg-primary-600 hover:bg-primary-700 text-white shadow-xl transition-all duration-300 ease-out font-bold h-14 px-10 rounded-xl group"
+                      suppressHydrationWarning
                     >
                       {submitted ? (
                         <div className="flex items-center">

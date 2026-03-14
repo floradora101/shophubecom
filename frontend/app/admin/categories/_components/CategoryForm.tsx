@@ -5,12 +5,12 @@ import { useForm, Controller, type Resolver } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { categorySchema, type CategoryFormData } from "@/features/categories/schemas";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Stack } from "@/components/ui/stack";
 import { CategoryPicker } from "@/features/categories/components/category-picker";
 import { Text } from "@/components/ui/typography";
-import { Loader2 } from "lucide-react";
 import { useCreateCategoryMutation, useUpdateCategoryMutation } from "@/features/categories/queries";
 import type { Category } from "@/features/products/types";
 
@@ -136,20 +136,14 @@ export function CategoryForm({
           >
             Cancel
           </Button>
-          <Button
+          <LoadingButton
             type="submit"
-            disabled={isLoading}
+            loading={isLoading}
+            loadingText="Saving..."
             className="rounded-lg px-8 min-w-[120px] shadow-md hover:shadow-lg transition-all duration-200 bg-primary-600 hover:bg-primary-700"
           >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              category ? "Update Category" : "Create Category"
-            )}
-          </Button>
+            {category ? "Update Category" : "Create Category"}
+          </LoadingButton>
         </div>
       </Stack>
     </form>

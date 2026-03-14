@@ -7,17 +7,13 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import { Reflector } from '@nestjs/core';
+import { timingSafeEqual } from 'crypto';
 
 export const CSRF_TOKEN_COOKIE = 'csrf_token';
 export const CSRF_TOKEN_HEADER = 'x-csrf-token';
 
 export const SKIP_CSRF_KEY = 'skipCsrf';
 
-/**
- * CSRF Guard - validates X-CSRF-Token header for state-changing requests.
- * Only active when ENABLE_CSRF=true (for cross-origin deployments).
- * Skips validation for GET, HEAD, OPTIONS.
- */
 @Injectable()
 export class CsrfGuard implements CanActivate {
   constructor(
@@ -50,7 +46,13 @@ export class CsrfGuard implements CanActivate {
       | string
       | undefined;
 
-    if (!headerToken || !cookieToken || headerToken !== cookieToken) {
+    if (!headerToken || !cookieToken) {
+      throw new ForbiddenException('Invalid or missing CSRF token');
+    }
+
+    const a = Buffer.from(headerToken, 'utf8');
+    const b = Buffer.from(cookieToken, 'utf8');
+    if (a.length !== b.length || !timingSafeEqual(a, b)) {
       throw new ForbiddenException('Invalid or missing CSRF token');
     }
 
